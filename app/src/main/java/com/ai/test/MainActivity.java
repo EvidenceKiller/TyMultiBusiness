@@ -4,9 +4,9 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import com.adl.base.speech.AdlTextSpeaker;
-import com.adl.ts.general.R;
-import com.ty.bus.UINavConfig;
-import com.ty.bus.UINavigation;
+import com.ty.bus.multi.core.UINavConfig;
+import com.ty.bus.multi.core.UINavigation;
+import com.ty.bus.multi.demo.R;
 
 public class MainActivity extends BaseActivity {
 

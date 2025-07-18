@@ -1,4 +1,4 @@
-package com.ty.bus.multi.rope;
+package com.ty.bus.multi.core.ui.rope;
 
 import com.adl.base.activity.BaseActivity;
 

@@ -1,4 +1,4 @@
-package com.ty.bus.multi.rope;
+package com.ty.bus.multi.core.ui.sitreach;
 
 import com.adl.base.activity.BaseActivity;
 
@@ -8,7 +8,8 @@ import com.adl.base.activity.BaseActivity;
  * Date       : 2025/7/18
  * Describe   : 类描述
  */
-public class FiveRopeActivity extends BaseActivity {
+public class SitReachActivity extends BaseActivity {
 
-    
+
+
 }

@@ -9,7 +9,7 @@ import com.adl.auth.core.AdlAuthCallback;
 import com.adl.auth.core.AdlAuthFactory;
 import com.adl.base.activity.NextWriter;
 import com.adl.base.log.AdlLogger;
-import com.adl.ts.general.R;
+import com.ty.bus.multi.demo.R;
 import com.yanzhenjie.permission.AndPermission;
 
 public class StartActivity extends BaseActivity {

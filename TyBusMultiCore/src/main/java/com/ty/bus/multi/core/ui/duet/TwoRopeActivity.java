@@ -1,4 +1,4 @@
-package com.ty.bus.multi.duet;
+package com.ty.bus.multi.core.ui.duet;
 
 import com.adl.base.activity.BaseActivity;
 

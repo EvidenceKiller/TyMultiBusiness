@@ -8,7 +8,8 @@ package com.ai.test;
 import android.content.Context;
 import android.media.SoundPool;
 
-import com.adl.ts.general.R;
+import com.ty.bus.multi.demo.R;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

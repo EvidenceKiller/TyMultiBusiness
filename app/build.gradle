@@ -9,7 +9,7 @@ def properties = new Properties()
 properties.load(inputStream)
 
 android {
-    namespace 'com.adl.ts.general'
+    namespace 'com.ty.bus.multi.demo'
 
     compileSdk 33
     packagingOptions{
@@ -35,7 +35,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.adl.ts.general"
+        applicationId "com.ty.bus.multi.demo"
         minSdkVersion 24
         targetSdkVersion 29
         versionCode 4

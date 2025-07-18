@@ -1,4 +1,4 @@
-package com.ty.bus;
+package com.ty.bus.multi.core;
 
 import java.io.Serializable;
 

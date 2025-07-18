@@ -8,7 +8,7 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.adl.base.common.AdlToast;
-import com.adl.ts.general.R;
+import com.ty.bus.multi.demo.R;
 
 import java.io.File;
 import java.util.ArrayList;
