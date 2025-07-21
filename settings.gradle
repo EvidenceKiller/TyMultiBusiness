@@ -3,3 +3,4 @@ rootProject.name = "TyMultiBusiness"
 include ':TyBusMultiCore'
 include ':TyLib'
 include ':TyIdentityAuth'
+include ':TyBusBase'

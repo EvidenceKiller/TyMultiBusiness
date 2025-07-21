@@ -1,6 +1,9 @@
 package com.ty.bus.multi.core;
 
 import android.app.Activity;
+import android.content.Intent;
+
+import com.ty.bus.multi.core.ui.rope.TenSportActivity;
 
 /**
  * ProjectName: TylMultiBusiness
@@ -10,9 +13,9 @@ import android.app.Activity;
  */
 public class UINavigation {
 
-    public static void goTenSkipRope(Activity activity, UINavConfig config) {
+    public static void goTenSportRope(Activity activity, UINavConfig config) {
         // TODO 导航跳转
-
+        activity.startActivity(new Intent(activity, TenSportActivity.class));
     }
 
     public static void goFiveSkipRope(Activity activity, UINavConfig config) {

@@ -24,7 +24,7 @@ public class MainActivity extends BaseActivity {
         });
 
         findViewById(R.id.bnt_11).setOnClickListener(view -> {
-            UINavigation.goTenSkipRope(MainActivity.this, new UINavConfig());
+            UINavigation.goTenSportRope(MainActivity.this, new UINavConfig());
         });
 
         findViewById(R.id.bnt_10).setOnClickListener(view -> {

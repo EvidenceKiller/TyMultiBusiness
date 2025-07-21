@@ -3,19 +3,10 @@ plugins {
     id 'org.jetbrains.kotlin.android'
 }
 
+apply from: "../module.build.gradle"
+
 android {
     namespace 'com.ty.bus.identifty'
-    compileSdk 33
-
-    defaultConfig {
-        minSdkVersion 24
-        targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles "consumer-rules.pro"
-    }
 
     buildTypes {
         release {
@@ -28,22 +19,6 @@ android {
                     outputFileName = "ZDZ-Identify-${date}.aar"
                 }
             }
-        }
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig true
-    }
-
-    repositories {
-        mavenCentral()
-        flatDir {
-            dirs 'libs', '../TyLib/libs'  // aar目录
         }
     }
 }
