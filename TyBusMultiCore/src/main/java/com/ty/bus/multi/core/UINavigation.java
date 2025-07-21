@@ -3,7 +3,8 @@ package com.ty.bus.multi.core;
 import android.app.Activity;
 import android.content.Intent;
 
-import com.ty.bus.multi.core.ui.rope.TenSportActivity;
+import com.ty.bus.multi.core.ui.tensport.TenSportActivity;
+
 
 /**
  * ProjectName: TylMultiBusiness

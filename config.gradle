@@ -26,55 +26,57 @@ ext {
     //  依赖第三方配置
     dependencies = [
             //  RX
-            "rxjava3"                   : "io.reactivex.rxjava3:rxjava:3.1.5",
-            "rxandroid"                 : "io.reactivex.rxjava3:rxandroid:3.0.0",
-            "rxbinding"                 : "com.jakewharton.rxbinding4:rxbinding:4.0.0",
-            "rxlifecycle"               : "com.trello.rxlifecycle4:rxlifecycle:4.0.2",
-            "rxlifecycle-components"    : "com.trello.rxlifecycle4:rxlifecycle-components:4.0.2",
-            "XXPermissions"             : "com.github.getActivity:XXPermissions:18.68",
+            "rxjava3"                    : "io.reactivex.rxjava3:rxjava:3.1.5",
+            "rxandroid"                  : "io.reactivex.rxjava3:rxandroid:3.0.0",
+            "rxbinding"                  : "com.jakewharton.rxbinding4:rxbinding:4.0.0",
+            "rxlifecycle"                : "com.trello.rxlifecycle4:rxlifecycle:4.0.2",
+            "rxlifecycle-components"     : "com.trello.rxlifecycle4:rxlifecycle-components:4.0.2",
+            "XXPermissions"              : "com.github.getActivity:XXPermissions:18.68",
             //  OkHttp
-            "okhttp"                    : "com.squareup.okhttp3:okhttp:4.10.0",
-            "okhttp-logging-interceptor": "com.squareup.okhttp3:logging-interceptor:4.10.0",
+            "okhttp"                     : "com.squareup.okhttp3:okhttp:4.10.0",
+            "okhttp-logging-interceptor" : "com.squareup.okhttp3:logging-interceptor:4.10.0",
             //  Retrofit
-            "retrofit"                  : "com.squareup.retrofit2:retrofit:2.9.0",
-            "retrofit-adapter-rxjava"   : "com.squareup.retrofit2:adapter-rxjava3:2.9.0",
-            "retrofit-converter-gson"   : "com.squareup.retrofit2:converter-gson:2.9.0",
+            "retrofit"                   : "com.squareup.retrofit2:retrofit:2.9.0",
+            "retrofit-adapter-rxjava"    : "com.squareup.retrofit2:adapter-rxjava3:2.9.0",
+            "retrofit-converter-gson"    : "com.squareup.retrofit2:converter-gson:2.9.0",
             //  Gson
-            "gson"                      : "com.google.code.gson:gson:2.9.0",
+            "gson"                       : "com.google.code.gson:gson:2.9.0",
             //  Glide
-            "glide"                     : "com.github.bumptech.glide:glide:4.13.2",
-            "glide-compiler"            : "com.github.bumptech.glide:compiler:4.13.2",
+            "glide"                      : "com.github.bumptech.glide:glide:4.13.2",
+            "glide-compiler"             : "com.github.bumptech.glide:compiler:4.13.2",
             //  RecyclerView适配器  https://github.com/CymChad/BaseRecyclerViewAdapterHelper
-            "BRVAH"                     : "io.github.cymchad:BaseRecyclerViewAdapterHelper:4.0.0-beta04",
+            "BRVAH"                      : "io.github.cymchad:BaseRecyclerViewAdapterHelper:4.0.0-beta04",
             //  加载框架  https://github.com/ybq/Android-SpinKit
-            "Android-SpinKit"           : "com.github.ybq:Android-SpinKit:1.4.0",
-            "utilcodex"                 : "com.blankj:utilcodex:1.31.1",
-            "PhotoView"                 : "com.github.chrisbanes:PhotoView:2.3.0",
+            "Android-SpinKit"            : "com.github.ybq:Android-SpinKit:1.4.0",
+            "utilcodex"                  : "com.blankj:utilcodex:1.31.1",
+            "PhotoView"                  : "com.github.chrisbanes:PhotoView:2.3.0",
 
             //  mlkit
-            "pose-detection"            : "com.google.mlkit:pose-detection:18.0.0-beta3",
-            "pose-detection-accurate"   : "com.google.mlkit:pose-detection-accurate:18.0.0-beta3",
-            "work-multiprocess"         : "androidx.work:work-multiprocess:2.7.0",
+            "pose-detection"             : "com.google.mlkit:pose-detection:18.0.0-beta3",
+            "pose-detection-accurate"    : "com.google.mlkit:pose-detection-accurate:18.0.0-beta3",
+            "work-multiprocess"          : "androidx.work:work-multiprocess:2.7.0",
             //  MoveNet
-            "tensorflow-lite"           : "org.tensorflow:tensorflow-lite:2.8.0",
-            "tensorflow-lite-gpu"       : "org.tensorflow:tensorflow-lite-gpu:2.8.0",
-            "tensorflow-lite-support"   : "org.tensorflow:tensorflow-lite-support:0.3.1",
+            "tensorflow-lite"            : "org.tensorflow:tensorflow-lite:2.8.0",
+            "tensorflow-lite-gpu"        : "org.tensorflow:tensorflow-lite-gpu:2.8.0",
+            "tensorflow-lite-support"    : "org.tensorflow:tensorflow-lite-support:0.3.1",
             //  拼音转换
-            "pinyin"                    : 'com.github.SilenceDut:jpinyin:v1.0',
+            "pinyin"                     : 'com.github.SilenceDut:jpinyin:v1.0',
             //  如果只需要基础服务，可只选择这两个
-            "exoplayer-core"            : 'com.google.android.exoplayer:exoplayer-core:2.18.5',
-            "exoplayer-ui"              : 'com.google.android.exoplayer:exoplayer-ui:2.18.5',
+            "exoplayer-core"             : 'com.google.android.exoplayer:exoplayer-core:2.18.5',
+            "exoplayer-ui"               : 'com.google.android.exoplayer:exoplayer-ui:2.18.5',
             //  七牛云
-            "qiniu"                     : 'com.qiniu:qiniu-android-sdk:8.5.1',
+            "qiniu"                      : 'com.qiniu:qiniu-android-sdk:8.5.1',
             //  导出Excel库
-            "jxl"                       : 'net.sourceforge.jexcelapi:jxl:2.6.12',
+            "jxl"                        : 'net.sourceforge.jexcelapi:jxl:2.6.12',
             //  日历控件
-            "calendarview"              : 'com.haibin:calendarview:3.7.1',
+            "calendarview"               : 'com.haibin:calendarview:3.7.1',
             //  友盟组件库
-            "umeng-common"              : 'com.umeng.umsdk:common:9.4.4',
-            "umeng-asms"                : 'com.umeng.umsdk:asms:1.4.1',     //  asms包依赖
-            "umeng-apm"                 : 'com.umeng.umsdk:apm:1.5.2',      //  U-APM包依赖
-            "zxing"                     : 'com.google.zxing:core:3.4.1',
-            "zxing-android"             : 'com.journeyapps:zxing-android-embedded:4.2.0',
+            "umeng-common"               : 'com.umeng.umsdk:common:9.4.4',
+            "umeng-asms"                 : 'com.umeng.umsdk:asms:1.4.1',     //  asms包依赖
+            "umeng-apm"                  : 'com.umeng.umsdk:apm:1.5.2',      //  U-APM包依赖
+            "zxing"                      : 'com.google.zxing:core:3.4.1',
+            "zxing-android"              : 'com.journeyapps:zxing-android-embedded:4.2.0',
+            lifecycle_viewmodel_ktx      : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1",
+            BaseRecyclerViewAdapterHelper: "com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4",
     ]
 }
