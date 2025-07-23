@@ -23,6 +23,7 @@ dependencies {
     api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9'
     api rootProject.ext.dependencies["lifecycle_viewmodel_ktx"]
     api rootProject.ext.dependencies["BaseRecyclerViewAdapterHelper"]
+    api rootProject.ext.dependencies["glide"]
 
     api(name: 'AdlPose-2025-04-29', ext: 'aar')
     api(name: 'AdlPoseSdk-2025-05-27', ext: 'aar')
@@ -33,5 +34,7 @@ dependencies {
     api(name: 'AdlWebSerivce-2025-07-17', ext: 'aar')
     api(name: 'AdlAuthCore-v2-2025-05-22', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
+    api(name: 'AdlSportGeneral-2025-07-22', ext: 'aar')
 
+    annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 }

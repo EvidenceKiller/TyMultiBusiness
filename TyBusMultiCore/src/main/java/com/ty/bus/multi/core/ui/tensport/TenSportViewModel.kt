@@ -1,7 +1,7 @@
 package com.ty.bus.multi.core.ui.tensport
 
 import android.app.Application
-import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.base.BaseSportViewModel
 
-class TenSportViewModel(application: Application):BaseViewModel(application) {
+class TenSportViewModel(application: Application) : BaseSportViewModel(application) {
 }

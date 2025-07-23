@@ -7,4 +7,32 @@
 
 <string name="finish">Finish</string>
 <string name="go_on">Continue</string>
+
+  <string name="start_competition">开始比赛</string>
+  <string name="enter_competition">进入比赛</string>
+  <string name="the_best_today">今日最佳</string>
+  <string name="no_one_on_list">暂无人上榜</string>
+  <string name="year">年</string>
+  <string name="month">月</string>
+  <string name="day">日</string>
+  <string name="hour">小时</string>
+  <string name="minute">分钟</string>
+  <string name="second">秒</string>
+  <string name="ge">个</string>
+  <string name="zhi">只</string>
+  <string name="jia">架</string>
+  <string name="tiao">条</string>
+  <string name="fen">分</string>
+  <string name="start_now">立即开始</string>
+  <string name="idle_state">空闲</string>
+  <string name="prompt_move_to_sport_area">请站到运动区内</string>
+  <string name="ready_state">已准备</string>
+  <string name="back_to_sport_area">请回到运动区</string>
+  <string name="competition_started">竞技已开始</string>
+  <string name="prompt_get_ready_by_raising_hand">请举手准备</string>
+  <string name="prompt_waiting_for_players">等待其他玩家...</string>
+  <string name="prompt_ready_position">已就位</string>
+  <string name="prompt_join_next_group_later">请稍后加入下一组</string>
+  <string name="race_start_cheer">竞技开始，尽情冲刺吧</string>
+  <string name="start">开始</string>
 </resources>

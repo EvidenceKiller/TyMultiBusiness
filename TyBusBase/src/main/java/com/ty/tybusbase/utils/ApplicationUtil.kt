@@ -1,5 +1,6 @@
 package com.ty.tybusbase.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import java.io.File
@@ -9,7 +10,32 @@ import java.util.Date
 import java.util.Locale
 
 
+@SuppressLint("StaticFieldLeak")
 object ApplicationUtil {
+
+    private var context: Context? = null
+
+    /**
+     * 初始化工具类
+     *
+     * @param context 上下文
+     */
+    fun init(context: Context) {
+        this.context = context.applicationContext
+    }
+
+    /**
+     * 获取ApplicationContext
+     *
+     * @return ApplicationContext
+     */
+    fun getContext(): Context {
+        if (context != null) {
+            return context!!
+        }
+        throw NullPointerException("should be initialized in application")
+    }
+
     fun isAppInstalled(context: Context, packageName: String?): Boolean {
         val packageManager = context.packageManager
         return try {
