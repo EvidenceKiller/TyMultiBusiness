@@ -78,5 +78,6 @@ ext {
             "zxing-android"              : 'com.journeyapps:zxing-android-embedded:4.2.0',
             lifecycle_viewmodel_ktx      : "androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1",
             BaseRecyclerViewAdapterHelper: "com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4",
+            "fastjson"                   : 'com.alibaba:fastjson:2.0.40'
     ]
 }
