@@ -69,7 +69,7 @@ abstract class BaseMultiSportViewNoAnimation(
     fun setAccountInfo(person: SparseArray<MultiSportResult>) {
         person.forEach { _, value ->
             preparedMap.put(value.number, value.number)
-            cardMap[value.number]?.setAccountInfo(value.identifyResult)
+            cardMap[value.number]?.setAccountInfo(value.accountInfo)
             cardMap[value.number]?.changeState(MultiSportCardViewState.IDENTIFIED)
         }
     }

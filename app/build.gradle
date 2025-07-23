@@ -17,6 +17,11 @@ android {
         pickFirst 'lib/arm64-v8a/libjpeg-turbo212.so'
         pickFirst 'lib/arm64-v8a/libusb1.0.so'
         pickFirst 'lib/arm64-v8a/libuvc.so'
+        pickFirst 'lib/arm64-v8a/librga.so'
+        pickFirst 'lib/arm64-v8a/librknnrt.so'
+        pickFirst 'lib/arm64-v8a/libgnustl_shared.so'
+        pickFirst 'lib/arm64-v8a/libc++_shared.so'
+        pickFirst 'lib/armeabi-v7a/libc++_shared.so'
         pickFirst 'lib/armeabi-v7a/libUVCCamera.so'
         pickFirst 'lib/armeabi-v7a/libjpeg-turbo212.so'
         pickFirst 'lib/armeabi-v7a/libusb1.0.so'
@@ -36,10 +41,10 @@ android {
 
     defaultConfig {
         applicationId "com.ty.bus.multi.demo"
-        minSdkVersion 24
-        targetSdkVersion 29
-        versionCode 4
-        versionName "1.0.2.8"
+        minSdkVersion rootProject.ext.android.minSdkVersion
+        targetSdkVersion rootProject.ext.android.targetSdkVersion
+        versionCode rootProject.ext.android.versionCode
+        versionName rootProject.ext.android.versionName
 
         multiDexEnabled true
 

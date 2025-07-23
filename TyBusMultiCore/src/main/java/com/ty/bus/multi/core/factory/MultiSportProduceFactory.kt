@@ -1,0 +1,30 @@
+package com.ty.bus.multi.core.factory
+
+import com.ty.tybusbase.constants.SportConstant
+
+object MultiSportProduceFactory {
+
+    fun getFactory(itemCode: String?, testCount: String? = null): AbstractMultiSportFactory {
+        return when (itemCode) {
+            SportConstant.SPORT_SKIP_ROPE -> {
+                if (testCount == "5") {
+                    FiveSkipRopeFactory()
+                } else {
+                    TenSkipRopeFactory()
+                }
+            }
+
+            SportConstant.SPORT_OPEN_CLOSE_JUMP -> {
+                FiveOpenCloseJumpFactory()
+            }
+
+            SportConstant.SPORT_SQUATS -> {
+                FiveSportSquatsFactory()
+            }
+
+            else -> FiveSportSquatsFactory()
+
+        }
+    }
+
+}

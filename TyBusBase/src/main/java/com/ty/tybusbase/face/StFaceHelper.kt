@@ -35,7 +35,7 @@ import kotlin.math.min
 /**
  * 商汤人脸识别，cp
  */
-object ProcessorFaceStTest {
+object StFaceHelper {
     var faceDetector: STFaceDetector? = null
     private var mFaceCallback: OnFaceCallback? = null
     private var faceHandlerThread: HandlerThread? = null

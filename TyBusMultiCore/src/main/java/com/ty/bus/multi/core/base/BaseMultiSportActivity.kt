@@ -11,7 +11,7 @@ abstract class BaseMultiSportActivity<VB:ViewBinding,VM: BaseMultiSportViewModel
     IMultiSportView {
 
     override fun initData() {
-        viewModel.sportInfo = intent.getSerializableExtra("sport_info") as SceneSportInfoEntity
+        viewModel.sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity
         viewModel.matchId = intent.getStringExtra("MATCH_ID")
         viewModel.sceneId = intent.getStringExtra("scene_id")
         viewModel.accountInfoLD.value = intent.getParcelableExtra("ACCOUNT_INFO")

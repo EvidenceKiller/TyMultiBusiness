@@ -36,4 +36,7 @@
   <string name="race_start_cheer">竞技开始，尽情冲刺吧</string>
   <string name="start">开始</string>
   <string name="sport_time_out">运动超时</string>
+  <string name="visitor">游客</string>
+  <string name="race_start_countdown">竞技开始倒计时</string>
+  <string name="identified_someone">已识别%s</string>
 </resources>
