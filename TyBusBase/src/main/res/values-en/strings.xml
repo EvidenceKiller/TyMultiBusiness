@@ -39,4 +39,8 @@
   <string name="visitor">游客</string>
   <string name="race_start_countdown">竞技开始倒计时</string>
   <string name="identified_someone">已识别%s</string>
+  <string name="prompt_start_race">确定本组人员已各就各位，立即开始比赛？</string>
+  <string name="cancel">取消</string>
+  <string name="confirm">确定</string>
+
 </resources>

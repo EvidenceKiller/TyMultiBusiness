@@ -20,12 +20,14 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.AcTenSportBinding
 import com.ty.tybusbase.constants.ConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.MMKVUtil
 
 class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewModel>() {
     private var top1Count = 0
-//    private lateinit var srrvResult: TenSportResultView
+
+    //    private lateinit var srrvResult: TenSportResultView
     private val number = 10
     override fun initData() {
         super.initData()
@@ -63,10 +65,10 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
         mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
 
-        mBinding.sportView.startNowCallback  = {
-//            CommonTipDialog().setCallback {
-//                viewModel.readyGo()
-//            }.show(supportFragmentManager, "tips")
+        mBinding.sportView.startNowCallback = {
+            CommonTipDialog().setCallback {
+                viewModel.readyGo()
+            }.show(supportFragmentManager, "tips")
         }
     }
 
@@ -203,7 +205,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64)
     }
 
-//    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
+    //    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
 //        indicatorDo?.apply {
 //            ARouter.getInstance().build(ARouterPath.MODULE_TEST_SPORT_REPORT)
 //                .withSerializable("report_indicator", this)
