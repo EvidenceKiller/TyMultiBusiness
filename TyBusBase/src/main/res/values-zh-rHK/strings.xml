@@ -45,5 +45,9 @@
   <string name="complete_competition">完成竞技</string>
   <string name="sport_report">运动报告</string>
   <string name="visitor_number">%d道</string>
+  <string name="save_setting">保存设置</string>
+  <string name="reset">重置</string>
+  <string name="save_successful">保存成功</string>
+  <string name="reset_successful">重置成功</string>
 
 </resources>

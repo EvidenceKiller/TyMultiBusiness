@@ -1,6 +1,6 @@
-package com.ty.bus.multi.core;
+package com.ty.bus.multi.core
 
-import java.io.Serializable;
+import java.io.Serializable
 
 /**
  * ProjectName: TylMultiBusiness
@@ -8,7 +8,4 @@ import java.io.Serializable;
  * Date       : 2025/7/18
  * Describe   : 类描述
  */
-public class UINavConfig implements Serializable {
-
-
-}
+class UINavConfig : Serializable
