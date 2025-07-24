@@ -12,6 +12,7 @@ import com.adl.lib.AdlCamera
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.service.entity.BestRankTopEntity
+import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.outer.AdlService
 import com.aipower.modulepk.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
@@ -20,6 +21,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.AcTenSportBinding
 import com.ty.tybusbase.constants.ConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.MMKVUtil
@@ -31,6 +33,14 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     private val number = 10
     override fun initData() {
         super.initData()
+        if (viewModel.sportInfo == null){
+            viewModel.sportInfo = SceneSportInfoEntity().apply {
+                sportSkuId = "0201010001"
+                sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                endValue = "60000"
+                testCount = "10"
+            }
+        }
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
     }
@@ -43,12 +53,12 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             mBinding.groupTodayTop.visibility = View.GONE
         }
 
-        val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, false)
+        val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, ConstantsValue.DEFAULT_DEBUG_MODULE)
         mBinding.overlay.enableDraw(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
-        val debug = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, false)
+        val debug = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, ConstantsValue.DEFAULT_SKELETON)
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)

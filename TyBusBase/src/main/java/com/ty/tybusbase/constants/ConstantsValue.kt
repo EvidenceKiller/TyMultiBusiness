@@ -21,4 +21,15 @@ object ConstantsValue {
     const val HTTP_CAMERA_DEFAULT_PORT = 8000
 
     const val MULTI_SPORT_CONFIG_KEY = "multi_sport_config_key_"
+
+    /**
+     * 设备调试模式控制参数
+     */
+    const val DEFAULT_SKELETON = true //骨骼开关
+
+    const val DEFAULT_DEBUG_MODULE = true //调试模式
+
+    const val DEFAULT_VISITOR_MODULE = true //调试模式
+
+    const val DEFAULT_SKELETON_MIRROR = false //骨骼镜像
 }

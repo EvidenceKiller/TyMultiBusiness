@@ -267,7 +267,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
-        hikSubConfig.isPreviewEnable = false
+//        hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
@@ -318,7 +318,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
          * 人脸识别回调
          */
         var visitor: Boolean =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR, false) && matchId == null
+            MMKVUtil.decodeBoolean(MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR, ConstantsValue.DEFAULT_VISITOR_MODULE) && matchId == null
         multiIdentityEngine.visitorAble = visitor
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
