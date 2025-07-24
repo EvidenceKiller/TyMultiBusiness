@@ -43,5 +43,8 @@
     <string name="prompt_start_race">确定本组人员已各就各位，立即开始比赛？</string>
     <string name="cancel">取消</string>
     <string name="confirm">确定</string>
+    <string name="complete_competition">完成竞技</string>
+    <string name="sport_report">运动报告</string>
+    <string name="visitor_number">%d道</string>
 
 </resources>

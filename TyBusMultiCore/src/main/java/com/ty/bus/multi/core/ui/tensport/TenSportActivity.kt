@@ -4,6 +4,8 @@ import android.animation.ObjectAnimator
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.log.AdlLogger
@@ -18,6 +20,7 @@ import com.aipower.modulepk.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding
 import com.ty.tybusbase.constants.ConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -29,11 +32,11 @@ import com.ty.tybusbase.utils.MMKVUtil
 class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewModel>() {
     private var top1Count = 0
 
-    //    private lateinit var srrvResult: TenSportResultView
+    private lateinit var srrvResult: TenSportResultView
     private val number = 10
     override fun initData() {
         super.initData()
-        if (viewModel.sportInfo == null){
+        if (viewModel.sportInfo == null) {
             viewModel.sportInfo = SceneSportInfoEntity().apply {
                 sportSkuId = "0201010001"
                 sportItemCode = SportConstant.SPORT_SKIP_ROPE
@@ -53,12 +56,14 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             mBinding.groupTodayTop.visibility = View.GONE
         }
 
-        val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, ConstantsValue.DEFAULT_DEBUG_MODULE)
+        val isDebug =
+            MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, ConstantsValue.DEFAULT_DEBUG_MODULE)
         mBinding.overlay.enableDraw(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
-        val debug = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, ConstantsValue.DEFAULT_SKELETON)
+        val debug =
+            MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, ConstantsValue.DEFAULT_SKELETON)
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
@@ -139,29 +144,29 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
             //创建结果页，并添加到页面中
-//            srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
-//
-//            if (viewModel.sportInfo?.sportItemCode == SportContact.SPORT_SKIP_ROPE) {
+            srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
+
+//            if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
 //                srrvResult.setReportOnclickListener {
 //                    viewReport(viewModel.getIndicatorsResultDto(it))
 //                }
 //            }
-//
-//            val params =
-//                ConstraintLayout.LayoutParams(
-//                    RecyclerView.LayoutParams.MATCH_PARENT,
-//                    mBinding.clSkipSportViewContainer.height
-//                )
-//            params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-//            mBinding.clSkipSportViewContainer.addView(
-//                srrvResult,
-//                params
-//            )
-//            srrvResult.setConfirmOnclickListener {
-//                finish()
-//            }
-//            doResultViewTranslateAnimation(srrvResult)
-//            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count)
+
+            val params =
+                ConstraintLayout.LayoutParams(
+                    RecyclerView.LayoutParams.MATCH_PARENT,
+                    mBinding.clSkipSportViewContainer.height
+                )
+            params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+            mBinding.clSkipSportViewContainer.addView(
+                srrvResult,
+                params
+            )
+            srrvResult.setConfirmOnclickListener {
+                finish()
+            }
+            doResultViewTranslateAnimation(srrvResult)
+            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
@@ -206,13 +211,6 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
         }
-    }
-
-    private fun setResolution(camera: AdlCamera) {
-        val hkSource = camera as NsCameraHKSource
-        val deviceItem = hkSource.deviceItem
-        if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64)
     }
 
     //    private fun viewReport(indicatorDo: IndicatorsResultDto?) {

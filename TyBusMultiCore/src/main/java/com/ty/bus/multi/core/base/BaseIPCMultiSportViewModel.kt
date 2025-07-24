@@ -138,7 +138,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     var focalHandler = Handler(Looper.getMainLooper())
 
     //X秒竞技倒计时的Timer任务
-    val startCountDownTimer = object : CountDownTimer(countDownTime * 1000, 1000) {
+    val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
             countDownNoticeLD.postValue("${getString(R.string.race_start_countdown)}：${countDownTime--}")
         }
@@ -170,6 +170,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             currentPersonState.add(GroupSportsBaseChannelStatus.none)
             currentCardState.add(MultiSportCardViewState.NOBODY)
         }
+        countDownTime = getDefaultCountDownTime()
         initProcess()
         initCamera()
         initFaceIdentify()
@@ -318,7 +319,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
          * 人脸识别回调
          */
         var visitor: Boolean =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR, ConstantsValue.DEFAULT_VISITOR_MODULE) && matchId == null
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR,
+                ConstantsValue.DEFAULT_VISITOR_MODULE
+            ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
