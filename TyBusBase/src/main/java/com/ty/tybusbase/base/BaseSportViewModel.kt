@@ -42,7 +42,14 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import androidx.core.net.toUri
 import com.adl.auth.core.AdlAuthFactory
+import com.adl.service.common.IDefine
+import com.adl.service.entity.SportImageEntity
+import com.adl.service.entity.SportRecordLocalEntity
+import com.adl.service.entity.StudentEntity
 import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.utils.BusiCoreEngine
+import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.VideoUtil
 
 open class BaseSportViewModel(application: Application) : BaseViewModel(application) {
@@ -292,11 +299,12 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         recordCompetition: RecordCompetition? = null,
         recordMeeting: RecordMeeting? = null,
         sportTrainPlan: SportTrainPlan? = null,
+        indicatorList: List<SportIndicatorsEntity<*, *>>? = null,
         recordPlan: RecordPlan? = null
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             val sportRecordEntity =
-                saveSportResultToDB(
+                buildSportRecordEntity(
                     sceneId,
                     result,
                     accountId,
@@ -304,8 +312,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                     recordMeeting,
                     sportTrainPlan,
                     recordPlan = recordPlan
-                ) ?: return@launch
-            uploadRecord(sportRecordEntity)
+                )
+            BusiCoreEngine.getResultCallback().onSportRecordEntity(sportRecordEntity)
         }
     }
 
@@ -428,7 +436,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             }
         }
         //更新哈数据库,存储已上传的资源
-        updateSportRecordEntity(sportRecordEntity)
+        saveSportResultToDB(sportRecordEntity)
         if (uploadOk) {
             val uploadRecord = SportRecordService.uploadRecord(sportRecordEntity)
             AdlLogger.d("成绩上传完成：name = ${accountInfoLD.value?.studentEntity?.accountName} isOk = ${uploadRecord?.isOk}")
@@ -441,43 +449,14 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         }
     }
 
-    fun saveSportResultToDB(
-        sceneId: String,
-        result: SportResult,
-        accountId: String? = accountInfoLD.value?.studentEntity?.accountId,
-        recordCompetition: RecordCompetition? = null,
-        recordMeeting: RecordMeeting? = null,
-        sportTrainPlan: SportTrainPlan? = null,
-        indicators: List<SportIndicatorsEntity<*, *>>? = null,
-        recordPlan: RecordPlan? = null
-    ): SportRecordEntity? {
-        if (accountId == null || accountId == ConstantsValue.VISITOR_USER_ID) {
-            AdlLogger.d("锻炼模块，游客数据:${accountInfoLD.value?.studentEntity?.accountId}，不需要上传")
-            return null
-        }
-        val sportRecordEntity =
-            buildSportRecordEntity(
-                sceneId,
-                result,
-                accountId,
-                recordCompetition,
-                recordMeeting,
-                sportTrainPlan,
-                indicators,
-                recordPlan
-            )
-        AdlService.getService().recordUploadDao.insert(sportRecordEntity)
-        return sportRecordEntity
-    }
-
-    fun updateSportRecordEntity(sportRecordEntity: SportRecordEntity) {
+    fun saveSportResultToDB(sportRecordEntity: SportRecordEntity) {
         AdlService.getService().recordUploadDao.insert(sportRecordEntity)
     }
 
     private fun buildSportRecordEntity(
         sceneId: String,
         result: SportResult,
-        id: String,
+        id: String?,
         recordCompetition: RecordCompetition? = null,
         recordMeeting: RecordMeeting? = null,
         trPlan: SportTrainPlan? = null,

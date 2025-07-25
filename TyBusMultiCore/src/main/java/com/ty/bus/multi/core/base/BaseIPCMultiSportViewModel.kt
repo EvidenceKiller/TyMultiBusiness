@@ -942,13 +942,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 //                    }
 //                }
 
-                val sportRecordEntity = saveSportResultToDB(
+                uploadSportResult(
                     sceneId ?: SceneConstants.PK,
                     sportResult,
                     sportResult.userId,
-                    indicators = indicatorsList,
-                )
-                sportRecordEntity?.let { uploadRecord(it) }
+                    indicatorList = indicatorsList)
             }
         }
     }
