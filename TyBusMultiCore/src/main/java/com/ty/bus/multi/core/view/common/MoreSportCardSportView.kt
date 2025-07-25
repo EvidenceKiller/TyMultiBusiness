@@ -8,7 +8,7 @@ import android.view.View
 import android.widget.LinearLayout
 import com.adl.base.log.AdlLogger
 import com.aipower.modulecommon.expand.getString
-import com.aipower.modulepk.base.ISportCardView
+import com.ty.bus.multi.core.base.ISportCardView
 import com.aipower.modulepk.ui.fivesport.MultiSportCardViewState
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
@@ -25,11 +25,11 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
 
     private lateinit var accountInfo: AccountInfo
 
-    private val mBinding: MoreSportCardViewBinding
+    private val mBinding: MoreSportCardViewBinding =
+        MoreSportCardViewBinding.inflate(LayoutInflater.from(context), this, true)
     private var state: MultiSportCardViewState = MultiSportCardViewState.NOBODY
 
     init {
-        mBinding = MoreSportCardViewBinding.inflate(LayoutInflater.from(context), this, true)
         mBinding.tvNumber.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
         mBinding.tvPrepared.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
 
@@ -193,8 +193,8 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         this.accountInfo = accountInfo
         //设置头像和名字
         mBinding.groupPrepared.visibility = View.VISIBLE
-        mBinding.tvName.text = accountInfo.userName
-        Glide.with(context).load(accountInfo.userImg)
+        mBinding.tvName.text = accountInfo.studentEntity!!.accountName
+        Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
         //更换背景
@@ -257,15 +257,15 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     override fun setAccountInfo(accountInfo: AccountInfo) {
         this.accountInfo = accountInfo
-        mBinding.tvName.text = accountInfo.userName
-        Glide.with(context).load(accountInfo.userImg)
+        mBinding.tvName.text = accountInfo.studentEntity!!.accountName
+        Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
     }
 
     override fun setPrecastAccountInfo(accountInfo: AccountInfo) {
         this.accountInfo = accountInfo
-        mBinding.tvPrepared.text = accountInfo.userName
+        mBinding.tvPrepared.text = accountInfo.studentEntity!!.accountName
     }
 
     /**
@@ -275,8 +275,8 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         state = MultiSportCardViewState.SPORTING
         mBinding.groupSport.visibility = View.VISIBLE
         if (::accountInfo.isInitialized) {
-            mBinding.tvNameSport.text = accountInfo.userName
-            Glide.with(context).load(accountInfo.userImg)
+            mBinding.tvNameSport.text = accountInfo.studentEntity!!.accountName
+            Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
         }

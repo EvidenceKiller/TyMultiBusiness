@@ -124,17 +124,17 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
 
     fun getUserName(): String? {
         val value = accountInfoLD.value ?: return ""
-        return value.userName
+        return value.studentEntity?.accountName
     }
 
     fun getUserHeadImg(): String? {
         val value = accountInfoLD.value ?: return ""
-        return value.userImg
+        return value.studentEntity?.userFaceImgUrl
     }
 
     fun getUserId(): String? {
         val value = accountInfoLD.value ?: return ""
-        return value.id
+        return value.studentEntity?.accountId
     }
 
     fun toTwoStr(value: Int): String? {
@@ -288,7 +288,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     open fun uploadSportResult(
         sceneId: String,
         result: SportResult,
-        accountId: String? = accountInfoLD.value?.id,
+        accountId: String? = accountInfoLD.value?.studentEntity?.accountId,
         recordCompetition: RecordCompetition? = null,
         recordMeeting: RecordMeeting? = null,
         sportTrainPlan: SportTrainPlan? = null,
@@ -431,20 +431,20 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         updateSportRecordEntity(sportRecordEntity)
         if (uploadOk) {
             val uploadRecord = SportRecordService.uploadRecord(sportRecordEntity)
-            AdlLogger.d("成绩上传完成：name = ${accountInfoLD.value?.userName} isOk = ${uploadRecord?.isOk}")
+            AdlLogger.d("成绩上传完成：name = ${accountInfoLD.value?.studentEntity?.accountName} isOk = ${uploadRecord?.isOk}")
             if (uploadRecord?.isOk == true || uploadRecord?.msg?.contains("记录id重复") == true) {
                 AdlService.getService().recordUploadDao.clearById(sportRecordEntity.id)
             }
         } else {
             //成绩上传失败，原因：资源上传失败
-            AdlLogger.d("成绩上传失败：name = ${accountInfoLD.value?.userName} ,有资源未上传成功！！！")
+            AdlLogger.d("成绩上传失败：name = ${accountInfoLD.value?.studentEntity?.accountName} ,有资源未上传成功！！！")
         }
     }
 
     fun saveSportResultToDB(
         sceneId: String,
         result: SportResult,
-        accountId: String? = accountInfoLD.value?.id,
+        accountId: String? = accountInfoLD.value?.studentEntity?.accountId,
         recordCompetition: RecordCompetition? = null,
         recordMeeting: RecordMeeting? = null,
         sportTrainPlan: SportTrainPlan? = null,
@@ -452,7 +452,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         recordPlan: RecordPlan? = null
     ): SportRecordEntity? {
         if (accountId == null || accountId == ConstantsValue.VISITOR_USER_ID) {
-            AdlLogger.d("锻炼模块，游客数据:${accountInfoLD.value?.id}，不需要上传")
+            AdlLogger.d("锻炼模块，游客数据:${accountInfoLD.value?.studentEntity?.accountId}，不需要上传")
             return null
         }
         val sportRecordEntity =
@@ -549,7 +549,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     fun getVideoPath(sAi: String? = sportInfo?.sportSkuId): File {
         if (videoFile == null) {
             val userDir = AdlFileHelper.createUserDir(
-                getAccountInfo()?.id ?: ConstantsValue.VISITOR_USER_ID,
+                accountInfoLD.value?.studentEntity?.accountId ?: ConstantsValue.VISITOR_USER_ID,
                 sAi
             )
             val timestamp = System.currentTimeMillis()

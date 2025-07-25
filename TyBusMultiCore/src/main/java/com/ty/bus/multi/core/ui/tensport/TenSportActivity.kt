@@ -117,7 +117,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         viewModel.identifiedLD.observe(this) {
-            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.userName}")
+            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity!!.accountName}")
             mBinding.sportView.setUserInfo(it)
         }
 

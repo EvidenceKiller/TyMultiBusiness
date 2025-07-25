@@ -66,6 +66,7 @@ import java.util.Date
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import androidx.core.util.size
 
 open class BaseIPCMultiSportViewModel(application: Application) :
     BaseMultiSportViewModel(application) {
@@ -402,7 +403,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         SpeechWrapper.speech(
             getString(
                 R.string.identified_someone,
-                accountInfo.userName
+                accountInfo.studentEntity!!.accountName
             )
         )
         val identifyNumber = currentIdentifyNumber
@@ -411,11 +412,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             synchronized(this) {
                 skipRoseState = MultiSportState.PREPARING
                 //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
-                if (!accountInfo.id.equals(ConstantsValue.VISITOR_USER_ID)) {
+                if (!accountInfo.studentEntity!!.accountId.equals(ConstantsValue.VISITOR_USER_ID)) {
                     for (index in 0 until skipPersonArray.size()) {
                         val multiResult = skipPersonArray.valueAt(index)
                         //已识别过此人
-                        if (multiResult.accountInfo.id == accountInfo.id) {
+                        if (multiResult.accountInfo.studentEntity!!.accountId == accountInfo.studentEntity?.accountId) {
                             skipPersonArray.removeAt(index)
                             changeMultiIdentityCardState(
                                 multiResult.number,
@@ -430,13 +431,13 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     identifyNumber,
                     MultiSportResult(accountInfo, identifyNumber)
                 )
-                AdlLogger.d("人脸识别结果：姓名：${accountInfo.userName}; 道数 $identifyNumber")
+                AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $identifyNumber")
                 identifiedLD.value = Pair(identifyNumber, accountInfo)
                 //给accountInfo赋值，用来获取存储视频的地址
-                if (accountInfo.id != ConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
+                if (accountInfo.studentEntity!!.accountId != ConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                     accountInfoLD.postValue(accountInfo)
                 }
-                AdlLogger.d("人脸识别结果：姓名：${accountInfo.userName};道数 $identifyNumber 切换到准备状态")
+                AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
                 changeMultiIdentityCardState(
                     identifyNumber,
                     MultiSportCardViewState.PREPARED
@@ -445,7 +446,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 resetIdentifyNumber()
                 //处理竞技倒计时
                 //如果已识别五人，则直接开始
-                if (skipPersonArray.size() == skipManCount) {
+                if (skipPersonArray.size == skipManCount) {
                     readyGo()
                     return@post
                 }
@@ -895,7 +896,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.perfectScore = multiResult.count
                 sportResult.goodScore = 0
                 sportResult.comeOnScore = 0
-                sportResult.userId = multiResult.accountInfo.id
+                sportResult.userId = multiResult.accountInfo.studentEntity?.accountId
                 sportResult.startTime = startTime
                 sportResult.endTime = endTime
                 sportResult.rank = multiResult.rank

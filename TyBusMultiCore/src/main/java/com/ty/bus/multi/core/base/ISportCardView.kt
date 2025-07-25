@@ -1,4 +1,4 @@
-package com.aipower.modulepk.base
+package com.ty.bus.multi.core.base
 
 import com.aipower.modulepk.ui.fivesport.MultiSportCardViewState
 import com.ty.tybusbase.entity.AccountInfo

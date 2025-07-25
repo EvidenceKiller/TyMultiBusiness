@@ -46,17 +46,10 @@ class MultiIdentityEngine {
     private val identifyMap by lazy { HashMap<Int, Int>() }
 
     private var isOK = false
-    fun identity(user: StudentEntity, accountId: String?) {
-        val accountInfo = AccountInfo()
-        accountInfo.classId = user.classId
-        accountInfo.className = user.className
-        accountInfo.grade = user.gradeNum.toInt()
-//        accountInfo.period = user.period
-        accountInfo.sex = user.userSex.toInt()
-        accountInfo.id = accountId!!
-        accountInfo.userImg = AdlService.getService().facePrefix + user.userFaceImgUrl
-        accountInfo.userName = user.accountName
-        identityFinish(accountInfo)
+    fun identity(user: StudentEntity) {
+        identityFinish(AccountInfo().apply {
+            studentEntity = user
+        })
 
     }
 
@@ -74,7 +67,7 @@ class MultiIdentityEngine {
         StFaceHelper.setFaceCallback(object : StFaceHelper.OnFaceCallback {
             override fun onFindUser(user: StudentEntity?) {
                 user?.let {
-                    identity(it, it.accountId)
+                    identity(it)
                 }
             }
 
@@ -92,7 +85,7 @@ class MultiIdentityEngine {
      */
     fun getAccountInfoWithAccount(accountId: String?) {
         val studentEntity = UserCaller.instance().queryStudentByAccountId(accountId)
-        studentEntity?.let { identity(it, accountId) }
+        studentEntity?.let { identity(it) }
     }
 
 
@@ -257,10 +250,12 @@ class MultiIdentityEngine {
     }
 
     private fun createVisitor() {
-        val accountInfo = AccountInfo()
-        accountInfo.id = ConstantsValue.VISITOR_USER_ID
-        accountInfo.userImg = ""
-        accountInfo.userName = getString(R.string.visitor)
+        val accountInfo = AccountInfo().apply {
+            studentEntity = StudentEntity().apply {
+                accountId = ConstantsValue.VISITOR_USER_ID
+                accountName = getString(R.string.visitor)
+            }
+        }
         identityFinish(accountInfo)
         isOK = true
     }
