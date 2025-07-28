@@ -10,15 +10,12 @@ import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.OnRenderScene
-import com.adl.lib.AdlCamera
 import com.adl.lib.AdlCameraPreviewView
-import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.outer.AdlService
-import com.aipower.modulepk.base.BaseMultiSportActivity
+import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
-import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding

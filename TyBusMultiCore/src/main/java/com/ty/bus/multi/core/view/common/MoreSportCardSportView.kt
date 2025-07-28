@@ -9,7 +9,7 @@ import android.widget.LinearLayout
 import com.adl.base.log.AdlLogger
 import com.aipower.modulecommon.expand.getString
 import com.ty.bus.multi.core.base.ISportCardView
-import com.aipower.modulepk.ui.fivesport.MultiSportCardViewState
+import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.MoreSportCardViewBinding

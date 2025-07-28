@@ -38,7 +38,6 @@ import com.adl.sport.general.multi.MultiSportFilter
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
 import com.aipower.modulecommon.expand.getString
-import com.aipower.modulepk.ui.fivesport.MultiSportCardViewState
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
@@ -55,7 +54,6 @@ import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.ApplicationUtil.getContext
-import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
 import kotlinx.coroutines.Dispatchers

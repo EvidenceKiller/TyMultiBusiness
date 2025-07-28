@@ -70,9 +70,9 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     }
                     holder.vb.tvResult.text = "${item.count}$measureUnit"
                     holder.vb.tvRank.text = "${item.rank}"
-                    holder.vb.tvName.text = item.accountInfo.userName
+                    holder.vb.tvName.text = item.accountInfo.studentEntity?.accountName
                     Glide.with(context)
-                        .load(item.accountInfo.userImg)
+                        .load(item.accountInfo.studentEntity?.userFaceImgUrl)
                         .placeholder(R.mipmap.ic_head_default)
                         .error(R.mipmap.ic_head_default)
                         .into(holder.vb.ivHeader)
@@ -94,9 +94,9 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     holder.vb.tvVisitorNumber.visibility = VISIBLE
                     holder.vb.tvResult.text = "${item.count}$measureUnit"
                     holder.vb.tvRank.text = "${item.rank}"
-                    holder.vb.tvName.text = item.accountInfo.userName
+                    holder.vb.tvName.text = item.accountInfo.studentEntity?.accountName
                     Glide.with(context)
-                        .load(item.accountInfo.userImg)
+                        .load(item.accountInfo.studentEntity?.userFaceImgUrl)
                         .placeholder(R.mipmap.ic_head_default)
                         .error(R.mipmap.ic_head_default)
                         .into(holder.vb.ivHeader)

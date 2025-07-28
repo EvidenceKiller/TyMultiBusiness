@@ -1,10 +1,8 @@
-package com.aipower.modulepk.base
+package com.ty.bus.multi.core.base
 
 import androidx.viewbinding.ViewBinding
 import com.adl.service.entity.SceneSportInfoEntity
 import com.aipower.modulecommon.enu.SportStatusEnum
-import com.ty.bus.multi.core.base.BaseMultiSportViewModel
-import com.ty.bus.multi.core.base.IMultiSportView
 import com.ty.tybusbase.base.BaseExitActivity
 
 abstract class BaseMultiSportActivity<VB:ViewBinding,VM: BaseMultiSportViewModel>:BaseExitActivity<VB,VM>(),

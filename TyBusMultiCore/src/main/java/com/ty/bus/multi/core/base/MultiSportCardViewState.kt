@@ -1,4 +1,4 @@
-package com.aipower.modulepk.ui.fivesport
+package com.ty.bus.multi.core.base
 
 enum class MultiSportCardViewState {
     /**

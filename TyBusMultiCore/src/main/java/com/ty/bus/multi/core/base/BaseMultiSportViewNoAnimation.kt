@@ -10,7 +10,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
 import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.aipower.modulecommon.expand.Action
-import com.aipower.modulepk.ui.fivesport.MultiSportCardViewState
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.entity.AccountInfo
