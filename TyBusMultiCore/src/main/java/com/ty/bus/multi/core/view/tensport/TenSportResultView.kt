@@ -6,8 +6,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.aipower.modulecommon.expand.Action1
-import com.aipower.modulecommon.expand.getString
+import com.ty.tybusbase.expand.Action1
+import com.ty.tybusbase.expand.getString
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult

@@ -1,15 +1,8 @@
-package com.aipower.modulecommon.expand
+package com.ty.tybusbase.expand
 
-import android.graphics.PointF
 import androidx.annotation.StringRes
 import com.ty.tybusbase.utils.ApplicationUtil
 import java.io.File
-import kotlin.math.sqrt
-
-const val TAG = "NSS-->"
-fun PointF.distance(): Double = sqrt((this.x * this.x).toDouble() + this.y * this.y)
-
-fun PointF.square(): Double = (this.x * this.x).toDouble() + this.y * this.y
 
 typealias Action = () -> Unit
 typealias Action1<T> = (t: T) -> Unit

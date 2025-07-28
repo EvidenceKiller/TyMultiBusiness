@@ -26,7 +26,7 @@ import com.adl.service.outer.AdlService
 import com.adl.service.upload.FileUploadSyncService
 import com.adl.service.web.SportRecordService
 import com.adl.service.web.SportService
-import com.aipower.modulecommon.enu.SportStatusEnum
+import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
@@ -42,14 +42,8 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import androidx.core.net.toUri
 import com.adl.auth.core.AdlAuthFactory
-import com.adl.service.common.IDefine
-import com.adl.service.entity.SportImageEntity
-import com.adl.service.entity.SportRecordLocalEntity
-import com.adl.service.entity.StudentEntity
 import com.ty.tybusbase.constants.ConstantsValue
-import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.BusiCoreEngine
-import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.VideoUtil
 
 open class BaseSportViewModel(application: Application) : BaseViewModel(application) {

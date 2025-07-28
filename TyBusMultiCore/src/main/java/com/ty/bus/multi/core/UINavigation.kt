@@ -15,7 +15,12 @@ object UINavigation {
     @JvmStatic
     fun goTenSportRope(context: Context, config: UINavConfig?) {
         // TODO 导航跳转
-        context.startActivity(Intent(context, TenSportActivity::class.java))
+        val intent = Intent(context, TenSportActivity::class.java)
+        intent.putExtra("sport_info", config?.sportInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("scene_id", config?.sceneId)
+        intent.putExtra("account_info", config?.accountInfo)
+        context.startActivity(intent)
     }
 
     @JvmStatic
@@ -28,10 +33,10 @@ object UINavigation {
         // TODO 导航跳转
     }
 
-    fun goMultiRegionSetting(context: Context,number:Int) {
+    fun goMultiRegionSetting(context: Context, number: Int) {
         // TODO 导航跳转
         context.startActivity(Intent(context, MultiRegionSettingActivity::class.java).apply {
-            putExtra("test_count",number)
+            putExtra("test_count", number)
         })
     }
 }

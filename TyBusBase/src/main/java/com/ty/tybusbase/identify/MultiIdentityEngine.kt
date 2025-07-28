@@ -7,10 +7,9 @@ import com.adl.base.log.AdlLogger
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
-import com.adl.service.outer.AdlService
 import com.adl.service.outer.UserCaller
 import com.adl.sport.general.EuHelper
-import com.aipower.modulecommon.expand.getString
+import com.ty.tybusbase.expand.getString
 import com.ty.identifty.stface.TyFaceInfo
 import com.ty.tybusbase.BuildConfig
 import com.ty.tybusbase.R

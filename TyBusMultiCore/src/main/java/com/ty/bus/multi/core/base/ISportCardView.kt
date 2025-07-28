@@ -51,7 +51,8 @@ interface ISportCardView {
     /**
      * 设置用户信息
      */
-    fun setUserInfo(name: String, header: String) {}
+    fun setUserInfo(name: String, header: String?) {}
+
     fun setPrecastAccountInfo(accountInfo: AccountInfo)
 
     /**

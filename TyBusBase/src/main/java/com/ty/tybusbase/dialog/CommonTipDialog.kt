@@ -1,6 +1,6 @@
 package com.ty.tybusbase.dialog
 
-import com.aipower.modulecommon.expand.Action
+import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.base.BaseDialogFragment
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.databinding.DialogCommonTipBinding

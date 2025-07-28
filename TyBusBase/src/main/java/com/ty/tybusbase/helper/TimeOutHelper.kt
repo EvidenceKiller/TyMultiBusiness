@@ -1,7 +1,7 @@
 package com.ty.tybusbase.helper
 
 import android.os.CountDownTimer
-import com.aipower.modulecommon.expand.Action
+import com.ty.tybusbase.expand.Action
 
 class TimeOutHelper(private var timeoutCallback: Action, private var timeOut: Long) :
     CountDownTimer(timeOut, 1000) {

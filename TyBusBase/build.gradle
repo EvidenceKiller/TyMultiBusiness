@@ -6,6 +6,19 @@ apply from: "../module.build.gradle"
 
 android {
     namespace 'com.ty.tybusbase'
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            android.libraryVariants.all { variant ->
+                variant.outputs.all {
+                    def date = new Date().format('yyyy-MM-dd')
+                    outputFileName = "ZDZ-BusBase-${date}.aar"
+                }
+            }
+        }
+    }
 }
 
 dependencies {

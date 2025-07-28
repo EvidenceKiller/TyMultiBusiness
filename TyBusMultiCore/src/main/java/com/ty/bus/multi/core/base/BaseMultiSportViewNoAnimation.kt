@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
 import com.adl.sport.general.groupsportbase.GroupSportBaseMan
-import com.aipower.modulecommon.expand.Action
+import com.ty.tybusbase.expand.Action
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.entity.AccountInfo
@@ -61,7 +61,7 @@ abstract class BaseMultiSportViewNoAnimation(
     }
 
     fun setUserInfo(p: Pair<Int, AccountInfo>) {
-        cardMap[p.first]?.setUserInfo(p.second.studentEntity!!.accountName, p.second.studentEntity!!.userFaceImgUrl)
+        cardMap[p.first]?.setUserInfo(p.second.studentEntity!!.accountName, p.second.studentEntity?.userFaceImgUrl)
     }
 
     fun setAccountInfo(person: SparseArray<MultiSportResult>) {

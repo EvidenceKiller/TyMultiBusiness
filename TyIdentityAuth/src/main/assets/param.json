@@ -1,0 +1,100 @@
+{
+    "models": {
+        "trackModelName": "model/detection/KM_Detect_Hunter_LargeFace_Gray_ppl_9.5.0.model",
+        "detectModelName": "model/detection/KM_Detect_Hunter_LargeFace_Gray_ppl_9.5.0.model",
+        "faceAttrModelName": "model/attribute/KM_attribute_face_nart_cpu-ppl2-fp32_b1_3.3.1.model",
+        "faceFeatureModelName": "model/feature/KM_Feature_Mobilenetv2Pruned_BGR_Surveillance_4.19.1.model",
+        "livenessModelName": "model/liveness/KM_liveness_RGB_Liveness_General_nart_cpu-ppl2-fp32_b1_7.1.38.model",
+        "liveness2iModelName": "model/live2i/KM_Live2i_RN_General_FACE2_PPL_1.38.0.model",
+        "liveness3dModelName": "model/live3d/KM_Live3d_nir_depth_ppl_1.1.0.model",
+        "augustModelName": "model/august/KM_August_Face_Gray_PPL_2.6.3.model",
+        "alignModelName": "model/alignment/KM_Aligner_occlusion_106_ppl_1.21.0.model",
+        "headposeModelName": "model/headpose/KM_Headpose_106_ppl_2.3.0.model",
+        "blurModelName": "model/blur/KM_Blur_gray_ppl_6.0.0.model",
+        "eyestateModelName": "model/eyestate/KM_eyestate_ppl_3.6.1.model"
+
+    },
+    "modules": {
+        "detectTrack": 1,
+        "attribute": 0,
+        "liveness": 1,
+        "live2i": 0,
+        "live3d": 0,
+        "faceFeature": 0,
+        "db": 0,
+        "carplate": 0
+    },
+    "params": {
+        "common": {
+            "licenseName": "license.lic",
+            "licenseSignCode": "signCode.txt",
+            "newLicenseName": "new_license.lic",
+            "newLicenseSignCode": "new_signCode.txt",
+            "width": 640,
+            "height": 480,
+            "fps": 10,
+            "rgbVideoIndex": 0,
+            "nirVideoIndex": 1,
+            "depthVideoIndex": 2,
+            "detectTrackCpuId": 2,
+            "analyzerCpuId": 1,
+            "attributeCpuId": 0,
+            "faceFeatureCpuId": 3,
+            "basePath": "/sdcard/facelic/",
+            "oclbinaryPath": "/data/local/tmp/cl.armv7.T760.bin"
+        },
+        "detectTrack": {
+            "type": "face",
+            "minFaceSize": 50,
+            "maxFaceNum": 8,
+            "confidence": 0.2
+        },
+        "select": {
+            "threshold": 0.4,
+            "step": 0.1,
+            "highQualityCount": 10,
+            "method": "realtime"
+        },
+        "attribute": {
+            "type": "face",
+            "platform": "cpu",
+            "algorithms": ""
+        },
+        "faceFeature": {
+            "type": "face",
+            "platform": "cpu",
+            "algorithms": ""
+        },
+        "liveness": {
+            "threshold": 0.95,
+            "platform": "cpu",
+            "algorithms": "",
+            "minSize": 50
+        },
+	"live2i": {
+            "iouThreshold": 0.3,
+            "threshold": 0.98,
+            "platform": "cpu",
+            "algorithms": "",
+            "minSize": 50
+        },
+        "live3d": {
+            "threshold": 0.98,
+            "platform": "cpu",
+            "algorithms": "",
+            "minSize": 50
+        },
+        "db": {
+            "name": "faceDb",
+            "tableName" : "face",
+            "size": 10000,
+            "threshold": 0.4,
+            "version": 1
+        },
+        "carplate": {
+            "type": "vehicle",
+            "confidence": 0.3,
+            "platform": "cpu"
+        }
+    }
+}

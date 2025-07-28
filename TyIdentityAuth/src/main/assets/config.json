@@ -1,0 +1,10 @@
+{
+    "max_face_num": 100,
+    "max_body_num": 100,
+    "max_face_size": 500,
+    "min_face_size": 50,
+    "max_body_size": 2000,
+    "min_body_size": 50,
+    "drop_len": 6,
+    "track_period": 7
+}

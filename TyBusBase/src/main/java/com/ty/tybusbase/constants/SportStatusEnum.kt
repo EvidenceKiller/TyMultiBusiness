@@ -1,4 +1,4 @@
-package com.aipower.modulecommon.enu
+package com.ty.tybusbase.constants
 
 enum class SportStatusEnum {
     /**

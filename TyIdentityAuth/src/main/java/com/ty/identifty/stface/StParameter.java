@@ -17,6 +17,18 @@ public class StParameter {
         return models;
     }
 
+    public void setModels(Models models) {
+        this.models = models;
+    }
+
+    public void setModules(Modules modules) {
+        this.modules = modules;
+    }
+
+    public void setParams(Params params) {
+        this.params = params;
+    }
+
     public class Models {
         private String trackModelName;
         private String detectModelName;
@@ -123,6 +135,90 @@ public class StParameter {
         public String getTextRecognitionModelName() {
             return textRecognitionModelName;
         }
+
+        public void setTrackModelName(String trackModelName) {
+            this.trackModelName = trackModelName;
+        }
+
+        public void setDetectModelName(String detectModelName) {
+            this.detectModelName = detectModelName;
+        }
+
+        public void setFaceAttrModelName(String faceAttrModelName) {
+            this.faceAttrModelName = faceAttrModelName;
+        }
+
+        public void setBodyAttrModelName(String bodyAttrModelName) {
+            this.bodyAttrModelName = bodyAttrModelName;
+        }
+
+        public void setFaceFeatureModelName(String faceFeatureModelName) {
+            this.faceFeatureModelName = faceFeatureModelName;
+        }
+
+        public void setLivenessModelName(String livenessModelName) {
+            this.livenessModelName = livenessModelName;
+        }
+
+        public void setLiveness2iModelName(String liveness2iModelName) {
+            this.liveness2iModelName = liveness2iModelName;
+        }
+
+        public void setLiveness3dModelName(String liveness3dModelName) {
+            this.liveness3dModelName = liveness3dModelName;
+        }
+
+        public void setAugustModelName(String augustModelName) {
+            this.augustModelName = augustModelName;
+        }
+
+        public void setAlignModelName(String alignModelName) {
+            this.alignModelName = alignModelName;
+        }
+
+        public void setHeadposeModelName(String headposeModelName) {
+            this.headposeModelName = headposeModelName;
+        }
+
+        public void setBlurModelName(String blurModelName) {
+            this.blurModelName = blurModelName;
+        }
+
+        public void setEyestateModelName(String eyestateModelName) {
+            this.eyestateModelName = eyestateModelName;
+        }
+
+        public void setStructDetectModelName(String structDetectModelName) {
+            this.structDetectModelName = structDetectModelName;
+        }
+
+        public void setBodyFeatureModelName(String bodyFeatureModelName) {
+            this.bodyFeatureModelName = bodyFeatureModelName;
+        }
+
+        public void setCarPlateDetectionModelName(String carPlateDetectionModelName) {
+            this.carPlateDetectionModelName = carPlateDetectionModelName;
+        }
+
+        public void setCarPlateRavenModelName(String carPlateRavenModelName) {
+            this.carPlateRavenModelName = carPlateRavenModelName;
+        }
+
+        public void setVehiFilterModelName(String vehiFilterModelName) {
+            this.vehiFilterModelName = vehiFilterModelName;
+        }
+
+        public void setVehiDirectionModelName(String vehiDirectionModelName) {
+            this.vehiDirectionModelName = vehiDirectionModelName;
+        }
+
+        public void setTextDetectionModelName(String textDetectionModelName) {
+            this.textDetectionModelName = textDetectionModelName;
+        }
+
+        public void setTextRecognitionModelName(String textRecognitionModelName) {
+            this.textRecognitionModelName = textRecognitionModelName;
+        }
     }
 
     public class Modules {
@@ -167,6 +263,26 @@ public class StParameter {
         }
 
         public boolean getCarplate() {return (carplate > 0 ? true : false); }
+
+        public void setDetectTrack(int detectTrack) {
+            this.detectTrack = detectTrack;
+        }
+
+        public void setAttribute(int attribute) {
+            this.attribute = attribute;
+        }
+
+        public void setFaceFeature(int faceFeature) {
+            this.faceFeature = faceFeature;
+        }
+
+        public void setDb(int db) {
+            this.db = db;
+        }
+
+        public void setCarplate(int carplate) {
+            this.carplate = carplate;
+        }
     }
 
     public class Params {
@@ -214,6 +330,42 @@ public class StParameter {
 
         public Carplate getCarplate() {
             return carplate;
+        }
+
+        public void setCommon(Common common) {
+            this.common = common;
+        }
+
+        public void setDetectTrack(DetectTrack detectTrack) {
+            this.detectTrack = detectTrack;
+        }
+
+        public void setAttribute(Attribute attribute) {
+            this.attribute = attribute;
+        }
+
+        public void setFaceFeature(FaceFeature faceFeature) {
+            this.faceFeature = faceFeature;
+        }
+
+        public void setSelect(Select select) {
+            this.select = select;
+        }
+
+        public void setDb(Db db) {
+            this.db = db;
+        }
+
+        public void setLiveness(Liveness liveness) {
+            this.liveness = liveness;
+        }
+
+        public void setLivenessCommon(LivenessCommon livenessCommon) {
+            this.livenessCommon = livenessCommon;
+        }
+
+        public void setCarplate(Carplate carplate) {
+            this.carplate = carplate;
         }
 
         public class Common {
@@ -294,6 +446,65 @@ public class StParameter {
                 return oclbinaryPath;
             }
 
+            public void setLicenseName(String licenseName) {
+                this.licenseName = licenseName;
+            }
+
+            public void setLicenseSignCode(String licenseSignCode) {
+                this.licenseSignCode = licenseSignCode;
+            }
+
+            public void setNewLicenseName(String newLicenseName) {
+                this.newLicenseName = newLicenseName;
+            }
+
+            public void setNewLicenseSignCode(String newLicenseSignCode) {
+                this.newLicenseSignCode = newLicenseSignCode;
+            }
+
+            public void setWidth(int width) {
+                this.width = width;
+            }
+
+            public void setHeight(int height) {
+                this.height = height;
+            }
+
+            public void setFps(int fps) {
+                this.fps = fps;
+            }
+
+            public void setRgbVideoIndex(int rgbVideoIndex) {
+                this.rgbVideoIndex = rgbVideoIndex;
+            }
+
+            public void setNirVideoIndex(int nirVideoIndex) {
+                this.nirVideoIndex = nirVideoIndex;
+            }
+
+            public void setDetectTrackCpuId(int detectTrackCpuId) {
+                this.detectTrackCpuId = detectTrackCpuId;
+            }
+
+            public void setAnalyzerCpuId(int analyzerCpuId) {
+                this.analyzerCpuId = analyzerCpuId;
+            }
+
+            public void setFaceFeatureCpuId(int faceFeatureCpuId) {
+                this.faceFeatureCpuId = faceFeatureCpuId;
+            }
+
+            public void setAttributeCpuId(int attributeCpuId) {
+                this.attributeCpuId = attributeCpuId;
+            }
+
+            public void setBasePath(String basePath) {
+                this.basePath = basePath;
+            }
+
+            public void setOclbinaryPath(String oclbinaryPath) {
+                this.oclbinaryPath = oclbinaryPath;
+            }
         }
 
         public class DetectTrack {
@@ -316,6 +527,22 @@ public class StParameter {
 
             public float getConfidence() {
                 return confidence;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public void setMinFaceSize(int minFaceSize) {
+                this.minFaceSize = minFaceSize;
+            }
+
+            public void setMaxFaceNum(int maxFaceNum) {
+                this.maxFaceNum = maxFaceNum;
+            }
+
+            public void setConfidence(float confidence) {
+                this.confidence = confidence;
             }
         }
 
@@ -340,6 +567,22 @@ public class StParameter {
             public int getHighQualityCount() {
                 return highQualityCount;
             }
+
+            public void setThreshold(float threshold) {
+                this.threshold = threshold;
+            }
+
+            public void setStep(float step) {
+                this.step = step;
+            }
+
+            public void setMethod(String method) {
+                this.method = method;
+            }
+
+            public void setHighQualityCount(int highQualityCount) {
+                this.highQualityCount = highQualityCount;
+            }
         }
 
         public class Attribute {
@@ -358,6 +601,18 @@ public class StParameter {
             public String getAlgorithms() {
                 return algorithms;
             }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public void setPlatform(String platform) {
+                this.platform = platform;
+            }
+
+            public void setAlgorithms(String algorithms) {
+                this.algorithms = algorithms;
+            }
         }
 
         public class FaceFeature {
@@ -375,6 +630,18 @@ public class StParameter {
 
             public String getAlgorithms() {
                 return algorithms;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public void setPlatform(String platform) {
+                this.platform = platform;
+            }
+
+            public void setAlgorithms(String algorithms) {
+                this.algorithms = algorithms;
             }
         }
 
@@ -398,6 +665,22 @@ public class StParameter {
 
             public String getAlgorithms() {
                 return algorithms;
+            }
+
+            public void setThreshold(float threshold) {
+                this.threshold = threshold;
+            }
+
+            public void setMinSize(int minSize) {
+                this.minSize = minSize;
+            }
+
+            public void setPlatform(String platform) {
+                this.platform = platform;
+            }
+
+            public void setAlgorithms(String algorithms) {
+                this.algorithms = algorithms;
             }
         }
 
@@ -427,6 +710,26 @@ public class StParameter {
             public String getAlgorithms() {
                 return algorithms;
             }
+
+            public void setIouThreshold(float iouThreshold) {
+                this.iouThreshold = iouThreshold;
+            }
+
+            public void setThreshold(float threshold) {
+                this.threshold = threshold;
+            }
+
+            public void setMinSize(int minSize) {
+                this.minSize = minSize;
+            }
+
+            public void setPlatform(String platform) {
+                this.platform = platform;
+            }
+
+            public void setAlgorithms(String algorithms) {
+                this.algorithms = algorithms;
+            }
         }
 
         public class Db {
@@ -455,6 +758,26 @@ public class StParameter {
             public int getVersion() {
                 return version;
             }
+
+            public void setName(String name) {
+                this.name = name;
+            }
+
+            public void setTableName(String tableName) {
+                this.tableName = tableName;
+            }
+
+            public void setSize(int size) {
+                this.size = size;
+            }
+
+            public void setThreshold(float threshold) {
+                this.threshold = threshold;
+            }
+
+            public void setVersion(int version) {
+                this.version = version;
+            }
         }
 
         public class Carplate {
@@ -467,6 +790,14 @@ public class StParameter {
 
             public float getConfidence() {
                 return confidence;
+            }
+
+            public void setType(String type) {
+                this.type = type;
+            }
+
+            public void setConfidence(float confidence) {
+                this.confidence = confidence;
             }
         }
     }

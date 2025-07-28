@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import com.aipower.modulecommon.expand.Action
+import com.ty.tybusbase.expand.Action
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
 import com.ty.bus.multi.databinding.TenSportSportViewBinding

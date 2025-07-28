@@ -7,7 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
 import com.adl.base.log.AdlLogger
-import com.aipower.modulecommon.expand.getString
+import com.ty.tybusbase.expand.getString
 import com.ty.bus.multi.core.base.ISportCardView
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.bumptech.glide.Glide
@@ -128,7 +128,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         }
     }
 
-    override fun setUserInfo(name: String, headUrl: String) {
+    override fun setUserInfo(name: String, headUrl: String?) {
         Glide.with(context).load(headUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)

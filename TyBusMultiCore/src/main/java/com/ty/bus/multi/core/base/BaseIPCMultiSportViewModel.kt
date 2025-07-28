@@ -37,7 +37,7 @@ import com.adl.sport.general.multi.MultiSportConfig
 import com.adl.sport.general.multi.MultiSportFilter
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
-import com.aipower.modulecommon.expand.getString
+import com.ty.tybusbase.expand.getString
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult

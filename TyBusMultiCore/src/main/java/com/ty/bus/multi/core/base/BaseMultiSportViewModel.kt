@@ -10,7 +10,7 @@ import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.outer.AdlService
 import com.adl.service.outer.UserCaller
 import com.adl.service.web.SportStatisticsService
-import com.aipower.modulecommon.expand.getString
+import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.R
 import com.ty.tybusbase.base.BaseSportViewModel
 import com.ty.tybusbase.constants.ConstantsValue
