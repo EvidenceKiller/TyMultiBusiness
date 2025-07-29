@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.ui.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.tensport.TenSportActivity
+import com.ty.tybusbase.config.UINavConfig
 
 /**
  * ProjectName: TylMultiBusiness
@@ -11,7 +12,7 @@ import com.ty.bus.multi.core.ui.tensport.TenSportActivity
  * Date       : 2025/7/18
  * Describe   : 类描述
  */
-object UINavigation {
+object UIMultiNavigation {
     @JvmStatic
     fun goTenSportRope(context: Context, config: UINavConfig?) {
         // TODO 导航跳转

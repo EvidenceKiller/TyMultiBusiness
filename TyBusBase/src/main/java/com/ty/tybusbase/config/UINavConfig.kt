@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core
+package com.ty.tybusbase.config
 
 import com.adl.service.entity.SceneSportInfoEntity
 import com.ty.tybusbase.entity.AccountInfo
