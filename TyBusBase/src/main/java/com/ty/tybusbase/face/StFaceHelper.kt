@@ -52,7 +52,7 @@ object StFaceHelper {
     @Volatile
     var isIsDetecting = false
 
-    private var faceIdMap = hashMapOf<Int, String>()
+    private val faceIdMap = hashMapOf<Int, String>()
 
     /**
      * 记录帧数，识别人脸隔三针识别一次
@@ -63,6 +63,10 @@ object StFaceHelper {
      * 上次检测时间，超过1秒，则重置帧数
      */
     private var preDetectTime = 0L
+
+    fun getFaceIdMap(): HashMap<Int, String> {
+        return faceIdMap
+    }
 
     @Synchronized
     fun init(finish: () -> Unit) {
@@ -307,9 +311,9 @@ object StFaceHelper {
             return true
         }
         // 低分时，累计识别次数
-        val pair = tempIdentityMap.getOrDefault(userId, Pair(0,0f))
+        val pair = tempIdentityMap.getOrDefault(userId, Pair(0, 0f))
         val count = pair.first + 1
-        val maxScore = max(score,pair.second)
+        val maxScore = max(score, pair.second)
         tempIdentityMap.clear()
         return if (count >= 3 && maxScore >= 0.5f) {
             true
@@ -398,7 +402,12 @@ object StFaceHelper {
                 if (student != null) {
                     try {
                         val stVerifyResult =
-                            StVerifyResult(JSON.parseObject(student.faceData, FloatArray::class.java))
+                            StVerifyResult(
+                                JSON.parseObject(
+                                    student.faceData,
+                                    FloatArray::class.java
+                                )
+                            )
 
                         if (addFace(replace, user.accountId, stVerifyResult)) {
                             StHelper.logI("${user.accountName} 特征入库ok")
@@ -439,7 +448,12 @@ object StFaceHelper {
                 if (student != null) {
                     try {
                         val stVerifyResult =
-                            StVerifyResult(JSON.parseObject(student.faceData, FloatArray::class.java))
+                            StVerifyResult(
+                                JSON.parseObject(
+                                    student.faceData,
+                                    FloatArray::class.java
+                                )
+                            )
 
                         if (addFace(replace, user.accountId, stVerifyResult)) {
                             StHelper.logI("${user.accountName} 特征入库ok")
