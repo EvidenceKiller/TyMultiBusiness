@@ -7,6 +7,7 @@ import com.adl.base.log.AdlLogger
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
+import com.adl.service.outer.AdlService
 import com.adl.service.outer.UserCaller
 import com.adl.sport.general.EuHelper
 import com.ty.tybusbase.expand.getString
@@ -45,9 +46,10 @@ class MultiIdentityEngine {
     private val identifyMap by lazy { HashMap<Int, Int>() }
 
     private var isOK = false
-    fun identity(user: StudentEntity) {
+    fun identified(user: StudentEntity) {
         identityFinish(AccountInfo().apply {
-            studentEntity = user
+            studentEntity =
+                user.apply { userFaceImgUrl = AdlService.getService().facePrefix + userFaceImgUrl }
         })
 
     }
@@ -66,7 +68,7 @@ class MultiIdentityEngine {
         StFaceHelper.setFaceCallback(object : StFaceHelper.OnFaceCallback {
             override fun onFindUser(user: StudentEntity?) {
                 user?.let {
-                    identity(it)
+                    identified(it)
                 }
             }
 
@@ -84,7 +86,7 @@ class MultiIdentityEngine {
      */
     fun getAccountInfoWithAccount(accountId: String?) {
         val studentEntity = UserCaller.instance().queryStudentByAccountId(accountId)
-        studentEntity?.let { identity(it) }
+        studentEntity?.let { identified(it) }
     }
 
 
