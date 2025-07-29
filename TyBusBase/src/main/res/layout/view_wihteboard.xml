@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.ty.tybusbase.view.whiteboard.WhiteboardView
+        android:id="@+id/white_board_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <!--菜单栏，可拖动-->
+    <LinearLayout
+        android:id="@+id/layout_menu"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/dp_40"
+        android:gravity="center_vertical"
+        android:paddingLeft="@dimen/dp_12"
+        android:paddingRight="@dimen/dp_12"
+        android:layout_width="@dimen/dp_270"
+        android:background="@mipmap/white_board_menu_bg"
+        android:layout_height="@dimen/dp_60">
+
+        <LinearLayout
+            android:id="@+id/layout_pen"
+            android:layout_width="@dimen/dp_92"
+            android:layout_height="@dimen/dp_42"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/img_pen"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:src="@drawable/select_pen2" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_9"
+                android:text="@string/paint"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_16"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_eraser"
+            android:layout_width="@dimen/dp_92"
+            android:gravity="center"
+            android:layout_height="@dimen/dp_42">
+            <ImageView
+                android:id="@+id/img_eraser"
+                android:src="@drawable/select_eraser"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"/>
+            <TextView
+                android:text="@string/rubber"
+                android:textSize="@dimen/dp_16"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginLeft="@dimen/dp_9"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
+            <ImageView
+                android:id="@+id/img_close"
+                android:src="@drawable/select_exit_whiteboard"
+                android:layout_width="@dimen/dp_30"
+                android:layout_weight="1"
+                android:layout_height="@dimen/dp_30"/>
+    </LinearLayout>
+
+</RelativeLayout>

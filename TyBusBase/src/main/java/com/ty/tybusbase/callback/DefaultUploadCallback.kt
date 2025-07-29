@@ -142,7 +142,7 @@ class DefaultUploadCallback : ResultCallback {
             val uploadRecord = SportRecordService.uploadRecord(sportRecordEntity)
             AdlLogger.d("成绩上传完成：accountId = ${sportRecordEntity.accountId} isOk = ${uploadRecord?.isOk}")
             if (uploadRecord?.isOk == true || uploadRecord?.msg?.contains("记录id重复") == true) {
-                AdlService.getService().recordUploadDao.clearById(sportRecordEntity.id)
+                AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
             }
         } else {
             //成绩上传失败，原因：资源上传失败
@@ -151,6 +151,6 @@ class DefaultUploadCallback : ResultCallback {
     }
 
     fun saveSportResultToDB(sportRecordEntity: SportRecordEntity) {
-        AdlService.getService().recordUploadDao.insert(sportRecordEntity)
+        AdlService.getService()?.recordUploadDao?.insert(sportRecordEntity)
     }
 }

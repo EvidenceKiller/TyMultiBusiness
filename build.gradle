@@ -12,6 +12,14 @@ buildscript {
         jcenter()
         maven { url "https://s01.oss.sonatype.org/content/groups/public" }
         maven { url 'https://repo1.maven.org/maven2/' }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://172.16.2.100:10001/repository/maven-snapshots/'
+        }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://172.16.2.100:10001/repository/maven-releases/'
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:7.4.2'
@@ -36,6 +44,14 @@ allprojects {
         jcenter()
         maven { url "https://s01.oss.sonatype.org/content/groups/public" }
         maven { url 'https://repo1.maven.org/maven2/' }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://172.16.2.100:10001/repository/maven-snapshots/'
+        }
+        maven {
+            allowInsecureProtocol = true
+            url 'http://172.16.2.100:10001/repository/maven-releases/'
+        }
     }
 }
 

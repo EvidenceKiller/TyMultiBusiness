@@ -1,6 +1,8 @@
 package com.ty.bus.multi.core.ui.tensport
 
+import adl.ssp.common.report.model.IndicatorsResultDto
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
@@ -24,7 +26,9 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.helper.TypeFaceHelper
+import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.ToastUtil
 
 class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewModel>() {
     private var top1Count = 0
@@ -143,11 +147,11 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             //创建结果页，并添加到页面中
             srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
 
-//            if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-//                srrvResult.setReportOnclickListener {
-//                    viewReport(viewModel.getIndicatorsResultDto(it))
-//                }
-//            }
+            if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
+                srrvResult.setReportOnclickListener {
+                    viewReport(viewModel.getIndicatorsResultDto(it))
+                }
+            }
 
             val params =
                 ConstraintLayout.LayoutParams(
@@ -210,17 +214,18 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
     }
 
-    //    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
-//        indicatorDo?.apply {
-//            ARouter.getInstance().build(ARouterPath.MODULE_TEST_SPORT_REPORT)
-//                .withSerializable("report_indicator", this)
-//                .withInt("type", 1)
-//                .navigation()
-//        } ?: run {
-//            ToastUtil.getInstance(this, getString(com.aipower.modulecommon.R.string.no_report))
-//                .show()
-//        }
-//    }
+    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
+        indicatorDo?.apply {
+            val intent = Intent(this@TenSportActivity, SportReportActivity::class.java)
+            intent.putExtra("report_indicator", this@apply)
+            intent.putExtra("type", 1)
+            startActivity(intent)
+        } ?: run {
+            ToastUtil.getInstance(this, getString(R.string.no_report))
+                .show()
+        }
+    }
+
     private fun doResultViewTranslateAnimation(view: View) {
         view.post {
             ObjectAnimator.ofFloat(

@@ -1,0 +1,3541 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>跳绳</title>
+  </head>
+  <script src="./js/echarts.min.js"></script>
+  <style>
+    ::-webkit-scrollbar {
+      display: none;
+    }
+
+    #app {
+      overflow-x: hidden;
+    }
+    html,
+    body {
+      margin: 0px;
+      padding: 0px;
+      height: 100%;
+      width: 100%;
+    }
+    .noneDispay {
+      display: none;
+    }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      background-color: rgba(0, 0, 0, 0.8);
+      z-index: 9998;
+    }
+
+    video::-webkit-media-controls-fullscreen-button {
+      display: none;
+    }
+    video::-webkit-media-controls-mute-button {
+      display: none;
+    }
+    video::-webkit-media-controls-toggle-closed-captions-button {
+      display: none;
+    }
+    video::-webkit-media-controls-volume-slider {
+      display: none;
+    }
+
+    .page {
+      width: 1920px;
+      height: 100%;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      background: linear-gradient(0deg, #130f23 0%, #0c014c 100%);
+    }
+    .title {
+      width: 100%;
+      height: 110px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding-top: 40px;
+    }
+    .project_name {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 48px;
+      height: 70px;
+      line-height: 88px;
+      letter-spacing: 0px;
+    }
+
+    .report_title {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: 52px;
+      letter-spacing: 0px;
+      height: 70px;
+      padding: 14px 0 4px 16px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .split {
+      margin: 0 16px 3px 0;
+    }
+
+    .report_extra {
+      margin: 19px 40px 0 40px;
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 26px;
+      width: 1664px;
+      height: 26px;
+      letter-spacing: 0px;
+      text-align: center;
+    }
+
+    .report_layout {
+      display: flex;
+      width: 100%;
+    }
+
+    .main_part {
+      display: flex;
+      flex-direction: column;
+      width: 1664px;
+      margin: 59px 40px 79px 40px;
+    }
+
+    .report_header {
+      color: #fff;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    .header_top {
+      display: flex;
+      min-height: 396px;
+      margin-bottom: 24px;
+    }
+    .top_right {
+      margin-left: 24px;
+      display: flex;
+      flex-direction: column;
+      min-height: 396px;
+    }
+    .header_bottom {
+      display: flex;
+    }
+
+    .border_opacity {
+      border-radius: 10px;
+      background: linear-gradient(189.99deg, rgba(32, 135, 255, 0.2) 2.75%, rgba(95, 188, 255, 0.2) 94.53%);
+    }
+
+    .user_info {
+      width: 440px;
+      min-height: 396px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .user_avatar {
+      width: 152px;
+      height: 152px;
+      border-radius: 50%;
+    }
+    .user_data {
+      display: flex;
+      align-items: center;
+      margin-top: 24px;
+    }
+    .user_name {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 40px;
+      line-height: normal;
+      letter-spacing: 0px;
+      text-align: center;
+      margin-right: 10px;
+    }
+    .user_sex {
+      width: 32px;
+      height: 32px;
+    }
+
+    .exam_time {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: normal;
+      letter-spacing: 0px;
+      text-align: center;
+      margin-top: 43px;
+    }
+
+    .report_grade {
+      width: 1200px;
+      height: 192px;
+      display: flex;
+      margin-bottom: 24px;
+    }
+    .exam_grade {
+      width: 260px;
+      height: 192px;
+      border-radius: 10px 0px 0px 10px;
+      background: url("./image/bg_score.png") no-repeat;
+      background-size: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .exam_grade_title {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 20px;
+      line-height: normal;
+      letter-spacing: 0px;
+      margin-top: 36px;
+    }
+    .exam_grade_data {
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 58px;
+      line-height: normal;
+      letter-spacing: 0px;
+      margin-top: 0px;
+    }
+
+    .grade_rank {
+      width: 940px;
+      height: 100%;
+      display: flex;
+      justify-content: space-around;
+
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      font-size: 22px;
+      line-height: normal;
+      letter-spacing: 0px;
+      padding-top: 24px;
+    }
+    .grade_rank_title {
+      opacity: 0.800000011920929;
+    }
+    .grade_rank_top {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .grade_rank_top_title {
+      display: flex;
+      align-items: center;
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+    }
+    .grade_rank_rating_title_icon {
+      background: url("./image/ic_score.png") no-repeat;
+      background-size: 100%;
+    }
+    .grade_rank_level_icon {
+      background: url("./image/ic_level.png") no-repeat;
+      background-size: 100%;
+    }
+    .grade_rank_gradeRanking_icon {
+      background: url("./image/ic_rank_grade.png") no-repeat;
+      background-size: 100%;
+    }
+    .grade_rank_classRanking_icon {
+      background: url("./image/ic_rank_class.png") no-repeat;
+      background-size: 100%;
+    }
+
+    .grade_rank_data {
+      display: flex;
+      align-items: baseline;
+      margin-top: 37px;
+    }
+    .grade_rank_grade {
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 48px;
+      line-height: normal;
+      letter-spacing: 0px;
+      margin-right: 8px;
+    }
+    .grade_rank_unit {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: normal;
+      letter-spacing: 0px;
+    }
+    .grade_rank_level {
+      width: 102px;
+      height: 94px;
+      margin-top: 16px;
+    }
+    .grade_rank_no_level {
+      display: none;
+      width: 102px;
+      height: 94px;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 48px;
+      line-height: 94px;
+      letter-spacing: 0px;
+      text-align: center;
+      margin-top: 16px;
+    }
+
+    .report_rank {
+      width: 1200px;
+      min-height: 180px;
+      display: flex;
+      align-items: center;
+    }
+    .compareData {
+      width: 100%;
+      height: 180px;
+      border-radius: 10px;
+      display: none;
+      padding: 32px 40px 35px 40px;
+    }
+
+    .compareData_row4 {
+      width: 100%;
+      height: 32px;
+    }
+    .compareData_row4b {
+      width: 100%;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.2);
+      margin-top: 4px;
+    }
+    .compareData_row4ba {
+      height: 32px;
+      background: linear-gradient(-143.64deg, #f28f81 0%, #e94c71 100%);
+      box-shadow: 0px 2px 7px 0px #37373723;
+    }
+    .compareData_row4line {
+      width: 4px;
+      height: 40px;
+      background: linear-gradient(-180deg, #ffff9b 1%, #f56933 100%);
+      border-radius: 10px;
+      position: relative;
+      top: -36px;
+    }
+    .compareData_row4line2 {
+      width: 2px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(-143.64deg, #f28f81 0%, #e94c71 100%);
+      position: relative;
+      top: -76px;
+    }
+    .compareData_row5 {
+      position: relative;
+      left: 0px;
+      top: 0px;
+      width: 100%;
+      height: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .compareData_row51 {
+      width: 2px;
+      height: 6px;
+      left: 0px;
+      top: 0px;
+      opacity: 0.20000000298023224;
+      background: #ffffff;
+    }
+    .compareData_row6 {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+    }
+    .compareData_item {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+      font-size: 20px;
+      height: 100%;
+      line-height: normal;
+      letter-spacing: 0px;
+      position: relative;
+    }
+    .compareData_row7 {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .compareData_it1 {
+      margin-right: 48px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .compareData_it2 {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .compareData_icon_average {
+      width: 30px;
+      height: 4px;
+      background: linear-gradient(90deg, #ffff9b 1%, #f56933 100%);
+      border-radius: 10px;
+      margin-right: 8px;
+    }
+    .compareData_icon_my {
+      width: 30px;
+      height: 4px;
+      background: linear-gradient(90deg, #f28f81 0%, #e94c71 100%);
+      border-radius: 10px;
+      margin-right: 8px;
+    }
+
+    .compareData_text {
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: normal;
+      letter-spacing: 0px;
+      opacity: 0.8;
+    }
+
+    .teacher_comments {
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      padding: 27.5px 40px;
+    }
+    .comments_icon {
+      width: 111px;
+      height: 26px;
+    }
+    .comments_content {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 18px;
+      line-height: normal;
+      letter-spacing: 0px;
+      margin-top: 10px;
+    }
+
+    .project_introduction {
+      width: 100%;
+      min-height: 167px;
+      padding: 0 40px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .project_introduction_title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .project_introduction_icon {
+      width: 16px;
+      height: 16px;
+      background: url("./image/exe_ic_scanresults_failure.png") no-repeat;
+      background-size: 100%;
+      margin-right: 6px;
+    }
+    .project_introduction_text {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 18px;
+      width: 100%;
+      line-height: normal;
+      letter-spacing: 0px;
+    }
+
+    .bottom_left {
+      width: 440px;
+      margin-right: 24px;
+      display: none;
+      align-items: center;
+    }
+    .bottom_right {
+      width: 1200px;
+      min-height: 127px;
+      display: none;
+      align-items: center;
+      background: linear-gradient(92.06deg, rgba(32, 135, 255, 0.12) 35.55%, rgba(95, 188, 255, 0.12) 39.02%);
+    }
+    .bottom_all {
+      width: 100%;
+      display: none;
+      align-items: center;
+      min-height: 127px;
+      background: linear-gradient(92.06deg, rgba(32, 135, 255, 0.12) 35.55%, rgba(95, 188, 255, 0.12) 39.02%);
+    }
+
+    .report_content {
+      width: 100%;
+      margin-top: 60px;
+    }
+
+    .stage {
+      margin-bottom: 60px;
+    }
+    :last-child.stage {
+      margin-bottom: 0px;
+    }
+
+    .stage_title {
+      display: flex;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .stage_icon {
+      width: 40px;
+      height: 40px;
+      background: url("./image/ic_title.png") no-repeat;
+      background-size: 100%;
+      margin-right: 24px;
+    }
+    .stage_title_text {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 36px;
+      line-height: normal;
+      letter-spacing: 0px;
+    }
+    .stage_subTitle {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 26px;
+      letter-spacing: 0px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stage_content {
+      border-radius: 10px;
+      background: linear-gradient(172.35deg, rgba(32, 135, 255, 0.2) 0%, rgba(95, 188, 255, 0.2) 100%);
+      padding: 40px 40px 0 40px;
+      margin-bottom: 40px;
+    }
+    :first-child.stage_content {
+      margin-bottom: 0px;
+    }
+    :last-child.stage_content {
+      margin-bottom: 0px;
+    }
+
+    .stage_video {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      padding: 0 !important;
+    }
+    .video_box {
+      width: 795px;
+      height: 450px;
+      margin: 24px 0 24px 24px;
+      border-radius: 8px;
+      background: #000000;
+      position: relative;
+    }
+    .video {
+      border-radius: 8px;
+      height: 100%;
+      width: 100%;
+    }
+    .timeIndexCharts_padding {
+      padding-bottom: 30px;
+    }
+
+    .timeIndexChartsItem_level_best {
+      background: linear-gradient(180deg, #38cc82 0%, #07864f 100%) !important;
+    }
+    .timeIndexChartsItem_level_bad {
+      background: linear-gradient(180deg, #e4829a 0%, #ba3e3e 100%) !important;
+    }
+    .timeIndexChartsItem_level_perfect {
+      background: linear-gradient(5.98deg, #0f76b6 7.23%, #7025f0 138.61%) !important;
+    }
+
+    .modal_top_close_video {
+      height: 40px;
+      width: 40px;
+      background: url("./image/modalClose.png") no-repeat;
+      background-size: 100%;
+      position: absolute;
+      right: 0px;
+      top: 0px;
+    }
+
+    .modal_top_close_img {
+      height: 40px;
+      width: 40px;
+      background: url("./image/modalClose.png") no-repeat;
+      background-size: 100%;
+      position: absolute;
+      right: 0px;
+      top: 0px;
+    }
+
+    @media screen and (max-width: 960px) {
+      .videoModal {
+        display: none;
+        z-index: 9999;
+        width: 1800px;
+        height: 556px;
+        border-radius: 20px;
+        background: transparent;
+        position: fixed;
+        top: 25%;
+        left: 60px;
+        flex-direction: column;
+      }
+      .videoModal_top {
+        height: 150px;
+        width: 100%;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 32px;
+        letter-spacing: 0px;
+        text-align: center;
+        line-height: 94px;
+        position: relative;
+      }
+
+      .videoModal_bottom {
+        height: 506px;
+      }
+
+      .videoModalSrc {
+        width: 100%;
+        min-height: 502px;
+        max-height: 1002px;
+        border-radius: 20px;
+      }
+    }
+
+    @media screen and (min-width: 960px) {
+      .videoModal {
+        display: none;
+        z-index: 9999;
+        width: 1800px;
+        height: 556px;
+        border-radius: 20px;
+        background: transparent;
+        position: fixed;
+        top: 5%;
+        left: 60px;
+        flex-direction: column;
+      }
+      .videoModal_top {
+        height: 150px;
+        width: 100%;
+        color: #ffffff;
+        font-weight: 500;
+        font-size: 32px;
+        letter-spacing: 0px;
+        text-align: center;
+        line-height: 94px;
+        position: relative;
+      }
+
+      .videoModal_bottom {
+        height: 506px;
+      }
+
+      .videoModalSrc {
+        width: 100%;
+        min-height: 502px;
+        max-height: 802px;
+        border-radius: 20px;
+      }
+    }
+
+    .imgModal {
+      display: none;
+      z-index: 9999;
+      width: 1400px;
+      border-radius: 20px;
+      background: transparent;
+      position: fixed;
+      top: 80px;
+      left: 270px;
+      flex-direction: column;
+      user-select: none;
+    }
+    .imgModal_top {
+      height: 50px;
+      width: 100%;
+      color: #ffffff;
+      font-weight: 500;
+      font-size: 32px;
+      letter-spacing: 0px;
+      padding-left: 10px;
+      position: relative;
+      margin-bottom: 5px;
+    }
+    .imgModal_bottom {
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+    .imgModalLeft {
+      width: 64px;
+      height: 64px;
+      position: absolute;
+      background: url("./image/ic_left_large.png") no-repeat;
+      background-size: 100%;
+      left: -100px;
+      top: calc(50% - 64px);
+    }
+    .imgModalRight {
+      width: 64px;
+      height: 64px;
+      position: absolute;
+      background: url("./image/ic_right_large.png") no-repeat;
+      background-size: 100%;
+      right: -100px;
+      top: calc(50% - 64px);
+    }
+
+    .imgModalSrc {
+      width: 1400px;
+      height: 788px;
+      object-fit: contain;
+      border-radius: 20px;
+    }
+
+    .trackLineBox {
+      width: 100%;
+      height: 1200px;
+      display: flex;
+      justify-content: space-around;
+      margin-top: 2px;
+      flex-direction: column;
+    }
+    .trackLineBoxItem {
+      width: 100%;
+      height: 294px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .trackLineBoxSummary {
+      width: 100%;
+      height: auto;
+    }
+    .leftChart {
+      width: 350px;
+      height: 294px;
+      background: linear-gradient(195.99deg, rgba(32, 135, 255, 0.08) 7.15%, rgba(95, 188, 255, 0.08) 90.66%);
+      border-radius: 10px;
+    }
+    .rightChart {
+      width: 1200px;
+      height: 294px;
+      background: linear-gradient(225.08deg, rgba(32, 135, 255, 0.08) 30.26%, rgba(95, 188, 255, 0.08) 70.28%);
+      border-radius: 10px;
+    }
+    .middleChart {
+      width: 100%;
+      height: auto;
+      display: flex;
+      justify-content: space-between;
+      background: linear-gradient(232.66deg, rgba(32, 135, 255, 0.08) 33.19%, rgba(95, 188, 255, 0.08) 67.69%);
+      border-radius: 10px;
+    }
+    .chartStyle {
+      position: relative;
+    }
+    .chart_speed_label {
+      position: absolute;
+      display: flex;
+      justify-content: space-between;
+      width: 350px;
+      line-height: 17.35px;
+      font-family: Roboto;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 14px;
+      top: 70%;
+    }
+    .label1 {
+      margin-top: 5%;
+      margin-left: 10%;
+    }
+    .label2 {
+      margin-top: 5%;
+      margin-right: 12%;
+    }
+    .label3 {
+      margin-top: 5%;
+      margin-left: 10%;
+    }
+    .label4 {
+      margin-top: 5%;
+      margin-right: 8%;
+    }
+    .label5 {
+      margin-top: 5%;
+      margin-left: 16%;
+    }
+    .label6 {
+      margin-top: 5%;
+      margin-right: 17%;
+    }
+    .labelBox {
+      position: relative;
+      left: 1%;
+      font-family: Noto Sans SC;
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+      line-height: 16px;
+      text-align: center;
+    }
+    .labelValue {
+      font-size: 40px;
+      line-height: 40px;
+      margin-bottom: 8px;
+    }
+
+    .interruptBox {
+      width: 100%;
+      height: 41px;
+      line-height: 41px;
+      font-family: Noto Sans SC;
+      color: #ffffff;
+      text-align: center;
+      font-size: 28px;
+      display: flex;
+    }
+    .interruptBoxTitle {
+      margin-right: 20px;
+    }
+    .interruptBoxValue {
+      margin-right: 56px;
+    }
+    .interruptBoxImgItem {
+      width: 20px;
+      height: 20px;
+      margin-left: 16px;
+    }
+    .interruptBoxImgItemLarge {
+      width: 28px;
+      height: 28px;
+      margin-left: 16px;
+    }
+    .noInterruptBox {
+      position: absolute;
+      display: none;
+      bottom: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Noto Sans SC;
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 24px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .chart_title {
+      position: absolute;
+      top: 12px;
+      left: 40px;
+      height: 32px;
+      line-height: 32px;
+      font-family: Noto Sans SC;
+      color: #ffffff;
+      font-size: 22px;
+      text-align: center;
+    }
+
+    .indexAnalysisBox {
+      margin-top: 40px;
+      padding-bottom: 40px;
+      width: 100%;
+      height: 834px;
+    }
+    .indexAnalysisBox_top {
+      background: url("./image/bg_star.png") no-repeat;
+      background-size: 100%;
+      width: 100%;
+      height: 130px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .indexAnalysisBox_top_left {
+      background: linear-gradient(180deg, #00eeff 0%, #7080ff 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 600;
+      font-size: 32px;
+      line-height: normal;
+      letter-spacing: 0px;
+      margin-left: 80px;
+    }
+    .indexAnalysisBox_top_right {
+      margin-right: 80px;
+      display: flex;
+      align-items: center;
+    }
+    .indexAnalysisBox_value {
+      background: linear-gradient(180deg, #fff42c 15%, #ffd64d 46%, #f8920c 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: bold;
+      font-size: 48px;
+      line-height: 57px;
+      letter-spacing: 0px;
+    }
+    .indexAnalysisBox_img {
+      background: url("./image/ic_star.png") no-repeat;
+      background-size: 100%;
+      width: 64px;
+      height: 64px;
+      margin: 0 32px 0 16px;
+    }
+    .indexAnalysisBox_max {
+      color: rgba(255, 255, 255, 0.38);
+      font-weight: 400;
+      font-size: 36px;
+      line-height: normal;
+      letter-spacing: 0px;
+      text-align: center;
+    }
+
+    .indexAnalysisBox_bottom {
+      width: 100%;
+      height: calc(100% - 150px);
+      padding-top: 30px;
+      position: relative;
+    }
+    .chartLevel {
+      width: 100%;
+      height: 36px;
+      display: flex;
+      position: absolute;
+      bottom: -5px;
+    }
+
+    .chartLevelItem {
+      min-width: 64px;
+      height: 36px;
+      padding: 0 12px 0 12px;
+      color: rgba(255, 255, 255, 1);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 36px;
+      letter-spacing: 0px;
+      border-radius: 40px;
+      text-align: center;
+      margin-left: 202px;
+    }
+
+    .motionTrajectoryBox {
+      padding: 32px 0 10px 0;
+      width: 100%;
+      margin-top: 24px;
+      height: 500px;
+    }
+
+    .motionAnalysisBottomImgBox {
+      width: 84px;
+      height: 102px;
+      border-radius: 4px;
+      margin-right: 4px;
+    }
+    .motionAnalysisBottomImg {
+      width: 100%;
+      height: 70px;
+      border-radius: 4px 4px 0 0;
+      background: #121045;
+      object-fit: contain;
+      pointer-events: none;
+    }
+    .motionAnalysisBottomImgBoxTitle {
+      color: rgba(255, 255, 255, 0.6);
+      font-weight: 400;
+      font-size: 18px;
+      height: 28px;
+      letter-spacing: 0px;
+      text-align: center;
+      border-radius: 0 0 4px 4px;
+      background-color: #121045;
+      pointer-events: none;
+    }
+    .motionAnalysisBottomImgBoxActive {
+      color: #ffffff !important;
+      border: 1.5px solid #e04144 !important;
+    }
+
+    .motionAnalysisTop_left {
+      position: relative;
+      width: 290px;
+      height: 100%;
+      padding-left: 32px;
+      display: flex;
+      align-items: center;
+    }
+    .motionAnalysisTop_left_top {
+      color: rgba(255, 255, 255, 1);
+      font-weight: medium;
+      font-size: 28px;
+      line-height: normal;
+      position: absolute;
+      top: 20px;
+    }
+
+    .motionAnalysisTop_middle {
+      height: 100%;
+      width: 853px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .currentImg {
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .motionAnalysisTop_right {
+      position: relative;
+      width: 290px;
+      height: 100%;
+      padding-right: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: end;
+    }
+    .motionAnalysisTop_right_top {
+      color: rgba(255, 255, 255, 1);
+      font-weight: medium;
+      font-size: 28px;
+      line-height: normal;
+      position: absolute;
+      top: 20px;
+    }
+
+    .movementAnalysis {
+      color: rgba(255, 255, 255, 1);
+      font-weight: 400;
+      font-size: 26px;
+      line-height: 26px;
+      letter-spacing: 0px;
+      margin: 40px 0;
+    }
+    .movementAnalysisBox {
+      padding-left: 0px !important;
+    }
+
+    .stage_echarts {
+      width: 100%;
+      padding-left: 40px;
+    }
+
+    .stage_echarts > ul {
+      list-style-type: disc;
+      color: #ffffff;
+      font-weight: bold;
+      font-size: 26px;
+      line-height: normal;
+      letter-spacing: 0px;
+      padding-left: 0px;
+    }
+    .li_box {
+      border-bottom: 1px solid rgba(147, 161, 222, 0.5);
+      padding-bottom: 40px;
+      padding-right: 40px;
+    }
+    :last-child.li_box {
+      border-bottom: none;
+    }
+    .stage_echarts > ul > div > li {
+      position: relative;
+      left: 23px;
+      margin-top: 40px;
+    }
+    .analysisContent {
+      position: relative;
+      left: -23px;
+    }
+
+    .report_img {
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      margin-top: 27px;
+    }
+    .img_box {
+      width: 722.77px;
+      height: 205.75px;
+      position: relative;
+    }
+    .standard {
+      margin-right: 88px;
+    }
+
+    .img {
+      width: 773px;
+      height: 220px;
+      border-radius: 8px;
+      background: #0b0133;
+      object-fit: contain;
+    }
+    .img_tag {
+      color: #ffffff;
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 44px;
+      letter-spacing: 0px;
+      width: 108px;
+      height: 44px;
+      position: absolute;
+      z-index: 999;
+      text-align: center;
+      border-radius: 8px 0 8px 0;
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .report_data {
+      margin-top: 32.25px;
+
+      display: flex;
+      align-items: center;
+    }
+    .report_data_value {
+      font-size: 32px;
+      height: 36px;
+      line-height: 36px;
+      margin-right: 24px;
+    }
+
+    .report_data_level {
+      min-width: 64px;
+      height: 36px;
+      padding: 0 12px 0 12px;
+      color: rgba(255, 255, 255, 1);
+      font-weight: 400;
+      font-size: 20px;
+      line-height: 36px;
+      letter-spacing: 0px;
+      border-radius: 40px;
+      text-align: center;
+    }
+
+    .errorDataReport {
+      width: 80px !important;
+      background: #ee2c26 !important;
+    }
+
+    .report_analysis {
+      margin-top: 24px;
+
+      padding-top: 24px;
+      border-top: 1px dashed #93a1de7f;
+    }
+    .report_analysis_title {
+      font-size: 24px;
+      line-height: normal;
+      margin-bottom: 16px;
+    }
+    .report_analysis_content {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 20px;
+      line-height: normal;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      position: fixed;
+      height: 100%;
+      margin-top: -45px;
+    }
+
+    .nav_line {
+      height: 320px;
+      width: 1px;
+      position: relative;
+      left: 1.4px;
+      border-left: 1px solid #999999;
+      z-index: 1;
+    }
+
+    .nav > ul {
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 0 14px;
+      position: relative;
+      left: -22px;
+      list-style-type: none;
+    }
+
+    .nav > ul > li {
+      font-style: normal;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 18px;
+      color: #999999;
+      opacity: 0.8;
+      padding: 10px 0 10px 0px;
+      text-decoration: none;
+      padding-left: 22px;
+    }
+
+    .progressbar .text {
+      -webkit-box-orient: vertical;
+      display: -webkit-box;
+      width: 120px;
+      text-align: left;
+      line-clamp: 2;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: #999999;
+      cursor: pointer;
+    }
+
+    .progressbar li:before {
+      content: "";
+      text-align: center;
+      width: 12px;
+      height: 12px;
+      background: #999;
+      border-radius: 50%;
+    }
+
+    .progressbar li:after {
+      /* 伪元素实现li圆点垂直相连的线*/
+      transform: translate(-50%, 0) rotate(90deg);
+      content: "";
+      width: 66%;
+      height: 1px;
+      background: #999999;
+      z-index: -1;
+    }
+
+    .progressbar > .active > div {
+      color: #f07e7d;
+    }
+
+    .progressbar > .active {
+      list-style-type: none;
+      background: url("./image/ic_nav.png") no-repeat;
+      background-size: 100%;
+      background-position: center left;
+      background-size: 16px 16px;
+      z-index: 2;
+    }
+
+    .progressbar > .active {
+      color: #f07e7d;
+    }
+
+    .progressbar li:first-child:after {
+      content: none;
+    }
+  </style>
+
+  <body>
+    <div class="page">
+      <div class="title">
+        <span class="project_name">跳绳</span>
+        <div class="report_title">
+          <div class="split">|</div>
+          <div>运动分析报告</div>
+        </div>
+      </div>
+      <div class="report_extra">
+        *本报告是基于运动解剖学、运动生物力学、运动生理学等专业领域的深入研究，结合大数据分析、计算机视觉识别判断等前沿科技，并根据运动项目具体特点智能生成，帮助您更好地了解自己的运动能力、发现潜在的改进空间。我们鼓励您将报告中的建议与个人实际情况相结合，制定适合自己的训练计划。本报告的最终解释权归本公司所有。
+      </div>
+
+      <div class="report_layout">
+        <div class="main_part">
+          <div class="report_header">
+            <div class="header_top">
+              <div class="user_info border_opacity">
+                <img class="user_avatar" id="user_avatar" src="" onError="avatarError()" />
+                <div class="user_data">
+                  <div class="user_name" id="user_name"></div>
+                  <img class="user_sex" id="user_sex" src="" />
+                </div>
+                <div class="exam_time" id="exam_time"></div>
+              </div>
+
+              <div class="top_right">
+                <div class="report_grade border_opacity">
+                  <div class="exam_grade">
+                    <div class="exam_grade_title">测试成绩</div>
+                    <div class="exam_grade_data" id="exam_grade_data"></div>
+                  </div>
+
+                  <div class="grade_rank">
+                    <div class="grade_rank_top">
+                      <div class="grade_rank_top_title">
+                        <div class="grade_rank_rating_title_icon icon"></div>
+                        <span class="grade_rank_title"> 评分 </span>
+                      </div>
+
+                      <div class="grade_rank_data">
+                        <div class="grade_rank_grade" id="grade_rank_grade"></div>
+                        <div class="grade_rank_unit">分</div>
+                      </div>
+                    </div>
+
+                    <div class="grade_rank_top">
+                      <div class="grade_rank_top_title">
+                        <div class="grade_rank_level_icon icon"></div>
+                        <span class="grade_rank_title"> 等级 </span>
+                      </div>
+
+                      <img class="grade_rank_level" id="grade_rank_level" src="" />
+                      <div class="grade_rank_no_level" id="grade_rank_no_level">-</div>
+                    </div>
+
+                    <div class="grade_rank_top">
+                      <div class="grade_rank_top_title">
+                        <div class="grade_rank_gradeRanking_icon icon"></div>
+                        <span class="grade_rank_title"> 年级排名 </span>
+                      </div>
+
+                      <div class="grade_rank_data">
+                        <div class="grade_rank_grade"></div>
+                        <div class="grade_rank_unit"></div>
+                      </div>
+                    </div>
+
+                    <div class="grade_rank_top">
+                      <div class="grade_rank_top_title">
+                        <div class="grade_rank_classRanking_icon icon"></div>
+                        <span class="grade_rank_title"> 班级排名 </span>
+                      </div>
+
+                      <div class="grade_rank_data">
+                        <div class="grade_rank_grade"></div>
+                        <div class="grade_rank_unit"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="report_rank border_opacity">
+                  <div class="compareData" id="compareData">
+                    <div class="compareData_row4">
+                      <div class="compareData_row4b">
+                        <div class="compareData_row4ba" id="compareData_row4ba"></div>
+                        <div class="compareData_row4line" id="compareData_row4line"></div>
+                        <div class="compareData_row4line2" id="compareData_row4line2"></div>
+                      </div>
+                    </div>
+                    <div class="compareData_row5">
+                      <div class="compareData_row51"></div>
+                      <div class="compareData_row51"></div>
+                    </div>
+                    <div class="compareData_row6">
+                      <div class="compareData_item" style="left: -8px">0个</div>
+                      <div class="compareData_item" style="left: 14px">300个</div>
+                    </div>
+                    <div class="compareData_row7">
+                      <div class="compareData_it1">
+                        <div class="compareData_icon_average"></div>
+                        <div class="compareData_text"></div>
+                      </div>
+                      <div class="compareData_it2">
+                        <div class="compareData_icon_my"></div>
+                        <div class="compareData_text"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="teacher_comments noneDispay" id="teacher_comments">
+                    <img class="comments_icon" src="./image/ic_techer.png" />
+                    <div class="comments_content"></div>
+                  </div>
+
+                  <div class="project_introduction noneDispay" id="project_introduction">
+                    <div class="project_introduction_title">
+                      <div class="project_introduction_icon"></div>
+                      <span class="project_introduction_text"> 项目介绍 </span>
+                    </div>
+                    <div class="project_introduction_text">
+                      跳绳是一项综合考核学生灵敏协调和肌耐力水平的项目。<br />
+                      主要考核上下肢协同工作的能力，也兼顾下肢肌肉的耐力水平，尤其是无氧耐力。<br />
+                      在跳绳运动中，采用科学合理的姿势，可以提高运动的效率，降低疲劳累积。双臂张开的角度、摆动幅度，双腿间距，跳跃高度等指标都可能影响最终成绩。
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="header_bottom">
+              <div class="bottom_left border_opacity" id="bottom_left">
+                <div class="teacher_comments">
+                  <img class="comments_icon" src="./image/ic_techer.png" />
+                  <div class="comments_content"></div>
+                </div>
+              </div>
+              <div class="bottom_right border_opacity" id="bottom_right">
+                <div class="project_introduction">
+                  <div class="project_introduction_title">
+                    <div class="project_introduction_icon"></div>
+                    <span class="project_introduction_text"> 项目介绍 </span>
+                  </div>
+                  <div class="project_introduction_text">
+                    跳绳是一项综合考核学生灵敏协调和肌耐力水平的项目。<br />
+                    主要考核上下肢协同工作的能力，也兼顾下肢肌肉的耐力水平，尤其是无氧耐力。<br />
+                    在跳绳运动中，采用科学合理的姿势，可以提高运动的效率，降低疲劳累积。双臂张开的角度、摆动幅度，双腿间距，跳跃高度等指标都可能影响最终成绩。
+                  </div>
+                </div>
+              </div>
+
+              <div class="bottom_all border_opacity" id="bottom_all">
+                <div class="project_introduction">
+                  <div class="project_introduction_title">
+                    <div class="project_introduction_icon"></div>
+                    <span class="project_introduction_text"> 项目介绍 </span>
+                  </div>
+                  <div class="project_introduction_text">
+                    跳绳是一项综合考核学生灵敏协调和肌耐力水平的项目。<br />
+                    主要考核上下肢协同工作的能力，也兼顾下肢肌肉的耐力水平，尤其是无氧耐力。<br />
+                    在跳绳运动中，采用科学合理的姿势，可以提高运动的效率，降低疲劳累积。双臂张开的角度、摆动幅度，双腿间距，跳跃高度等指标都可能影响最终成绩。
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="report_content">
+            <div class="stage report_li" id="stage_1">
+              <div class="stage_title">
+                <div class="stage_icon"></div>
+                <div class="stage_title_text">运动视频</div>
+              </div>
+              <div class="stage_content stage_video">
+                <div class="video_box">
+                  <video
+                    class="video"
+                    id="videoMain"
+                    controlslist="nodownload nofullscreen noremoteplayback noplaybackrate"
+                    disablePictureInPicture
+                    controls
+                    src=""
+                    poster=""
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div class="stageDispaly">
+              <div class="stage">
+                <div class="stage_title">
+                  <div class="stage_icon"></div>
+                  <div class="stage_title_text">整体过程评价</div>
+                </div>
+                <div class="stage_content report_li" id="stage_2">
+                  <div class="stage_subTitle">
+                    <div>数据分析</div>
+                  </div>
+                  <div class="trackLineBox">
+                    <div class="trackLineBoxItem">
+                      <div class="leftChart chartStyle">
+                        <div id="gaugeChart_Speed" style="height: 100%; width: 100%"></div>
+                        <div class="chart_speed_label">
+                          <div class="label1">0次/秒</div>
+                          <div class="labelBox">
+                            <div class="labelValue"></div>
+                            <div>次/秒</div>
+                          </div>
+                          <div class="label2">2次/秒</div>
+                        </div>
+                        <div class="chart_title">平均速度</div>
+                      </div>
+                      <div class="rightChart chartStyle">
+                        <div id="lineChart_Speed" style="height: 100%; width: 100%"></div>
+                        <div class="chart_title">体能指标</div>
+                      </div>
+                    </div>
+                    <div class="trackLineBoxItem">
+                      <div class="middleChart">
+                        <div class="leftChart chartStyle" style="background: transparent">
+                          <div id="gaugeChart_ComboMax" style="height: 100%; width: 100%"></div>
+                          <div class="chart_speed_label">
+                            <div class="label3">0个/次</div>
+                            <div class="labelBox">
+                              <div class="labelValue"></div>
+                              <div>个/次</div>
+                            </div>
+                            <div class="label4">300个/次</div>
+                          </div>
+                          <div class="chart_title">最大连击次数</div>
+                        </div>
+                        <div class="rightChart" style="background: transparent">
+                          <div id="lineChart_ComboMax" style="height: 100%; width: 100%"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="trackLineBoxItem">
+                      <div class="middleChart">
+                        <div class="leftChart chartStyle" style="background: transparent">
+                          <div id="gaugeChart_InterruptNum" style="height: 100%; width: 100%"></div>
+                          <div class="chart_speed_label">
+                            <div class="label5">0次</div>
+                            <div class="labelBox">
+                              <div class="labelValue"></div>
+                              <div>次</div>
+                            </div>
+                            <div class="label6">10次</div>
+                          </div>
+                          <div class="chart_title">中断次数</div>
+                        </div>
+
+                        <div class="rightChart" style="background: transparent">
+                          <div
+                            style="
+                              height: 100%;
+                              width: 100%;
+                              display: flex;
+                              position: relative;
+                              flex-direction: column;
+                              justify-content: space-evenly;
+                            "
+                          >
+                            <div class="interruptBox">
+                              <div class="interruptBoxTitle">普通中断</div>
+                              <div class="interruptBoxValue" style="color: #ffb236"></div>
+                              <div class="interruptBoxImg">
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                                <img class="interruptBoxImgItem" src="./image/ic_interrupt.png" alt="" />
+                              </div>
+                            </div>
+                            <div class="interruptBox">
+                              <div class="interruptBoxTitle">过长中断</div>
+                              <div class="interruptBoxValue" style="color: #f62227"></div>
+                              <div class="interruptBoxImg">
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                                <img class="interruptBoxImgItemLarge" src="./image/ic_interrupt_large.png" alt="" />
+                              </div>
+                            </div>
+
+                            <div class="noInterruptBox">
+                              <img src="./image/ic_noInterrupt.png" alt="" />
+                              <div>做得好，请保持！</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="trackLineBoxSummary">
+                      <div class="middleChart"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stage_content timeIndexCharts_padding report_li" id="stage_3">
+                  <div class="stage_subTitle">重心偏移</div>
+                  <div class="motionTrajectoryBox">
+                    <div id="scatterChart_Offset" style="height: 100%; width: 100%"></div>
+                  </div>
+                </div>
+
+                <div class="stage_content report_li" id="stage_4">
+                  <div class="stage_subTitle">指标分析</div>
+                  <div class="indexAnalysisBox">
+                    <div class="indexAnalysisBox_top">
+                      <div class="indexAnalysisBox_top_left">已获得达标星</div>
+                      <div class="indexAnalysisBox_top_right">
+                        <div class="indexAnalysisBox_value"></div>
+                        <div class="indexAnalysisBox_img"></div>
+                        <div class="indexAnalysisBox_max">/5星</div>
+                      </div>
+                    </div>
+
+                    <div class="indexAnalysisBox_bottom">
+                      <div id="barChart_Star" style="height: 100%; width: 100%"></div>
+                      <div class="chartLevel">
+                        <div class="chartLevelItem"></div>
+                        <div class="chartLevelItem"></div>
+                        <div class="chartLevelItem"></div>
+                        <div class="chartLevelItem"></div>
+                        <div class="chartLevelItem"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="stage_title">
+                <div class="stage_icon"></div>
+                <div class="stage_title_text">专项技能评价</div>
+              </div>
+              <div class="movementAnalysis">运动分析</div>
+              <div class="stage_content movementAnalysisBox">
+                <div class="stage_echarts">
+                  <ul>
+                    <div class="li_box">
+                      <li class="report_li" style="margin-top: 0px" id="stage_5">
+                        01 摇绳大臂夹角
+                        <div class="analysisContent">
+                          <div class="report_img">
+                            <div class="img_box standard imgModalSwitch">
+                              <span class="img_tag">标准动作</span>
+                              <img class="img" src="./image/101.png" />
+                            </div>
+                            <div class="img_box imgModalSwitch">
+                              <span class="img_tag">我的动作</span>
+                              <img class="img analysisContentImg" src="" />
+                            </div>
+                          </div>
+
+                          <div class="report_data">
+                            <div class="report_data_value"></div>
+                            <div class="report_data_level"></div>
+                          </div>
+
+                          <div class="report_analysis">
+                            <div class="report_analysis_title"></div>
+                            <div class="report_analysis_content"></div>
+                          </div>
+                        </div>
+                      </li>
+                    </div>
+
+                    <div class="li_box">
+                      <li class="report_li" id="stage_6">
+                        02 摇绳小臂夹角
+                        <div class="analysisContent">
+                          <div class="report_img">
+                            <div class="img_box standard imgModalSwitch">
+                              <span class="img_tag">标准动作</span>
+                              <img class="img" src="./image/102.png" />
+                            </div>
+                            <div class="img_box imgModalSwitch">
+                              <span class="img_tag">我的动作</span>
+                              <img class="img analysisContentImg" src="" />
+                            </div>
+                          </div>
+
+                          <div class="report_data">
+                            <div class="report_data_value"></div>
+                            <div class="report_data_level"></div>
+                          </div>
+
+                          <div class="report_analysis">
+                            <div class="report_analysis_title"></div>
+                            <div class="report_analysis_content"></div>
+                          </div>
+                        </div>
+                      </li>
+                    </div>
+
+                    <div class="li_box">
+                      <li class="report_li" id="stage_7">
+                        03 摇绳手腕对称性
+                        <div class="analysisContent">
+                          <div class="report_img">
+                            <div class="img_box standard imgModalSwitch">
+                              <span class="img_tag">标准动作</span>
+                              <img class="img" src="./image/103.png" />
+                            </div>
+                            <div class="img_box imgModalSwitch">
+                              <span class="img_tag">我的动作</span>
+                              <img class="img analysisContentImg" src="" />
+                            </div>
+                          </div>
+
+                          <div class="report_data">
+                            <div class="report_data_value"></div>
+                            <div class="report_data_level"></div>
+                          </div>
+
+                          <div class="report_analysis">
+                            <div class="report_analysis_title"></div>
+                            <div class="report_analysis_content"></div>
+                          </div>
+                        </div>
+                      </li>
+                    </div>
+
+                    <div class="li_box">
+                      <li class="report_li" id="stage_8">
+                        04 起跳高度
+                        <div class="analysisContent">
+                          <div class="report_img">
+                            <div class="img_box standard imgModalSwitch">
+                              <span class="img_tag">标准动作</span>
+                              <img class="img" src="./image/104.png" />
+                            </div>
+                            <div class="img_box imgModalSwitch">
+                              <span class="img_tag">我的动作</span>
+                              <img class="img analysisContentImg" src="" />
+                            </div>
+                          </div>
+
+                          <div class="report_data">
+                            <div class="report_data_value"></div>
+                            <div class="report_data_level"></div>
+                          </div>
+
+                          <div class="report_analysis">
+                            <div class="report_analysis_title"></div>
+                            <div class="report_analysis_content"></div>
+                          </div>
+                        </div>
+                      </li>
+                    </div>
+
+                    <div class="li_box">
+                      <li class="report_li" id="stage_9">
+                        05 双脚间距
+                        <div class="analysisContent">
+                          <div class="report_img">
+                            <div class="img_box standard imgModalSwitch">
+                              <span class="img_tag">标准动作</span>
+                              <img class="img" src="./image/105.png" />
+                            </div>
+                            <div class="img_box imgModalSwitch">
+                              <span class="img_tag">我的动作</span>
+                              <img class="img analysisContentImg" src="" />
+                            </div>
+                          </div>
+
+                          <div class="report_data">
+                            <div class="report_data_value"></div>
+                            <div class="report_data_level"></div>
+                          </div>
+
+                          <div class="report_analysis">
+                            <div class="report_analysis_title"></div>
+                            <div class="report_analysis_content"></div>
+                          </div>
+                        </div>
+                      </li>
+                    </div>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div flex="1">
+          <div class="nav stageDispaly">
+            <div class="nav_line"></div>
+            <ul class="progressbar">
+              <li class="navpart active" data-target="stage_1">
+                <div class="text">运动视频</div>
+              </li>
+              <li class="navpart" data-target="stage_2">
+                <div class="text">数据分析</div>
+              </li>
+              <li class="navpart" data-target="stage_3">
+                <div class="text">重心偏移</div>
+              </li>
+              <li class="navpart" data-target="stage_4">
+                <div class="text">指标分析</div>
+              </li>
+              <li class="navpart" data-target="stage_5">
+                <div class="text">摇绳大臂夹角</div>
+              </li>
+              <li class="navpart" data-target="stage_6">
+                <div class="text">摇绳小臂夹角</div>
+              </li>
+              <li class="navpart" data-target="stage_7">
+                <div class="text">摇绳手腕对称性</div>
+              </li>
+              <li class="navpart" data-target="stage_8">
+                <div class="text">起跳高度</div>
+              </li>
+              <li class="navpart" data-target="stage_9">
+                <div class="text">双脚间距</div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+    <div class="videoModal" id="videoModal">
+      <div class="videoModal_top">
+        <div class="modal_top_close_video" id="modal_top_close_video"></div>
+      </div>
+
+      <div class="videoModal_bottom">
+        <video
+          src=""
+          id="videoModalSrc"
+          class="videoModalSrc"
+          controlslist="nodownload nofullscreen noremoteplayback noplaybackrate"
+          disablePictureInPicture
+          controls
+          autoplay
+        />
+      </div>
+    </div>
+
+    <div class="imgModal" id="imgModal">
+      <div class="imgModal_top">
+        <div id="imgModal_value"></div>
+        <div class="modal_top_close_img" id="modal_top_close_img"></div>
+      </div>
+
+      <div class="imgModal_bottom">
+        <div class="imgModalLeft" id="imgModalLeft"></div>
+        <img src="" id="imgModalSrc" class="imgModalSrc" />
+        <div class="imgModalRight" id="imgModalRight"></div>
+      </div>
+    </div>
+    <script>
+      const recordData = {
+        rankData: {},
+        sex: 1,
+        sportIndicatorsList: [
+          {
+            indicatorsCode: "02010011",
+            indicatorsImages: [{ imageDesc: "双脚间距", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsName: "双脚间距合格率",
+            indicatorsRemark: {},
+            indicatorsUnit: "%",
+            indicatorsValue: 80.30303,
+          },
+          {
+            indicatorsCode: "02010010",
+            indicatorsImages: [{ imageDesc: "起跳高度", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsName: "起跳高度合格率",
+            indicatorsRemark: {},
+            indicatorsUnit: "%",
+            indicatorsValue: 94.871796,
+          },
+          {
+            indicatorsCode: "02010002",
+            indicatorsName: "速度时间分布",
+            indicatorsValue: [
+              { x: 3.0, y: 140.0 },
+              { x: 6.0, y: 200.0 },
+              { x: 9.0, y: 180.0 },
+              { x: 12.0, y: 160.0 },
+            ],
+          },
+          {
+            indicatorsCode: "02010001",
+            indicatorsName: "运动单个时间分布",
+            indicatorsValue: [
+              3.369, 3.825, 4.16, 4.499, 4.817, 5.061, 7.989, 8.339, 8.691, 9.014, 9.33, 9.655, 9.931, 10.291, 10.607,
+              10.957, 11.302, 11.613, 11.924, 12.243, 12.588, 12.888, 13.211, 13.495, 13.893, 17.238, 17.522, 17.923,
+              18.321, 18.703, 19.134, 19.551, 19.892, 20.254, 20.534, 20.919, 21.214, 21.521, 21.891,
+            ],
+          },
+          { indicatorsCode: "02010004", indicatorsName: "总时长", indicatorsUnit: "s", indicatorsValue: 61.06 },
+          {
+            indicatorsCode: "02010003",
+            indicatorsName: "中断时间区域分布",
+            indicatorsValue: [
+              { endTime: 8.339, startTime: 5.061 },
+              { endTime: 17.522, startTime: 13.893 },
+            ],
+          },
+          {
+            indicatorsCode: "02010006",
+            indicatorsName: "位置偏移",
+            indicatorsValue: [
+              { x: 777.0, y: 848.0 },
+              { x: 1131.0, y: 845.0 },
+              { x: 708.0, y: 1063.0 },
+              { x: 1215.0, y: 1065.0 },
+            ],
+          },
+          { indicatorsCode: "02010005", indicatorsName: "最大连击数", indicatorsUnit: "g", indicatorsValue: 18.0 },
+          {
+            indicatorsCode: "02010008",
+            indicatorsImages: [{ imageDesc: "摇绳小臂夹角", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsName: "摇绳小臂夹角合格率",
+            indicatorsRemark: {},
+            indicatorsUnit: "%",
+            indicatorsValue: 86.36364,
+          },
+          {
+            indicatorsCode: "02010007",
+            indicatorsImages: [{ imageDesc: "摇绳大臂夹角", imageUrl: "26073844300000" }],
+            indicatorsName: "摇绳大臂夹角合格率",
+            indicatorsRemark: {},
+            indicatorsUnit: "%",
+            indicatorsValue: 78.63637,
+          },
+          {
+            indicatorsCode: "02010009",
+            indicatorsImages: [{ imageDesc: "摇绳手腕对称性", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsName: "摇绳手腕对称性合格率",
+            indicatorsValue: 86.36364,
+          },
+          { indicatorsCode: "Z02010015", indicatorsName: "达标星个数", indicatorsValue: 3 },
+          { indicatorsCode: "0201000099", indicatorsName: "次/秒", indicatorsValue: 1.6 },
+          {
+            indicatorsCode: "0201001001",
+            indicatorsImages: [{ imageDesc: "起跳高度", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsValue: {
+              image: "/sdcard/DefResource/logo.jpg",
+              sportStatus: "达标",
+              level: "2",
+              title: "您的起跳高度保持较好",
+              remark:
+                "3-5厘米的合理起跳高度加上摇绳与起跳的节奏配合，可以在保证绊绳风险较低的前提下，达到较快的跳绳速度，而过高的起跳高度会对整体速度产生影响。",
+            },
+          },
+          {
+            indicatorsCode: "0201001101",
+            indicatorsImages: [{ imageDesc: "双脚间距", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsValue: {
+              image: "/sdcard/DefResource/logo.jpg",
+              sportStatus: "未达标",
+              level: "3",
+              title: "您的双脚间距需要调整",
+              remark:
+                "并脚跳绳中双脚间距过大会影响起跳和落地的稳定性，同时增加绊绳的风险。请尝试缩小双脚间距，保持与肩同宽或略窄，以增强双脚的协调起跳与落地能力，并减少失误的风险。",
+            },
+          },
+          { indicatorsCode: "0201000101", indicatorsName: "总个数", indicatorsUnit: "个", indicatorsValue: 39 },
+          {
+            indicatorsCode: "0201000301",
+            indicatorsName: "中断次数",
+            indicatorsRemark:
+              "您在跳绳过程中中断次数较多，并且存在过长中断的情况。请在跳绳开始前先检查跳绳状态，确保绳体无打结或缠绕情况，并且结合相关指标对摇绳姿势与跳跃过程存在的问题进行分析调整。",
+            indicatorsUnit: "次",
+            indicatorsValue: 2,
+          },
+          { indicatorsCode: "0201000302", indicatorsName: "普通中断次数", indicatorsUnit: "次", indicatorsValue: 0 },
+          { indicatorsCode: "0201000303", indicatorsName: "过长中断次数", indicatorsUnit: "次", indicatorsValue: 2 },
+          {
+            indicatorsCode: "0201000304",
+            indicatorsName: "中断时间区域分布",
+            indicatorsValue: [{ startTime: 3.369, endTime: 21.891, number: 39 }],
+          },
+          {
+            indicatorsCode: "0201000701",
+            indicatorsImages: [{ imageDesc: "摇绳大臂夹角", imageUrl: "26073844300000" }],
+            indicatorsValue: {
+              image: "26073844300000",
+              sportStatus: "未达标",
+              level: "3",
+              title: "您的手臂位置需要调整",
+              remark:
+                "跳绳过程中如果大臂与躯干的贴合度不够，会导致手腕摇绳发力不充分，并增加绊绳的可能性。请调整手臂位置，使其更自然地贴合身体，以优化摇绳动作和提高跳绳的流畅性。",
+            },
+          },
+          {
+            indicatorsCode: "0201000801",
+            indicatorsImages: [{ imageDesc: "摇绳小臂夹角", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsValue: {
+              image: "/sdcard/DefResource/logo.jpg",
+              sportStatus: "达标",
+              level: "2",
+              title: "您的手臂姿态保持较好",
+              remark:
+                "手臂姿态指的是大臂自然与躯干贴合后肘关节微微弯曲的姿态。手臂刻意伸直会影响手腕的转动，而手臂弯曲过多会增加绊绳的失误风险。",
+            },
+          },
+          {
+            indicatorsCode: "0201000901",
+            indicatorsImages: [{ imageDesc: "摇绳手腕对称性", imageUrl: "/sdcard/DefResource/logo.jpg" }],
+            indicatorsValue: {
+              image: "/sdcard/DefResource/logo.jpg",
+              sportStatus: "达标",
+              level: "2",
+              title: "您的双手摇绳手腕位置保持较好",
+              remark:
+                "保持好手臂位置与姿势后，您持绳的双手位置会自然位于两侧髋关节的斜前方，在跳绳过程中双手保持在该位置摇绳效率最优。",
+            },
+          },
+        ],
+        sportResult: "39",
+        sportTestTime: "2025-03-21 16:12:52",
+        sportTime: "61060",
+        sportTypeCode: "0201",
+        sportVideos: [
+          {
+            videoCover:
+              "/storage/emulated/0/com.adl.sport/app/20250321/0201010001/1894231293273116673/161252/cover.png",
+            videoDesc: "视频地址",
+            videoUrl:
+              "/storage/emulated/0/com.adl.sport/app/20250321/0201010001/1894231293273116673/161252/0201010001_1742544772790.mp4",
+          },
+        ],
+        type: "1",
+        userAvatar: "https://f.nezhasport.com/V2/busi/userFaceImgUrl/2025-02-25/1740454904211_53bb28cc.jpg",
+        userName: "小海",
+      };
+      if (recordData) {
+        const transResultData = () => {
+          const tembObj = {};
+
+          recordData.sportTime = recordData.sportTime / 1;
+          recordData.sportLevel = recordData.sportLevel / 1;
+
+          recordData.rankData.rankGrade = recordData.rankData.rankGrade / 1;
+          recordData.rankData.gradePeopleNumber = recordData.rankData.gradePeopleNumber / 1;
+          recordData.rankData.rankClass = recordData.rankData.rankClass / 1;
+          recordData.rankData.classPeopleNumber = recordData.rankData.classPeopleNumber / 1;
+
+          recordData.sportIndicatorsList.forEach((item) => {
+            tembObj[item.indicatorsCode] = item;
+          });
+
+          recordData.sportIndicatorsList = tembObj;
+        };
+        transResultData();
+        const icLevelList = ["./image/ic_level_1.png", "./image/ic_level_2.png", "", "./image/ic_level_3.png"];
+
+        const pic_nopicture_large = "./image/pic_nopicture_large.png";
+
+        // 数据分析
+        // 仪表盘-平均速度
+        const gaugeChart_SpeedOption = {
+          series: [
+            {
+              type: "gauge",
+              min: 0,
+              max: 2,
+              center: ["50%", "54%"],
+              radius: "70%",
+              progress: {
+                show: true,
+                width: 18,
+                roundCap: true,
+                itemStyle: {
+                  color: {
+                    type: "linear",
+                    x: 1,
+                    y: 0,
+                    x2: 0,
+                    y2: 1,
+                    colorStops: [
+                      { offset: 0, color: "#FFFFFF00" },
+                      { offset: 1, color: "#FFFFFF00" },
+                    ],
+                  },
+                },
+              },
+              axisLine: {
+                roundCap: true,
+                lineStyle: { width: 18, color: [[1, "#FFFFFF66"]] },
+              },
+              axisTick: { show: false },
+              splitLine: { show: false },
+              axisLabel: { show: false },
+              pointer: {
+                width: 10,
+                length: 45,
+                offsetCenter: [0, -5],
+                itemStyle: {
+                  color: "#0082DF",
+                },
+              },
+              anchor: {
+                show: true,
+                showAbove: true,
+                size: 20,
+                itemStyle: {
+                  borderWidth: 15,
+                  borderColor: "#0082DF",
+                  color: "#0082DF",
+                },
+              },
+              detail: { show: false },
+              data: [{ value: 0 }],
+            },
+          ],
+        };
+        // 仪表盘-最大连击次数
+        const gaugeChart_ComboMaxOption = JSON.parse(JSON.stringify(gaugeChart_SpeedOption));
+        gaugeChart_ComboMaxOption.series[0].max = 300;
+        // 仪表盘-平均速度
+        const gaugeChart_InterruptNumOption = JSON.parse(JSON.stringify(gaugeChart_SpeedOption));
+        gaugeChart_InterruptNumOption.series[0].max = 10;
+        // 折线图-体能指标
+        const lineChart_SpeedOption = {
+          color: ["#C0FC69", "#00EAFF", "#735D5B"],
+          legend: {
+            selectedMode: false, //取消图例上的点击事件
+            top: 20,
+            right: 40,
+            textStyle: {
+              color: "#fff",
+              fontSize: 20,
+            },
+            itemGap: 20,
+            data: [
+              {
+                name: "速度曲线",
+                itemStyle: {
+                  opacity: 0,
+                },
+              },
+              {
+                name: "您的平均速度",
+                lineStyle: {
+                  // type: [5, 10],
+                },
+                itemStyle: {
+                  opacity: 0,
+                },
+              },
+              {
+                name: "低速区",
+                icon: "rect",
+              },
+            ],
+          },
+          grid: {
+            left: 40,
+            right: 40,
+            top: "25%",
+            bottom: 12,
+            containLabel: true,
+          },
+          xAxis: {
+            name: "s",
+            nameTextStyle: {
+              fontSize: 20,
+              color: "rgba(255, 255, 255, 0.6)",
+            },
+            nameGap: 12,
+            type: "value",
+            boundaryGap: false,
+            data: [""],
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: [5, 5], // 设置为虚线
+              },
+            },
+            axisLabel: {
+              // interval: 2,
+              fontSize: 20,
+              color: "rgba(255, 255, 255, 0.6)",
+            },
+            axisLine: {
+              show: false, // 隐藏 X 轴
+            },
+            axisTick: {
+              show: false,
+            },
+          },
+          yAxis: {
+            name: "次/秒",
+            nameTextStyle: {
+              fontSize: 15,
+              color: "rgba(255, 255, 255, 0.6)",
+              padding: [0, 0, 0, 50],
+            },
+            nameGap: 5,
+            type: "value",
+            max: 5,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: [5, 5], // 设置为虚线
+              },
+            },
+            axisLabel: {
+              fontSize: 20,
+              color: "rgba(255, 255, 255, 0.6)",
+            },
+            axisLine: {
+              show: false, // 隐藏 X 轴
+            },
+          },
+          series: [
+            {
+              name: "速度曲线",
+              type: "line",
+              data: [],
+              smooth: true,
+              symbol: "none",
+              lineStyle: {
+                normal: {
+                  color: "#C0FC69",
+                  width: 2,
+                },
+              },
+            },
+            {
+              name: "您的平均速度",
+              type: "line",
+              data: [],
+              symbol: "none",
+              lineStyle: {
+                normal: {
+                  color: "#00EAFF",
+                  width: 2,
+                  type: [5, 5],
+                },
+              },
+            },
+            {
+              name: "低速区",
+              type: "line",
+              data: [],
+              areaStyle: {
+                opacity: 0.8,
+                color: "#735D5B",
+              },
+              symbol: "none",
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 0,
+                  },
+                },
+              },
+            },
+          ],
+        };
+        //  折线图-最大连击次数
+        const lineChart_ComboMaxOption = {
+          legend: {
+            show: false,
+          },
+          grid: {
+            left: 40,
+            right: 40,
+            top: "25%",
+            bottom: 20,
+            containLabel: true,
+          },
+          xAxis: [
+            {
+              name: "s",
+              nameTextStyle: {
+                fontSize: 20,
+                color: "rgba(255, 255, 255, 0.6)",
+              },
+              min: 0,
+              nameGap: 12,
+              type: "value",
+              boundaryGap: false,
+              // data: [],
+              splitLine: {
+                show: false,
+                lineStyle: {
+                  type: [5, 2], // 设置为虚线
+                },
+              },
+              splitNumber: 20,
+              axisLabel: {
+                interval: 2,
+                fontSize: 20,
+                margin: 20,
+                color: "rgba(255, 255, 255, 0.6)",
+              },
+              axisLine: {
+                show: false, // 隐藏 X 轴
+              },
+              axisTick: {
+                show: false,
+              },
+            },
+          ],
+          yAxis: {
+            type: "value",
+            max: 2,
+            splitNumber: 2,
+            splitLine: {
+              show: false,
+            },
+            axisLabel: {
+              show: false,
+            },
+            axisLine: {
+              show: false, // 隐藏 X 轴
+            },
+            axisTick: {
+              show: false,
+            },
+          },
+          series: [
+            {
+              name: "背景范围",
+              type: "line",
+              data: [],
+              areaStyle: {
+                color: "rgba(0, 194, 255, 0.16)",
+              },
+              zlevel: 0,
+              symbol: "none",
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 0,
+                  },
+                },
+              },
+            },
+            {
+              name: "背景线1",
+              type: "line",
+              data: [],
+              zlevel: 0,
+              symbol: "none",
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 4,
+                    color: "rgba(255, 255, 255, 0.4)",
+                  },
+                },
+              },
+            },
+            {
+              name: "背景线2",
+              type: "line",
+              data: [],
+              zlevel: 0,
+              symbol: "none",
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 1,
+                    color: "#079DDB",
+                    type: [5, 2],
+                  },
+                },
+              },
+            },
+            {
+              name: "背景线3",
+              type: "line",
+              data: [],
+              zlevel: 0,
+              symbol: "none",
+              itemStyle: {
+                normal: {
+                  lineStyle: {
+                    width: 1,
+                    color: "#079DDB",
+                    type: [5, 2],
+                  },
+                },
+              },
+            },
+            {
+              name: "普通中断点",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 0,
+              label: {
+                show: true,
+                distance: -8,
+                formatter: "{a|}",
+                rich: {
+                  a: {
+                    width: 14,
+                    height: 14,
+                    align: "center",
+                    backgroundColor: {
+                      image: "./image/ic_interrupt.png",
+                    },
+                  },
+                },
+              },
+              lineStyle: {
+                normal: {
+                  width: 0,
+                  color: "#C0FC69",
+                },
+              },
+            },
+            {
+              name: "过长中断点",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 0,
+              label: {
+                show: true,
+                distance: -10,
+                formatter: "{a|}",
+                rich: {
+                  a: {
+                    width: 18,
+                    height: 18,
+                    align: "center",
+                    backgroundColor: {
+                      image: "./image/ic_interrupt_large.png",
+                    },
+                  },
+                },
+              },
+              lineStyle: {
+                normal: {
+                  width: 0,
+                  color: "#C0FC69",
+                },
+              },
+            },
+            {
+              name: "最大连击线渲染",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 5,
+              itemStyle: {
+                color: "#1443CE",
+              },
+              lineStyle: {
+                normal: {
+                  width: 4,
+                  color: "#00fffb",
+                },
+              },
+            },
+            {
+              name: "连击线渲染",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 5,
+              itemStyle: {
+                color: "#1443CE",
+              },
+              lineStyle: {
+                normal: {
+                  width: 4,
+                  color: "#4dc1ff",
+                },
+              },
+            },
+            {
+              name: "连击两端点",
+              type: "scatter",
+              data: [],
+              symbol: "circle",
+              symbolSize: 10,
+              zlevel: 10,
+              itemStyle: {
+                normal: {
+                  color: "#4dc1ff",
+                },
+              },
+            },
+            {
+              name: "最大连击两端点",
+              type: "scatter",
+              data: [],
+              symbol: "circle",
+              symbolSize: 10,
+              zlevel: 10,
+              itemStyle: {
+                normal: {
+                  color: "#00fffb",
+                },
+              },
+            },
+            {
+              name: "最大连击个数展示",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 0,
+              label: {
+                show: true,
+                fontSize: 24,
+                distance: 10,
+                color: "#00fffb",
+                formatter: null,
+                rich: {
+                  a: {
+                    width: 18,
+                    height: 18,
+                    align: "center",
+                    backgroundColor: {
+                      image: "./image/ic_arrow.png",
+                    },
+                  },
+                },
+              },
+              itemStyle: {
+                color: "#1443CE",
+              },
+              lineStyle: {
+                normal: {
+                  width: 0,
+                  color: "#4dc1ff",
+                },
+              },
+            },
+            {
+              name: "连击个数展示",
+              type: "line",
+              data: [],
+              zlevel: 999,
+              symbol: "circle",
+              symbolSize: 0,
+              label: {
+                show: true,
+                position: "bottom",
+                distance: 15,
+                fontSize: 24,
+                color: "rgba(77, 193, 255, 0.8)",
+                formatter: (value) => value.data[2] + "个",
+              },
+              itemStyle: {
+                color: "#1443CE",
+              },
+              lineStyle: {
+                normal: {
+                  width: 0,
+                  color: "#4dc1ff",
+                },
+              },
+            },
+          ],
+        };
+
+        const barChart_StarOption = {
+          legend: {
+            show: false,
+          },
+          grid: {
+            show: true,
+            left: 40,
+            right: 40,
+            top: 40,
+            bottom: 40,
+            borderColor: "transparent",
+            backgroundColor: {
+              type: "linear",
+              x: 0,
+              y: 1,
+              x2: 0,
+              y2: 0,
+              colorStops: [
+                {
+                  offset: 0,
+                  color: "rgba(50, 152, 255, 0.3)", // 0% 处的颜色
+                },
+                {
+                  offset: 1,
+                  color: "rgba(5, 48, 133, 0.3)", // 100% 处的颜色
+                },
+              ],
+            },
+            containLabel: true,
+          },
+          xAxis: {
+            type: "category",
+            boundaryGap: true,
+            data: ["摇绳大臂夹角", "摇绳小臂夹角", "摇绳手腕对称性", "起跳高度", "双脚间距"],
+            axisLabel: {
+              fontSize: 24,
+              color: "#fff",
+              margin: 20,
+            },
+            axisLine: {
+              show: false, // 隐藏 X 轴
+            },
+            axisTick: {
+              show: false,
+            },
+          },
+          yAxis: [
+            {
+              type: "value",
+              name: "总合格率",
+              max: 100,
+              nameTextStyle: {
+                fontSize: 15,
+                color: "rgba(255, 255, 255, 0.6)",
+              },
+              nameGap: 15,
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  type: [5, 2], // 设置为虚线
+                },
+              },
+              axisLabel: {
+                fontSize: 20,
+                formatter: "{value} %",
+                color: "rgba(255, 255, 255, 0.6)",
+              },
+              axisLine: {
+                show: true, // 隐藏 X 轴
+                lineStyle: {
+                  type: [5, 2], // 设置为虚线
+                },
+              },
+            },
+            {
+              axisLine: {
+                show: true, // 隐藏 X 轴
+                lineStyle: {
+                  type: [5, 2], // 设置为虚线
+                },
+              },
+            },
+          ],
+          series: [
+            {
+              name: "柱状图",
+              type: "bar",
+              barWidth: "20%",
+              label: {
+                show: true,
+                position: "top",
+                color: "#fff",
+                fontSize: 20,
+                formatter: (params) => params.value + "%",
+              },
+              data: [
+                {
+                  value: 0,
+                  itemStyle: {
+                    color: {
+                      type: "linear",
+                      x: 0, //右
+                      y: 1, //下
+                      x2: 0, //左
+                      y2: 0, //上
+                      colorStops: [
+                        {
+                          offset: 0,
+                          color: "rgba(228, 130, 154, 1)", // 0% 处的颜色
+                        },
+                        {
+                          offset: 1,
+                          color: "rgba(186, 62, 62, 1)", // 100% 处的颜色
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  value: 0,
+                  itemStyle: {
+                    color: {
+                      type: "linear",
+                      x: 0, //右
+                      y: 1, //下
+                      x2: 0, //左
+                      y2: 0, //上
+                      colorStops: [
+                        {
+                          offset: 0,
+                          color: "rgba(49, 206, 221, 1)", // 0% 处的颜色
+                        },
+                        {
+                          offset: 0.5,
+                          color: "rgba(32, 169, 105, 1)",
+                        },
+                        {
+                          offset: 1,
+                          color: "rgba(7, 134, 79, 1)", // 100% 处的颜色
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  value: 0,
+                  itemStyle: {
+                    color: {
+                      type: "linear",
+                      x: 0, //右
+                      y: 1, //下
+                      x2: 0, //左
+                      y2: 0, //上
+                      colorStops: [
+                        {
+                          offset: 0,
+                          color: "rgba(228, 130, 154, 1)", // 0% 处的颜色
+                        },
+                        {
+                          offset: 1,
+                          color: "rgba(186, 62, 62, 1)", // 100% 处的颜色
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  value: 0,
+                  itemStyle: {
+                    color: {
+                      type: "linear",
+                      x: 0, //右
+                      y: 1, //下
+                      x2: 0, //左
+                      y2: 0, //上
+                      colorStops: [
+                        {
+                          offset: 0,
+                          color: "rgba(49, 206, 221, 1)", // 0% 处的颜色
+                        },
+                        {
+                          offset: 0.5,
+                          color: "rgba(32, 169, 105, 1)",
+                        },
+                        {
+                          offset: 1,
+                          color: "rgba(7, 134, 79, 1)", // 100% 处的颜色
+                        },
+                      ],
+                    },
+                  },
+                },
+                {
+                  value: 0,
+                  itemStyle: {
+                    color: {
+                      type: "linear",
+                      x: 0, //右
+                      y: 1, //下
+                      x2: 0, //左
+                      y2: 0, //上
+                      colorStops: [
+                        {
+                          offset: 0,
+                          color: "rgba(228, 130, 154, 1)", // 0% 处的颜色
+                        },
+                        {
+                          offset: 1,
+                          color: "rgba(186, 62, 62, 1)", // 100% 处的颜色
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        };
+
+        const data = [
+          [
+            [28604, 77, 17096869],
+            [31163, 77.4, 27662440],
+            [1516, 68, 1154605773],
+            [13670, 74.7, 10582082],
+            [28599, 75, 4986705],
+            [29476, 77.1, 56943299],
+            [31476, 75.4, 78958237],
+            [28666, 78.1, 254830],
+            [1777, 57.7, 870601776],
+            [29550, 79.1, 122249285],
+            [2076, 67.9, 20194354],
+            [12087, 72, 42972254],
+            [24021, 75.4, 3397534],
+            [43296, 76.8, 4240375],
+            [10088, 70.8, 38195258],
+            [19349, 69.6, 147568552],
+            [10670, 67.3, 53994605],
+            [26424, 75.7, 57110117],
+            [37062, 75.4, 252847810],
+          ],
+        ];
+        const scatterChart_OffsetOption = {
+          color: [
+            {
+              type: "radial",
+              x: 0.5,
+              y: 0.5,
+              r: 0.5,
+              colorStops: [
+                {
+                  offset: 0,
+                  color: "rgba(255, 183, 0, 1)", // 0% 处的颜色
+                },
+                {
+                  offset: 1,
+                  color: "rgba(249, 142, 20, 1)", // 100% 处的颜色
+                },
+              ],
+            },
+          ],
+          grid: {
+            show: true,
+            left: 40,
+            right: 40,
+            top: 10,
+            bottom: 12,
+            borderColor: "rgba(255, 255, 255, 0.32)",
+            backgroundColor: "rgba(22, 117, 182, 0.2)",
+            containLabel: true,
+          },
+
+          xAxis: {
+            type: "value",
+            splitNumber: 6,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: [5, 2], // 设置为虚线
+              },
+            },
+            axisLabel: {
+              // interval: 2,
+              fontSize: 20,
+              color: "rgba(255, 255, 255, 0.6)",
+            },
+            axisLine: {
+              show: true, // 隐藏 X 轴
+            },
+            axisTick: {
+              show: false,
+            },
+          },
+          yAxis: {
+            scale: true,
+            type: "value",
+            splitNumber: 6,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                type: [5, 2], // 设置为虚线
+              },
+            },
+            axisLabel: {
+              fontSize: 20,
+              color: "rgba(255, 255, 255, 0.6)",
+            },
+            axisLine: {
+              show: true, // 隐藏 X 轴
+            },
+            axisTick: {
+              show: false,
+            },
+          },
+          series: [
+            {
+              data: data[0],
+              type: "scatter",
+              symbolSize: function (data) {
+                return Math.sqrt(data[2]) / 5e2;
+              },
+            },
+          ],
+        };
+        // 数据分析结束
+        const overlay = document.getElementById("overlay");
+
+        // 用户信息处理
+        const user_avatar = document.getElementById("user_avatar");
+        if (recordData.userAvatar) {
+          user_avatar.src = recordData.userAvatar;
+        } else {
+          if (recordData.sex == 1) {
+            user_avatar.src = "./image/ic_avatar_male.png";
+          } else if (recordData.sex == 2) {
+            user_avatar.src = "./image/ic_avatar_female.png";
+          } else {
+            user_avatar.src = "./image/ic_avatar_unkonw.png";
+          }
+        }
+
+        function avatarError() {
+          const user_avatar = document.getElementById("user_avatar");
+          if (recordData.sex == 1) {
+            user_avatar.src = "./image/ic_avatar_male.png";
+          } else if (recordData.sex == 2) {
+            user_avatar.src = "./image/ic_avatar_female.png";
+          } else {
+            user_avatar.src = "./image/ic_avatar_unkonw.png";
+          }
+          user_avatar.onerror = null;
+        }
+
+        const user_name = document.getElementById("user_name");
+        user_name.innerHTML = recordData.userName;
+        const user_sex = document.getElementById("user_sex");
+        // 1男 2女
+        if (recordData.sex == 1) {
+          user_sex.src = "./image/ic_male.png";
+        } else if (recordData.sex == 2) {
+          user_sex.src = "./image/ic_female.png";
+        } else {
+          user_sex.style.display = "none";
+        }
+        const exam_time = document.getElementById("exam_time");
+        exam_time.innerHTML = recordData.sportTestTime;
+
+        // 运动成绩一览
+        const exam_grade_data = document.getElementById("exam_grade_data");
+        if (recordData.sportIndicatorsList["0201000101"].indicatorsValue) {
+          exam_grade_data.innerHTML = recordData.sportIndicatorsList["0201000101"].indicatorsValue + "个";
+        } else {
+          exam_grade_data.innerHTML = "-";
+        }
+
+        const grade_rank_unit = document.getElementsByClassName("grade_rank_unit");
+        const grade_rank_grade = document.getElementsByClassName("grade_rank_grade");
+        if (recordData.sportScore) {
+          grade_rank_grade[0].innerHTML = recordData.sportScore;
+        } else {
+          grade_rank_grade[0].innerHTML = "-";
+          grade_rank_unit[0].innerHTML = "";
+        }
+        grade_rank_grade[1].innerHTML = recordData.rankData.rankGrade ? recordData.rankData.rankGrade : "-";
+        grade_rank_grade[2].innerHTML = recordData.rankData.rankClass ? recordData.rankData.rankClass : "-";
+
+        grade_rank_unit[1].innerHTML = recordData.rankData.gradePeopleNumber
+          ? `/${recordData.rankData.gradePeopleNumber}名`
+          : "";
+        grade_rank_unit[2].innerHTML = recordData.rankData.classPeopleNumber
+          ? `/${recordData.rankData.classPeopleNumber}名`
+          : "";
+
+        const grade_rank_level = document.getElementById("grade_rank_level");
+        const grade_rank_no_level = document.getElementById("grade_rank_no_level");
+
+        if (recordData.sportLevel / 1) {
+          grade_rank_level.src = icLevelList[recordData.sportLevel - 1];
+        } else {
+          grade_rank_level.style.display = "none";
+          grade_rank_no_level.style.display = "block";
+        }
+
+        // 成绩进度条、教师评语、项目介绍需要根据情况控制显隐藏
+        if (recordData.sportTime) {
+          // 有成绩进度条
+          const compareData = document.getElementById("compareData");
+          compareData.style.display = "flex";
+          compareData.style.flexDirection = "column";
+          compareData.style.justifyContent = "center";
+
+          const compareData_text = document.getElementsByClassName("compareData_text");
+          compareData_text[1].innerHTML = `我的：${
+            recordData.sportIndicatorsList["0201000101"].indicatorsValue + "个"
+          }`;
+
+          const compareData_row4ba = document.getElementById("compareData_row4ba");
+          const compareData_row4line = document.getElementById("compareData_row4line");
+          const compareData_row4line2 = document.getElementById("compareData_row4line2");
+
+          const bf2 =
+            recordData.sportIndicatorsList["0201000101"].indicatorsValue / 1 >= 300
+              ? "calc(100% - 2px)"
+              : (recordData.sportIndicatorsList["0201000101"].indicatorsValue / 300).toFixed(2) * 100 - 0.5 + "%";
+
+          compareData_row4ba.style.width = bf2;
+          compareData_row4line2.style.left = bf2;
+          // 没有学校平均成绩
+          if (!recordData.rankData.schoolAverageResult) {
+            const compareData_it1 = document.getElementsByClassName("compareData_it1")[0];
+            compareData_it1.style.display = "none";
+            compareData_row4line.style.background = "none";
+          } else {
+            compareData_text[0].innerHTML = `平均：${recordData.rankData.schoolAverageResult}cm`;
+            const bf1 =
+              recordData.rankData.schoolAverageResult / 1 >= 300
+                ? "calc(100% - 2px)"
+                : (recordData.rankData.schoolAverageResult / 300).toFixed(2) * 100 - 0.5 + "%";
+            compareData_row4line.style.left = bf1;
+          }
+
+          if (recordData.rankData.teacherComment) {
+            // 有教师评语
+            const bottom_left = document.getElementById("bottom_left");
+            bottom_left.style.display = "flex";
+            const teacher_comments = document.getElementsByClassName("teacher_comments");
+            teacher_comments[1].style.display = "flex";
+            const comments_content = document.getElementsByClassName("comments_content");
+
+            comments_content[1].innerHTML = recordData.rankData.teacherComment;
+
+            // 有项目介绍
+            const bottom_right = document.getElementById("bottom_right");
+            bottom_right.style.display = "flex";
+            const project_introduction = document.getElementsByClassName("project_introduction");
+            project_introduction[1].style.display = "flex";
+          } else {
+            // 只有项目介绍
+            const bottom_all = document.getElementById("bottom_all");
+            bottom_all.style.display = "flex";
+            const project_introduction = document.getElementsByClassName("project_introduction");
+            project_introduction[2].style.display = "flex";
+          }
+        } else {
+          // 没有成绩进度条
+          if (recordData.rankData.teacherComment) {
+            // 有教师评价
+            const teacher_comments = document.getElementById("teacher_comments");
+            teacher_comments.style.display = "flex";
+            const comments_content = document.getElementsByClassName("comments_content");
+            comments_content[0].innerHTML = recordData.rankData.teacherComment;
+
+            const bottom_all = document.getElementById("bottom_all");
+            bottom_all.style.display = "flex";
+            const project_introduction = document.getElementsByClassName("project_introduction");
+            project_introduction[2].style.display = "flex";
+          } else {
+            // 只有项目介绍
+            const project_introduction = document.getElementById("project_introduction");
+            project_introduction.style.display = "flex";
+          }
+        }
+
+        // 运动视频
+        const videoMain = document.getElementById("videoMain");
+        // videoMain.src =
+        //   recordData.sportVideos && recordData.sportVideos.length > 0 ? recordData.sportVideos[0].videoUrl : null;
+        // videoMain.poster =
+        //   recordData.sportVideos && recordData.sportVideos.length > 0 ? recordData.sportVideos[0].videoCover : null;
+
+        const videoModal = document.getElementById("videoModal");
+        const videoModalSrc = document.getElementById("videoModalSrc");
+        const modal_top_close_video = document.getElementById("modal_top_close_video");
+
+        videoMain.addEventListener("play", function () {
+          videoMain.pause();
+          videoModal.style.display = "flex";
+          overlay.style.display = "block";
+          videoModalSrc.src =
+            recordData.sportVideos && recordData.sportVideos.length > 0 ? recordData.sportVideos[0].videoUrl : null;
+          videoModalSrc.poster =
+            recordData.sportVideos && recordData.sportVideos.length > 0 ? recordData.sportVideos[0].videoCover : null;
+        });
+
+        modal_top_close_video.addEventListener("click", () => {
+          videoModal.style.display = "none";
+          overlay.style.display = "none";
+        });
+        // -------整体过程评价-------
+
+        if (!recordData.sportIndicatorsList["0201000101"].indicatorsValue) {
+          // 测试成绩没有 隐藏页面
+          const stageDispaly = document.getElementsByClassName("stageDispaly");
+          stageDispaly[0].style.display = "none";
+          stageDispaly[1].style.display = "none";
+
+          s = window.screen.width / 1920;
+          document.body.style.zoom = s;
+        } else {
+          // 数据分析
+          const labelValue = document.getElementsByClassName("labelValue");
+          const interruptBoxValue = document.getElementsByClassName("interruptBoxValue");
+          labelValue[0].innerHTML = recordData.sportIndicatorsList["0201000099"].indicatorsValue / 1;
+          labelValue[1].innerHTML = recordData.sportIndicatorsList["02010005"].indicatorsValue / 1;
+          labelValue[2].innerHTML = recordData.sportIndicatorsList["0201000301"].indicatorsValue / 1;
+
+          interruptBoxValue[0].innerHTML =
+            (recordData.sportIndicatorsList["0201000302"].indicatorsValue / 1 || 0) + "次";
+          interruptBoxValue[1].innerHTML =
+            (recordData.sportIndicatorsList["0201000303"].indicatorsValue / 1 || 0) + "次";
+
+          const interruptBoxImg = document.getElementsByClassName("interruptBoxImg");
+          const interruptBoxImgItem = document.getElementsByClassName("interruptBoxImgItem");
+          const interruptBoxImgItemLarge = document.getElementsByClassName("interruptBoxImgItemLarge");
+          const noInterruptBox = document.getElementsByClassName("noInterruptBox");
+          // 中断次数为零
+          if (
+            !recordData.sportIndicatorsList["0201000302"].indicatorsValue / 1 &&
+            !recordData.sportIndicatorsList["0201000303"].indicatorsValue / 1
+          ) {
+            interruptBoxImg[0].style.display = "none";
+            interruptBoxImg[1].style.display = "none";
+            noInterruptBox[0].style.display = "flex";
+          } else {
+            if (!recordData.sportIndicatorsList["0201000302"].indicatorsValue / 1) {
+              interruptBoxImg[0].style.display = "none";
+            } else {
+              for (let i = 0; i < interruptBoxImgItem.length; i++) {
+                if (recordData.sportIndicatorsList["0201000302"].indicatorsValue / 1 > 21) {
+                  interruptBoxImgItem[i].style.display = "none";
+                } else {
+                  if (i >= recordData.sportIndicatorsList["0201000302"].indicatorsValue / 1) {
+                    interruptBoxImgItem[i].style.display = "none";
+                  }
+                }
+              }
+            }
+            if (!recordData.sportIndicatorsList["0201000303"].indicatorsValue / 1) {
+              interruptBoxImg[1].style.display = "none";
+            } else {
+              for (let i = 0; i < interruptBoxImgItemLarge.length; i++) {
+                if (recordData.sportIndicatorsList["0201000303"].indicatorsValue / 1 > 18) {
+                  interruptBoxImgItemLarge[i].style.display = "none";
+                } else {
+                  if (i >= recordData.sportIndicatorsList["0201000303"].indicatorsValue / 1) {
+                    interruptBoxImgItemLarge[i].style.display = "none";
+                  }
+                }
+              }
+            }
+          }
+
+          // 仪表盘-平均速度
+          const gaugeChart_Speed = echarts.init(document.getElementById("gaugeChart_Speed"));
+
+          if (recordData.sportIndicatorsList["0201000099"].indicatorsValue) {
+            gaugeChart_SpeedOption.series[0].data[0] = {
+              value: recordData.sportIndicatorsList["0201000099"].indicatorsValue / 1,
+            };
+            gaugeChart_SpeedOption.series[0].progress.itemStyle.color.colorStops = [
+              { offset: 0, color: "rgba(54, 235, 199, 1)" },
+              { offset: 1, color: "rgba(255, 148, 9, 1)" },
+            ];
+          } else {
+            gaugeChart_SpeedOption.series[0].data[0] = {
+              value: 1,
+            };
+          }
+          gaugeChart_Speed.setOption(gaugeChart_SpeedOption);
+
+          // 仪表盘-最大连击次数
+          const gaugeChart_ComboMax = echarts.init(document.getElementById("gaugeChart_ComboMax"));
+
+          if (recordData.sportIndicatorsList["02010005"].indicatorsValue) {
+            gaugeChart_ComboMaxOption.series[0].data[0] = {
+              value: recordData.sportIndicatorsList["02010005"].indicatorsValue / 1,
+            };
+            gaugeChart_ComboMaxOption.series[0].progress.itemStyle.color.colorStops = [
+              { offset: 0, color: "rgba(54, 235, 199, 1)" },
+              { offset: 1, color: "rgba(255, 148, 9, 1)" },
+            ];
+          } else {
+            gaugeChart_ComboMaxOption.series[0].data[0] = {
+              value: 150,
+            };
+          }
+          // 仪表盘-中断次数
+          const gaugeChart_InterruptNum = echarts.init(document.getElementById("gaugeChart_InterruptNum"));
+          if (recordData.sportIndicatorsList["0201000301"].indicatorsValue) {
+            gaugeChart_InterruptNumOption.series[0].data[0] = {
+              value: recordData.sportIndicatorsList["0201000301"].indicatorsValue / 1,
+            };
+            gaugeChart_InterruptNumOption.series[0].progress.itemStyle.color.colorStops = [
+              { offset: 0, color: "rgba(54, 235, 199, 1)" },
+              { offset: 1, color: "rgba(255, 148, 9, 1)" },
+            ];
+          } else {
+            gaugeChart_InterruptNumOption.series[0].data[0] = {
+              value: 5,
+            };
+          }
+          // 折线图-体能指标
+          const lineChart_Speed = echarts.init(document.getElementById("lineChart_Speed"));
+          // 折线图-最大连击次数
+          const lineChart_ComboMax = echarts.init(document.getElementById("lineChart_ComboMax"));
+          // 柱状图-达标星
+          const barChart_Star = echarts.init(document.getElementById("barChart_Star"));
+          // 散点图-重心偏移
+          const scatterChart_Offset = echarts.init(document.getElementById("scatterChart_Offset"));
+
+          // 速度曲线
+          lineChart_SpeedOption.xAxis.data = [];
+          lineChart_SpeedOption.series[0].data = [];
+          lineChart_SpeedOption.series[1].data = [];
+          lineChart_SpeedOption.series[2].data = [];
+
+          if (Array.isArray(recordData.sportIndicatorsList["02010002"].indicatorsValue)) {
+            recordData.sportIndicatorsList["02010002"].indicatorsValue.forEach((item) => {
+              lineChart_SpeedOption.xAxis.data.push(item.x);
+              lineChart_SpeedOption.series[0].data.push([item.x, item.y]);
+              // lineChart_SpeedOption.series[1].data.push(recordData.sportIndicatorsList["0201000099"].indicatorsValue);
+              // lineChart_SpeedOption.series[2].data.push(2);
+            });
+          }
+          lineChart_Speed.setOption(lineChart_SpeedOption);
+
+          if (Array.isArray(recordData.sportIndicatorsList["0201000304"].indicatorsValue)) {
+            let maxNumbers = 0;
+            const interruptDataList = recordData.sportIndicatorsList["0201000304"].indicatorsValue.map((item) => {
+              if (item.numbers > maxNumbers) maxNumbers = item.numbers;
+              return {
+                startTime: item.startTime,
+                endTime: item.endTime,
+                numbers: item.numbers,
+              };
+            });
+            // interruptType 1 普通中断  2过长中断
+            // interruptTime 中断图标所在x轴位置
+            interruptDataList.forEach((item, itemIndex) => {
+              if (item.numbers === 0) {
+                let diffNum = 0;
+                diffNum = item.endTime - item.startTime;
+                item.interruptTime = diffNum / 2 + item.startTime;
+                item.interruptType = diffNum > 3 ? 2 : 1;
+              }
+            });
+            const xAxisData = Array.from(
+              { length: recordData.sportIndicatorsList["02010004"].indicatorsValue / 1 + 1 },
+              (_, i) => 0 + i
+            );
+            lineChart_ComboMaxOption.xAxis[0].max = recordData.sportIndicatorsList["02010004"].indicatorsValue;
+            // lineChart_ComboMaxOption.xAxis[0].max = xAxisData;
+
+            interruptDataList.forEach((timeItem) => {
+              if (timeItem.numbers >= 1) {
+                if (timeItem.numbers === maxNumbers) {
+                  // 最大连击两端点
+                  lineChart_ComboMaxOption.series[9].data.push([timeItem.startTime, 1], [timeItem.endTime, 1]);
+                } else {
+                  // 连击两端点
+                  lineChart_ComboMaxOption.series[8].data.push([timeItem.startTime, 1], [timeItem.endTime, 1]);
+                }
+
+                // 取中心点x轴位置
+                const xData = (timeItem.endTime - timeItem.startTime) / 2 + timeItem.startTime;
+                // 最大连击数
+                if (timeItem.numbers === maxNumbers) {
+                  // 最大连击线渲染
+                  lineChart_ComboMaxOption.series[6].data.push([timeItem.startTime, 1], [timeItem.endTime, 1]);
+                  // 最大连击个数展示
+                  lineChart_ComboMaxOption.series[10].data.push([xData, 1]);
+                  lineChart_ComboMaxOption.series[10].label.formatter = [`${maxNumbers} 个`, "{a|}"].join("\n");
+                } else {
+                  // 连击线渲染
+                  lineChart_ComboMaxOption.series[7].data.push([timeItem.startTime, 1], [timeItem.endTime, 1], []);
+                  // 连击个数展示
+                  lineChart_ComboMaxOption.series[11].data.push([xData, 1, timeItem.numbers]);
+                }
+              } else if (timeItem.numbers === 0) {
+                if (timeItem.interruptType == 1) {
+                  // 普通中断点
+                  lineChart_ComboMaxOption.series[4].data.push([timeItem.interruptTime, 0]);
+                } else if (timeItem.interruptType == 2) {
+                  // 过长中断点
+                  lineChart_ComboMaxOption.series[5].data.push([timeItem.interruptTime, 0]);
+                }
+              }
+            });
+
+            xAxisData.forEach((item, index) => {
+              // 背景范围
+              lineChart_ComboMaxOption.series[0].data.push([item, 2]);
+              // 背景线1
+              lineChart_ComboMaxOption.series[1].data.push([item, 1]);
+              // 背景线2
+              lineChart_ComboMaxOption.series[2].data.push([item, 0]);
+              // 背景线3
+              lineChart_ComboMaxOption.series[3].data.push([item, 2]);
+            });
+          }
+          lineChart_ComboMax.setOption(lineChart_ComboMaxOption);
+
+          const indicatorAnalysisDataArray = ["02010007", "02010008", "02010009", "02010010", "02010011"];
+
+          indicatorAnalysisDataArray.forEach((item, index) => {
+            barChart_StarOption.series[0].data[index].value = recordData.sportIndicatorsList[item].indicatorsValue / 1;
+          });
+          barChart_Star.setOption(barChart_StarOption);
+
+          scatterChart_Offset.setOption(scatterChart_OffsetOption);
+          // 数据分析结束
+
+          // 指标分析
+          // 达标星
+          if (recordData.sportIndicatorsList["Z02010015"].indicatorsValue) {
+            const indexAnalysisBox_value = document.getElementsByClassName("indexAnalysisBox_value")[0];
+            indexAnalysisBox_value.innerHTML =
+              recordData.sportIndicatorsList["Z02010015"].indicatorsValue / 1 > 6
+                ? 6
+                : recordData.sportIndicatorsList["Z02010015"].indicatorsValue;
+          }
+
+          // 指标分析结束
+
+          // -------整体过程评价结束-------
+
+          // 专项技能评价
+          const report_data = document.getElementsByClassName("report_data");
+          const report_analysis = document.getElementsByClassName("report_analysis");
+          const report_data_value = document.getElementsByClassName("report_data_value");
+          const report_data_level = document.getElementsByClassName("report_data_level");
+          const report_analysis_title = document.getElementsByClassName("report_analysis_title");
+          const report_analysis_content = document.getElementsByClassName("report_analysis_content");
+
+          const chartLevelItem = document.getElementsByClassName("chartLevelItem");
+          let modalMyImgList = [];
+
+          const analysisContentImg = document.getElementsByClassName("analysisContentImg");
+          indicatorAnalysisDataArray.forEach((item, index) => {
+            if (recordData.sportIndicatorsList[item].indicatorsValue) {
+              report_data_value[index].innerHTML =
+                "总合格率：" +
+                recordData.sportIndicatorsList[item].indicatorsValue +
+                recordData.sportIndicatorsList[item].indicatorsUnit;
+              if (
+                recordData.sportIndicatorsList[item + "01"].indicatorsImages.length &&
+                recordData.sportIndicatorsList[item + "01"].indicatorsImages[0].imageUrl
+              ) {
+                analysisContentImg[index].src =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsImages[0].imageUrl;
+                modalMyImgList[2 * index + 1] =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsImages[0].imageUrl;
+              } else {
+                analysisContentImg[index].src = pic_nopicture_large;
+                modalMyImgList[2 * index + 1] = pic_nopicture_large;
+              }
+              if (recordData.sportIndicatorsList[item + "01"].indicatorsValue.level) {
+                report_data_level[index].innerHTML =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsValue.sportStatus;
+
+                chartLevelItem[index].innerHTML =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsValue.sportStatus;
+                if (recordData.sportIndicatorsList[item + "01"].indicatorsValue.level == 2) {
+                  report_data_level[index].classList.add("timeIndexChartsItem_level_best");
+                  chartLevelItem[index].classList.add("timeIndexChartsItem_level_best");
+                } else if (recordData.sportIndicatorsList[item + "01"].indicatorsValue.level == 3) {
+                  report_data_level[index].classList.add("timeIndexChartsItem_level_bad");
+                  chartLevelItem[index].classList.add("timeIndexChartsItem_level_bad");
+                } else {
+                  report_data_level[index].classList.add("timeIndexChartsItem_level_perfect");
+                  chartLevelItem[index].classList.add("timeIndexChartsItem_level_perfect");
+                }
+              }
+              if (recordData.sportIndicatorsList[item + "01"].indicatorsValue.title) {
+                report_analysis_title[index].innerHTML =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsValue.title;
+              }
+              if (recordData.sportIndicatorsList[item + "01"].indicatorsValue.remark) {
+                report_analysis_content[index].innerHTML =
+                  recordData.sportIndicatorsList[item + "01"].indicatorsValue.remark;
+              }
+            } else {
+              report_data[index].style.display = "none";
+              report_analysis[index].style.display = "none";
+            }
+          });
+          // 图片全屏
+          const imgModalSwitch = document.getElementsByClassName("imgModalSwitch");
+
+          const imgModal = document.getElementById("imgModal");
+          const imgModalSrc = document.getElementById("imgModalSrc");
+          const modal_top_close_img = document.getElementById("modal_top_close_img");
+          const imgModal_value = document.getElementById("imgModal_value");
+          let modalImgList = [];
+          let modalIndex = 0; // 1 运动分析-标准动作 0 运动分析-我的动作
+
+          const modalStandImgList = [
+            "./image/101.png",
+            "",
+            "./image/102.png",
+            "",
+            "./image/103.png",
+            "",
+            "./image/104.png",
+            "",
+            "./image/105.png",
+            "",
+          ];
+
+          let modalImgIndex = 0;
+
+          const modalTitle = [
+            "摇绳大臂夹角",
+            "摇绳大臂夹角",
+            "摇绳小臂夹角",
+            "摇绳小臂夹角",
+            "摇绳手腕对称性",
+            "摇绳手腕对称性",
+            "起跳高度",
+            "起跳高度",
+            "双脚间距",
+            "双脚间距",
+          ];
+
+          for (let i = 0; i < imgModalSwitch.length; i++) {
+            imgModalSwitch[i].addEventListener("click", function () {
+              imgModal.style.display = "flex";
+              overlay.style.display = "block";
+              // 运动分析
+              modalImgIndex = i;
+              modalIndex = i % 2;
+              imgModal_value.innerHTML = modalTitle[i];
+              if (modalIndex === 0) {
+                // 标准动作
+                imgModalSrc.style.objectFit = "contain";
+                imgModalSrc.src = modalStandImgList[i];
+              } else if (modalIndex === 1) {
+                // 我的动作
+                imgModalSrc.style.objectFit = "contain";
+                imgModalSrc.src = modalMyImgList[i];
+              }
+            });
+          }
+
+          modal_top_close_img.addEventListener("click", () => {
+            imgModal.style.display = "none";
+            overlay.style.display = "none";
+          });
+
+          const imgModalLeft = document.getElementById("imgModalLeft");
+          const imgModalRight = document.getElementById("imgModalRight");
+
+          imgModalLeft.addEventListener("click", function () {
+            if (modalIndex === 1) {
+              // 我的动作
+              if (modalImgIndex > 1) {
+                imgModalSwitch[modalImgIndex - 2].click();
+              }
+            } else if (modalIndex === 0) {
+              // 标准动作
+              if (modalImgIndex > 0) {
+                imgModalSwitch[modalImgIndex - 2].click();
+              }
+            }
+          });
+
+          imgModalRight.addEventListener("click", function () {
+            if (modalIndex === 1) {
+              // 我的动作
+              if (modalImgIndex < 9) {
+                imgModalSwitch[modalImgIndex + 2].click();
+              }
+            } else if (modalIndex === 0) {
+              // 标准动作
+              if (modalImgIndex < 8) {
+                imgModalSwitch[modalImgIndex + 2].click();
+              }
+            }
+          });
+
+          // 避免点击事件触发时,触发滚动事件增加active类的函数
+          var isProgressBarClick = false;
+
+          var timeoutId = null;
+          // 滚动到对应模块并添加active类的点击事件处理函数
+          var scrollToModule = function (event) {
+            isProgressBarClick = true;
+            var aim = event.target;
+            if (event.target.className === "text") {
+              aim = event.target.parentNode;
+            }
+            const targetModuleId = aim.getAttribute("data-target");
+            const targetModule = document.getElementById(targetModuleId);
+            if (targetModule) {
+              // 使用平滑滚动实现滚动效果
+              targetModule.scrollIntoView({ behavior: "smooth" });
+
+              // 移除之前被添加的active类
+              const activeItem = document.querySelector(".progressbar li.active");
+              if (activeItem) {
+                activeItem.classList.remove("active");
+              }
+
+              // 为当前点击的列表项添加active类
+              aim.classList.add("active");
+            }
+            // 等待锚点跳转完成后再重置标志变量
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(function () {
+              isProgressBarClick = false;
+            }, 1000);
+          };
+
+          let domlist = document.getElementsByClassName("navpart");
+          for (let i = 0; i < domlist.length; i++) {
+            domlist[i].onclick = scrollToModule;
+          }
+          // 监听页面滚动事件
+          // window.addEventListener("scroll", handleScroll);
+          var handleScroll = function () {
+            if (!isProgressBarClick) {
+              // 获取页面滚动的垂直位置
+              // 遍历模块元素，找到当前可见的模块
+              var activeModuleId = null;
+              var moduleElements = document.getElementsByClassName("report_li");
+              for (const moduleElement of moduleElements) {
+                // 用于获得页面中某个元素的左，上，右和下分别相对浏览器视窗的位置
+                const { top, bottom } = moduleElement.getBoundingClientRect();
+                // 判断模块是否在视口内（至少一半在视口内）
+                if (top <= window.innerHeight / 2 && bottom >= window.innerHeight / 2) {
+                  if (moduleElement.id === "stage_2" && moduleElement.id !== activeModuleId) {
+                    gaugeChart_InterruptNumOption.series[0].progress.itemStyle.color.colorStops = [
+                      { offset: 0, color: "rgba(255, 148, 9, 1)" },
+                      { offset: 1, color: "rgba(54, 235, 199, 1)" },
+                    ];
+                    gaugeChart_Speed.clear();
+                    gaugeChart_Speed.setOption(gaugeChart_SpeedOption);
+                    gaugeChart_ComboMax.clear();
+                    gaugeChart_ComboMax.setOption(gaugeChart_ComboMaxOption);
+                    gaugeChart_InterruptNum.clear();
+                    gaugeChart_InterruptNum.setOption(gaugeChart_InterruptNumOption);
+                    lineChart_Speed.setOption(lineChart_SpeedOption);
+                  }
+                  activeModuleId = moduleElement.id;
+                  break;
+                }
+              }
+              // 添加active类
+              if (activeModuleId) {
+                // 移除之前被添加的active类
+                const activeItem = document.querySelector(".progressbar li.active");
+                if (activeItem) {
+                  activeItem.classList.remove("active");
+                }
+                // 为当前可见的模块对应的列表项添加active类
+                const activeListItem = document.querySelector(`.progressbar li[data-target="${activeModuleId}"]`);
+                if (activeListItem) {
+                  activeListItem.classList.add("active");
+                }
+              }
+            }
+          };
+          // 初始加载时触发一次滚动事件
+          document.getElementsByClassName("page")[0].addEventListener("scroll", handleScroll);
+
+          handleScroll();
+
+          s = window.screen.width / 1920;
+          document.body.style.zoom = s;
+        }
+      }
+    </script>
+  </body>
+</html>

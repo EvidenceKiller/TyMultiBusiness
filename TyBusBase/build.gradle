@@ -30,6 +30,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
+    api 'adl.ssp:ssp-common-report:2.1.0-20250722.085837-98:jar-with-dependencies'
+    api 'com.tencent.tbs:tbssdk:44286'
+
     //rx管理View的生命周期
     api(rootProject.ext.dependencies["rxlifecycle-components"]) {
         exclude group: 'com.android.support'

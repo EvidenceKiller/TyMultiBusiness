@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.base
 
+import adl.ssp.common.report.model.IndicatorsResultDto
 import android.app.Application
 import android.graphics.Rect
 import android.media.AsyncPlayer
@@ -65,6 +66,9 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
+import com.ty.tybusbase.constants.IndicatorsConstants
+import com.ty.tybusbase.helper.IndicatorsHelper
+import java.util.concurrent.ConcurrentHashMap
 
 open class BaseIPCMultiSportViewModel(application: Application) :
     BaseMultiSportViewModel(application) {
@@ -91,9 +95,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     private val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
-//    private val indicatorsMap by lazy {
-//        ConcurrentHashMap<Int, IndicatorsResultDto>()
-//    }
+    private val indicatorsMap by lazy {
+        ConcurrentHashMap<Int, IndicatorsResultDto>()
+    }
 
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
 
@@ -903,42 +907,42 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.videoCover = videoCover
                 sportResult.videoFile = videoFile
                 var indicatorsList: MutableList<SportIndicatorsEntity<*, *>>? = null
-//                when (multiSportParser) {
-//                    is GroupSkippingLRemixParser -> {
-//                        val groupSkippingManRemixList =
-//                            (multiSportParser as GroupSkippingLRemixParser).groupSkippingManLRemixList
-//                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
-//                    }
-//
-//                    is GroupSkippingRemixParser -> {
-//                        val groupSkippingManRemixList =
-//                            (multiSportParser as GroupSkippingRemixParser).groupSkippingManRemixList
-//                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
-//                    }
-//
-//                    else -> null
-//                }?.let { prescription ->
-//                    indicatorsList =
-//                        IndicatorsHelper.getSkipIndicatorsList(
-//                            prescription,
-//                            startTime,
-//                            endTime,
-//                            null
-//                        )
-//                    val multiSportResult = skipPersonArray[multiResult.number]
-//                    IndicatorsHelper.createIndicatorsResultDto(
-//                        IndicatorsConstants.SKIP_CODE,
-//                        indicatorsList,
-//                        multiSportResult?.accountInfo,
-//                        startTime,
-//                        endTime,
-//                        multiSportResult?.count ?: 0,
-//                        videoFile,
-//                        videoCover
-//                    )?.let {
-//                        indicatorsMap.put(multiResult.number, it)
-//                    }
-//                }
+                when (multiSportParser) {
+                    is GroupSkippingLRemixParser -> {
+                        val groupSkippingManRemixList =
+                            (multiSportParser as GroupSkippingLRemixParser).groupSkippingManLRemixList
+                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                    }
+
+                    is GroupSkippingRemixParser -> {
+                        val groupSkippingManRemixList =
+                            (multiSportParser as GroupSkippingRemixParser).groupSkippingManRemixList
+                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                    }
+
+                    else -> null
+                }?.let { prescription ->
+                    indicatorsList =
+                        IndicatorsHelper.getSkipIndicatorsList(
+                            prescription,
+                            startTime,
+                            endTime,
+                            null
+                        )
+                    val multiSportResult = skipPersonArray[multiResult.number]
+                    IndicatorsHelper.createIndicatorsResultDto(
+                        IndicatorsConstants.SKIP_CODE,
+                        indicatorsList,
+                        multiSportResult?.accountInfo,
+                        startTime,
+                        endTime,
+                        multiSportResult?.count ?: 0,
+                        videoFile,
+                        videoCover
+                    )?.let {
+                        indicatorsMap.put(multiResult.number, it)
+                    }
+                }
 
                 uploadSportResult(
                     sceneId ?: SceneConstants.PK,
@@ -1027,7 +1031,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         return rect
     }
 
-//    fun getIndicatorsResultDto(number: Int): IndicatorsResultDto? =
-//        indicatorsMap.getOrDefault(number, null)
+    fun getIndicatorsResultDto(number: Int): IndicatorsResultDto? =
+        indicatorsMap.getOrDefault(number, null)
 
 }

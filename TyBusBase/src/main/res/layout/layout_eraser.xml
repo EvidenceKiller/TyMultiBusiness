@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="@dimen/dp_243"
+    android:orientation="vertical"
+    android:background="@mipmap/popover_eraser_bg"
+    android:layout_height="@dimen/dp_103">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_15">
+
+        <ImageView
+            android:id="@+id/btn_eraser_small"
+            android:layout_width="@dimen/dp_55"
+            android:layout_height="@dimen/dp_55"
+            android:layout_weight="1"
+            android:src="@drawable/select_earser_small" />
+
+        <ImageView
+            android:id="@+id/btn_eraser_middle"
+            android:layout_width="@dimen/dp_55"
+            android:layout_height="@dimen/dp_55"
+            android:layout_weight="1"
+            android:src="@drawable/select_earser_middle" />
+
+        <ImageView
+            android:id="@+id/btn_eraser_large"
+            android:layout_width="@dimen/dp_55"
+            android:layout_height="@dimen/dp_55"
+            android:layout_weight="1"
+            android:src="@drawable/select_eraser_large" />
+    </LinearLayout>
+
+
+</LinearLayout>
