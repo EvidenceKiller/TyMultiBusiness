@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_width="@dimen/dp_630"
+    android:layout_height="@dimen/dp_818">
+
+    <View
+        android:id="@+id/debug_dialog_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/detail_bg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_21"
+        android:text="@string/ipc_camera_config"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_32"
+        app:layout_constraintLeft_toLeftOf="@id/debug_dialog_bg"
+        app:layout_constraintTop_toTopOf="@id/debug_dialog_bg"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:id="@+id/debug_dialog_close"
+        android:layout_width="@dimen/dp_33"
+        android:layout_height="@dimen/dp_33"
+        android:layout_marginTop="@dimen/dp_26"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:background="@mipmap/set_close"
+        android:contentDescription="close"
+        app:layout_constraintRight_toRightOf="@id/debug_dialog_bg"
+        app:layout_constraintTop_toTopOf="@id/debug_dialog_bg"
+        tools:ignore="HardcodedText" />
+
+    <View
+        android:id="@+id/debug_dialog_line"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_0_5"
+        android:layout_marginTop="@dimen/dp_90"
+        android:background="@color/white_60"
+        app:layout_constraintLeft_toLeftOf="@id/debug_dialog_bg"
+        app:layout_constraintRight_toRightOf="@id/debug_dialog_bg"
+        app:layout_constraintTop_toTopOf="@id/debug_dialog_bg" />
+
+    <TextView
+        android:id="@+id/tv_ip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:text="@string/ipc_ip_address"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="@+id/et_ip"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/et_ip" />
+
+    <EditText
+        android:id="@+id/et_ip"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginStart="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_52"
+        android:background="@drawable/setting_shape_white_10_bg"
+        android:hint="@string/input_ipc_ip_address"
+        android:imeOptions="flagNoExtractUi"
+        android:maxLines="1"
+        android:paddingLeft="@dimen/dp_20"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_65"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toRightOf="@+id/tv_ip"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/debug_dialog_line" />
+
+    <TextView
+        android:id="@+id/tv_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:text="@string/ipc_account"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="@+id/et_account"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/et_account" />
+
+    <EditText
+        android:id="@+id/et_account"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_52"
+        android:background="@drawable/setting_shape_white_10_bg"
+        android:hint="@string/input_ipc_account"
+        android:imeOptions="flagNoExtractUi"
+        android:maxLines="1"
+        android:paddingLeft="@dimen/dp_20"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_65"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/et_ip"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_ip" />
+
+
+    <TextView
+        android:id="@+id/tv_psw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:text="@string/password"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="@+id/et_psw"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/et_psw" />
+
+    <EditText
+        android:id="@+id/et_psw"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_52"
+        android:background="@drawable/setting_shape_white_10_bg"
+        android:hint="@string/input_password"
+        android:inputType="textPassword"
+        android:imeOptions="flagNoExtractUi"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dp_20"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_65"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/et_ip"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/et_account" />
+
+    <ImageView
+        android:id="@+id/debug_dialog_eye"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:layout_marginRight="@dimen/dp_24"
+        android:contentDescription="密码明文显示或隐藏按钮"
+        android:src="@mipmap/eye_close"
+        app:layout_constraintBottom_toBottomOf="@id/et_psw"
+        app:layout_constraintRight_toRightOf="@id/et_psw"
+        app:layout_constraintTop_toTopOf="@id/et_psw" />
+
+    <TextView
+        android:id="@+id/tv_threshold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:text="@string/skip_threshold"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="@+id/et_threshold"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/et_threshold" />
+
+    <EditText
+        android:id="@+id/et_threshold"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_52"
+        android:background="@drawable/setting_shape_white_10_bg"
+        android:hint="@string/input_skip_threshold"
+        android:inputType="number"
+        android:imeOptions="flagNoExtractUi"
+        android:maxLines="1"
+        android:paddingStart="@dimen/dp_20"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white_65"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/et_ip"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_psw" />
+
+
+    <TextView
+        android:id="@+id/tv_record_setting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_30"
+        android:text="@string/record"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_psw"
+        app:layout_constraintTop_toBottomOf="@+id/et_threshold" />
+
+    <RadioGroup
+        android:id="@+id/rg_record_btn"
+        app:layout_constraintTop_toTopOf="@+id/tv_record_setting"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_record_setting"
+        app:layout_constraintLeft_toLeftOf="@+id/et_ip"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <RadioButton
+            android:id="@+id/rb_record_default"
+            android:layout_width="@dimen/dp_32"
+            android:layout_height="@dimen/dp_32"
+            android:background="@drawable/select_rb_bg"
+            android:button="@null"
+            android:checked="false" />
+
+        <TextView
+            android:id="@+id/tv_record_default"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_48"
+            android:paddingStart="@dimen/dp_16"
+            android:paddingEnd="@dimen/dp_16"
+            android:text="USB"
+            android:textColor="#ffffff"
+            android:textSize="@dimen/dp_24"/>
+
+        <RadioButton
+            android:id="@+id/rb_record_ipc"
+            android:layout_width="@dimen/dp_32"
+            android:layout_height="@dimen/dp_32"
+            android:background="@drawable/select_rb_bg"
+            android:button="@null"
+            android:checked="true" />
+
+        <TextView
+            android:id="@+id/tv_record_ipc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_16"
+            android:text="IPC"
+            android:layout_marginEnd="@dimen/dp_48"
+            android:paddingEnd="@dimen/dp_16"
+            android:textColor="@color/white_60"/>
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/tv_compensation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_30"
+        android:text="@string/count_compensation"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_psw"
+        app:layout_constraintTop_toBottomOf="@+id/tv_record_setting" />
+
+    <com.ty.tybusbase.view.NumberSeekBar
+        android:id="@+id/sk_compensation_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:max="3"
+        android:maxHeight="@dimen/dp_14"
+        android:minHeight="@dimen/dp_14"
+        android:progress="0"
+        app:layout_constraintTop_toTopOf="@+id/tv_compensation"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_compensation"
+        app:layout_constraintLeft_toRightOf="@+id/tv_compensation"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginLeft="@dimen/dp_36"
+        android:layout_marginRight="@dimen/dp_36"
+        android:progressDrawable="@drawable/bg_adjust_seek_bar"
+        android:splitTrack="false"
+        android:thumb="@drawable/bg_seek_bar_thumb2"/>
+
+    <TextView
+        android:id="@+id/debug_dialog_cancel"
+        android:layout_width="@dimen/dp_214"
+        android:layout_height="@dimen/dp_74"
+        android:layout_marginTop="@dimen/dp_28"
+        android:background="@drawable/bg_border_r50_white_shape"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_28"
+        app:layout_constraintLeft_toLeftOf="@id/debug_dialog_bg"
+        app:layout_constraintRight_toLeftOf="@id/debug_dialog_confirm"
+        app:layout_constraintTop_toBottomOf="@id/tv_compensation" />
+
+    <TextView
+        android:id="@+id/debug_dialog_confirm"
+        android:layout_width="@dimen/dp_200"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/login_edit_btn_normal_bg"
+        android:gravity="center"
+        android:text="@string/sure"
+        android:textColor="@color/white_50"
+        android:textSize="@dimen/dp_28"
+        app:layout_constraintTop_toTopOf="@+id/debug_dialog_cancel"
+        app:layout_constraintBottom_toBottomOf="@+id/debug_dialog_cancel"
+        app:layout_constraintLeft_toRightOf="@id/debug_dialog_cancel"
+        app:layout_constraintRight_toRightOf="@id/debug_dialog_bg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -53,5 +53,21 @@
     <string name="no_report">暂无报告</string>
     <string name="paint">画笔</string>
     <string name="rubber">橡皮</string>
+    <string name="ipc_camera_config">网络摄像头配置</string>
+    <string name="ipc_ip_address">IP地址</string>
+    <string name="input_ipc_ip_address">请输入摄像头IP地址</string>
+    <string name="ipc_account">账号</string>
+    <string name="input_ipc_account">请输入账号</string>
+    <string name="password">密码</string>
+    <string name="input_password">请输入密码</string>
+    <string name="skip_threshold">跳绳阈值</string>
+    <string name="input_skip_threshold">请输入阈值</string>
+    <string name="light">光线</string>
+    <string name="default_value">默认</string>
+    <string name="shunguang">顺光</string>
+    <string name="back_light">背光</string>
+    <string name="record">录制</string>
+    <string name="count_compensation">计数补偿</string>
+    <string name="sure">确认</string>
 
 </resources>
