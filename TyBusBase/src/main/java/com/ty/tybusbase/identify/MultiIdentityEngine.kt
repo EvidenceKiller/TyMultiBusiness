@@ -14,7 +14,7 @@ import com.ty.tybusbase.expand.getString
 import com.ty.identifty.stface.TyFaceInfo
 import com.ty.tybusbase.BuildConfig
 import com.ty.tybusbase.R
-import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.face.StFaceHelper
 import com.ty.tybusbase.helper.SportHelper
@@ -253,7 +253,7 @@ class MultiIdentityEngine {
     private fun createVisitor() {
         val accountInfo = AccountInfo().apply {
             studentEntity = StudentEntity().apply {
-                accountId = ConstantsValue.VISITOR_USER_ID
+                accountId = BusiBaseConstantsValue.VISITOR_USER_ID
                 accountName = getString(R.string.visitor)
             }
         }

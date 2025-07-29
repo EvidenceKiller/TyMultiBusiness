@@ -44,7 +44,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
 import com.ty.bus.multi.core.factory.MultiSportProduceFactory
-import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -260,22 +260,22 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
         cameraDispatcher.addFrameProcessor(sportEngine)
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, ConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            ConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
         )
         val psw =
             MMKVUtil.decodeString(
                 MMKVBusiKey.HTTP_CAMERA_PSW,
-                ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
-                ConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
                 account,
                 psw
             ).setStreamType(0).build() as NsCameraHKSource
@@ -286,22 +286,22 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      */
     private fun changeResolution() {
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, ConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            ConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
         )
         val psw =
             MMKVUtil.decodeString(
                 MMKVBusiKey.HTTP_CAMERA_PSW,
-                ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
-                ConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
                 account,
                 psw
             ).setStreamType(0).build() as NsCameraHKSource
@@ -324,7 +324,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         var visitor: Boolean =
             MMKVUtil.decodeBoolean(
                 MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR,
-                ConstantsValue.DEFAULT_VISITOR_MODULE
+                BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
@@ -414,7 +414,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             synchronized(this) {
                 skipRoseState = MultiSportState.PREPARING
                 //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
-                if (!accountInfo.studentEntity!!.accountId.equals(ConstantsValue.VISITOR_USER_ID)) {
+                if (!accountInfo.studentEntity!!.accountId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
                     for (index in 0 until skipPersonArray.size()) {
                         val multiResult = skipPersonArray.valueAt(index)
                         //已识别过此人
@@ -436,7 +436,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $identifyNumber")
                 identifiedLD.value = Pair(identifyNumber, accountInfo)
                 //给accountInfo赋值，用来获取存储视频的地址
-                if (accountInfo.studentEntity!!.accountId != ConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
+                if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                     accountInfoLD.postValue(accountInfo)
                 }
                 AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
@@ -783,9 +783,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         createTime = System.currentTimeMillis()
         val recordModel = MMKVUtil.decodeInt(
             MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            ConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
+            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
         )
-        if (recordModel == ConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
+        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
             AdlLogger.d("多人跳绳默认方式录制视频")
             sportEngine.startRecorder(videoFile)
         } else {
@@ -816,9 +816,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         sportEngine.changeToNone()
         val recordModel = MMKVUtil.decodeInt(
             MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            ConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
+            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
         )
-        if (recordModel == ConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
+        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
             sportEngine.stopRecorder {
                 handleResult(skipPersonArray)
             }
@@ -974,9 +974,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         focalHandler.removeCallbacksAndMessages(null)
         val recordModel = MMKVUtil.decodeInt(
             MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            ConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
+            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
         )
-        if (recordModel == ConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
+        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
             sportEngine.stopRecorder(null)
         } else {
             NsCameraHKRecorder.instance().onStop()

@@ -13,7 +13,7 @@ import com.adl.service.web.SportStatisticsService
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.R
 import com.ty.tybusbase.base.BaseSportViewModel
-import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.helper.TimeOutHelper
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ open class BaseMultiSportViewModel(application: Application) : BaseSportViewMode
             getString(R.string.sport_time_out)
         ).show()
         timeOutLD.postValue(true)
-    }, ConstantsValue.STARTED_TIME_OUT)
+    }, BusiBaseConstantsValue.STARTED_TIME_OUT)
 
     override fun onCreate() {
         super.onCreate()

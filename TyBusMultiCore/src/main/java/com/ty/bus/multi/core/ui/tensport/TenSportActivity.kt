@@ -21,7 +21,7 @@ import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding
-import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
@@ -58,18 +58,18 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         val isDebug =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, ConstantsValue.DEFAULT_DEBUG_MODULE)
+            MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
         mBinding.overlay.enableDraw(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
         val debug =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, ConstantsValue.DEFAULT_SKELETON)
+            MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, BusiBaseConstantsValue.DEFAULT_SKELETON)
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
         val uiConfig = AdlUIConfig.instance().readConfig(
-            "${ConstantsValue.MULTI_SPORT_CONFIG_KEY}$number",
+            "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number",
             RoleConfigMulti::class.java
         )
         uiConfig.number = number

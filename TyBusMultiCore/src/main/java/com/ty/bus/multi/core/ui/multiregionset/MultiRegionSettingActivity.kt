@@ -10,7 +10,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.ActivityMultiRegionSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
-import com.ty.tybusbase.constants.ConstantsValue
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -42,7 +42,7 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
                 getString(R.string.reset_successful)
             ).show()
             val multi = RoleConfigMulti()
-            multi.key = "${ConstantsValue.MULTI_SPORT_CONFIG_KEY}$number"
+            multi.key = "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number"
             multi.number = number
             mBinding.overlay.setConfig(multi, OnRenderScene.StatusSportSet)
             mBinding.overlay.saveConfig()
@@ -59,7 +59,7 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
         mBinding.overlay.enableDrawSkeleton(debug)
 
         val uiConfig = AdlUIConfig.instance().readConfig(
-            "${ConstantsValue.MULTI_SPORT_CONFIG_KEY}$number",
+            "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number",
             RoleConfigMulti::class.java
         )
         uiConfig.number = number
@@ -75,19 +75,19 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
 
     private fun openCamera() {
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, ConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            ConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
         )
         val psw = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_PSW,
-            ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
         )
         val camera = AdlCameraConfig.builder()
             .setPreviewSize(1920,1080)
             .setCameraType(AdlCameraConfig.CameraType.HK)
-            .setConnect(ip, ConstantsValue.HTTP_CAMERA_DEFAULT_PORT, account, psw)
+            .setConnect(ip, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT, account, psw)
             .setStreamType(0)
             .build()
         mBinding.previewView.startPreview(camera, object :
