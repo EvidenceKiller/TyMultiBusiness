@@ -9,9 +9,9 @@
         android:id="@+id/camera_view"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="-1dp"
-        android:layout_width="1920px"
-        android:layout_height="1080px"/>
+        android:layout_marginTop="-1px"
+        android:layout_width="1px"
+        android:layout_height="1px"/>
 
     <com.adl.base.overlay.SportOverlayMultiRegion
         android:id="@+id/overlay"

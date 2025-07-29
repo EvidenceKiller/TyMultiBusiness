@@ -2,11 +2,11 @@ package com.ai.test
 
 import android.os.Bundle
 import com.adl.base.speech.AdlTextSpeaker
-import com.ty.bus.multi.core.UINavConfig
-import com.ty.bus.multi.core.UINavigation
-import com.ty.bus.multi.core.UINavigation.goFiveSkipRope
-import com.ty.bus.multi.core.UINavigation.goTenSportRope
-import com.ty.bus.multi.core.UINavigation.goThreeSitReach
+import com.ty.tybusbase.config.UINavConfig
+import com.ty.bus.multi.core.UIMultiNavigation
+import com.ty.bus.multi.core.UIMultiNavigation.goFiveSkipRope
+import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
+import com.ty.bus.multi.core.UIMultiNavigation.goThreeSitReach
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
@@ -26,6 +26,6 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         mBinding.bnt10.setOnClickListener { goThreeSitReach(this, UINavConfig()) }
 
-        mBinding.btn10RegionSet.setOnClickListener { UINavigation.goMultiRegionSetting(this,10) }
+        mBinding.btn10RegionSet.setOnClickListener { UIMultiNavigation.goMultiRegionSetting(this,10) }
     }
 }

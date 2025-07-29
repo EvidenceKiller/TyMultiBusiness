@@ -267,7 +267,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
-//        hikSubConfig.isPreviewEnable = false
+        hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
@@ -293,7 +293,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 ConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
-//        hikSubConfig.isPreviewEnable = false
+        hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
