@@ -71,10 +71,11 @@
         android:layout_height="@dimen/dp_56"
         android:background="@drawable/pk_bg_btn_gradient_blue"
         android:text="@string/sport_report"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:textColor="@color/white"
-        android:textSize="@dimen/sp_28"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

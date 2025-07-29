@@ -32,7 +32,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="invisible"
-        app:constraint_referenced_ids="iv_best,tv_best"/>
+        app:constraint_referenced_ids="iv_best,tv_best" />
 
     <TextView
         android:id="@+id/tv_rank"
@@ -95,12 +95,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/dp_251"
+        android:layout_marginRight="@dimen/dp_140"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_40"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginRight="@dimen/dp_140"
+        app:layout_constraintTop_toTopOf="parent"
         tools:text="857个" />
 
     <Button
@@ -109,10 +109,11 @@
         android:layout_height="@dimen/dp_56"
         android:background="@drawable/pk_bg_btn_gradient_blue"
         android:text="@string/sport_report"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_20"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:textColor="@color/white"
-        android:textSize="@dimen/sp_20"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
