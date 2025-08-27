@@ -49,6 +49,9 @@ object BusiBaseConstantsValue {
     const val HTTP_CAMERA_PREVIEW_WIDTH = 1920
     const val HTTP_CAMERA_PREVIEW_HEIGHT = 1080
 
+    // 摄像头预览帧数
+    const val PREVIEW_FPS = 25
+
     /**
      * 身份识别类型
      */
@@ -57,4 +60,41 @@ object BusiBaseConstantsValue {
 
     const val IDENTITY_TYPE_QR = 1 shl 2 //二维码识别
 
+
+    /********************
+     * 0:前置，1：后置，2：USB（预留）
+     */
+    const val CAMERA_FRONT = 0 //前置相机
+
+    const val CAMERA_BACK = 1 //后置相机
+
+    const val CAMERA_USB = 2 //USB相机
+
+
+    /***********************
+     * 1:camera方式；2：cameraX 方式
+     */
+    const val CAMERA_TYPE_CAMERA = 1
+    const val CAMERA_TYPE_CAMERAX = 2
+    const val CAMERA_TYPE_CAMERA_UVC = 3
+    const val CAMERA_TYPE_DEFAULT: Int = CAMERA_TYPE_CAMERAX
+
+    const val DEFAULT_CAMERA_MIRROR = false //骨骼镜像
+
+
+    /***********************
+     * UVC摄像头画质设置
+     * 1:普通；2：强光环境；3：弱光环境,4:逆光环境
+     */
+    const val UVC_CAMERA_DISPLAY_PARAM_GENERAL = 1
+    const val UVC_CAMERA_DISPLAY_PARAM_QG = 2
+    const val UVC_CAMERA_DISPLAY_PARAM_RG = 3
+    const val UVC_CAMERA_DISPLAY_PARAM_CUSTOM = 4
+    const val UVC_CAMERA_DISPLAY_PARAM_DEFAULT: Int = UVC_CAMERA_DISPLAY_PARAM_GENERAL
+
+    /**
+     * 默认UVC摄像头光线强度
+     */
+    const val UVC_CAMERA_DEFAULT_LIGHT = 60
+    const val UVC_CAMERA_DEFAULT_CONTRAST = 60
 }

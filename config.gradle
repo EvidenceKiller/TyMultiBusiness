@@ -80,5 +80,9 @@ ext {
             BaseRecyclerViewAdapterHelper: "com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4",
             "fastjson"                   : 'com.alibaba:fastjson:2.0.40',
             "mmkv"                       : "com.tencent:mmkv:1.2.11",
+            "camera-core"                          : "androidx.camera:camera-core:1.2.3",
+            "camera-camera2"                       : "androidx.camera:camera-camera2:1.2.3",
+            "camera-lifecycle"                     : "androidx.camera:camera-lifecycle:1.2.3",
+            "camera-view"                          : "androidx.camera:camera-view:1.2.3",
     ]
 }

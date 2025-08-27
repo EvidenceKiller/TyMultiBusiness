@@ -680,8 +680,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     }
 
     private void createVisitor() {
-
-        AccountInfo accountInfo = new AccountInfo();
+        accountInfo = new AccountInfo();
         StudentEntity user = new StudentEntity();
         user.setUserId(BusiBaseConstantsValue.VISITOR_USER_ID);
         user.setUserFaceImgUrl("");
@@ -795,7 +794,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     }
 
     public void identity(StudentEntity user) {
-        AccountInfo accountInfo = new AccountInfo();
+        accountInfo = new AccountInfo();
         accountInfo.setStudentEntity(user);
         getHandler().post(() -> {
             mBinding.progressView.setProgress(100);
@@ -805,7 +804,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     }
 
     public void identity(TeacherEntity user) {
-        AccountInfo accountInfo = new AccountInfo();
+        accountInfo = new AccountInfo();
         accountInfo.setTeacherEntity(user);
         getHandler().post(() -> {
             mBinding.progressView.setProgress(100);

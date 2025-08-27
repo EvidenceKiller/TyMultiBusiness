@@ -43,11 +43,16 @@ dependencies {
     api rootProject.ext.dependencies["glide"]
     api rootProject.ext.dependencies["mmkv"]
 
+    api rootProject.ext.dependencies["camera-core"]
+    api rootProject.ext.dependencies["camera-camera2"]
+    api rootProject.ext.dependencies["camera-lifecycle"]
+    api rootProject.ext.dependencies["camera-view"]
+
     api(name: 'AdlPose-2025-04-29', ext: 'aar')
     api(name: 'AdlPoseSdk-2025-05-27', ext: 'aar')
     api(name: 'AdlPoseGt-2025-05-28', ext: 'aar')
     api(name: 'AdlPoseCore-2025-05-28', ext: 'aar')
-    api(name: 'AdlCamera-2025-04-21', ext: 'aar')
+    api(name: 'AdlCamera-2025-07-24', ext: 'aar')
     api(name: 'AdlBase-2025-07-24', ext: 'aar')
     api(name: 'AdlWebSerivce-2025-07-17', ext: 'aar')
     api(name: 'AdlAuthCore-v2-2025-05-22', ext: 'aar')
