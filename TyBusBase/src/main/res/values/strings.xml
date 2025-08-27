@@ -70,4 +70,25 @@
     <string name="count_compensation">计数补偿</string>
     <string name="sure">确认</string>
 
+    <string name="prompt_stand_rect_hand_up">请站到框内\n并保持右手举起</string>
+    <string name="move_to_rect">请移动到识别区</string>
+    <string name="identify_time_out">身份识别超时</string>
+
+    <string name="card_notice">请刷校园卡</string>
+    <string name="qr_notice">请扫校园二维码</string>
+    <string name="hand_up">请站到识别区\n并保持举起右手</string>
+    <string name="please_card">请在设备刷卡区刷卡</string>
+    <string name="please_qr">请在设备扫码区扫码</string>
+    <string name="please_card_qr">请在设备扫描区刷卡或扫码</string>
+    <string name="please_face_qr">请扫码或者站到框内并举起右手</string>
+    <string name="please_face_card_qr">请刷卡或扫二维码或者站到框内并举起右手</string>
+
+    <string name="card_face_notice">请刷卡或者站到框内并举起右手</string>
+    <string name="identifying_id">身份识别中</string>
+    <string name="scan_notice">身份识别中，请稍候...</string>
+    <string name="rec_face_fail_retry">未识别到身份，请重试。</string>
+    <string name="face_qr_notice">请扫码或者站到框内并举起右手</string>
+    <string name="card_qr_notice">请刷校园卡或扫二维码</string>
+    <string name="face_card_qr_notice">请刷校园卡或扫二维码或者站到框内并举起右手</string>
+
 </resources>
