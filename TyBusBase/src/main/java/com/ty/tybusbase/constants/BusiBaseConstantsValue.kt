@@ -51,6 +51,9 @@ object BusiBaseConstantsValue {
 
     // 摄像头预览帧数
     const val PREVIEW_FPS = 25
+    const val CAMERA_PREVIEW_WIDTH = 1920
+    const val CAMERA_PREVIEW_HEIGHT = 1080
+
 
     /**
      * 身份识别类型

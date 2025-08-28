@@ -89,5 +89,6 @@
   <string name="face_qr_notice">请扫码或者站到框内并举起右手</string>
   <string name="card_qr_notice">请刷校园卡或扫二维码</string>
   <string name="face_card_qr_notice">请刷校园卡或扫二维码或者站到框内并举起右手</string>
+  <string name="prompt_move_to_rect_sport">请移动到框内运动</string>
 
 </resources>

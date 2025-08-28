@@ -3,6 +3,7 @@ package com.ty.tybusbase.constants
 import androidx.annotation.IntDef
 import androidx.annotation.StringDef
 
+
 /**
  * @author :WEI_CP
  * Time:2022/3/2 19:24
@@ -46,6 +47,15 @@ object SportConstant {
     const val MEASURE_CODE_WEIGHT: String = "4"
     const val MEASURE_CODE_V: String = "5"
     const val MEASURE_CODE_SCORE: String = "6"
+
+    /**
+     * 定义优秀
+     */
+    const val GOOD: Int = 'A'.code
+    /**
+     * 定义良好
+     */
+    const val FINE: Int = 'B'.code
 
     /**
      * 成绩高低优
@@ -232,4 +242,8 @@ object SportConstant {
     )
     @Retention(AnnotationRetention.SOURCE)
     annotation class SportAiCode
+
+    @StringDef(SPORT_LOCATION_LEFT, SPORT_LOCATION_RIGHT, SPORT_LOCATION_DEFAULT)
+    @Retention(AnnotationRetention.SOURCE)
+    annotation class SportLocation
 }
