@@ -100,4 +100,6 @@ object BusiBaseConstantsValue {
      */
     const val UVC_CAMERA_DEFAULT_LIGHT = 60
     const val UVC_CAMERA_DEFAULT_CONTRAST = 60
+
+    const val MODEL_GROUP_NAME_GB = "model_group_name_gb" // 国标跳绳模型
 }

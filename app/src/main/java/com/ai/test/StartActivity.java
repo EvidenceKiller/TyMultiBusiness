@@ -48,6 +48,7 @@ public class StartActivity extends BaseActivity {
         authFactory.setBusinessHost(testBusHost);
         authFactory.setChipType(3);// 1.高通， 2.天山， 3.自动识别
         authFactory.setDebug(true);
+
         authFactory.setDebugApp(AdlAppCode.SmartScreenApp);
 
         authFactory.startAuth(this, new AdlAuthCallback() {
