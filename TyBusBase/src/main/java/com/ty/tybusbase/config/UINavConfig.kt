@@ -15,4 +15,7 @@ data class UINavConfig(
     var matchId: String? = null,
     var sceneId: String? = null,
     var accountInfo: AccountInfo? = null,
+    var modelId:String? = null,
+    var matchName: String? = null,
+    var matchSportId: String? = null,
 ) : Serializable
