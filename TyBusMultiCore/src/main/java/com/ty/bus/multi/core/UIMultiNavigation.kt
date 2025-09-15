@@ -21,6 +21,10 @@ object UIMultiNavigation {
         intent.putExtra("match_id", config?.matchId)
         intent.putExtra("scene_id", config?.sceneId)
         intent.putExtra("account_info", config?.accountInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("model_id", config?.modelId)
+        intent.putExtra("match_name", config?.matchName)
+        intent.putExtra("match_sport_id", config?.matchSportId)
         context.startActivity(intent)
     }
 
