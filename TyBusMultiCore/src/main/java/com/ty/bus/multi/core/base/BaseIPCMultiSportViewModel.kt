@@ -895,7 +895,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.perfectCount = 0
                 sportResult.goodCount = 0
                 sportResult.comeOnCount = 0
-                sportResult.perfectScore = multiResult.count
+                sportResult.perfectScore = 0
                 sportResult.goodScore = 0
                 sportResult.comeOnScore = 0
                 sportResult.userId = multiResult.accountInfo.studentEntity?.accountId
