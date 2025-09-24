@@ -6,7 +6,7 @@ import com.tencent.mmkv.MMKV
 import com.ty.tybusbase.callback.DefaultUploadCallback
 
 object BusiCoreEngine {
-    private var resultCallback: ResultCallback = DefaultUploadCallback()
+    private var resultCallback: ResultCallback? = null
     fun init(context: Context) {
         ApplicationUtil.init(context)
         MMKV.initialize(context)
@@ -17,7 +17,7 @@ object BusiCoreEngine {
         this.resultCallback = resultCallback
     }
 
-    fun getResultCallback(): ResultCallback {
+    fun getResultCallback(): ResultCallback? {
         return resultCallback
     }
 }

@@ -307,7 +307,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                     sportTrainPlan,
                     recordPlan = recordPlan
                 )
-            BusiCoreEngine.getResultCallback().onSportRecordEntity(sportRecordEntity)
+            BusiCoreEngine.getResultCallback()?.onSportRecordEntity(sportRecordEntity)
         }
     }
 
