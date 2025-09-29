@@ -39,5 +39,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             val httpCameraSettingDialog = HttpCameraSettingDialog()
             httpCameraSettingDialog.show(supportFragmentManager, "http_camera")
         }
+
+        mBinding.bnt10.setOnClickListener {
+            UIMultiNavigation.goZwtqqSetting(this)
+        }
     }
 }

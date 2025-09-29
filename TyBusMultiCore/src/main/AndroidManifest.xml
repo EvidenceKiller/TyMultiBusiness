@@ -7,7 +7,11 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.tensport.TenSportActivity"
             android:exported="true" />
-        <activity android:name="com.ty.bus.multi.core.ui.multiregionset.MultiRegionSettingActivity"
-            android:exported="true"/>
+        <activity
+            android:name="com.ty.bus.multi.core.ui.multiregionset.MultiRegionSettingActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.zwtqqset.ZwtqqSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>

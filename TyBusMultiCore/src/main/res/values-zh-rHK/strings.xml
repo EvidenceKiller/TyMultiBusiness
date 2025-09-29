@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="zwtqq">坐位体前屈</string>
+    <string name="zwtqq_cdsl">测垫数量</string>
+    <string name="zwtqq_count">测试次数</string>
 </resources>
