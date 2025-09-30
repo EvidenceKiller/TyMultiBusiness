@@ -23,6 +23,11 @@
             android:background="@mipmap/icon_back" />
     </LinearLayout>
 
+    <com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <com.ty.bus.multi.core.view.common.RightDrawerLayoutView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
@@ -158,13 +163,13 @@
             android:id="@+id/tv_reset"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
+            android:layout_marginEnd="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_24"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
             android:text="@string/reset"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
-            android:layout_marginEnd="@dimen/dp_40"
             app:layout_constraintBottom_toTopOf="@+id/tv_confirm"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -172,11 +177,11 @@
             android:id="@+id/tv_confirm"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
+            android:layout_marginEnd="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_80"
             android:background="@drawable/bg_round_r50_gradient_red"
             android:gravity="center"
             android:text="@string/confirm"
-            android:layout_marginEnd="@dimen/dp_40"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,11 +1,16 @@
 package com.ty.bus.multi.core.ui.zwtqqset
 
 import android.os.Bundle
+import com.adl.base.config.AdlUIConfig
+import com.adl.base.overlay.OnRenderScene
+import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
+import com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivityZwtqqSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.utils.MMKVUtil
+
 
 class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewModel>() {
 
@@ -30,6 +35,9 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
             MultiCoreConstant.ZWTQQ_TEST_TIMES,
             MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
         )
+
+        ForwardFlexionSportOverlay.previewWidth = 1920;
+        ForwardFlexionSportOverlay.previewHeight = 1080;
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -46,6 +54,7 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
             testPeopleCount--
             mBinding.tvNumber.text = testPeopleCount.toString()
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
+            updateOverlay()
         }
 
         mBinding.ivNumberAdd.setOnClickListener {
@@ -55,6 +64,7 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
             testPeopleCount++
             mBinding.tvNumber.text = testPeopleCount.toString()
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
+            updateOverlay()
         }
 
         mBinding.ivTimeMinus.setOnClickListener {
@@ -85,9 +95,23 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
         }
 
         mBinding.tvConfirm.setOnClickListener {
-
+            mBinding.overlay.saveConfig()
+            finish()
         }
+        initOverlay()
+    }
 
+    private fun initOverlay() {
+        mBinding.overlay.setMarkerAreaNum(testPeopleCount)
+        val uiConfig: FFlexionRoleConfig? = AdlUIConfig.instance()
+            .readConfig(mBinding.overlay.configKey, FFlexionRoleConfig::class.java)
+        mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
+    }
+
+    private fun updateOverlay() {
+        mBinding.overlay.setMarkerAreaNum(testPeopleCount)
+        mBinding.overlay.updateConfig()
+        mBinding.overlay.refresh()
     }
 
 }
