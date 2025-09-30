@@ -95,6 +95,8 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
             mBinding.tvTime.text = testTimes.toString()
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_TIMES, testTimes)
+            updateOverlay()
+            mBinding.overlay.saveConfig()
         }
 
         mBinding.tvConfirm.setOnClickListener {
