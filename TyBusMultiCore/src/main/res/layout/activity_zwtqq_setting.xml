@@ -5,6 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.ty.tybusbase.camera.BSCameraPreview
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <LinearLayout
         android:id="@+id/ll_back"
         android:layout_width="@dimen/dp_90"
@@ -22,11 +32,6 @@
             android:layout_height="@dimen/dp_28"
             android:background="@mipmap/icon_back" />
     </LinearLayout>
-
-    <com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <com.ty.bus.multi.core.view.common.RightDrawerLayoutView
         android:layout_width="wrap_content"

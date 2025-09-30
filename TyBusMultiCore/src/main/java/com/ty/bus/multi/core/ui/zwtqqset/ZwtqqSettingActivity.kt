@@ -3,12 +3,15 @@ package com.ty.bus.multi.core.ui.zwtqqset
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.overlay.OnRenderScene
+import com.adl.processor.SportProcessorStatus
 import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
 import com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivityZwtqqSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 
 
@@ -99,6 +102,7 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
             finish()
         }
         initOverlay()
+        initCamera()
     }
 
     private fun initOverlay() {
@@ -108,10 +112,34 @@ class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewM
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
     }
 
+    private fun initCamera() {
+        mBinding.cameraView.setRotate(MMKVUtil.decodeInt(MMKVBusiKey.SKELETON_ROTATE, 0))
+        mBinding.cameraView.setMirror(
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.SKELETON_MIRROR,
+                BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
+            )
+        )
+    }
     private fun updateOverlay() {
         mBinding.overlay.setMarkerAreaNum(testPeopleCount)
         mBinding.overlay.updateConfig()
         mBinding.overlay.refresh()
     }
 
+    override fun onResume() {
+        super.onResume()
+        mBinding.cameraView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBinding.cameraView.onPause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mBinding.cameraView.onRelease()
+    }
+    
 }
