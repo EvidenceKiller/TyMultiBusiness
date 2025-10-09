@@ -43,5 +43,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.bnt10.setOnClickListener {
             UIMultiNavigation.goForwardFelxionSetting(this)
         }
+
+        mBinding.bntZw.setOnClickListener {
+            UIMultiNavigation.goForwardFelxionSetting(this)
+        }
     }
 }

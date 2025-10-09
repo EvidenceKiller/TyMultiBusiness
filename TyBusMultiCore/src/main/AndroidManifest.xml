@@ -13,5 +13,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity"
+            android:exported="true" />
     </application>
 </manifest>

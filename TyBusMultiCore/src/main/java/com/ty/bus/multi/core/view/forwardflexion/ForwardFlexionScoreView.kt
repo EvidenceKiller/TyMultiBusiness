@@ -1,0 +1,67 @@
+package com.ty.bus.multi.core.view.forwardflexion
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.ty.bus.multi.R
+import com.ty.bus.multi.databinding.ItemForwardFlexionScoreBinding
+import com.ty.bus.multi.databinding.ViewForwardFlexionScoreBinding
+import com.ty.tybusbase.base.BaseBindingAdapter
+import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.expand.getString
+
+class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+    ConstraintLayout(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context) : this(context, null)
+
+
+    private var mBinding: ViewForwardFlexionScoreBinding
+    private var scoreList: MutableList<Int> = mutableListOf()
+
+    init {
+        var view =
+            LayoutInflater.from(context).inflate(R.layout.view_forward_flexion_score, this, true)
+        mBinding = ViewForwardFlexionScoreBinding.bind(view)
+        initView()
+    }
+
+    private fun initView() {
+        mBinding.rvScore.layoutManager = LinearLayoutManager(context)
+        mBinding.rvScore.adapter =
+            object : BaseBindingAdapter<ItemForwardFlexionScoreBinding, Int>(scoreList) {
+                @SuppressLint("SetTextI18n")
+                override fun convert(
+                    holder: VBViewHolder<ItemForwardFlexionScoreBinding>,
+                    item: Int
+                ) {
+                    holder.vb.tvIndex.text = "${holder.layoutPosition + 1}"
+                    holder.vb.tvScore.text = when {
+                        item == -300 -> getString(R.string.violations)
+                        item > -200 && item < 400 -> "${item / 10.0}"
+                        else -> getString(R.string.violations)
+                    }
+                }
+
+            }
+    }
+
+
+    /**
+     * -20 ~ 400
+     * -300 违规
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun addScore(score: Int) {
+        scoreList.add(score)
+        mBinding.rvScore.adapter?.notifyDataSetChanged()
+    }
+
+    fun getScoreList(): List<Int> {
+        return scoreList
+    }
+
+}

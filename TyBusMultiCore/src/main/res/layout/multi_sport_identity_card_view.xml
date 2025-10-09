@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    tools:ignore="MissingDefaultResource">
+    <!--  人员信息卡片  -->
+    <ImageView
+        android:id="@+id/iv_account_info_bg"
+        android:layout_width="@dimen/dp_376"
+        android:layout_height="@dimen/dp_208"
+        android:background="@mipmap/bg_3user_identified"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_header"
+        android:layout_width="@dimen/dp_88"
+        android:layout_height="@dimen/dp_88"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_24"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_account_info_bg"
+        app:layout_constraintTop_toTopOf="@+id/iv_account_info_bg" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_32"
+        android:ellipsize="end"
+        android:maxEms="5"
+        android:maxLines="1"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_36"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+        app:layout_constraintLeft_toRightOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="@+id/iv_header" />
+
+    <TextView
+        android:id="@+id/tv_status_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_25"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_account_info_bg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_account"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="tv_status_tip,tv_name,iv_header,iv_account_info_bg" />
+    <!--  人员信息卡片  -->
+
+    <!--  识别中  -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_identity_notice"
+        android:layout_width="@dimen/dp_200"
+        android:layout_height="@dimen/dp_200"
+        android:layout_marginTop="@dimen/dp_149"
+        android:background="@drawable/rect_black_bg"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_identity_tip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_20"
+            android:text="@string/identifying"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_state"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_48"
+            android:layout_centerInParent="true"
+            android:scaleType="fitXY"
+            android:src="@mipmap/ic_face_recognition"
+            app:layout_constraintBottom_toBottomOf="@+id/progress_view"
+            app:layout_constraintLeft_toLeftOf="@+id/progress_view"
+            app:layout_constraintRight_toRightOf="@+id/progress_view"
+            app:layout_constraintTop_toTopOf="@+id/progress_view" />
+
+        <com.ty.tybusbase.view.ArcCircleProgressView
+            android:id="@+id/progress_view"
+            android:layout_width="@dimen/dp_96"
+            android:layout_height="@dimen/dp_96"
+            android:layout_centerInParent="true"
+            android:layout_marginTop="@dimen/dp_24"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_identity_tip" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!--  识别中  -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>

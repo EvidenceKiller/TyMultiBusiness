@@ -5,6 +5,7 @@ import android.content.Intent
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
+import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.tybusbase.config.UINavConfig
 
 /**
@@ -16,8 +17,24 @@ import com.ty.tybusbase.config.UINavConfig
 object UIMultiNavigation {
     @JvmStatic
     fun goTenSportRope(context: Context, config: UINavConfig?) {
-        // TODO 导航跳转
         val intent = Intent(context, TenSportActivity::class.java)
+        intent.putExtra("sport_info", config?.sportInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("scene_id", config?.sceneId)
+        intent.putExtra("account_info", config?.accountInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("model_id", config?.modelId)
+        intent.putExtra("match_name", config?.matchName)
+        intent.putExtra("match_sport_id", config?.matchSportId)
+        context.startActivity(intent)
+    }
+
+    /**
+     * 坐位体前屈
+     */
+    @JvmStatic
+    fun goForwardFlexion(context: Context, config: UINavConfig?) {
+        val intent = Intent(context, ForwardFlexionActivity::class.java)
         intent.putExtra("sport_info", config?.sportInfo)
         intent.putExtra("match_id", config?.matchId)
         intent.putExtra("scene_id", config?.sceneId)
@@ -48,6 +65,6 @@ object UIMultiNavigation {
 
     fun goForwardFelxionSetting(context: Context) {
         // TODO 跳转
-        context.startActivity(Intent(context, ForwardFlexionSettingActivity::class.java))
+        context.startActivity(Intent(context, ForwardFlexionActivity::class.java))
     }
 }
