@@ -1,13 +1,12 @@
-package com.ty.bus.multi.core.ui.zwtqqset
+package com.ty.bus.multi.core.ui.forwardflexionset
 
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.overlay.OnRenderScene
-import com.adl.processor.SportProcessorStatus
 import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
 import com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
 import com.ty.bus.multi.core.constants.MultiCoreConstant
-import com.ty.bus.multi.databinding.ActivityZwtqqSettingBinding
+import com.ty.bus.multi.databinding.ActivityForwardFlexionSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -15,7 +14,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 
 
-class ZwtqqSettingActivity : BaseActivity<ActivityZwtqqSettingBinding, BaseViewModel>() {
+class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSettingBinding, BaseViewModel>() {
 
     private var testPeopleCount = 0
     private var testTimes = 0

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.ui.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.tensport.TenSportActivity
-import com.ty.bus.multi.core.ui.zwtqqset.ZwtqqSettingActivity
+import com.ty.bus.multi.core.ui.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.tybusbase.config.UINavConfig
 
 /**
@@ -46,8 +46,8 @@ object UIMultiNavigation {
         })
     }
 
-    fun goZwtqqSetting(context: Context) {
+    fun goForwardFelxionSetting(context: Context) {
         // TODO 跳转
-        context.startActivity(Intent(context, ZwtqqSettingActivity::class.java))
+        context.startActivity(Intent(context, ForwardFlexionSettingActivity::class.java))
     }
 }
