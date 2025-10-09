@@ -2,9 +2,9 @@ package com.ty.bus.multi.core
 
 import android.content.Context
 import android.content.Intent
-import com.ty.bus.multi.core.ui.multiregionset.MultiRegionSettingActivity
-import com.ty.bus.multi.core.ui.tensport.TenSportActivity
-import com.ty.bus.multi.core.ui.forwardflexionset.ForwardFlexionSettingActivity
+import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
+import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
+import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.tybusbase.config.UINavConfig
 
 /**

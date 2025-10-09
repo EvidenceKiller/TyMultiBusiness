@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core.ui.tensport
+package com.ty.bus.multi.core.ui.sport.tensport
 
 import android.app.Application
 import android.graphics.Rect

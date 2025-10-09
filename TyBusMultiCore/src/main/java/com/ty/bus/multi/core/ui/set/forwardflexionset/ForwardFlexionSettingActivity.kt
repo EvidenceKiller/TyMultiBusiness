@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core.ui.forwardflexionset
+package com.ty.bus.multi.core.ui.set.forwardflexionset
 
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig

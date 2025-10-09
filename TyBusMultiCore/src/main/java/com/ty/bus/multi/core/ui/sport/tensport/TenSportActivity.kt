@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core.ui.tensport
+package com.ty.bus.multi.core.ui.sport.tensport
 
 import adl.ssp.common.report.model.IndicatorsResultDto
 import android.animation.ObjectAnimator

@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core.ui.multiregionset
+package com.ty.bus.multi.core.ui.set.multiregionset
 
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig
