@@ -2,9 +2,12 @@ package com.ty.bus.multi.core.view.forwardflexion
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.SparseArray
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.util.forEach
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ViewForwardFlexionSportBinding
 
 class ForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -34,6 +37,12 @@ class ForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyleAt
 
     fun getScore(index: Int): List<Int>? {
         return cardMap[index]?.getScoreList()
+    }
+
+    fun setAccountInfo(msr:SparseArray<MultiSportResult>){
+        msr.forEach { index, multiSportResult ->
+            cardMap[index]?.setAccountInfo(multiSportResult.accountInfo)
+        }
     }
 
 }

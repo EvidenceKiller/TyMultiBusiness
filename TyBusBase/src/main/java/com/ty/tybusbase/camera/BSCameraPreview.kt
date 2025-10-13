@@ -58,7 +58,7 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
         zyCamera = AdlCameraConfig.builder()
             .setCameraType(cameraType)
             .setCameraId(cameraId)
-            .setPreviewSize(BusiBaseConstantsValue.HTTP_CAMERA_PREVIEW_WIDTH, BusiBaseConstantsValue.HTTP_CAMERA_PREVIEW_HEIGHT)
+            .setPreviewSize(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH, BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .setPreviewFps(BusiBaseConstantsValue.PREVIEW_FPS)
             .setDisplayOrientation(0)
             .build()

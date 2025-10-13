@@ -12,7 +12,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintRight_toRightOf="parent" />
 
-    <com.adl.base.overlay.SportOverlayMultiRegion
+    <com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
@@ -24,6 +24,7 @@
         android:layout_marginLeft="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_45"
         android:textColor="@color/white"
+        android:text="@string/forward_flexion"
         android:textSize="@dimen/dp_56"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -110,12 +111,13 @@
     <!--  识别过程中提示  -->
 
     <com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionIdentityView
-        android:id="@+id/three_identity_view"
+        android:id="@+id/identity_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionSportView
-        android:id="@+id/three_sport_view"
+        android:id="@+id/sport_view"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

@@ -22,7 +22,7 @@ object LogUtil {
     private var writeFileEnable = true
     private var consoleEnable = true
     private val stringBuffer by lazy { StringBuffer() }
-    private val TAG = "BSLA>>"
+    private val TAG = "BUSI>>"
 
     /**
      * 设置私有外部存储路径，兼容Android高版本无法访问公共目录的情况

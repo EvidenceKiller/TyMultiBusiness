@@ -6,11 +6,14 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.adl.service.outer.AdlService
+import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.ItemForwardFlexionScoreBinding
 import com.ty.bus.multi.databinding.ViewForwardFlexionScoreBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
 
 class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -62,6 +65,17 @@ class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAt
 
     fun getScoreList(): List<Int> {
         return scoreList
+    }
+
+    fun setAccountInfo(accountInfo: AccountInfo) {
+        if (AdlService.getService() != null) {
+            Glide.with(context)
+                .load(AdlService.getService().facePrefix + accountInfo.studentEntity?.userFaceImgUrl)
+                .placeholder(R.mipmap.ic_head_default)
+                .error(R.mipmap.ic_head_default)
+                .into(mBinding.ivHeader)
+        }
+        mBinding.tvName.text = accountInfo.studentEntity?.accountName
     }
 
 }

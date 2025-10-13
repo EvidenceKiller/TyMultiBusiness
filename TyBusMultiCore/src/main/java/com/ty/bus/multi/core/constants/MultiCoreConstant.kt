@@ -5,4 +5,6 @@ object MultiCoreConstant {
     const val ZWTQQ_TEST_TIMES = "zwtqq_test_times"
     const val ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT = 1
     const val ZWTQQ_TEST_TIMES_DEFAULT = 1
+
+    const val FORWARD_FLEXION_MODEL_NAME = "forward_flexion_model"
 }

@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_50"
             android:layout_marginEnd="@dimen/dp_50"
-            android:text="@string/zwtqq"
+            android:text="@string/forward_flexion"
             android:textColor="@color/WHITE"
             android:textSize="@dimen/sp_68"
             app:layout_constraintEnd_toEndOf="parent"

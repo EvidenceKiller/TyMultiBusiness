@@ -27,9 +27,9 @@ class ForwardFlexionIdentityView(context: Context, attrs: AttributeSet?, defStyl
     }
 
     private fun initView() {
-        cardMap[0] = mBinding.identityCard1
-        cardMap[1] = mBinding.identityCard2
-        cardMap[2] = mBinding.identityCard3
+        cardMap[1] = mBinding.identityCard1
+        cardMap[2] = mBinding.identityCard2
+        cardMap[3] = mBinding.identityCard3
     }
 
     /**
@@ -45,7 +45,7 @@ class ForwardFlexionIdentityView(context: Context, attrs: AttributeSet?, defStyl
     fun setUserInfo(p: Pair<Int, AccountInfo>) {
         cardMap[p.first]?.setUserInfo(
             p.second.studentEntity!!.accountName,
-            p.second.studentEntity!!.userFaceImgUrl
+            p.second.studentEntity?.userFaceImgUrl ?: ""
         )
     }
 

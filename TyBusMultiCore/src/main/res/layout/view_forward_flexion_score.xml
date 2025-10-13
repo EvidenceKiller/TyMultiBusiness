@@ -12,6 +12,7 @@
         android:layout_height="@dimen/dp_56"
         android:layout_marginStart="@dimen/dp_83"
         android:layout_marginTop="@dimen/dp_24"
+        android:src="@mipmap/ic_head_default"
         android:contentDescription="头像"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

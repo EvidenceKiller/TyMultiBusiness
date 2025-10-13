@@ -2,6 +2,7 @@ package com.ai.test
 
 import android.os.Bundle
 import com.adl.base.speech.AdlTextSpeaker
+import com.adl.service.entity.SceneSportInfoEntity
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goFiveSkipRope
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
@@ -45,7 +46,12 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.bntZw.setOnClickListener {
-            UIMultiNavigation.goForwardFelxionSetting(this)
+            UIMultiNavigation.goForwardFlexion(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = "780001"
+                    sportSkuName = "坐位体前屈"
+                }
+            })
         }
     }
 }

@@ -187,9 +187,9 @@ dependencies {
 
     implementation(name: 'AdlPose-2025-04-29', ext: 'aar')
     implementation(name: 'AdlPoseCore-2025-05-28', ext: 'aar')
-    implementation(name: 'AdlPoseSdk-2025-05-27', ext: 'aar')
+    implementation(name: 'AdlPoseSdk-2025-09-30', ext: 'aar')
     implementation(name: 'AdlPoseGt-2025-05-28', ext: 'aar')
-    implementation(name: 'AdlAuthCore-v2-2025-05-22', ext: 'aar')
+    implementation(name: 'AdlAuthCore-v2-2025-09-30', ext: 'aar')
 
     implementation(name: 'tool-release', ext: 'aar')
 
