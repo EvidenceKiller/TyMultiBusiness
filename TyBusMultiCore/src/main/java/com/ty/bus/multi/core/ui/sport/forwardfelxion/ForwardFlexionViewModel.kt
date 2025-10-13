@@ -219,7 +219,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             }
         }
         //全部准备完成，开始运动
-        if (prepareCount == sportManCount) {
+        if (prepareCount == sportManCount && sportState != MultiSportState.SPORTING) {
             if (sportTimes > 1) {
                 SpeechWrapper.speech(
                     getString(
@@ -231,8 +231,12 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                 SpeechWrapper.speech(getString(R.string.forward_flexion_start_speech))
             }
             sportStartLD.postValue(currentSportTimes)
+            //切换卡片状态，方便重置
+            sportPersonArray.forEach { key, value ->
+                changeMultiIdentityCardState(key, MultiSportCardViewState.SPORTING)
+            }
+            sportState = MultiSportState.SPORTING
         }
-
     }
 
     fun onBonePoints(map: MutableMap<Int, MutableList<Point>>?) {
@@ -325,7 +329,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         if (it.isNullOrEmpty() || it.size < 4) return rect
         val lShouder = it[2]
         val rShouder = it[3]
-        val shoulderWidth = abs(lShouder.x - rShouder.x)
+        val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.5
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
         rect.left = min(lShouder.x, rShouder.x).toInt()
         rect.right = rect.left + shoulderWidth.toInt()
@@ -351,11 +355,10 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             SpeechWrapper.speech("${name}，${getResultSpeech(entry.value)}")
         }
         currentSportTimes++
-        if (currentSportTimes > sportTimes){
+        if (currentSportTimes > sportTimes) {
             //测试次数超标，运动结束
             toStatusSportEnd()
-        }else{
-            SpeechWrapper.speech("准备下次运动")
+        } else {
             SystemClock.sleep(1000)
             toStatusPrepare()
         }
@@ -369,6 +372,23 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             result > -200 && result < 400 -> "${result / 10.0}厘米"
             else -> getString(R.string.violations)
         }
+    }
+
+    fun retest() {
+        sportPersonArray.forEach { index, result ->
+            result.count = 0
+        }
+        currentSportTimes = 1
+        sportState = MultiSportState.PREPARING
+        toStatusPrepare()
+    }
+
+    override fun reset() {
+        super.reset()
+        multiIdentityEngine.clearCountMap()
+        sportPersonArray.clear()
+        currentSportTimes = 1
+        sportState = MultiSportState.IDLE
     }
 
 }

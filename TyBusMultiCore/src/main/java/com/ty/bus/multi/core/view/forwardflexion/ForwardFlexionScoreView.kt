@@ -78,4 +78,11 @@ class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.tvName.text = accountInfo.studentEntity?.accountName
     }
 
+    fun reset() {
+        mBinding.ivHeader.setImageBitmap(null)
+        mBinding.tvName.text = ""
+        scoreList.clear()
+        mBinding.rvScore.adapter?.notifyDataSetChanged()
+    }
+
 }

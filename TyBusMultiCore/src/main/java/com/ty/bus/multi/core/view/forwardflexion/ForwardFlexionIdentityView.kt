@@ -49,4 +49,10 @@ class ForwardFlexionIdentityView(context: Context, attrs: AttributeSet?, defStyl
         )
     }
 
+    fun reset() {
+        cardMap.forEach { (_, value) ->
+            value.changeState(MultiSportCardViewState.NOBODY)
+        }
+    }
+
 }

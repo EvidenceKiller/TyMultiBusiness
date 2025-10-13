@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.View
-import androidx.core.util.forEach
+import android.view.ViewGroup.LayoutParams
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraFrameProcessor
@@ -23,12 +23,15 @@ import com.adl.sport.forwardflexion.informCode.InformCode
 import com.adl.sport.forwardflexion.processor.ForwardFlexionProcessor
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
-import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
+import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
+import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
+import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionSportView
 import com.ty.bus.multi.databinding.ActivityForwardFlexionBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
@@ -67,6 +70,7 @@ class ForwardFlexionActivity :
         super.initView(savedInstanceState)
         mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
         mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
+        mBinding.tvInTip.text = getString(R.string.forward_flexion_in_tip)
         mBinding.btnInTipConfirm.text =
             getString(R.string.confirm_countdown, tipCountDownCount)
 
@@ -84,7 +88,10 @@ class ForwardFlexionActivity :
     override fun initObserver() {
         super.initObserver()
         viewModel.changeIdentityCardStateLD.observe(this) {
-            mBinding.identityView.changeState(it, "factory.getReadyTip()")
+            mBinding.identityView.changeState(
+                it,
+                getString(R.string.forward_flexion_identified_tip)
+            )
 //            val imageView = imgMap[it.first]
 //            if (it.second == MultiSportCardViewState.NOBODY) {
 //                imageView?.visibility = View.VISIBLE
@@ -251,14 +258,14 @@ class ForwardFlexionActivity :
 
     override fun onStatusIdentify() {
         LogUtil.d("开始人脸识别")
+        mBinding.identityView.visibility = View.VISIBLE
         forwardFlexionProcessor.open(mBinding.overlay)
         forwardFlexionProcessor.updateCheckIn(HashMap<Int, Boolean>().apply { put(1, true) })
         forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
     }
 
     override fun onStatusPrepare() {
-        forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
+        processorPrepare()
     }
 
     protected fun loadModel() {
@@ -297,10 +304,40 @@ class ForwardFlexionActivity :
     }
 
     override fun onStatusEnd() {
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.stopRecord()
-        //显示结果页UI
-        SpeechWrapper.speech("运动结束")
+        mBinding.sportView.visibility = View.GONE
+        addResultView()
     }
+
+    private fun addResultView() {
+        val resultView = ForwardFlexionResultView(this, null)
+        mBinding.clViewContainer.addView(
+            resultView,
+            LayoutParams.MATCH_PARENT,
+            LayoutParams.MATCH_PARENT
+        )
+        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
+            resultView.showNextBtn()
+        }
+        resultView.setSportResult(viewModel.sportPersonArray)
+        resultView.listener = object : ForwardFlexionResultViewListener {
+            override fun onRetestClick() {
+                retest()
+                mBinding.clViewContainer.removeView(resultView)
+            }
+
+            override fun onNextClick() {
+                next()
+                mBinding.clViewContainer.removeView(resultView)
+            }
+
+            override fun onEndTestClick() {
+                finish()
+            }
+        }
+    }
+
 
     override fun onResume() {
         super.onResume()
@@ -316,11 +353,15 @@ class ForwardFlexionActivity :
         forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
     }
 
-    /**
-     * 重置
-     */
-    private fun onReset() {
 
+    /**
+     * 下一组
+     */
+    private fun next() {
+        viewModel.reset()
+        mBinding.identityView.reset()
+        mBinding.sportView.reset()
+        viewModel.toStatusIdentifyFace()
     }
 
     /**
@@ -328,15 +369,12 @@ class ForwardFlexionActivity :
      */
     private fun retest() {
         forwardFlexionProcessor.onReset()
+        mBinding.sportView.reset()
+        viewModel.retest()
     }
 
-    protected fun prepare() {
-        val m: MutableMap<Int?, Boolean?> = HashMap<Int?, Boolean?>()
-        m.put(1, false)
-        m.put(2, true)
-        m.put(3, false)
-
-        forwardFlexionProcessor.updateCheckIn(m)
+    protected fun processorPrepare() {
+        forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
 
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
 

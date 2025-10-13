@@ -39,9 +39,16 @@ class ForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyleAt
         return cardMap[index]?.getScoreList()
     }
 
-    fun setAccountInfo(msr:SparseArray<MultiSportResult>){
+    fun setAccountInfo(msr: SparseArray<MultiSportResult>) {
         msr.forEach { index, multiSportResult ->
             cardMap[index]?.setAccountInfo(multiSportResult.accountInfo)
+            cardMap[index]?.visibility = VISIBLE
+        }
+    }
+
+    fun reset() {
+        cardMap.forEach { index, forwardFlexionScoreView ->
+            forwardFlexionScoreView.reset()
         }
     }
 

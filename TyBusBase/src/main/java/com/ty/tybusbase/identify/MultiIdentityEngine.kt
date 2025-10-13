@@ -275,4 +275,8 @@ class MultiIdentityEngine {
         isOK = false
         identityStartTime = 0
     }
+
+    fun clearCountMap() {
+        identifyMap.clear()
+    }
 }
