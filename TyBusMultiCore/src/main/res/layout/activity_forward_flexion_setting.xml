@@ -39,6 +39,7 @@
         app:layout_constraintRight_toRightOf="parent">
 
         <TextView
+            android:id="@+id/tv_sport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_50"
@@ -49,17 +50,32 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <TextView
+            android:id="@+id/tv_auto_mat"
+            android:layout_width="@dimen/dp_360"
+            android:layout_height="@dimen/dp_60"
+            android:layout_marginTop="@dimen/dp_40"
+            android:layout_marginEnd="@dimen/dp_40"
+            android:layout_marginBottom="@dimen/dp_24"
+            android:background="@drawable/bg_btn_white_r50"
+            android:gravity="center"
+            android:text="@string/forward_flexion_auto_mat"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_sport_name" />
+
         <LinearLayout
             android:id="@+id/ll_number"
             android:layout_width="@dimen/dp_232"
             android:layout_height="@dimen/dp_80"
-            android:layout_marginTop="@dimen/dp_228"
+            android:layout_marginTop="@dimen/dp_40"
             android:layout_marginEnd="@dimen/dp_40"
             android:background="@drawable/bg_zwtqq_number_set"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/tv_auto_mat">
 
             <ImageView
                 android:id="@+id/iv_number_minus"

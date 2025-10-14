@@ -3,18 +3,33 @@ package com.ty.bus.multi.core.ui.set.forwardflexionset
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.overlay.OnRenderScene
+import com.adl.mount.core.TsModelInfo
+import com.adl.mount.core.TsModelResGroup
+import com.adl.mount.core.TsModelResPool
+import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
+import com.adl.processor.SportProcessorStatus
+import com.adl.sport.common.bean.Point
+import com.adl.sport.forwardflexion.callback.FFlexionSportCallBack
 import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
+import com.adl.sport.forwardflexion.config.FFlexionSportConfig
+import com.adl.sport.forwardflexion.config.FFlexionSportResult
+import com.adl.sport.forwardflexion.informCode.InformCode
+import com.adl.sport.forwardflexion.processor.ForwardFlexionProcessor
 import com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
+import com.ty.bus.multi.R
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivityForwardFlexionSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.ToastUtil
 
 
-class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSettingBinding, BaseViewModel>() {
+class ForwardFlexionSettingActivity :
+    BaseActivity<ActivityForwardFlexionSettingBinding, BaseViewModel>() {
 
     private var testPeopleCount = 0
     private var testTimes = 0
@@ -24,6 +39,10 @@ class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSetting
     private var minTestTimes = 1
     private var maxTestTimes = 3
 
+    private var isModelLoadOk = false
+
+    private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
+    private var sportConfig: FFlexionSportConfig? = null
     override fun initObserver() {
 
     }
@@ -48,6 +67,18 @@ class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSetting
         mBinding.tvTime.text = testTimes.toString()
 
         mBinding.llBack.setOnClickListener { finish() }
+
+        mBinding.tvAutoMat.setOnClickListener {
+            if (isModelLoadOk.not()) {
+                ToastUtil.getInstance(this, getString(R.string.forward_flexion_model_loading))
+                    .show()
+                return@setOnClickListener
+            }
+            forwardFlexionProcessor.open(mBinding.overlay)
+            forwardFlexionProcessor.changeTo(
+                SportProcessorStatus.MatDetect
+            )
+        }
 
         mBinding.ivNumberMinus.setOnClickListener {
             if (testPeopleCount == minPeopleCount) {
@@ -103,6 +134,7 @@ class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSetting
             finish()
         }
         initOverlay()
+        initProcessor()
         initCamera()
     }
 
@@ -121,7 +153,91 @@ class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSetting
                 BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
             )
         )
+        mBinding.cameraView.addProcessor(forwardFlexionProcessor)
     }
+
+    private fun initProcessor() {
+        val diskNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
+        )
+        // 运动配置
+        sportConfig = FFlexionSportConfig.builder()
+            .debug(true)
+            .isRecord(true)
+            .videoFps(30)
+            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
+            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
+            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .value(intArrayOf(diskNum, 60, 20, 110, 125))
+            .isCheckFootLocation(false)
+            .isCheckLegUncurl(false)
+            .isCheckHandAlign(false)
+            .build()
+
+        mBinding.overlay.setMarkerAreaNum(diskNum)
+        forwardFlexionProcessor.setConfig(sportConfig)
+        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCallBack {
+            override fun onResult(result: FFlexionSportResult) {
+            }
+
+            override fun onInform(code: InformCode?, error: String?) {
+                LogUtil.d("$code:$error")
+                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+                    ToastUtil.getInstance(
+                        this@ForwardFlexionSettingActivity,
+                        if (code == InformCode.LANDMARKFINSIH) getString(R.string.forward_flexion_auto_mat_success) else getString(
+                            R.string.forward_flexion_auto_mat_fail
+                        )
+                    ).show()
+                    forwardFlexionProcessor.onReset()
+                    forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
+                }
+            }
+
+            override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
+            }
+
+            override fun onBonePoints(bonePoints: MutableMap<Int, MutableList<Point>>) {
+            }
+        })
+        forwardFlexionProcessor.onInit()
+        loadModel()
+    }
+
+    private fun loadModel() {
+        val tsModelRes = forwardFlexionProcessor.tsModels
+        TsModelResPool.instance()
+            .loadModelGroup(
+                listOf(
+                    TsModelResGroup(
+                        false,
+                        0L,
+                        MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME
+                    ).addModelRes(tsModelRes)
+                ), object :
+                    OnLoadModelCallbackSample() {
+
+                    override fun onStart() {
+                    }
+
+                    override fun onSucceed(list: MutableList<TsModelInfo>?) {
+                        isModelLoadOk = true
+                        ToastUtil.getInstance(
+                            this@ForwardFlexionSettingActivity,
+                            getString(R.string.forward_flexion_model_load_complete)
+                        ).show()
+                    }
+
+                })
+
+    }
+
+    private fun releaseModel() {
+        TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
+    }
+
     private fun updateOverlay() {
         mBinding.overlay.setMarkerAreaNum(testPeopleCount)
         mBinding.overlay.updateConfig()
@@ -141,6 +257,7 @@ class ForwardFlexionSettingActivity : BaseActivity<ActivityForwardFlexionSetting
     override fun onDestroy() {
         super.onDestroy()
         mBinding.cameraView.onRelease()
+        releaseModel()
     }
-    
+
 }
