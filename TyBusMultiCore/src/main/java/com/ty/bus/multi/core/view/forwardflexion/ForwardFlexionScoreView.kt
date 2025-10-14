@@ -68,13 +68,11 @@ class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     fun setAccountInfo(accountInfo: AccountInfo) {
-        if (AdlService.getService() != null) {
-            Glide.with(context)
-                .load(AdlService.getService().facePrefix + accountInfo.studentEntity?.userFaceImgUrl)
-                .placeholder(R.mipmap.ic_head_default)
-                .error(R.mipmap.ic_head_default)
-                .into(mBinding.ivHeader)
-        }
+        Glide.with(context)
+            .load(accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default)
+            .into(mBinding.ivHeader)
         mBinding.tvName.text = accountInfo.studentEntity?.accountName
     }
 

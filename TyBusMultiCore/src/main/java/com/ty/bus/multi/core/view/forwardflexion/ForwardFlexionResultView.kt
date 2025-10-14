@@ -139,13 +139,11 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
         ivHeader: ImageView,
         result: MultiSportResult
     ) {
-        if (AdlService.getService() != null) {
-            Glide.with(context)
-                .load(AdlService.getService().facePrefix + result.accountInfo.studentEntity?.userFaceImgUrl)
-                .placeholder(R.mipmap.ic_head_default)
-                .error(R.mipmap.ic_head_default)
-                .into(ivHeader)
-        }
+        Glide.with(context)
+            .load(result.accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default)
+            .into(ivHeader)
         tvName.text = result.accountInfo.studentEntity?.accountName
         tvScore.text = "${result.count / 10.0}"
     }
