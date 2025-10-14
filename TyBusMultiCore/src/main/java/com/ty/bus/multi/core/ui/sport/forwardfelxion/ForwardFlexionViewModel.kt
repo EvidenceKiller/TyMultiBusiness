@@ -334,7 +334,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
         rect.left = min(lShouder.x, rShouder.x).toInt()
         rect.right = rect.left + shoulderWidth.toInt()
-        rect.top = header.y.toInt()
+        rect.top =
+            if (header.y != 0f) header.y.toInt() else (rect.bottom - 1.2 * shoulderWidth).toInt()
 
         if (rect.width() < 40 || rect.height() < 40) {
             rect.left = rect.left - 20
