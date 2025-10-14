@@ -12,11 +12,16 @@ class PointElement : ElementBase() {
     private var pointsList: MutableList<Point>? = mutableListOf(Point(860f, 540f), Point(760f, 540f))
     private var rect: Rect? = null
     private val paint = Paint()
+    private val borderPaint = Paint()
     private val r = 5f
 
     init {
         paint.color = Color.BLUE
         paint.isAntiAlias = true
+
+        borderPaint.color = Color.RED
+        borderPaint.style = Paint.Style.STROKE
+        borderPaint.strokeWidth = 4f
     }
 
     override fun draw(canvas: Canvas?) {
@@ -25,7 +30,7 @@ class PointElement : ElementBase() {
         }
 
         rect?.let {
-            canvas?.drawRect(it, paint)
+            canvas?.drawRect(it, borderPaint)
         }
 
         canvas?.drawCircle(960f, 540f, r, paint)
