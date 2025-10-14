@@ -12,6 +12,7 @@ import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.UINavConfig
+import com.ty.tybusbase.constants.SportConstant
 
 
 class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
@@ -48,7 +49,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.bntZw.setOnClickListener {
             UIMultiNavigation.goForwardFlexion(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = "780001"
+                    sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
                     sportSkuName = "坐位体前屈"
                 }
             })

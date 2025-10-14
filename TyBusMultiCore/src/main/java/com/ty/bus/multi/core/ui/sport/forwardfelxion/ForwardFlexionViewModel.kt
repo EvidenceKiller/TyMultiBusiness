@@ -19,7 +19,9 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.IdentifyMachineListener
@@ -220,6 +222,9 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
         //全部准备完成，开始运动
         if (prepareCount == sportManCount && sportState != MultiSportState.SPORTING) {
+            if (currentSportTimes == 1) {
+                startSportTime = System.currentTimeMillis()
+            }
             if (sportTimes > 1) {
                 SpeechWrapper.speech(
                     getString(
@@ -302,28 +307,6 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
     }
 
-    private fun getIdentityRect(it: TsSportChannel?): Rect {
-
-        if (it?.body == null || it.skeleton == null) {
-            return Rect(0, 0, 50, 50)
-        }
-        var rect = Rect(it.body.x, it.body.y, it.body.right(), it.body.bottom())
-        if (it.skeleton != null && it.skeleton.LShoulder != null && it.skeleton.RShoulder != null) {
-            val shoulderWidth = abs(it.skeleton.LShoulder.x - it.skeleton.RShoulder.x)
-            rect.bottom = max(it.skeleton.LShoulder.y, it.skeleton.RShoulder.y).toInt()
-            rect.left = min(it.skeleton.LShoulder.x, it.skeleton.RShoulder.x).toInt()
-            rect.right = rect.left + shoulderWidth.toInt()
-            rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
-        }
-        if (rect.width() < 40 || rect.height() < 40) {
-            rect.left = rect.left - 20
-            rect.right = rect.left + 40
-            rect.top = rect.top - 20
-            rect.bottom = rect.top + 40
-        }
-        return rect
-    }
-
     fun getIdentityRect(it: MutableList<Point>?): Rect {
         var rect = Rect(0, 0, 50, 50)
         if (it.isNullOrEmpty() || it.size < 4) return rect
@@ -357,6 +340,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             person.count = max(person.count, entry.value)
             SpeechWrapper.speech("${name}，${getResultSpeech(entry.value)}")
         }
+        sportState = MultiSportState.PREPARING
         currentSportTimes++
         if (currentSportTimes > sportTimes) {
             //测试次数超标，运动结束
@@ -364,6 +348,45 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         } else {
             SystemClock.sleep(1000)
             toStatusPrepare()
+        }
+
+    }
+
+    //结束处理成绩
+    override fun toStatusSportEnd() {
+        super.toStatusSportEnd()
+        sportState = MultiSportState.IDLE
+        endSportTime = System.currentTimeMillis()
+        //延迟200ms，等待录制视屏结束
+        SystemClock.sleep(200)
+        sportPersonArray.forEach { key, value ->
+            var sportResult = SportResult()
+            sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+            sportResult.maxComboCount = 0
+            sportResult.sportAchievement = value.count
+            sportResult.perfectCount = 0
+            sportResult.goodCount = 0
+            sportResult.comeOnCount = 0
+            sportResult.perfectScore = 0
+            sportResult.goodScore = 0
+            sportResult.comeOnScore = 0
+            sportResult.userId = value.accountInfo.studentEntity?.accountId
+            sportResult.startTime = startSportTime
+            sportResult.endTime = endSportTime
+            if (value.count in -200..400) {
+                sportResult.sportResult = value.count.toString()
+            } else {
+                sportResult.sportViolationStatus = 1
+                sportResult.sportViolationNumber = "1"
+            }
+            sportResult.videoCover = videoCover
+            sportResult.videoFile = videoFile
+            uploadSportResult(
+                sceneId ?: SceneConstants.INDEPENDENT_TEST,
+                sportResult,
+                sportResult.userId
+            )
+
         }
 
     }
@@ -384,6 +407,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
         toStatusPrepare()
+        videoFile = null
     }
 
     override fun reset() {
@@ -392,6 +416,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         sportPersonArray.clear()
         currentSportTimes = 1
         sportState = MultiSportState.IDLE
+        videoFile = null
     }
 
 }

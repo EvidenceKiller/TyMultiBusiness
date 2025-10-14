@@ -124,6 +124,7 @@ class ForwardFlexionActivity :
             if (it == 1) {
                 mBinding.sportView.visibility = View.VISIBLE
                 mBinding.sportView.setAccountInfo(viewModel.sportPersonArray)
+                startRecording()
             }
             mBinding.identityView.visibility = View.GONE
 
@@ -375,15 +376,15 @@ class ForwardFlexionActivity :
 
     protected fun processorPrepare() {
         forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
-
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
-
-        val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
-        forwardFlexionProcessor.startRecording(file)
     }
 
-    private fun begin() {
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
+    /**
+     * 开始录像
+     */
+    private fun startRecording() {
+        val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
+        forwardFlexionProcessor.startRecording(file)
     }
 
     override fun onDestroy() {

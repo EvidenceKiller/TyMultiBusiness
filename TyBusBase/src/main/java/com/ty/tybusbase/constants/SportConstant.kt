@@ -52,6 +52,7 @@ object SportConstant {
      * 定义优秀
      */
     const val GOOD: Int = 'A'.code
+
     /**
      * 定义良好
      */
@@ -133,6 +134,9 @@ object SportConstant {
 
     //体前屈
     const val SPORT_UTTHANASANA: String = "160101"
+
+    //坐位体前屈
+    const val SPORT_FORWARD_FLEXION: String = "160103"
 
     //引体向上
     const val SPORT_PULL_UP: String = "040101"
