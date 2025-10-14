@@ -212,6 +212,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         var prepareCount = 0
         map.forEach {
             if (it.value == InformCode.PREPAREFINSIH) {
+                changeMultiIdentityCardState(it.key, MultiSportCardViewState.PREPARED)
                 prepareCount++
                 LogUtil.d(it.key.toString() + "号准备完成")
             } else if (it.value == InformCode.PREPAREERR) {

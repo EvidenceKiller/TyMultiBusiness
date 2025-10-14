@@ -9,7 +9,7 @@ import com.adl.sport.common.bean.Point
 
 class PointElement : ElementBase() {
 
-    private var pointsList: MutableList<Point>? = mutableListOf(Point(860f, 540f), Point(760f, 540f))
+    private var pointsList: MutableList<Point>? = null
     private var rect: Rect? = null
     private val paint = Paint()
     private val borderPaint = Paint()
@@ -32,8 +32,6 @@ class PointElement : ElementBase() {
         rect?.let {
             canvas?.drawRect(it, borderPaint)
         }
-
-        canvas?.drawCircle(960f, 540f, r, paint)
     }
 
     fun setPoints(pointsList: MutableList<Point>?) {

@@ -90,7 +90,7 @@ class ForwardFlexionActivity :
         viewModel.changeIdentityCardStateLD.observe(this) {
             mBinding.identityView.changeState(
                 it,
-                getString(R.string.forward_flexion_identified_tip)
+                getString(R.string.forward_flexion_prepare_tip)
             )
 //            val imageView = imgMap[it.first]
 //            if (it.second == MultiSportCardViewState.NOBODY) {
@@ -124,6 +124,7 @@ class ForwardFlexionActivity :
             if (it == 1) {
                 mBinding.sportView.visibility = View.VISIBLE
                 mBinding.sportView.setAccountInfo(viewModel.sportPersonArray)
+                hideTip()
                 startRecording()
             }
             mBinding.identityView.visibility = View.GONE
@@ -131,6 +132,15 @@ class ForwardFlexionActivity :
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
         }
 
+    }
+
+    private fun setTip(tip: String) {
+        mBinding.groupTvSportTip.visibility = View.VISIBLE
+        mBinding.tvSportTip.text = tip
+    }
+
+    private fun hideTip() {
+        mBinding.groupTvSportTip.visibility = View.GONE
     }
 
     private fun hideInTips() {
@@ -259,6 +269,7 @@ class ForwardFlexionActivity :
 
     override fun onStatusIdentify() {
         LogUtil.d("开始人脸识别")
+        setTip(getString(R.string.forward_flexion_identified_tip))
         mBinding.identityView.visibility = View.VISIBLE
         forwardFlexionProcessor.open(mBinding.overlay)
         forwardFlexionProcessor.updateCheckIn(HashMap<Int, Boolean>().apply { put(1, true) })
