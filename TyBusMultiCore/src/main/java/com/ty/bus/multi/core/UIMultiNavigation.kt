@@ -63,7 +63,7 @@ object UIMultiNavigation {
         })
     }
 
-    fun goForwardFelxionSetting(context: Context) {
+    fun goForwardFlexionSetting(context: Context) {
         // TODO 跳转
         context.startActivity(Intent(context, ForwardFlexionSettingActivity::class.java))
     }
