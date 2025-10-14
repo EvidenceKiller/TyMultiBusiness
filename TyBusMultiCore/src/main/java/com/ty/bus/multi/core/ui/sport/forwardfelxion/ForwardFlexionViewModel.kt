@@ -327,13 +327,15 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     fun getIdentityRect(it: MutableList<Point>?): Rect {
         var rect = Rect(0, 0, 50, 50)
         if (it.isNullOrEmpty() || it.size < 4) return rect
+        val header = it[0]
         val lShouder = it[2]
         val rShouder = it[3]
         val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.5
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
         rect.left = min(lShouder.x, rShouder.x).toInt()
         rect.right = rect.left + shoulderWidth.toInt()
-        rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
+        rect.top = header.y.toInt()
+
         if (rect.width() < 40 || rect.height() < 40) {
             rect.left = rect.left - 20
             rect.right = rect.left + 40
