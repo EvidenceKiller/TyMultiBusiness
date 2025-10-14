@@ -74,10 +74,7 @@ class ForwardFlexionSettingActivity :
                     .show()
                 return@setOnClickListener
             }
-            forwardFlexionProcessor.open(mBinding.overlay)
-            forwardFlexionProcessor.changeTo(
-                SportProcessorStatus.MatDetect
-            )
+            startMat()
         }
 
         mBinding.ivNumberMinus.setOnClickListener {
@@ -138,6 +135,28 @@ class ForwardFlexionSettingActivity :
         initCamera()
     }
 
+    private fun startMat(){
+        // 运动配置
+        sportConfig = FFlexionSportConfig.builder()
+            .debug(true)
+            .isRecord(true)
+            .videoFps(30)
+            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
+            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
+            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .value(intArrayOf(testPeopleCount, 60, 20, 110, 125))
+            .isCheckFootLocation(false)
+            .isCheckLegUncurl(false)
+            .isCheckHandAlign(false)
+            .build()
+        forwardFlexionProcessor.setConfig(sportConfig)
+        forwardFlexionProcessor.open(mBinding.overlay)
+        forwardFlexionProcessor.changeTo(
+            SportProcessorStatus.MatDetect
+        )
+    }
+
     private fun initOverlay() {
         mBinding.overlay.setMarkerAreaNum(testPeopleCount)
         val uiConfig: FFlexionRoleConfig? = AdlUIConfig.instance()
@@ -157,11 +176,6 @@ class ForwardFlexionSettingActivity :
     }
 
     private fun initProcessor() {
-        val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
-        )
-        // 运动配置
         sportConfig = FFlexionSportConfig.builder()
             .debug(true)
             .isRecord(true)
@@ -170,13 +184,11 @@ class ForwardFlexionSettingActivity :
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(diskNum, 60, 20, 110, 125))
+            .value(intArrayOf(testPeopleCount, 60, 20, 110, 125))
             .isCheckFootLocation(false)
             .isCheckLegUncurl(false)
             .isCheckHandAlign(false)
             .build()
-
-        mBinding.overlay.setMarkerAreaNum(diskNum)
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCallBack {
             override fun onResult(result: FFlexionSportResult) {
