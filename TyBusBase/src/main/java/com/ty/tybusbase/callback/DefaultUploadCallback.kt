@@ -5,6 +5,7 @@ import com.adl.base.log.AdlLogger
 import com.adl.service.entity.SportRecordEntity
 import com.adl.service.outer.AdlService
 import com.adl.service.web.SportRecordService
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.helper.ResUploadHelper.syncUploadRes
 import com.ty.tybusbase.utils.ApplicationUtil
 import com.ty.tybusbase.utils.BusiCoreEngine
@@ -28,6 +29,10 @@ class DefaultUploadCallback : ResultCallback {
          * /{端标识（1001、1002）}/image/{业务标识（体测、体锻等）}/{项目编码}/{年}/{月}/{日}/{视频文件}
          *
          */
+        if (sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+            AdlLogger.d("游客模式，不进行上传")
+            return
+        }
         val calendar = Calendar.getInstance()
         var uploadOk = true
 
