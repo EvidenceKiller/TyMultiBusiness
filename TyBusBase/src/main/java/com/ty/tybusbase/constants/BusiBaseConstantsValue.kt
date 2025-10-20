@@ -32,11 +32,11 @@ object BusiBaseConstantsValue {
     /**
      * 设备调试模式控制参数
      */
-    const val DEFAULT_SKELETON = true //骨骼开关
+    const val DEFAULT_SKELETON = false //骨骼开关
 
-    const val DEFAULT_DEBUG_MODULE = true //调试模式
+    const val DEFAULT_DEBUG_MODULE = false //调试模式
 
-    const val DEFAULT_VISITOR_MODULE = true //调试模式
+    const val DEFAULT_VISITOR_MODULE = true //游客模式
 
     const val DEFAULT_SKELETON_MIRROR = false //骨骼镜像
 
