@@ -125,6 +125,14 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
 
             }
 
+            override fun onStreamLoss() {
+
+            }
+
+            override fun onOpenFail() {
+
+            }
+
         })
         val cameraMirror =
             MMKVUtil.decodeBoolean(MMKVBusiKey.CAMERA_MIRROR)

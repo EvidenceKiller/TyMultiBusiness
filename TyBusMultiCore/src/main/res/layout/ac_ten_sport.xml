@@ -128,4 +128,17 @@
             android:layout_height="match_parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <TextView
+        android:id="@+id/tv_camera_tips"
+        android:textSize="@dimen/sp_28"
+        android:textColor="@color/white"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:visibility="gone"
+        android:text="@string/ipc_camera_fail_tip"
+        android:layout_marginTop="@dimen/dp_60"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

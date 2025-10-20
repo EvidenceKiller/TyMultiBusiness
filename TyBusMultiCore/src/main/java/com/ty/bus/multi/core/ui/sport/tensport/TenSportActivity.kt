@@ -58,13 +58,19 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         val isDebug =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.MODEL_DEBUG,
+                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+            )
         mBinding.overlay.enableDraw(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
         val debug =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, BusiBaseConstantsValue.DEFAULT_SKELETON)
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.SKELETON_ABLE,
+                BusiBaseConstantsValue.DEFAULT_SKELETON
+            )
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
@@ -99,14 +105,27 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 }
 
                 override fun onCameraOpen() {
+                    hideTips()
                 }
 
                 override fun onDestroyed() {
 
                 }
+
+                override fun onStreamLoss() {
+                    setTips(getString(R.string.camera_loss_tips))
+                }
+
+                override fun onOpenFail() {
+                    setTips(getString(R.string.ipc_camera_fail_tip))
+                }
             })
             mBinding.cameraView.addFrameProcessor(it.second)
             mBinding.cameraView.textureView.scaleX = -1f
+        }
+
+        viewModel.cameraLoginStateLD.observe(this) {
+            if (it) hideTips() else setTips(getString(R.string.ipc_camera_fail_tip))
         }
 
         viewModel.stopPreviewLD.observe(this) {
@@ -182,6 +201,15 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             initTopView(it)
         }
 
+    }
+
+    private fun setTips(text: String) {
+        mBinding.tvCameraTips.visibility = View.VISIBLE
+        mBinding.tvCameraTips.text = text
+    }
+
+    private fun hideTips() {
+        mBinding.tvCameraTips.visibility = View.GONE
     }
 
     override fun onStatusIdentify() {

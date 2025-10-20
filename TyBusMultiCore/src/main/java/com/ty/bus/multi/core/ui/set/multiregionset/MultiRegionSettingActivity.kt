@@ -97,6 +97,11 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
             }
 
             override fun onDestroyed() {}
+            override fun onStreamLoss() {
+            }
+
+            override fun onOpenFail() {
+            }
         })
         mBinding.previewView.getTextureView().setScaleX(-1f)
     }

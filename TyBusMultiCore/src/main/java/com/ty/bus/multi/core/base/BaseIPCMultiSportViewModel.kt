@@ -730,6 +730,12 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             override fun onError(p0: Exception?) {
                 cameraLoginStateLD.postValue(false)
             }
+
+            override fun onStreamLoss() {
+            }
+
+            override fun onOpenFail() {
+            }
         })
 
         timeOutHelper.start()
