@@ -10,7 +10,7 @@ import com.adl.sport.common.bean.Point
 class PointElement : ElementBase() {
 
     private var pointsList: MutableList<Point>? = null
-    private var rect: Rect? = null
+    private var rectList: MutableList<Rect>? = null
     private val paint = Paint()
     private val borderPaint = Paint()
     private val r = 5f
@@ -29,7 +29,7 @@ class PointElement : ElementBase() {
             canvas?.drawCircle(it.x, it.y, r, paint)
         }
 
-        rect?.let {
+        rectList?.forEach {
             canvas?.drawRect(it, borderPaint)
         }
     }
@@ -38,7 +38,7 @@ class PointElement : ElementBase() {
         this.pointsList = pointsList
     }
 
-    fun setRect(rect: Rect?) {
-        this.rect = rect
+    fun setRects(rect: MutableList<Rect>?) {
+        this.rectList = rect
     }
 }

@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.forwardfelxion
 
+import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -44,8 +45,9 @@ class ForwardFlexionActivity :
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: FFlexionSportConfig? = null
-
+    val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, true)
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
+
 
     private var tipCountDownCount = 3  //提示的倒计时时间
     private val tipRunnable: Runnable = object : Runnable {
@@ -134,6 +136,12 @@ class ForwardFlexionActivity :
 
     }
 
+    private fun showDesc(msg: String) {
+        runOnUiThread {
+            mBinding.tvDes.append(msg)
+        }
+    }
+
     private fun setTip(tip: String) {
         mBinding.groupTvSportTip.visibility = View.VISIBLE
         mBinding.tvSportTip.text = tip
@@ -214,6 +222,8 @@ class ForwardFlexionActivity :
                 runOnUiThread {
                     //显示成绩
                     result.grade.forEach {
+                        LogUtil.d("${it.key}号成绩为${it.value}")
+                        showDesc("${it.key}号成绩为${it.value}\n")
                         mBinding.sportView.addScore(it.key, it.value)
                     }
                 }
@@ -229,36 +239,42 @@ class ForwardFlexionActivity :
 
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
                 viewModel.onPostureStatus(status)
-//                for (entry in status.entries) {
-//                    if (entry.value == InformCode.PREPAREFINSIH || entry.value == InformCode.PREPAREERR || entry.value == InformCode.NOTCHECKIN) {
-//                        if (entry.value == InformCode.PREPAREFINSIH) {
-//                            LogUtil.d(entry.key.toString() + "号准备完成")
-//                        } else if (entry.value == InformCode.PREPAREERR) {
-//                            LogUtil.d(entry.key.toString() + "号准备异常")
-//                        } else if (entry.value == InformCode.NOTCHECKIN) {
-//                            LogUtil.d(entry.key.toString() + "号未检录")
-//                        }
-//
-////                        prepareIndex++
-////
-////                        if (diskNum === prepareIndex) {
-////                            begin()
-////                        }
-//                    } else if (entry.value == InformCode.LEGUNCURLERR) {
-//                        LogUtil.d(entry.key.toString() + "号腿未伸直")
-//                    } else if (entry.value == InformCode.FOOTLOCATIONERR) {
-//                        LogUtil.d(entry.key.toString() + "号脚位置不对")
-//                    } else if (entry.value == InformCode.HANDALIGNERR) {
-//                        LogUtil.d(entry.key.toString() + "号双手未对齐")
-//                    }
-//                }
+                for (entry in status.entries) {
+                    if (entry.value == InformCode.PREPAREFINSIH || entry.value == InformCode.PREPAREERR || entry.value == InformCode.NOTCHECKIN) {
+                        if (entry.value == InformCode.PREPAREFINSIH) {
+                            LogUtil.d(entry.key.toString() + "号准备完成")
+                            showDesc("${entry.key}号准备完成\n")
+                        } else if (entry.value == InformCode.PREPAREERR) {
+                            LogUtil.d(entry.key.toString() + "号准备异常")
+                            showDesc("${entry.key}号准备异常\n")
+                        } else if (entry.value == InformCode.NOTCHECKIN) {
+                            LogUtil.d(entry.key.toString() + "号未检录")
+                            showDesc("${entry.key}号未检录\n")
+                        }
+                    } else if (entry.value == InformCode.LEGUNCURLERR) {
+                        showDesc("${entry.key}号腿未伸直\n")
+                        LogUtil.d(entry.key.toString() + "号腿未伸直")
+                    } else if (entry.value == InformCode.FOOTLOCATIONERR) {
+                        LogUtil.d(entry.key.toString() + "号脚位置不对")
+                        showDesc("${entry.key}号脚位置不对\n")
+                    } else if (entry.value == InformCode.HANDALIGNERR) {
+                        LogUtil.d(entry.key.toString() + "号双手未对齐")
+                        showDesc("${entry.key}号双手未对齐\n")
+                    }
+                }
             }
 
             override fun onBonePoints(bonePoints: MutableMap<Int, MutableList<Point>>) {
-                bonePoints.forEach {
-                    pointElement.setPoints(it.value)
-                    pointElement.setRect(viewModel.getIdentityRect(it.value))
-                    mBinding.overlay.refreshNow()
+                if (isDebug) {
+                    val points = mutableListOf<Point>()
+                    val rects = mutableListOf<Rect>()
+                    bonePoints.forEach {
+                        points.addAll(it.value)
+                        rects.add(viewModel.getIdentityRect(it.value))
+                        mBinding.overlay.refreshNow()
+                    }
+                    pointElement.setPoints(points)
+                    pointElement.setRects(rects)
                 }
                 viewModel.onBonePoints(bonePoints)
             }

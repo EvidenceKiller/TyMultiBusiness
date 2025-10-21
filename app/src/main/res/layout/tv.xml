@@ -3,5 +3,5 @@
     android:layout_width="@dimen/qb_px_96"
     android:layout_height="wrap_content"
     android:text=""
-    android:textColor="@color/WHITE"
+    android:textColor="@color/white"
     android:textSize="12sp" />
