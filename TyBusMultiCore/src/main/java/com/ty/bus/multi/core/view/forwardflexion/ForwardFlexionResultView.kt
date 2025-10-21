@@ -101,39 +101,46 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
         result.forEach { index, multiSportResult ->
             when (index) {
                 1 -> {
-                    mBinding.clScore1.visibility = VISIBLE
                     setResult(
+                        mBinding.clScore1,
                         mBinding.tvName1,
                         mBinding.tvScore1,
                         mBinding.civHeader1,
                         multiSportResult
                     )
+                    mBinding.tvUnit1.text = "cm"
+                    mBinding.tvIdle1.visibility = GONE
                 }
 
                 2 -> {
-                    mBinding.clScore2.visibility = VISIBLE
                     setResult(
+                        mBinding.clScore2,
                         mBinding.tvName2,
                         mBinding.tvScore2,
                         mBinding.civHeader2,
                         multiSportResult
                     )
+                    mBinding.tvUnit2.text = "cm"
+                    mBinding.tvIdle2.visibility = GONE
                 }
 
                 3 -> {
-                    mBinding.clScore3.visibility = VISIBLE
                     setResult(
+                        mBinding.clScore3,
                         mBinding.tvName3,
                         mBinding.tvScore3,
                         mBinding.civHeader3,
                         multiSportResult
                     )
+                    mBinding.tvUnit3.text = "cm"
+                    mBinding.tvIdle3.visibility = GONE
                 }
             }
         }
     }
 
     private fun setResult(
+        clScore: ConstraintLayout,
         tvName: TextView,
         tvScore: TextView,
         ivHeader: ImageView,
@@ -145,7 +152,24 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
             .error(R.mipmap.ic_head_default)
             .into(ivHeader)
         tvName.text = result.accountInfo.studentEntity?.accountName
-        tvScore.text = "${result.count / 10.0}"
+        val item = result.count
+        tvScore.text = when {
+            item == -300 -> {
+                clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_error)
+                getString(R.string.violations)
+            }
+
+            item > -200 && item < 400 -> {
+                clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_complete)
+                "${item / 10.0}"
+            }
+
+            else -> {
+                clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_error)
+                getString(R.string.violations)
+            }
+
+        }
     }
 
 }
