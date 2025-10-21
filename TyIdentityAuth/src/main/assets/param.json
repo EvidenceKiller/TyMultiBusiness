@@ -71,7 +71,7 @@
             "algorithms": "",
             "minSize": 50
         },
-	"live2i": {
+        "live2i": {
             "iouThreshold": 0.3,
             "threshold": 0.98,
             "platform": "cpu",
@@ -87,7 +87,7 @@
         "db": {
             "name": "faceDb",
             "tableName" : "face",
-            "size": 10000,
+            "size": 50000,
             "threshold": 0.4,
             "version": 1
         },
