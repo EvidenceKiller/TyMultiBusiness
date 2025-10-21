@@ -22,8 +22,7 @@
         android:layout_height="@dimen/dp_400"
         android:layout_marginTop="@dimen/dp_358"
         android:background="@mipmap/bg_test_zwtqq_complete"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/cl_score_2"
+        app:layout_constraintEnd_toStartOf="@+id/cl_score_3"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -79,77 +78,14 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/cl_score_2"
-        android:layout_width="@dimen/dp_320"
-        android:layout_height="@dimen/dp_400"
-        android:layout_marginStart="@dimen/dp_120"
-        android:layout_marginTop="@dimen/dp_358"
-        android:background="@mipmap/bg_test_zwtqq_complete"
-        android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/cl_score_3"
-        app:layout_constraintStart_toEndOf="@+id/cl_score_1"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <com.ty.tybusbase.view.CircleImageView
-            android:id="@+id/civ_header_2"
-            android:layout_width="@dimen/dp_56"
-            android:layout_height="@dimen/dp_56"
-            android:layout_marginTop="@dimen/dp_56"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <TextView
-            android:id="@+id/tv_name_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_16"
-            android:textColor="@color/white"
-            android:textSize="@dimen/sp_40"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/civ_header_2" />
-
-        <TextView
-            android:id="@+id/tv_score_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="@dimen/sp_72"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@+id/tv_unit_2"
-            app:layout_constraintHorizontal_chainStyle="packed"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_name_2"
-            tools:text="18.6" />
-
-        <TextView
-            android:id="@+id/tv_unit_2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/dp_5"
-            android:layout_marginBottom="@dimen/dp_3"
-            android:textColor="@color/white"
-            android:textSize="@dimen/sp_32"
-            android:textStyle="bold"
-            android:text="cm"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_score_2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/tv_score_2"
-            tools:text="cm" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_score_3"
         android:layout_width="@dimen/dp_320"
         android:layout_height="@dimen/dp_400"
         android:layout_marginStart="@dimen/dp_120"
         android:layout_marginTop="@dimen/dp_358"
         android:background="@mipmap/bg_test_zwtqq_complete"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/cl_score_2"
+        app:layout_constraintEnd_toStartOf="@+id/cl_score_2"
+        app:layout_constraintStart_toEndOf="@+id/cl_score_1"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.ty.tybusbase.view.CircleImageView
@@ -198,6 +134,67 @@
             app:layout_constraintBottom_toBottomOf="@+id/tv_score_3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/tv_score_3"
+            tools:text="cm" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_score_2"
+        android:layout_width="@dimen/dp_320"
+        android:layout_height="@dimen/dp_400"
+        android:layout_marginStart="@dimen/dp_120"
+        android:layout_marginTop="@dimen/dp_358"
+        android:background="@mipmap/bg_test_zwtqq_complete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/cl_score_3"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.ty.tybusbase.view.CircleImageView
+            android:id="@+id/civ_header_2"
+            android:layout_width="@dimen/dp_56"
+            android:layout_height="@dimen/dp_56"
+            android:layout_marginTop="@dimen/dp_56"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_name_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_16"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_40"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/civ_header_2" />
+
+        <TextView
+            android:id="@+id/tv_score_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_72"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/tv_unit_2"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_name_2"
+            tools:text="18.6" />
+
+        <TextView
+            android:id="@+id/tv_unit_2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginBottom="@dimen/dp_3"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_32"
+            android:textStyle="bold"
+            android:text="cm"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_score_2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_score_2"
             tools:text="cm" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

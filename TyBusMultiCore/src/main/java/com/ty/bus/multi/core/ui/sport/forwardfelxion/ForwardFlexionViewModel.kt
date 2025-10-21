@@ -7,7 +7,6 @@ import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
-import com.adl.mount.sport.TsSportChannel
 import com.adl.sport.common.bean.Point
 import com.adl.sport.forwardflexion.config.FFlexionSportResult
 import com.adl.sport.forwardflexion.informCode.InformCode
@@ -31,7 +30,6 @@ import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 
 class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewModel(application) {
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
@@ -62,6 +60,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     val identifiedLD = MutableLiveData<Pair<Int, AccountInfo>>()
 
     val sportStartLD = MutableLiveData<Int>() //开始运动
+
+    val resetLD = MutableLiveData<Boolean>()//成绩OK
 
     //识别卡片状态
     var changeIdentityCardStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>()
@@ -226,6 +226,10 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                 LogUtil.d(it.key.toString() + "号准备完成")
             } else if (it.value == InformCode.PREPAREERR) {
                 LogUtil.d(it.key.toString() + "号准备异常")
+                //准备异常，需要重新准备
+                resetLD.postValue(true)
+                SystemClock.sleep(100)
+                toStatusPrepare()
             } else if (it.value == InformCode.NOTCHECKIN) {
                 LogUtil.d(it.key.toString() + "号未检录")
             }
@@ -366,6 +370,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             //测试次数超标，运动结束
             toStatusSportEnd()
         } else {
+            resetLD.postValue(true)
             SystemClock.sleep(1000)
             toStatusPrepare()
         }

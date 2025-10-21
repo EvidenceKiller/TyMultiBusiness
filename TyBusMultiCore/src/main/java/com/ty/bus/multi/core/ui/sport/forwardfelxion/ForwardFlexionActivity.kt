@@ -28,12 +28,10 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionSportView
 import com.ty.bus.multi.databinding.ActivityForwardFlexionBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
-import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
@@ -94,28 +92,6 @@ class ForwardFlexionActivity :
                 it,
                 getString(R.string.forward_flexion_prepare_tip)
             )
-//            val imageView = imgMap[it.first]
-//            if (it.second == MultiSportCardViewState.NOBODY) {
-//                imageView?.visibility = View.VISIBLE
-//            } else {
-//                imageView?.visibility = View.GONE
-//            }
-
-            //已识别，设置已识别的位置给parser
-//            if (it.second == MultiSportCardViewState.IDENTIFIED) {
-//                setTip(factory.getReadyTip())
-//                for (i in checkStatusList.indices) {
-//                    checkStatusList[i] = false
-//                }
-//                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size()}")
-//                viewModel.sportPersonArray.forEach { _, value ->
-//                    val number = value.number
-//                    if (number in checkStatusList.indices) {
-//                        checkStatusList[number] = true
-//                    }
-//                }
-//                parser.setCheckStatusList(checkStatusList)
-//            }
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -134,6 +110,9 @@ class ForwardFlexionActivity :
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
         }
 
+        viewModel.resetLD.observe(this) {
+            forwardFlexionProcessor.onReset()
+        }
     }
 
     private fun showDesc(msg: String) {
@@ -218,7 +197,6 @@ class ForwardFlexionActivity :
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCallBack {
             override fun onResult(result: FFlexionSportResult) {
-                forwardFlexionProcessor.onReset()
                 runOnUiThread {
                     //显示成绩
                     result.grade.forEach {
@@ -332,6 +310,7 @@ class ForwardFlexionActivity :
     }
 
     override fun onStatusEnd() {
+        forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.stopRecord()
         mBinding.sportView.visibility = View.GONE
