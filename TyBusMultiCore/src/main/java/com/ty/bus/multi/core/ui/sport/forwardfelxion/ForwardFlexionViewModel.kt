@@ -42,6 +42,12 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     val checkMap = HashMap<Int, Boolean>() //记录当前道是否已检录
 
+    //已准备的道次，所有已准备好，既开始
+    val prepareStatusList = mutableListOf<Boolean>()
+
+    //已出成绩的道次
+    val resultStatusList = mutableListOf<Boolean>()
+
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
 
     val sportPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
@@ -72,8 +78,10 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             MultiCoreConstant.ZWTQQ_TEST_TIMES,
             MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
         )
-        for (i in 0 until diskNum) {
+        for (i in 1..diskNum) {
             checkMap.put(i, false)
+            prepareStatusList.add(false)
+            resultStatusList.add(false)
         }
         sportManCount = diskNum
         initFaceIdentify()
@@ -214,6 +222,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (it.value == InformCode.PREPAREFINSIH) {
                 changeMultiIdentityCardState(it.key, MultiSportCardViewState.PREPARED)
                 prepareCount++
+                prepareStatusList[it.key - 1] = true
                 LogUtil.d(it.key.toString() + "号准备完成")
             } else if (it.value == InformCode.PREPAREERR) {
                 LogUtil.d(it.key.toString() + "号准备异常")
@@ -222,7 +231,9 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             }
         }
         //全部准备完成，开始运动
-        if (prepareCount == sportManCount && sportState != MultiSportState.SPORTING) {
+        val prepareList = prepareStatusList.filter { it }
+
+        if (prepareList.size == sportManCount && sportState != MultiSportState.SPORTING) {
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
             }
@@ -314,10 +325,12 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         val header = it[0]
         val lShouder = it[2]
         val rShouder = it[3]
+        val centerX: Double =
+            if (header.x > 0f) header.x.toDouble() else (lShouder.x + rShouder.x) / 2.0
         val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.5
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
-        rect.left = min(lShouder.x, rShouder.x).toInt()
-        rect.right = rect.left + shoulderWidth.toInt()
+        rect.left = (centerX - shoulderWidth / 2.0).toInt()
+        rect.right = (centerX + shoulderWidth / 2).toInt()
         rect.top =
             if (header.y != 0f) header.y.toInt() else (rect.bottom - 1.2 * shoulderWidth).toInt()
 
@@ -334,12 +347,18 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         if (result.grade == null) {
             return
         }
-        for (entry in result.grade.entries) {
-            val person = sportPersonArray.get(entry.key)
-            if (person == null) continue
+        result.grade.forEach {
+            val person = sportPersonArray.get(it.key)
+            if (person == null) return@forEach
             val name = person.accountInfo.studentEntity?.accountName ?: ""
-            person.count = max(person.count, entry.value)
-            SpeechWrapper.speech("${name}，${getResultSpeech(entry.value)}")
+            person.count = max(person.count, it.value)
+            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
+            resultStatusList[it.key - 1] = true
+        }
+        val list = resultStatusList.filter { it }
+        //还有人未出成绩
+        if (list.size != sportManCount) {
+            return
         }
         sportState = MultiSportState.PREPARING
         currentSportTimes++
@@ -351,6 +370,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             toStatusPrepare()
         }
 
+    }
+
+    override fun toStatusPrepare() {
+        super.toStatusPrepare()
+        for (i in 0 until sportManCount) {
+            prepareStatusList[i] = false
+            resultStatusList[i] = false
+        }
     }
 
     //结束处理成绩
