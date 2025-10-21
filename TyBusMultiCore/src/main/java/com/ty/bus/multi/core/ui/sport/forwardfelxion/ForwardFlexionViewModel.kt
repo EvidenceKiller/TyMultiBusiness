@@ -2,6 +2,8 @@ package com.ty.bus.multi.core.ui.sport.forwardfelxion
 
 import android.app.Application
 import android.graphics.Rect
+import android.os.Handler
+import android.os.Looper
 import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
@@ -36,6 +38,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
+    private val mHandler by lazy { Handler(Looper.getMainLooper()) }
+
     private var statusMap = mutableMapOf<Int, InformCode>()
 
     val checkMap = HashMap<Int, Boolean>() //记录当前道是否已检录
@@ -55,6 +59,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     var sportTimes = 0 //测试次数
 
     var currentSportTimes = 1 //当前测试次数
+
+    val identifyTimeOut = 3 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
 
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<Int, AccountInfo>>()
@@ -85,6 +91,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
         sportManCount = diskNum
         initFaceIdentify()
+        sportState = MultiSportState.IDENTIFYING
     }
 
     private fun initFaceIdentify() {
@@ -131,6 +138,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         )
         //取消超时任务
         timeOutHelper.cancel()
+        mHandler.removeCallbacksAndMessages(null)
         uiHandler.post {
             sportState = MultiSportState.PREPARING
             //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
@@ -166,7 +174,12 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             //识别完成
             if (sportPersonArray.size == sportManCount) {
                 toStatusPrepare()
+            } else {
+                mHandler.postDelayed({
+                    toStatusPrepare()
+                }, identifyTimeOut)
             }
+
         }
 
     }
@@ -210,13 +223,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     fun onPostureStatus(map: MutableMap<Int, InformCode>) {
         statusMap = map
-        handlePostureStatus(map)
+        handlePrepareStatus(map)
     }
 
     /**
      * 处理姿态状态
      */
-    private fun handlePostureStatus(map: MutableMap<Int, InformCode>) {
+    private fun handlePrepareStatus(map: MutableMap<Int, InformCode>) {
+        if (sportState == MultiSportState.SPORTING) return
         var prepareCount = 0
         map.forEach {
             if (it.value == InformCode.PREPAREFINSIH) {
@@ -236,8 +250,11 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
         //全部准备完成，开始运动
         val prepareList = prepareStatusList.filter { it }
+        //没有人准备，则返回
+        if (prepareList.isEmpty()) return
+        val checkPerson = checkMap.filter { it.value }
 
-        if (prepareList.size == sportManCount && sportState != MultiSportState.SPORTING) {
+        if (prepareList.size == checkPerson.size && sportState != MultiSportState.SPORTING) {
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
             }
@@ -268,6 +285,10 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     @Synchronized
     private fun handleIdentify(map: MutableMap<Int, MutableList<Point>>) {
+        if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
+            //不是识别状态
+            return
+        }
         //如果为识别状态
         if (sportState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
@@ -360,8 +381,9 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             resultStatusList[it.key - 1] = true
         }
         val list = resultStatusList.filter { it }
+        val checkSize = checkMap.filter { it.value }.size
         //还有人未出成绩
-        if (list.size != sportManCount) {
+        if (list.size != checkSize) {
             return
         }
         sportState = MultiSportState.PREPARING
@@ -379,6 +401,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     override fun toStatusPrepare() {
         super.toStatusPrepare()
+        sportState = MultiSportState.COUNTDOWN
         for (i in 0 until sportManCount) {
             prepareStatusList[i] = false
             resultStatusList[i] = false

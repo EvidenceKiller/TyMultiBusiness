@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_160"
         android:layout_marginTop="@dimen/dp_128"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -17,19 +18,21 @@
         android:id="@+id/ff_score_3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="@dimen/dp_128"
         android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/ff_score_1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionScoreView
         android:id="@+id/ff_score_2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_128"
         android:layout_marginEnd="@dimen/dp_160"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/ff_score_1" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
