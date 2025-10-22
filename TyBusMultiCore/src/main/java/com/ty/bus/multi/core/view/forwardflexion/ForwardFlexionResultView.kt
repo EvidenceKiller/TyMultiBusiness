@@ -105,10 +105,10 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
                         mBinding.clScore1,
                         mBinding.tvName1,
                         mBinding.tvScore1,
+                        mBinding.tvUnit1,
                         mBinding.civHeader1,
                         multiSportResult
                     )
-                    mBinding.tvUnit1.text = "cm"
                     mBinding.tvIdle1.visibility = GONE
                 }
 
@@ -117,10 +117,10 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
                         mBinding.clScore2,
                         mBinding.tvName2,
                         mBinding.tvScore2,
+                        mBinding.tvUnit2,
                         mBinding.civHeader2,
                         multiSportResult
                     )
-                    mBinding.tvUnit2.text = "cm"
                     mBinding.tvIdle2.visibility = GONE
                 }
 
@@ -129,10 +129,10 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
                         mBinding.clScore3,
                         mBinding.tvName3,
                         mBinding.tvScore3,
+                        mBinding.tvUnit3,
                         mBinding.civHeader3,
                         multiSportResult
                     )
-                    mBinding.tvUnit3.text = "cm"
                     mBinding.tvIdle3.visibility = GONE
                 }
             }
@@ -143,6 +143,7 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
         clScore: ConstraintLayout,
         tvName: TextView,
         tvScore: TextView,
+        tvUnit: TextView,
         ivHeader: ImageView,
         result: MultiSportResult
     ) {
@@ -161,6 +162,7 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
 
             item > -200 && item < 400 -> {
                 clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_complete)
+                tvUnit.text = "cm"
                 "${item / 10.0}"
             }
 
