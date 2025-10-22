@@ -481,10 +481,15 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     override fun reset() {
         super.reset()
+        for (i in 1..sportManCount) {
+            checkMap.put(i, false)
+            prepareStatusList.add(false)
+            resultStatusList.add(false)
+        }
         multiIdentityEngine.clearCountMap()
         sportPersonArray.clear()
         currentSportTimes = 1
-        sportState = MultiSportState.IDLE
+        sportState = MultiSportState.PREPARING
         videoFile = null
     }
 

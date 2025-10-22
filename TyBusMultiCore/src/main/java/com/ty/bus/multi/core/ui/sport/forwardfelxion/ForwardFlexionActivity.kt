@@ -34,6 +34,7 @@ import com.ty.bus.multi.databinding.ActivityForwardFlexionBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
@@ -68,6 +69,7 @@ class ForwardFlexionActivity :
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.initData()
+        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -344,8 +346,8 @@ class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT
         )
         if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
-            resultView.showNextBtn()
         }
+        resultView.showNextBtn()
         resultView.setSportResult(viewModel.sportPersonArray)
         resultView.listener = object : ForwardFlexionResultViewListener {
             override fun onRetestClick() {
