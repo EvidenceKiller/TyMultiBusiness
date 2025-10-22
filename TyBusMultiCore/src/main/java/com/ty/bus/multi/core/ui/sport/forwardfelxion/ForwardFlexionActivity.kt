@@ -346,8 +346,8 @@ class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT
         )
         if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
+            resultView.showNextBtn()
         }
-        resultView.showNextBtn()
         resultView.setSportResult(viewModel.sportPersonArray)
         resultView.listener = object : ForwardFlexionResultViewListener {
             override fun onRetestClick() {
