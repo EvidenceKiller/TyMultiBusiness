@@ -44,7 +44,7 @@ class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAt
                     holder.vb.tvIndex.text = "${holder.layoutPosition + 1}"
                     holder.vb.tvScore.text = when {
                         item == -300 -> getString(R.string.violations)
-                        item > -200 && item < 400 -> "${item / 10.0}"
+                        item >= -200 && item <= 400 -> "${item / 10.0}"
                         else -> getString(R.string.violations)
                     }
                 }

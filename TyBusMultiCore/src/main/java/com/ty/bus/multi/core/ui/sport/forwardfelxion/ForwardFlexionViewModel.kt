@@ -464,7 +464,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 //        成绩${entry.value / 10.0}厘米
         return when {
             result == -300 -> getString(R.string.violations)
-            result > -200 && result < 400 -> "${result / 10.0}厘米"
+            result >= -200 && result <= 400 -> "${result / 10.0}厘米"
             else -> getString(R.string.violations)
         }
     }
