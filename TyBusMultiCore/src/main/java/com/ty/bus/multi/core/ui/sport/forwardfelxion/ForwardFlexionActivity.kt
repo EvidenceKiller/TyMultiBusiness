@@ -63,6 +63,8 @@ class ForwardFlexionActivity :
 
     override fun initData() {
         super.initData()
+        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
+        viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.initData()
     }
 

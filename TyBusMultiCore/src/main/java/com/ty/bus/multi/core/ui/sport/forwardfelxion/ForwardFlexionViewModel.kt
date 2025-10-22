@@ -9,6 +9,8 @@ import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.adl.service.entity.SportRecordEntity
 import com.adl.sport.common.bean.Point
 import com.adl.sport.forwardflexion.config.FFlexionSportResult
 import com.adl.sport.forwardflexion.informCode.InformCode
@@ -51,6 +53,9 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     val resultStatusList = mutableListOf<Boolean>()
 
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
+
+    var ptPlanId: String? = null
+    var ptStandardId: String? = null
 
     val sportPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
@@ -437,10 +442,18 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             }
             sportResult.videoCover = videoCover
             sportResult.videoFile = videoFile
+            var recordPlan: SportRecordEntity.RecordPlan? = null
+            if (sceneId == SceneConstants.ORGANIZE_TEST) {
+                recordPlan = SportRecordEntity.RecordPlan().apply {
+                    ptPlanId = this@ForwardFlexionViewModel.ptPlanId
+                    ptStandardId = this@ForwardFlexionViewModel.ptStandardId
+                }
+            }
             uploadSportResult(
                 sceneId ?: SceneConstants.INDEPENDENT_TEST,
                 sportResult,
-                sportResult.userId
+                sportResult.userId,
+                recordPlan = recordPlan
             )
 
         }
