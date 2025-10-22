@@ -208,7 +208,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-
     </com.ty.bus.multi.core.view.common.RightDrawerLayoutView>
 
+    <View
+        android:layout_width="@dimen/dp_3"
+        android:layout_height="match_parent"
+        android:background="@drawable/setting_bg_dash_gap_bg_vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
