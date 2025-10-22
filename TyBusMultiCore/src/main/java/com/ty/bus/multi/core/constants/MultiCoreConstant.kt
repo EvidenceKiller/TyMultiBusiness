@@ -7,4 +7,7 @@ object MultiCoreConstant {
     const val ZWTQQ_TEST_TIMES_DEFAULT = 1
 
     const val FORWARD_FLEXION_MODEL_NAME = "forward_flexion_model"
+
+    const val FORWARD_FLEXION_SET_PARAM = "forward_flexion_set_param"
+
 }

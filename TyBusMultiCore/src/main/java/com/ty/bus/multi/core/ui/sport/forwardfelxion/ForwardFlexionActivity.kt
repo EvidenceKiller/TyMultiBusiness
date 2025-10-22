@@ -25,6 +25,8 @@ import com.adl.sport.forwardflexion.processor.ForwardFlexionProcessor
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.constants.MultiCoreConstant
+import com.ty.bus.multi.core.entity.ForwardFlexionParam
+import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingHelper
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
@@ -194,6 +196,7 @@ class ForwardFlexionActivity :
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
         )
 
+        val param = ForwardFlexionSettingHelper.getSetParam()
         // 运动配置
         sportConfig = FFlexionSportConfig.builder()
             .debug(true)
@@ -203,10 +206,10 @@ class ForwardFlexionActivity :
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(diskNum, 60, 20, 110, 125))
-            .isCheckFootLocation(false)
-            .isCheckLegUncurl(false)
-            .isCheckHandAlign(false)
+            .value(intArrayOf(diskNum, 60, 20, param.getAngle(), 125))
+            .isCheckFootLocation(param.checkFoot)
+            .isCheckLegUncurl(param.checkLeg)
+            .isCheckHandAlign(param.checkHand)
             .build()
 
         mBinding.overlay.setMarkerAreaNum(diskNum)
