@@ -33,6 +33,18 @@
             android:background="@mipmap/icon_back" />
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/tv_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_50"
+        android:text="@string/forward_flexion_set_tip"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_48"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.ty.bus.multi.core.view.common.RightDrawerLayoutView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
