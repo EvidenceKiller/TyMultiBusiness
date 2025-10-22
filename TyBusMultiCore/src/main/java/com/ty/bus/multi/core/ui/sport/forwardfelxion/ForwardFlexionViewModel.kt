@@ -398,7 +398,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             toStatusSportEnd()
         } else {
             resetLD.postValue(true)
-            SystemClock.sleep(1000)
+            SystemClock.sleep(1500)
             toStatusPrepare()
         }
 
