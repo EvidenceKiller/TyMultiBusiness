@@ -421,6 +421,7 @@ class ForwardFlexionActivity :
         forwardFlexionProcessor.stopRecord()
         forwardFlexionProcessor.onRelease();
         mBinding.cameraView.onRelease()
+        mBinding.overlay.release()
         releaseModel()
     }
 

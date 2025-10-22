@@ -135,7 +135,7 @@ class ForwardFlexionSettingActivity :
         initCamera()
     }
 
-    private fun startMat(){
+    private fun startMat() {
         // 运动配置
         sportConfig = FFlexionSportConfig.builder()
             .debug(true)
@@ -269,6 +269,8 @@ class ForwardFlexionSettingActivity :
     override fun onDestroy() {
         super.onDestroy()
         mBinding.cameraView.onRelease()
+        forwardFlexionProcessor.onRelease()
+        mBinding.overlay.release()
         releaseModel()
     }
 
