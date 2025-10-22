@@ -147,7 +147,7 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
                 p1?.let {
-                    if (isNanosecondsByRange(p1.frameTimestamp)) {
+                    if (isNanosecondsPrecise(p1.frameTimestamp)) {
                         p1.frameTimestamp = p1.frameTimestamp / 1000_000
                     }
                 }
@@ -160,16 +160,14 @@ class ForwardFlexionActivity :
     }
 
     /**
-     * 通过时间范围判断是否为纳秒时间戳
-     * 假设时间戳是从1970-01-01开始的
+     * 检测是否是纳秒级时间戳
      */
-    fun isNanosecondsByRange(timestamp: Long): Boolean {
-        // 当前时间的纳秒值大约在 1.7e18 左右
-        // 如果是纳秒，值会非常大
-        val currentNanos = System.currentTimeMillis() * 1000000L
+    fun isNanosecondsPrecise(timestamp: Long): Boolean {
+        // Unix时间戳从1970年开始
+        // 50年对应的纳秒数: 50 * 365 * 24 * 3600 * 1_000_000_000L ≈ 1.5768e18
+        val fiftyYearsInNanos = 50L * 365 * 24 * 60 * 60 * 1000000000L
 
-        // 纳秒时间戳通常大于 1e15
-        return timestamp > 1000000000000000L
+        return timestamp > 1000000000000L && timestamp < fiftyYearsInNanos
     }
 
     private fun initOverlay() {
@@ -195,6 +193,7 @@ class ForwardFlexionActivity :
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
         )
+
         // 运动配置
         sportConfig = FFlexionSportConfig.builder()
             .debug(true)
