@@ -145,7 +145,9 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
                 p1?.let {
-                    p1.frameTimestamp = p1.frameTimestamp / 1000_000
+                    if (isNanosecondsByRange(p1.frameTimestamp)) {
+                        p1.frameTimestamp = p1.frameTimestamp / 1000_000
+                    }
                 }
                 forwardFlexionProcessor.onFrame(p0, p1)
             }
@@ -153,6 +155,19 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(viewModel.onceCacheProcessor)
         mBinding.cameraView.addProcessor(viewModel.sportEngine)
         mBinding.cameraView.setFps(30)
+    }
+
+    /**
+     * 通过时间范围判断是否为纳秒时间戳
+     * 假设时间戳是从1970-01-01开始的
+     */
+    fun isNanosecondsByRange(timestamp: Long): Boolean {
+        // 当前时间的纳秒值大约在 1.7e18 左右
+        // 如果是纳秒，值会非常大
+        val currentNanos = System.currentTimeMillis() * 1000000L
+
+        // 纳秒时间戳通常大于 1e15
+        return timestamp > 1000000000000000L
     }
 
     private fun initOverlay() {
