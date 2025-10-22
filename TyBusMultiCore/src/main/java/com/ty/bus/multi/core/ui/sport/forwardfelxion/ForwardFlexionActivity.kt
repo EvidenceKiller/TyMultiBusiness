@@ -48,6 +48,9 @@ class ForwardFlexionActivity :
     private var sportConfig: FFlexionSportConfig? = null
     val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, true)
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
+    private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
+    private var checkTimeOk = false //校验时间是否OK
+    private var isNus = false //是否是纳秒时间戳
 
 
     private var tipCountDownCount = 3  //提示的倒计时时间
@@ -151,27 +154,26 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
                 p1?.let {
-                    if (isNanosecondsPrecise(p1.frameTimestamp)) {
+                    if (preFrameTime != 0L && checkTimeOk.not()) {
+                        if (it.frameTimestamp - preFrameTime > 1000_000) {
+                            isNus = true
+                        }
+                        checkTimeOk = true
+                    } else {
+                        preFrameTime = it.frameTimestamp
+                    }
+                    if (isNus) {
                         p1.frameTimestamp = p1.frameTimestamp / 1000_000
                     }
                 }
-                forwardFlexionProcessor.onFrame(p0, p1)
+                if (checkTimeOk) {
+                    forwardFlexionProcessor.onFrame(p0, p1)
+                }
             }
         })
         mBinding.cameraView.addProcessor(viewModel.onceCacheProcessor)
         mBinding.cameraView.addProcessor(viewModel.sportEngine)
         mBinding.cameraView.setFps(30)
-    }
-
-    /**
-     * 检测是否是纳秒级时间戳
-     */
-    fun isNanosecondsPrecise(timestamp: Long): Boolean {
-        // Unix时间戳从1970年开始
-        // 50年对应的纳秒数: 50 * 365 * 24 * 3600 * 1_000_000_000L ≈ 1.5768e18
-        val fiftyYearsInNanos = 50L * 365 * 24 * 60 * 60 * 1000000000L
-
-        return timestamp > 1000000000000L && timestamp < fiftyYearsInNanos
     }
 
     private fun initOverlay() {
