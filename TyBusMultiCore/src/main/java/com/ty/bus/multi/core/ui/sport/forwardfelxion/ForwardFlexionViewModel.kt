@@ -167,7 +167,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             //存已识别的人信息
             sportPersonArray.put(
                 currentIdentifyNumber,
-                MultiSportResult(accountInfo, currentIdentifyNumber)
+                MultiSportResult(accountInfo, currentIdentifyNumber,-1000)
             )
             identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
             checkMap[currentIdentifyNumber] = true
