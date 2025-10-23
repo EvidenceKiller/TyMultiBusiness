@@ -46,7 +46,7 @@ class ForwardFlexionActivity :
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: FFlexionSportConfig? = null
-    val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, true)
+    val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
     private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
     private var checkTimeOk = false //校验时间是否OK
@@ -116,7 +116,9 @@ class ForwardFlexionActivity :
                 mBinding.sportView.setAccountInfo(viewModel.sportPersonArray)
                 hideTip()
                 startRecording()
-                mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
+                if (isDebug) {
+                    mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
+                }
             }
             mBinding.identityView.visibility = View.GONE
 
@@ -211,10 +213,6 @@ class ForwardFlexionActivity :
         val diskNum = MMKVUtil.decodeInt(
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
-        )
-        val isDebug = MMKVUtil.decodeBoolean(
-            MMKVBusiKey.MODEL_DEBUG,
-            BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
         )
         val param = ForwardFlexionSettingHelper.getSetParam()
         // 运动配置
