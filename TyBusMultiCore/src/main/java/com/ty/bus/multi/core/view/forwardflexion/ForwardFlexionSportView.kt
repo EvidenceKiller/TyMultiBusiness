@@ -49,6 +49,7 @@ class ForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyleAt
     fun reset() {
         cardMap.forEach { index, forwardFlexionScoreView ->
             forwardFlexionScoreView.reset()
+            forwardFlexionScoreView.visibility = GONE
         }
     }
 
