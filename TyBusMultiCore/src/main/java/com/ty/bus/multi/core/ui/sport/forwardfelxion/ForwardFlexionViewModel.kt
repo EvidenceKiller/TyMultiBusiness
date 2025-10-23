@@ -469,6 +469,11 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        multiIdentityEngine.closeMachine()
+    }
+
     fun retest() {
         sportPersonArray.forEach { index, result ->
             result.count = 0
