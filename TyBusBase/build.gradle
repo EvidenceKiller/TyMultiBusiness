@@ -61,4 +61,6 @@ dependencies {
     api(name: 'AdlSportGeneral-2025-07-22', ext: 'aar')
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
+
+//    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
 }
