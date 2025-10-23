@@ -51,6 +51,9 @@ class ForwardFlexionActivity :
     private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
     private var checkTimeOk = false //校验时间是否OK
     private var isNus = false //是否是纳秒时间戳
+    private var uiConfig: FFlexionRoleConfig? = null
+    private var isModelOk = false //模型是否加载成功
+    private var isInit = false //是否开始流程
 
 
     private var tipCountDownCount = 3  //提示的倒计时时间
@@ -113,6 +116,7 @@ class ForwardFlexionActivity :
                 mBinding.sportView.setAccountInfo(viewModel.sportPersonArray)
                 hideTip()
                 startRecording()
+                mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
             }
             mBinding.identityView.visibility = View.GONE
 
@@ -140,7 +144,10 @@ class ForwardFlexionActivity :
     }
 
     private fun hideInTips() {
-        startMatDetect()
+        mBinding.groupInTip.visibility = View.GONE
+        if (isModelOk) {
+            startMatDetect()
+        }
     }
 
     private fun initCamera() {
@@ -177,15 +184,21 @@ class ForwardFlexionActivity :
     }
 
     private fun initOverlay() {
-        val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, true)
+        val isDebug = MMKVUtil.decodeBoolean(
+            MMKVBusiKey.MODEL_DEBUG,
+            BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+        )
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
-        val debug = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, true)
+        val debug = MMKVUtil.decodeBoolean(
+            MMKVBusiKey.SKELETON_ABLE,
+            BusiBaseConstantsValue.DEFAULT_SKELETON
+        )
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
-        val uiConfig: FFlexionRoleConfig? = AdlUIConfig.instance()
+        uiConfig = AdlUIConfig.instance()
             .readConfig(mBinding.overlay.configKey, FFlexionRoleConfig::class.java)
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.enableTouch(false)
@@ -199,11 +212,14 @@ class ForwardFlexionActivity :
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
         )
-
+        val isDebug = MMKVUtil.decodeBoolean(
+            MMKVBusiKey.MODEL_DEBUG,
+            BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+        )
         val param = ForwardFlexionSettingHelper.getSetParam()
         // 运动配置
         sportConfig = FFlexionSportConfig.builder()
-            .debug(true)
+            .debug(isDebug)
             .isRecord(true)
             .videoFps(30)
             .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
@@ -314,7 +330,7 @@ class ForwardFlexionActivity :
                     }
 
                     override fun onSucceed(list: MutableList<TsModelInfo>?) {
-
+                        startMatDetect()
                     }
 
                 })
@@ -378,7 +394,8 @@ class ForwardFlexionActivity :
      * 开始检测垫子
      */
     private fun startMatDetect() {
-        mBinding.groupInTip.visibility = View.GONE
+        if (isInit) return
+        isInit = true
         forwardFlexionProcessor.open(mBinding.overlay)
         forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
     }
