@@ -486,6 +486,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     override fun reset() {
         super.reset()
+        prepareStatusList.clear()
+        resultStatusList.clear()
         for (i in 1..sportManCount) {
             checkMap.put(i, false)
             prepareStatusList.add(false)
