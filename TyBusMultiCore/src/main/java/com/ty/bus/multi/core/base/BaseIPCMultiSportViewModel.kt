@@ -66,6 +66,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
+import com.ty.bus.multi.core.config.MultiConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import java.util.concurrent.ConcurrentHashMap
@@ -220,6 +221,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         config.drawSkeleton = true
         config.sportType = factory.getMultiSportType()
         config.loadModel(null)
+        val lite = MultiConfig.getMultiSportPerformance()
+        if (lite){
+            config.liteBodyCheck = lite
+        }
 
         multiSportProcessor.setConfig(config)
         multiSportProcessor.setBodyFilter(getBodyFilter())
