@@ -250,9 +250,9 @@ class ForwardFlexionActivity :
 
             override fun onInform(code: InformCode?, error: String?) {
                 LogUtil.d("$code:$error")
-                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-                    viewModel.toStatusIdentifyFace()
-                }
+//                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+//                    viewModel.toStatusIdentifyFace()
+//                }
             }
 
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
@@ -396,8 +396,9 @@ class ForwardFlexionActivity :
     private fun startMatDetect() {
         if (isInit) return
         isInit = true
-        forwardFlexionProcessor.open(mBinding.overlay)
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+//        forwardFlexionProcessor.open(mBinding.overlay)
+//        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+        viewModel.toStatusIdentifyFace()
     }
 
 
