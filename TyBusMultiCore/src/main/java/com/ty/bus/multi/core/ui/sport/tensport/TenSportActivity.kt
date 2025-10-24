@@ -23,6 +23,7 @@ import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.helper.TypeFaceHelper
@@ -56,6 +57,10 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         super.initView(savedInstanceState)
         //如果是赛事，则隐藏今日最佳
         viewModel.matchId?.let {
+            mBinding.groupTodayTop.visibility = View.GONE
+        }
+        //自主，组织，随堂测隐藏今日最佳
+        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST || viewModel.sceneId == SceneConstants.INDEPENDENT_TEST || viewModel.sceneId == SceneConstants.CLASS_TEST) {
             mBinding.groupTodayTop.visibility = View.GONE
         }
 
