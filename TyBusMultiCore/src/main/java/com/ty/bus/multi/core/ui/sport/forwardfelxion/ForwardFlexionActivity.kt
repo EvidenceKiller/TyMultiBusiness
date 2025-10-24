@@ -46,7 +46,8 @@ class ForwardFlexionActivity :
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: FFlexionSportConfig? = null
-    val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
+    val isDebug =
+        MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
     private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
     private var checkTimeOk = false //校验时间是否OK
@@ -126,11 +127,13 @@ class ForwardFlexionActivity :
         }
 
         viewModel.resetLD.observe(this) {
+            forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
             forwardFlexionProcessor.onReset()
         }
     }
 
     private fun showDesc(msg: String) {
+        if (isDebug.not()) return
         runOnUiThread {
             mBinding.tvDes.append(msg)
         }
@@ -303,7 +306,6 @@ class ForwardFlexionActivity :
         setTip(getString(R.string.forward_flexion_identified_tip))
         mBinding.identityView.visibility = View.VISIBLE
         forwardFlexionProcessor.open(mBinding.overlay)
-        forwardFlexionProcessor.updateCheckIn(HashMap<Int, Boolean>().apply { put(1, true) })
         forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
     }
 
