@@ -37,6 +37,8 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     private val number = 10
     override fun initData() {
         super.initData()
+        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
+        viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         if (viewModel.sportInfo == null) {
             viewModel.sportInfo = SceneSportInfoEntity().apply {
                 sportSkuId = "0201010001"

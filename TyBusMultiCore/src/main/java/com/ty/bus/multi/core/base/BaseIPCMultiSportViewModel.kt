@@ -66,7 +66,9 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
+import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.core.config.MultiConfig
+import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionViewModel
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import java.util.concurrent.ConcurrentHashMap
@@ -128,6 +130,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private var preViewWidth = facePreviewWidth
     private var preViewHeight = facePreviewHeight
 
+    //组织测试相关ID
+    var ptPlanId: String? = null
+    var ptStandardId: String? = null
 
     //记录每个位置状态
     private val currentPersonState =
@@ -222,7 +227,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         config.sportType = factory.getMultiSportType()
         config.loadModel(null)
         val lite = MultiConfig.getMultiSportPerformance()
-        if (lite){
+        if (lite) {
             config.liteBodyCheck = lite
         }
 
@@ -265,7 +270,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
         cameraDispatcher.addFrameProcessor(sportEngine)
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_IP,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+            )
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
@@ -291,7 +299,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      */
     private fun changeResolution() {
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_IP,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+            )
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
@@ -954,12 +965,20 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         indicatorsMap.put(multiResult.number, it)
                     }
                 }
-
+                var recordPlan: SportRecordEntity.RecordPlan? = null
+                if (sceneId == SceneConstants.ORGANIZE_TEST) {
+                    recordPlan = SportRecordEntity.RecordPlan().apply {
+                        ptPlanId = this@BaseIPCMultiSportViewModel.ptPlanId
+                        ptStandardId = this@BaseIPCMultiSportViewModel.ptStandardId
+                    }
+                }
                 uploadSportResult(
                     sceneId ?: SceneConstants.PK,
                     sportResult,
                     sportResult.userId,
-                    indicatorList = indicatorsList)
+                    indicatorList = indicatorsList,
+                    recordPlan = recordPlan
+                )
             }
         }
     }
