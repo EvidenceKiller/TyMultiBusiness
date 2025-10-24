@@ -32,8 +32,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     api project(':TyBusBase')
-    api(name: 'AdlSport-ForwardFlexion-2025-10-23', ext: 'aar')
-    api(name: 'AdlSport-Common-2025-10-24', ext: 'aar')
+    api(name: 'AdlSport-ForwardFlexion-2025-10-24', ext: 'aar')
+    api(name: 'AdlSport-Common-2025-10-23', ext: 'aar')
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
