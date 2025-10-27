@@ -22,7 +22,7 @@ object BusiBaseConstantsValue {
     const val HTTP_CAMERA_RECORD_MODEL_IPC = 1 shl 1
     const val HTTP_CAMERA_RECORD_DEFAULT_MODEL = HTTP_CAMERA_RECORD_MODEL_DEFAULT
 
-    const val HTTP_CAMERA_DEFAULT_IP = "172.16.4.64"
+    const val HTTP_CAMERA_DEFAULT_IP = "172.16.30.200"
     const val HTTP_CAMERA_DEFAULT_ACCOUNT = "admin"
     const val HTTP_CAMERA_DEFAULT_PASSWORD = "zy123456"
     const val HTTP_CAMERA_DEFAULT_PORT = 8000
