@@ -692,6 +692,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             config.checkExercisePrescription = true
             config.fileDir = getVideoPath(sportInfo?.sportSkuId).parentFile
         }
+        //停止倒计时音效
+        stopPlayCutDown()
         startCountDownTimer.cancel()
         countDownFinishLD.postValue(true)
         //开始3-2-1倒计时就表示比赛已经开始
