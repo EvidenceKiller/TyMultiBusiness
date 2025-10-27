@@ -306,16 +306,18 @@ class ForwardFlexionActivity :
         LogUtil.d("开始人脸识别")
         setTip(getString(R.string.forward_flexion_identified_tip))
         mBinding.identityView.visibility = View.VISIBLE
-        forwardFlexionProcessor.open(mBinding.overlay)
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
+        mBinding.overlay.post {
+            forwardFlexionProcessor.open(mBinding.overlay)
+            forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
+        }
     }
 
     override fun onStatusPrepare() {
         processorPrepare()
     }
 
-    protected fun loadModel() {
-        val tsModelRes = forwardFlexionProcessor.getTsModels()
+    private fun loadModel() {
+        val tsModelRes = forwardFlexionProcessor.tsModels
         TsModelResPool.instance()
             .loadModelGroup(
                 listOf(
