@@ -357,7 +357,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         val rShouder = it[3]
         val centerX: Double =
             if (header.x > 0f) header.x.toDouble() else (lShouder.x + rShouder.x) / 2.0
-        val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.5
+        val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.7
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
         rect.left = (centerX - shoulderWidth / 2.0).toInt()
         rect.right = (centerX + shoulderWidth / 2).toInt()
