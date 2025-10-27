@@ -63,12 +63,14 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
         return this
     }
 
+    @Synchronized
     fun addFrameProcessor(processor: AdlCameraFrameProcessor?) {
         if (processor != null && !processors.contains(processor)) {
             processors.add(processor)
         }
     }
 
+    @Synchronized
     fun removeFrameProcessor(processor: AdlCameraFrameProcessor?) {
         if (processor != null && processors.contains(processor)) {
             processors.remove(processor)
@@ -194,7 +196,6 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
         override fun run() {
             val queue = mQueue
             val fixCache = mFixCache
-            val next: List<AdlCameraFrameProcessor?> = processors
             var info: AdlCameraPreviewInfo? = null
             while (mActive) {
                 val frame = queue.poll()
@@ -215,10 +216,12 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
                         info.height = height
                         info.frameTimestamp = timestamp
                         val enterTime = System.currentTimeMillis()
-                        val var14: Iterator<*> = next.iterator()
-                        while (var14.hasNext()) {
-                            val processor = var14.next() as AdlCameraFrameProcessor
-                            processor.onFrame(yuv, info)
+                        synchronized(this) {
+                            val var14: Iterator<*> = processors.iterator()
+                            while (var14.hasNext()) {
+                                val processor = var14.next() as AdlCameraFrameProcessor
+                                processor.onFrame(yuv, info)
+                            }
                         }
                         val t = System.currentTimeMillis() - enterTime
                         if (t > 50L) {
