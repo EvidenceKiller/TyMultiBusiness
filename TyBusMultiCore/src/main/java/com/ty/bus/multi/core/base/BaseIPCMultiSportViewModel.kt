@@ -268,7 +268,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
-        cameraDispatcher.addFrameProcessor(sportEngine)
         val ip =
             MMKVUtil.decodeString(
                 MMKVBusiKey.HTTP_CAMERA_IP,
@@ -343,6 +342,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
+        if (skipManCount == 10) {
+            multiIdentityEngine.addIdentityCount(4, 4)
+            multiIdentityEngine.addIdentityCount(9, 4)
+        }
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 
@@ -707,10 +710,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             SystemClock.sleep(200)
             /********************切换分辨率********************/
             multiSportProcessor.clearTransform()
-            withContext(Dispatchers.IO) {
-                SystemClock.sleep(1000)
-                startRecord()
-            }
         }
     }
 
@@ -718,6 +717,15 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         uiHandler.post {
             AdlLogger.d("changeMultiIdentityCardState: index $index state ${state.name}")
             changeSportViewStateLD.value = Pair(index, state)
+        }
+    }
+
+    /**
+     * 开始录像,在此回调中处理录像，解决切换分辨率，录像还是录的4K的问题
+     */
+    fun onCameraOpen() {
+        if (skipRoseState == MultiSportState.SPORTING || skipRoseState == MultiSportState.COUNTDOWN) {
+            startRecord()
         }
     }
 
@@ -793,26 +801,14 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
     }
 
-    /**
-     * 开始比赛
-     */
-
-    /**
-     * 开始录像
-     */
     private fun startRecord() {
         getVideoPath(sportInfo!!.sportSkuId)
         createTime = System.currentTimeMillis()
-        val recordModel = MMKVUtil.decodeInt(
-            MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
-        )
-        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
-            AdlLogger.d("多人跳绳默认方式录制视频")
+        cameraDispatcher.addFrameProcessor(sportEngine)
+        //延时一丢丢，等分辨率切换过来，sportEngine的宽高是切换后的，才开始录像
+        viewModelScope.launch(Dispatchers.IO) {
+            SystemClock.sleep(1000)
             sportEngine.startRecorder(videoFile)
-        } else {
-            AdlLogger.d("多人跳绳IPC方式录制视频")
-            NsCameraHKRecorder.instance().onStart(videoFile)
         }
     }
 

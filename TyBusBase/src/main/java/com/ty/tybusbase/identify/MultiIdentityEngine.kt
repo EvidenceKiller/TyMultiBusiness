@@ -45,6 +45,8 @@ class MultiIdentityEngine {
 
     private val identifyMap by lazy { HashMap<Int, Int>() }
 
+    private val identifyCountMap by lazy { HashMap<Int, Int>() } //每个位置可设置识别次数
+
     private var isOK = false
     fun identified(user: StudentEntity) {
         identityFinish(AccountInfo().apply {
@@ -82,6 +84,21 @@ class MultiIdentityEngine {
     }
 
     /**
+     * 添加每个位置可识别次数后，才为游客
+     */
+    fun addIdentityCount(number: Int, count: Int) {
+        identifyCountMap[number] = count
+    }
+
+    /**
+     * 设置可识别次数的map
+     */
+    fun setIdentityCountMap(map: HashMap<Int, Int>) {
+        identifyCountMap.clear()
+        identifyCountMap.putAll(map)
+    }
+
+    /**
      * 查询用户基本信息
      */
     fun getAccountInfoWithAccount(accountId: String?) {
@@ -106,8 +123,10 @@ class MultiIdentityEngine {
 
         //当没有正在识别人脸和达到超时要求就判断为游客
         if (!StFaceHelper.isIsDetecting && faceRecTime >= VISITOR_TIME) {
-            identifyMap[number] = identifyMap.getOrDefault(number, 0) + 1
-            if (visitorAble && identifyMap.getOrDefault(number, 0) >= VISITOR_RETRY_COUNT) {
+            val identifyCount = identifyMap.getOrDefault(number, 0) + 1
+            identifyMap[number] = identifyCount
+            val visitorRetryCount = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
+            if (visitorAble && identifyCount >= visitorRetryCount) {
                 createVisitor()
             } else {
                 finishWithFail()

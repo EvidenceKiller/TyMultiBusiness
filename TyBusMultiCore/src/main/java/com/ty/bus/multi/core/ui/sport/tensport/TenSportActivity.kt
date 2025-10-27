@@ -112,6 +112,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 }
 
                 override fun onCameraOpen() {
+                    viewModel.onCameraOpen()
                     hideTips()
                 }
 
