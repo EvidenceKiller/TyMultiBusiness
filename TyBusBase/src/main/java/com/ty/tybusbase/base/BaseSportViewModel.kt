@@ -305,7 +305,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                     recordCompetition,
                     recordMeeting,
                     sportTrainPlan,
-                    recordPlan = recordPlan
+                    indicatorList,
+                    recordPlan
                 )
             BusiCoreEngine.getResultCallback()?.onSportRecordEntity(sportRecordEntity)
         }
@@ -463,11 +464,10 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             sportSceneCode = sceneId
             appCode = authFactory.appCode
             accountType = "1"
-            sportTime = result.sportDuration.toString()
+            sportTime = ((result.sportDuration / 1000) * 1000).toString()
             sportStartTime = result.startTime.toString()
             sportEndTime = result.endTime.toString()
             deviceId = authFactory.registerCode
-            sportSkuId = sportInfo?.sportSkuId
             sportUnit = sportInfo?.measureUnitCode
             sportNatureCodes = sportInfo?.sportNatureCodes
             sportTypeCode = sportInfo?.sportTypeCode

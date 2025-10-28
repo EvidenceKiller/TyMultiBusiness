@@ -15,8 +15,6 @@ import java.util.Calendar
 
 class DefaultUploadCallback : ResultCallback {
     override fun onSportRecordEntity(sportRecordEntity: SportRecordEntity) {
-
-        saveSportResultToDB(sportRecordEntity)
         uploadRecord(sportRecordEntity)
     }
 
@@ -33,6 +31,8 @@ class DefaultUploadCallback : ResultCallback {
             AdlLogger.d("游客模式，不进行上传")
             return
         }
+        //先存原始数据到数据库
+        saveSportResultToDB(sportRecordEntity)
         val calendar = Calendar.getInstance()
         var uploadOk = true
 
