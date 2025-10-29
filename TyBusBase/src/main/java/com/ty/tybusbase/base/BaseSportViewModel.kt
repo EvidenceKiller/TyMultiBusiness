@@ -451,7 +451,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     private fun buildSportRecordEntity(
         sceneId: String,
         result: SportResult,
-        id: String?,
+        aId: String?,
         recordCompetition: RecordCompetition? = null,
         recordMeeting: RecordMeeting? = null,
         trPlan: SportTrainPlan? = null,
@@ -460,7 +460,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     ): SportRecordEntity {
         return SportRecordEntity(UUID.randomUUID().toString()).apply {
             val authFactory = AdlAuthFactory.create(getApplication())
-            accountId = id
+            accountId = aId
             sportSceneCode = sceneId
             appCode = authFactory.appCode
             accountType = "1"
@@ -468,6 +468,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             sportStartTime = result.startTime.toString()
             sportEndTime = result.endTime.toString()
             deviceId = authFactory.registerCode
+            sportSkuId = sportInfo?.sportSkuId
             sportUnit = sportInfo?.measureUnitCode
             sportNatureCodes = sportInfo?.sportNatureCodes
             sportTypeCode = sportInfo?.sportTypeCode
