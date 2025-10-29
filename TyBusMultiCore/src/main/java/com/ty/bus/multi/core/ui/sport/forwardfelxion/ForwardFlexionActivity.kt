@@ -228,7 +228,7 @@ class ForwardFlexionActivity :
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(diskNum, 60, 20, param.getAngle(), 125))
+            .value(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
             .isCheckFootLocation(param.checkFoot)
             .isCheckLegUncurl(param.checkLeg)
             .isCheckHandAlign(param.checkHand)
