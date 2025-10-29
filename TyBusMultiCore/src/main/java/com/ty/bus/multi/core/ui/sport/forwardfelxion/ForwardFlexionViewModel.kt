@@ -27,6 +27,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
+import com.ty.tybusbase.helper.SportHelper
 import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
@@ -282,6 +283,30 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         }
     }
 
+    /**************************************************************************
+
+    skeleton.setHeadTop(toPoint(value[offset], value[offset + 1], value[offset + 2], "HeadTop"));
+    skeleton.setChin(toPoint(value[offset + 3], value[offset + 4], value[offset + 5], "Chin"));
+    skeleton.setLShoulder(toPoint(value[offset + 6], value[offset + 7], value[offset + 8], "LShoulder"));
+    skeleton.setRShoulder(toPoint(value[offset + 9], value[offset + 10], value[offset + 11], "RShoulder"));
+    skeleton.setLElbow(toPoint(value[offset + 12], value[offset + 13], value[offset + 14], "LElbow"));
+    skeleton.setRElbow(toPoint(value[offset + 15], value[offset + 16], value[offset + 17], "RElbow"));
+    skeleton.setLWrist(toPoint(value[offset + 18], value[offset + 19], value[offset + 20], "LWrist"));
+    skeleton.setRWrist(toPoint(value[offset + 21], value[offset + 22], value[offset + 23], "RWrist"));
+    skeleton.setLFinger(toPoint(value[offset + 24], value[offset + 25], value[offset + 26], "LFinger"));
+    skeleton.setRFinger(toPoint(value[offset + 27], value[offset + 28], value[offset + 29], "RFinger"));
+    skeleton.setLHip(toPoint(value[offset + 30], value[offset + 31], value[offset + 32], "LHip"));
+    skeleton.setRHip(toPoint(value[offset + 33], value[offset + 34], value[offset + 35], "RHip"));
+    skeleton.setLKnee(toPoint(value[offset + 36], value[offset + 37], value[offset + 38], "LKnee"));
+    skeleton.setRKnee(toPoint(value[offset + 39], value[offset + 40], value[offset + 41], "RKnee"));
+    skeleton.setLAnkle(toPoint(value[offset + 42], value[offset + 43], value[offset + 44], "LAnkle"));
+    skeleton.setRAnkle(toPoint(value[offset + 45], value[offset + 46], value[offset + 47], "RAnkle"));
+    skeleton.setLBigToe(toPoint(value[offset + 48], value[offset + 49], value[offset + 50], "LBigToe"));
+    skeleton.setRBigToe(toPoint(value[offset + 51], value[offset + 52], value[offset + 53], "RBigToe"));
+    skeleton.setLHeel(toPoint(value[offset + 54], value[offset + 55], value[offset + 56], "LHeel"));
+    skeleton.setRHeel(toPoint(value[offset + 57], value[offset + 58], value[offset + 59], "RHeel"));
+
+     ********************************************************************/
     fun onBonePoints(map: MutableMap<Int, MutableList<Point>>?) {
         if (map != null) {
             handleIdentify(map)
@@ -327,6 +352,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (it.value == InformCode.PREPARECHECKINFINSIH
                 && sportPersonArray.get(it.key, null) == null
                 && map.getOrDefault(it.key, null) != null
+                && checkHandUp(map[it.key])
             ) {
                 currentIdentifyNumber = it.key
                 multiIdentityEngine.reset()
@@ -347,6 +373,16 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                 return
             }
         }
+    }
+
+    private fun checkHandUp(it: MutableList<Point>?): Boolean {
+        if (it.isNullOrEmpty() || it.size < 8) return false
+        val header = it[0]
+        val lShouder = it[2]
+        val rShouder = it[3]
+        val lWrist = it[6]
+        val rWrist = it[7]
+        return lWrist.y < header.y
     }
 
     fun getIdentityRect(it: MutableList<Point>?): Rect {
