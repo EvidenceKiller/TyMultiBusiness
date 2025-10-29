@@ -212,6 +212,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     private fun setTips(text: String) {
+        AdlLogger.d(text)
         mBinding.tvCameraTips.visibility = View.VISIBLE
         mBinding.tvCameraTips.text = text
     }
