@@ -386,13 +386,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     }
 
     private fun checkHandUp(it: MutableList<Point>?): Boolean {
-        if (it.isNullOrEmpty() || it.size < 8) return false
-        val header = it[0]
-        val lShouder = it[2]
-        val rShouder = it[3]
-        val lWrist = it[6]
-        val rWrist = it[7]
-        return lWrist.y < header.y
+//        if (it.isNullOrEmpty() || it.size < 8) return false
+//        val header = it[0]
+//        val lShouder = it[2]
+//        val rShouder = it[3]
+//        val lWrist = it[6]
+//        val rWrist = it[7]
+//        return lWrist.y < header.y
+        return true
     }
 
     fun getIdentityRect(it: MutableList<Point>?): Rect {
