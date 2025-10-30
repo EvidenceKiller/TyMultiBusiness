@@ -94,7 +94,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private lateinit var multiSportProcessor: MultiSportProcessor
     private lateinit var multiSportParser: MultiSportParser<*>
 
-    private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
+    protected val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
     private val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
@@ -332,7 +332,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re)
     }
 
-    private fun initFaceIdentify() {
+    open fun initFaceIdentify() {
         /**
          * 人脸识别回调
          */
@@ -342,10 +342,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
-        if (skipManCount == 10) {
-            multiIdentityEngine.addIdentityCount(4, 4)
-            multiIdentityEngine.addIdentityCount(9, 4)
-        }
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 

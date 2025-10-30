@@ -57,4 +57,10 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
         }
         return rect
     }
+
+    override fun initFaceIdentify() {
+        super.initFaceIdentify()
+        multiIdentityEngine.addIdentityCount(4, 6)
+        multiIdentityEngine.addIdentityCount(9, 6)
+    }
 }
