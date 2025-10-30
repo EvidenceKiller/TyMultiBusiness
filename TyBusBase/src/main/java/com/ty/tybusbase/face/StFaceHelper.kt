@@ -41,7 +41,7 @@ object StFaceHelper {
     private var faceHandlerThread: HandlerThread? = null
     private var faceHandler: Handler? = null
     private val TAG = "face_test"
-    private val tempIdentityMap by lazy { HashMap<String, Pair<Int, Float>>() }
+    private val tempIdentityMap by lazy { HashMap<Int, Pair<Int, Float>>() }
 
     @Volatile
     var isInitOk = false
@@ -197,9 +197,6 @@ object StFaceHelper {
             rectF.top = max(centerY - 20, 0f)
             rectF.bottom = min(centerY + 20, height.toFloat())
         }
-
-        //rectF(799.0154, 0.0, 1122.4615, 1080.0)
-        StHelper.logI("人脸识别是否正在识别中：" + isIsDetecting)
         if (isIsDetecting) return
         faceHandler!!.post {
             isIsDetecting = true
@@ -218,19 +215,6 @@ object StFaceHelper {
                     StHelper.logE("警告： 人脸数据为null")
                     return@post
                 }
-//                val imageFile =
-//                    SaveBitmapUtil.imageFileToYuv("/sdcard/zy.sport.cache/temp/temp.jpg")
-//                val jfLivingModel =
-//                    faceDetector!!.detectByYuv(
-//                        key,
-//                        imageFile?.first,
-//                        imageFile?.second ?: 0,
-//                        imageFile?.third ?: 0,
-//                        null,
-//                        1.0f,
-//                        3,
-//                        savePic
-//                    )
                 val jfLivingModel =
                     faceDetector!!.detectByYuv(
                         key,
@@ -244,16 +228,15 @@ object StFaceHelper {
                     )
                 if (jfLivingModel != null) {
                     val faceInfo = jfLivingModel.faceInfo
+                    if (verifyUser(faceInfo.id, jfLivingModel.faceInfo.score).not()) {
+                        return@post
+                    }
                     val id = faceIdMap[faceInfo.id]
                     StHelper.logI("识别到底库的FeatureId：$id")
                     if (type == 0) {
                         val studentEntity =
                             AdlService.getService().studentDao.queryStudentByAccountId(id)
-                        if (studentEntity != null && verifyUser(
-                                studentEntity.userId,
-                                jfLivingModel.faceInfo.score
-                            )
-                        ) {
+                        if (studentEntity != null) {
                             mFaceCallback?.onFindUser(studentEntity);
                             StHelper.logI("本地数据库中查询到学生：${studentEntity.accountName}")
                             if (savePic) {
@@ -278,17 +261,15 @@ object StFaceHelper {
                     } else {
                         val teacherEntity =
                             AdlService.getService().teacherDao.queryTeacherByAccountId(id)
-                        if (teacherEntity != null && verifyUser(
-                                teacherEntity.userId,
-                                jfLivingModel.faceInfo.score
-                            )
-                        ) {
+                        if (teacherEntity != null) {
                             mFaceCallback?.onFindTeacher(teacherEntity)
                             StHelper.logI("本地数据库中查询到老师：${teacherEntity.accountName}")
                         } else {
                             StHelper.logI("本地数据库中未查询到老师：空");
                         }
                     }
+                } else {
+                    StHelper.logI("jfLivingModel == null null null")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -296,7 +277,7 @@ object StFaceHelper {
             } finally {
                 isIsDetecting = false
                 val endDetect = System.currentTimeMillis()
-                Log.d(TAG, "人脸识别耗时:" + (endDetect - startDetectFace))
+                StHelper.logI("人脸识别耗时:" + (endDetect - startDetectFace))
             }
         }
     }
@@ -305,20 +286,20 @@ object StFaceHelper {
     /**
      * 校验人员，如果，分数低于0.6的，需要三次连续识别是同一个人，且其中一帧的分要达到一个阈值（如0.5），才认为是识别成功
      */
-    private fun verifyUser(userId: String, score: Float): Boolean {
+    private fun verifyUser(faceId: Int, score: Float): Boolean {
         if (score >= 0.8f) {
             tempIdentityMap.clear()
             return true
         }
         // 低分时，累计识别次数
-        val pair = tempIdentityMap.getOrDefault(userId, Pair(0, 0f))
+        val pair = tempIdentityMap.getOrDefault(faceId, Pair(0, 0f))
         val count = pair.first + 1
         val maxScore = max(score, pair.second)
         tempIdentityMap.clear()
         return if (count >= 3 && maxScore >= 0.5f) {
             true
         } else {
-            tempIdentityMap[userId] = Pair(count, maxScore)
+            tempIdentityMap[faceId] = Pair(count, maxScore)
             false
         }
     }
