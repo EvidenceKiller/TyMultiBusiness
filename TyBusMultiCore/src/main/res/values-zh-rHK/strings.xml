@@ -21,5 +21,6 @@
     <string name="ipc_camera_fail_tip">网络摄像头连接失败，请检查网络连接</string>
     <string name="camera_loss_tips">摄像头已断开连接，正在重连...</string>
     <string name="forward_flexion_set_tip">请调整红框大小和位置，与实际刻度板对齐</string>
+    <string name="forward_flexion_sport_count_down_tips">请在规定时间内完成测试：%d</string>
 
 </resources>

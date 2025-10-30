@@ -127,9 +127,25 @@ class ForwardFlexionActivity :
         }
 
         viewModel.resetLD.observe(this) {
+            hideSportingTips()
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
             forwardFlexionProcessor.onReset()
         }
+
+        viewModel.sportTipsInfoLD.observe(this) {
+            showSportingTips(it.first, it.second)
+        }
+
+    }
+
+    private fun showSportingTips(tip: String, imgRes: Int) {
+        mBinding.gSportingTips.visibility = View.VISIBLE
+        mBinding.tvSportingTips.text = tip
+        mBinding.ivSportingTips.setBackgroundResource(imgRes)
+    }
+
+    private fun hideSportingTips() {
+        mBinding.gSportingTips.visibility = View.GONE
     }
 
     private fun showDesc(msg: String) {
@@ -352,6 +368,7 @@ class ForwardFlexionActivity :
     }
 
     override fun onStatusEnd() {
+        hideSportingTips()
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.stopRecord()

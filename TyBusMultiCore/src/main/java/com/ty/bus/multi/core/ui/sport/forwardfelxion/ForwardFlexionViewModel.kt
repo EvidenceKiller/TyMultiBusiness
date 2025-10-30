@@ -2,6 +2,7 @@ package com.ty.bus.multi.core.ui.sport.forwardfelxion
 
 import android.app.Application
 import android.graphics.Rect
+import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
@@ -68,12 +69,20 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     val identifyTimeOut = 3 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
 
+    val sportTimeOut = 10 //运动超时提示时间
+
+    var sportCountDownTimer: CountDownTimer? = null
+
+    var sportCountDown = 0
+
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<Int, AccountInfo>>()
 
     val sportStartLD = MutableLiveData<Int>() //开始运动
 
     val resetLD = MutableLiveData<Boolean>()//成绩OK
+
+    val sportTipsInfoLD = MutableLiveData<Pair<String, Int>>() //运动提示信息
 
     //识别卡片状态
     var changeIdentityCardStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>()
@@ -275,6 +284,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                 SpeechWrapper.speech(getString(R.string.forward_flexion_start_speech))
             }
             sportStartLD.postValue(currentSportTimes)
+            startSportCountDown()
             //切换卡片状态，方便重置
             sportPersonArray.forEach { key, value ->
                 changeMultiIdentityCardState(key, MultiSportCardViewState.SPORTING)
@@ -427,6 +437,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         if (list.size != checkSize) {
             return
         }
+        stopSportCountDown()
         sportState = MultiSportState.PREPARING
         currentSportTimes++
         if (currentSportTimes > sportTimes) {
@@ -438,6 +449,34 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             toStatusPrepare()
         }
 
+    }
+
+    private fun startSportCountDown() {
+        Handler(Looper.getMainLooper()).post{
+            sportCountDownTimer?.cancel()
+            sportCountDown = sportTimeOut
+            sportCountDownTimer = object : CountDownTimer(sportTimeOut * 1000L, 1000) {
+                override fun onTick(millisUntilFinished: Long) {
+                    sportCountDown--
+                    sportTipsInfoLD.postValue(
+                        Pair(
+                            getString(
+                                R.string.forward_flexion_sport_count_down_tips,
+                                sportCountDown
+                            ),
+                            if (sportCountDown % 2 == 0) R.mipmap.forward_flexion_ani1 else R.mipmap.forward_flexion_ani2
+                        )
+                    )
+                }
+
+                override fun onFinish() {
+                }
+            }.start()
+        }
+    }
+
+    private fun stopSportCountDown() {
+        sportCountDownTimer?.cancel()
     }
 
     override fun toStatusPrepare() {
