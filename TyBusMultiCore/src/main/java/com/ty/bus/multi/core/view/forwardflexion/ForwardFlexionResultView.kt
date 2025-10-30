@@ -160,7 +160,7 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
                 getString(R.string.violations)
             }
 
-            item >= -200 && item <= 400 -> {
+            item > -200 && item <= 400 -> {
                 clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_complete)
                 tvUnit.text = "cm"
                 "${item / 10.0}"
@@ -168,7 +168,7 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
 
             else -> {
                 clScore.setBackgroundResource(R.mipmap.bg_test_zwtqq_error)
-                getString(R.string.violations)
+                getString(R.string.un_do)
             }
 
         }

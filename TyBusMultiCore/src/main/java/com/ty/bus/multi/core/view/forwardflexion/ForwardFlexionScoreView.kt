@@ -2,6 +2,7 @@ package com.ty.bus.multi.core.view.forwardflexion
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -43,9 +44,20 @@ class ForwardFlexionScoreView(context: Context, attrs: AttributeSet?, defStyleAt
                 ) {
                     holder.vb.tvIndex.text = "${holder.layoutPosition + 1}"
                     holder.vb.tvScore.text = when {
-                        item == -300 -> getString(R.string.violations)
-                        item >= -200 && item <= 400 -> "${item / 10.0}"
-                        else -> getString(R.string.violations)
+                        item == -300 -> {
+                            holder.vb.tvScore.setTextColor(Color.RED)
+                            getString(R.string.violations)
+                        }
+
+                        item > -200 && item <= 400 -> {
+                            holder.vb.tvScore.setTextColor(Color.WHITE)
+                            "${item / 10.0}"
+                        }
+
+                        else -> {
+                            holder.vb.tvScore.setTextColor(Color.RED)
+                            getString(R.string.un_do)
+                        }
                     }
                 }
 

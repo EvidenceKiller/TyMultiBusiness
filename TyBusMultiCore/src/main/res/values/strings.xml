@@ -7,6 +7,7 @@
     <string name="identifying">识别中...</string>
     <string name="lie_on_back_and_face_screen">请侧对屏幕仰卧准备</string>
     <string name="violations">违规</string>
+    <string name="un_do">未完成</string>
     <string name="forward_flexion">坐位体前屈</string>
 
     <string name="forward_flexion_start_speech">开始测试，请双手缓慢向前滑行推动</string>

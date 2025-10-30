@@ -452,7 +452,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     }
 
     private fun startSportCountDown() {
-        Handler(Looper.getMainLooper()).post{
+        Handler(Looper.getMainLooper()).post {
             sportCountDownTimer?.cancel()
             sportCountDown = sportTimeOut
             sportCountDownTimer = object : CountDownTimer(sportTimeOut * 1000L, 1000) {
@@ -496,6 +496,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         //延迟200ms，等待录制视屏结束
         SystemClock.sleep(200)
         sportPersonArray.forEach { key, value ->
+            //如果是-200,表示未完成，不上传成绩
+            if (value.count == -200) return@forEach
             var sportResult = SportResult()
             sportResult.sportDuration = (endSportTime - startSportTime).toInt()
             sportResult.maxComboCount = 0
@@ -509,7 +511,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             sportResult.userId = value.accountInfo.studentEntity?.accountId
             sportResult.startTime = startSportTime
             sportResult.endTime = endSportTime
-            if (value.count in -200..400) {
+            if (value.count > -200 && value.count <= 400) {
                 sportResult.sportResult = value.count.toString()
             } else {
                 sportResult.sportViolationStatus = 1
@@ -539,8 +541,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 //        成绩${entry.value / 10.0}厘米
         return when {
             result == -300 -> getString(R.string.violations)
-            result >= -200 && result <= 400 -> "${result / 10.0}厘米"
-            else -> getString(R.string.violations)
+            result > -200 && result <= 400 -> "${result / 10.0}厘米"
+            else -> getString(R.string.un_do)
         }
     }
 
