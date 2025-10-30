@@ -441,7 +441,8 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         sportState = MultiSportState.PREPARING
         currentSportTimes++
         if (currentSportTimes > sportTimes) {
-            //测试次数超标，运动结束
+            //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
+            SystemClock.sleep(2000)
             toStatusSportEnd()
         } else {
             resetLD.postValue(true)
