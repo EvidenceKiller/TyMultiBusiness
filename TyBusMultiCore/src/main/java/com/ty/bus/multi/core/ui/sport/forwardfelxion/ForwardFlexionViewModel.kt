@@ -168,6 +168,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                             value.number,
                             MultiSportCardViewState.IDENTIFY_CHANGE
                         )
+                        checkMap[value.number] = false
                     }
                 }
                 if (rmKey != -1) {
@@ -274,14 +275,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                 startSportTime = System.currentTimeMillis()
             }
             if (sportTimes > 1) {
-                SpeechWrapper.speech(
+                SpeechWrapper.speakAfterStop(
                     getString(
                         R.string.forward_flexion_times_start_speech,
                         currentSportTimes
                     )
                 )
             } else {
-                SpeechWrapper.speech(getString(R.string.forward_flexion_start_speech))
+                SpeechWrapper.speakAfterStop(getString(R.string.forward_flexion_start_speech))
             }
             sportStartLD.postValue(currentSportTimes)
             startSportCountDown()
@@ -429,7 +430,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (person == null) return@forEach
             val name = person.accountInfo.studentEntity?.accountName ?: ""
             person.count = max(person.count, it.value)
-            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
+//            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
             resultStatusList[it.key - 1] = true
         }
         val list = resultStatusList.filter { it }
@@ -443,13 +444,26 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         currentSportTimes++
         if (currentSportTimes > sportTimes) {
             //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
+            SpeechWrapper.speech(
+                getString(
+                    R.string.end_test,
+                    currentSportTimes - 1
+                )
+            )
             SystemClock.sleep(2000)
             toStatusSportEnd()
         } else {
             resetLD.postValue(true)
+            SpeechWrapper.speech(
+                getString(
+                    R.string.forward_flexion_sport_times_end,
+                    currentSportTimes - 1
+                )
+            )
             SystemClock.sleep(1500)
             toStatusPrepare()
         }
+
 
     }
 

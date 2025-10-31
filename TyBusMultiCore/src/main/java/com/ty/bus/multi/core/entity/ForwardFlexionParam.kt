@@ -2,7 +2,7 @@ package com.ty.bus.multi.core.entity
 
 class ForwardFlexionParam {
     private var minAngle = 120
-    private var maxAngle = 180
+    private var maxAngle = 170
 
     private val maxSsdqTh = 80 //双手对齐最大值
 
