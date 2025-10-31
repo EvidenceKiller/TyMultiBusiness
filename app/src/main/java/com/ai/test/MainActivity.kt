@@ -12,6 +12,7 @@ import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.UINavConfig
+import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 
 
@@ -26,7 +27,14 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
     override fun initView(savedInstanceState: Bundle?) {
         mBinding.bnt0.setOnClickListener { goFiveSkipRope(this, UINavConfig()) }
 
-        mBinding.bnt11.setOnClickListener { goTenSportRope(this, UINavConfig()) }
+        mBinding.bnt11.setOnClickListener { goTenSportRope(this, UINavConfig().apply {
+            sportInfo = SceneSportInfoEntity().apply {
+                sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                sportSkuName = "十人"
+                sceneId = SceneConstants.INDEPENDENT_TEST
+            }
+        }) }
 
         mBinding.bnt10.setOnClickListener { goThreeSitReach(this, UINavConfig()) }
 
