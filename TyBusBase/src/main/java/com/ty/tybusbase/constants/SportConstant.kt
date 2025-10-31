@@ -133,10 +133,10 @@ object SportConstant {
     const val SPORT_PLANK: String = "1009"
 
     //体前屈
-    const val SPORT_UTTHANASANA: String = "160101"
+    const val SPORT_UTTHANASANA: String = "160201"
 
     //坐位体前屈
-    const val SPORT_FORWARD_FLEXION: String = "160201"
+    const val SPORT_FORWARD_FLEXION: String = "160101"
 
     //引体向上
     const val SPORT_PULL_UP: String = "040101"
