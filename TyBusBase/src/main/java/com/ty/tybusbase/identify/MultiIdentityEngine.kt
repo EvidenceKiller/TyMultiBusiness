@@ -11,7 +11,7 @@ import com.adl.service.outer.AdlService
 import com.adl.service.outer.UserCaller
 import com.adl.sport.general.EuHelper
 import com.ty.tybusbase.expand.getString
-import com.ty.identifty.stface.TyFaceInfo
+import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.BuildConfig
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue

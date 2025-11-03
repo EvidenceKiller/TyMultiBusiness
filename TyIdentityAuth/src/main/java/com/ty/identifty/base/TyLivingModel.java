@@ -1,4 +1,4 @@
-package com.ty.identifty.stface;
+package com.ty.identifty.base;
 
 public class TyLivingModel {
 

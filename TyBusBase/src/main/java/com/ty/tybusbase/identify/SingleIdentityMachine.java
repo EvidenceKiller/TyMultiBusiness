@@ -22,7 +22,7 @@ import com.adl.service.entity.StudentEntity;
 import com.adl.service.entity.TeacherEntity;
 import com.adl.service.outer.UserCaller;
 import com.adl.sport.general.EuHelper;
-import com.ty.identifty.stface.TyFaceInfo;
+import com.ty.identifty.base.TyFaceInfo;
 import com.ty.tybusbase.R;
 import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;

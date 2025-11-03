@@ -1,6 +1,5 @@
 package com.ty.tybusbase.face
 
-import android.annotation.SuppressLint
 import android.graphics.RectF
 import android.os.Handler
 import android.os.HandlerThread
@@ -20,8 +19,7 @@ import com.ty.identifty.stface.STFaceFactory
 import com.ty.identifty.stface.SaveBitmapUtil
 import com.ty.identifty.stface.StHelper
 import com.ty.identifty.stface.StParameter
-import com.ty.identifty.stface.TyFaceInfo
-import com.ty.tybusbase.utils.ApplicationUtil
+import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.utils.ApplicationUtil.getContext
 import com.yuv.tool.YuvTool
 import java.io.File

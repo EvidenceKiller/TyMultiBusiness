@@ -1,4 +1,4 @@
-package com.ty.identifty.stface;
+package com.ty.identifty.base;
 
 import android.graphics.Bitmap;
 import android.graphics.RectF;

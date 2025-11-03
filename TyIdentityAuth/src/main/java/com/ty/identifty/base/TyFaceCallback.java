@@ -1,4 +1,4 @@
-package com.ty.identifty.stface;
+package com.ty.identifty.base;
 
 /**
  * 人脸识别回调

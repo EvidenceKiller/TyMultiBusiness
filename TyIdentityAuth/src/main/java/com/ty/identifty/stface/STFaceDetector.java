@@ -19,6 +19,11 @@ import com.sensetime.sdk.video.module.sdk.common.StRect;
 import com.sensetime.sdk.video.module.sdk.common.StTrackInfo;
 import com.sensetime.sdk.video.module.sdk.common.StTrackResult;
 import com.sensetime.sdk.video.module.sdk.common.StVerifyResult;
+import com.ty.identifty.base.TyFaceCallback;
+import com.ty.identifty.base.TyFaceDetector;
+import com.ty.identifty.base.TyFaceFeature;
+import com.ty.identifty.base.TyFaceInfo;
+import com.ty.identifty.base.TyLivingModel;
 
 import java.io.File;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.ty.identifty.stface;
+package com.ty.identifty.base;
 
 import android.content.Context;
 import android.graphics.RectF;
