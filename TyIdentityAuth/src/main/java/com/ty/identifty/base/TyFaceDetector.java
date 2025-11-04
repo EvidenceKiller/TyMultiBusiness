@@ -67,11 +67,6 @@ public abstract class TyFaceDetector<T> {
         return null;
     }
 
-    public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height,
-                                     RectF rectF, float scale, int featureCheckMode, boolean savePic) {
-        return null;
-    }
-
     public void release() {
 
     }

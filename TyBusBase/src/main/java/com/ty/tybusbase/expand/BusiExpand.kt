@@ -39,3 +39,9 @@ fun getSerialNumber(): String? {
 
 
 fun getString(@StringRes id: Int, vararg fre: Any):String = ApplicationUtil.getContext().getString(id, *fre)
+
+fun Int.toEven(): Int {
+    return if (this % 2 > 0) {
+        this - 1
+    } else this
+}

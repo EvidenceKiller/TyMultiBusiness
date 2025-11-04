@@ -13,7 +13,8 @@ object BusiBaseConstantsValue {
     const val STARTED_TIME_OUT = (5 * 60 * 1000 //赛事开始后超时时间(5分钟)
             ).toLong()
 
-
+    //  百度人脸识别KEY 正式Key，谨慎使用
+    const val FACE_LICENSE_KEY = "ty-integrate-gx-face-offline-app"
 
     /**
      * HK摄像头录制视屏模式
@@ -102,4 +103,7 @@ object BusiBaseConstantsValue {
     const val UVC_CAMERA_DEFAULT_CONTRAST = 60
 
     const val MODEL_GROUP_NAME_GB = "model_group_name_gb" // 国标跳绳模型
+
+    const val FACE_DETECT_TYPE_STUDENT = 0 //人脸识别类型：学生
+    const val FACE_DETECT_TYPE_TEACHER = 1 //人脸识别类型：老师
 }
