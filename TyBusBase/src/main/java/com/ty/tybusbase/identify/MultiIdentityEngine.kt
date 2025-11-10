@@ -16,7 +16,8 @@ import com.ty.tybusbase.BuildConfig
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
-import com.ty.tybusbase.face.StFaceHelper
+import com.ty.tybusbase.face.FaceDetectorHelper
+import com.ty.tybusbase.face.OnFaceCallback
 import com.ty.tybusbase.helper.SportHelper
 import java.io.File
 import java.io.FileNotFoundException
@@ -67,19 +68,17 @@ class MultiIdentityEngine {
     }
 
     private fun initFaceDetect() {
-        StFaceHelper.setFaceCallback(object : StFaceHelper.OnFaceCallback {
-            override fun onFindUser(user: StudentEntity?) {
+        FaceDetectorHelper.getInstance().setFaceCallback(object : OnFaceCallback {
+            override fun onFindStudent(user: StudentEntity?) {
                 user?.let {
                     identified(it)
                 }
             }
 
-            override fun onFindTeacher(user: TeacherEntity?) {
+            override fun onFindFail(info: TyFaceInfo<*>?) {
 
             }
 
-            override fun onFaceFeature(info: TyFaceInfo<*>?) {
-            }
         })
     }
 
@@ -122,7 +121,7 @@ class MultiIdentityEngine {
 
 
         //当没有正在识别人脸和达到超时要求就判断为游客
-        if (!StFaceHelper.isIsDetecting && faceRecTime >= VISITOR_TIME) {
+        if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
             val identifyCount = identifyMap.getOrDefault(number, 0) + 1
             identifyMap[number] = identifyCount
             val visitorRetryCount = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
@@ -134,7 +133,7 @@ class MultiIdentityEngine {
             return
         }
         //        bodyInfo = body;
-        if (!StFaceHelper.isIsDetecting) {
+        if (!FaceDetectorHelper.getInstance().isDetecting()) {
             if (data == null) return
             val rect = RectF(
                 rectF.left.toFloat(),
@@ -142,13 +141,12 @@ class MultiIdentityEngine {
                 rectF.right.toFloat(),
                 rectF.bottom.toFloat()
             )
-            StFaceHelper.callFaceDetector(
+            FaceDetectorHelper.getInstance().detectFace(
                 System.currentTimeMillis().toString(),
                 data,
                 w,
                 h,
-                rect,
-                savePic = BuildConfig.BUILD_TYPE != "release"
+                rect
             )
 //            executor.execute {
 //                val bitmap = AdlYUVUtil.yuvToBitmap(data, w, h)
@@ -199,7 +197,7 @@ class MultiIdentityEngine {
         }
         val faceRecTime: Long = System.currentTimeMillis() - identityStartTime
         //当没有正在识别人脸和达到超时要求就判断为游客
-        if (!StFaceHelper.isIsDetecting && faceRecTime >= VISITOR_TIME) {
+        if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
             if (visitorAble) {
                 createVisitor()
             } else {
@@ -208,7 +206,7 @@ class MultiIdentityEngine {
             return
         }
         //        bodyInfo = body;
-        if (!StFaceHelper.isIsDetecting) {
+        if (!FaceDetectorHelper.getInstance().isDetecting()) {
             if (data == null) return
             faceDetect(System.currentTimeMillis().toString() + "", data, w, h, skeleton)
         }
@@ -251,7 +249,7 @@ class MultiIdentityEngine {
                 rectF = RectF(l, t, r, b)
             }
             if (rectF == null) return
-            StFaceHelper.callFaceDetector(imageId, yuv, w, h, rectF)
+            FaceDetectorHelper.getInstance().detectFace(imageId, yuv, w, h, rectF)
         }
     }
 
@@ -282,13 +280,13 @@ class MultiIdentityEngine {
 
     fun closeMachine() {
         identityListener = null
-        StFaceHelper.setFaceCallback(null)
+        FaceDetectorHelper.getInstance().setFaceCallback(null)
     }
 
     /**
      * 是否正在识别
      */
-    fun isIdentifying() = StFaceHelper.isIsDetecting
+    fun isIdentifying() = FaceDetectorHelper.getInstance().isDetecting()
 
     fun reset() {
         isOK = false

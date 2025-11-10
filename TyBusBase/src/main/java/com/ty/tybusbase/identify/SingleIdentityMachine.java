@@ -2,6 +2,7 @@ package com.ty.tybusbase.identify;
 
 
 import static com.ty.tybusbase.expand.BusiExpandKt.getString;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -15,7 +16,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
-import androidx.annotation.Nullable;
+
 import com.adl.lib.pose.AdlPoseKeyPoint;
 import com.adl.lib.pose.AdlPoseSkeleton;
 import com.adl.service.entity.StudentEntity;
@@ -28,7 +29,8 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;
 import com.ty.tybusbase.databinding.LayoutSingleFaceBinding;
 import com.ty.tybusbase.entity.AccountInfo;
-import com.ty.tybusbase.face.StFaceHelper;
+import com.ty.tybusbase.face.FaceDetectorHelper;
+import com.ty.tybusbase.face.OnFaceCallback;
 import com.ty.tybusbase.helper.SpeechWrapper;
 import com.ty.tybusbase.helper.TimeOutHelper;
 import com.ty.tybusbase.utils.ApplicationUtil;
@@ -36,7 +38,11 @@ import com.ty.tybusbase.utils.DisplayUtil;
 import com.ty.tybusbase.utils.LogUtil;
 import com.ty.tybusbase.utils.MMKVUtil;
 import com.ty.tybusbase.utils.ToastUtil;
+
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
+
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.plugins.RxJavaPlugins;
 import kotlin.Unit;
@@ -44,7 +50,7 @@ import kotlin.Unit;
 /**
  * @author pc
  */
-public class SingleIdentityMachine extends RelativeLayout implements IdentifyMachine{
+public class SingleIdentityMachine extends RelativeLayout implements IdentifyMachine {
     LayoutSingleFaceBinding mBinding;
     /**
      * 检测区域
@@ -385,7 +391,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 
         long faceRecTime = System.currentTimeMillis() - identityStartTime;
         //当没有正在识别人脸和达到超时要求就判断为游客
-        if (!StFaceHelper.INSTANCE.isIsDetecting() && (faceRecTime >= VISITOR_TIME)) {
+        if (!FaceDetectorHelper.Companion.getInstance().isDetecting() && (faceRecTime >= VISITOR_TIME)) {
             if (visitorAble) {
                 createVisitor();
             } else {
@@ -410,7 +416,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             float progress = (faceRecTime * 1.0f / VISITOR_TIME) * 100;
             mBinding.progressView.setProgress(progress);
         });
-        if (!StFaceHelper.INSTANCE.isIsDetecting()) {
+        if (!FaceDetectorHelper.Companion.getInstance().isDetecting()) {
             LogUtil.INSTANCE.d("face yuv 数据是否为空:" + (null == data) + " key is:" + skeleton.getKey(), false);
             if (data == null) return;
             faceDetect(System.currentTimeMillis() + "", data, w, h, skeleton, type);
@@ -521,22 +527,20 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
      * 人脸识别
      */
     private void selectFace() {
-        StFaceHelper.INSTANCE.setFaceCallback(new StFaceHelper.OnFaceCallback() {
+        FaceDetectorHelper.Companion.getInstance().setFaceCallback(new OnFaceCallback() {
+            @Override
+            public void onFindStudent(@Nullable StudentEntity user) {
+                identity(user);
+            }
+
+            @Override
+            public void onFindFail(@Nullable TyFaceInfo<?> info) {
+
+            }
+
             @Override
             public void onFindTeacher(@Nullable TeacherEntity user) {
-                LogUtil.INSTANCE.d("onFindTeacher------->" + user.getAccountName(), false);
                 identity(user);
-            }
-
-            @Override
-            public void onFindUser(@Nullable StudentEntity user) {
-                LogUtil.INSTANCE.d("onFindUser------->" + user.getAccountName(), false);
-                identity(user);
-            }
-
-            @Override
-            public void onFaceFeature(@Nullable TyFaceInfo<?> info) {
-
             }
         });
     }
@@ -785,7 +789,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
                 rectF = new RectF(l, t, r, b);
             }
             if (rectF == null) return;
-            StFaceHelper.INSTANCE.callFaceDetector(imageId, yuv, w, h, rectF, type, false);
+            FaceDetectorHelper.Companion.getInstance().detectFace(imageId, yuv, w, h, rectF, type);
         }
     }
 
@@ -833,7 +837,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         identityListener = null;
         accountInfo = null;
 //        UsbReader.getUsbReader().stop();
-        StFaceHelper.INSTANCE.setFaceCallback(null);
+        FaceDetectorHelper.Companion.getInstance().setFaceCallback(null);
         cancelTimeOutTask();
         if (mHandler != null) {
             mHandler.removeCallbacksAndMessages(null);

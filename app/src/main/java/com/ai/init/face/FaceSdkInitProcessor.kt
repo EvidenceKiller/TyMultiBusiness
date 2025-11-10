@@ -8,7 +8,6 @@ import com.ai.init.InitProcessor
 import com.google.gson.Gson
 import com.ty.identifty.stface.StParameter
 import com.ty.tybusbase.face.FaceDetectorHelper
-import com.ty.tybusbase.face.StFaceHelper
 import com.ty.tybusbase.utils.ApplicationUtil
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import java.io.BufferedReader
@@ -39,7 +38,7 @@ class FaceSdkInitProcessor : InitProcessor() {
     @SuppressLint("CheckResult")
     override fun apply(callBack: (isOk: Boolean, isContinue: Boolean, msg: String) -> Unit) {
         //先判断有没有成功过
-        if (StFaceHelper.isInitOk) {
+        if (FaceDetectorHelper.getInstance().isInitOk()) {
             initStatus = true
             callBack(true, true, "人脸初始化成功")
             return

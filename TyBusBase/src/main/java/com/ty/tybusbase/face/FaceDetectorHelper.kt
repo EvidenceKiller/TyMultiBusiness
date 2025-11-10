@@ -121,7 +121,7 @@ class FaceDetectorHelper private constructor() {
         width: Int,
         height: Int,
         rectF: RectF?,
-        type: Int
+        type: Int = 0
     ) {
         /***************************连续一次识别中，隔三帧检测一次*******************************/
         //重置检测帧数和
