@@ -1,11 +1,13 @@
 package com.ai.test
 
+import android.content.Intent
 import android.os.Bundle
 import com.adl.base.speech.AdlTextSpeaker
 import com.adl.service.entity.FaceDataEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
+import com.ai.ui.facetest.FaceTestActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
@@ -85,6 +87,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuName = "坐位体前屈"
                 }
             })
+        }
+
+        mBinding.btnFaceTest.setOnClickListener {
+            startActivity(Intent(this, FaceTestActivity::class.java))
         }
 
         val org = UserCaller.instance().getCurrentOrg()

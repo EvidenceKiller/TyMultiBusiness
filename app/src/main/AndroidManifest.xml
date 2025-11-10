@@ -92,6 +92,7 @@
             android:theme="@style/AppBaseTheme" />
 
         <activity android:name="com.ai.ui.init.InitActivity" />
+        <activity android:name="com.ai.ui.facetest.FaceTestActivity"/>
 
     </application>
 
