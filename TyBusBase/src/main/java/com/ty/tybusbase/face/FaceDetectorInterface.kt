@@ -4,15 +4,13 @@ import android.content.Context
 import android.graphics.RectF
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
-import com.ty.tybusbase.face.strategy.IFindUserStrategy
+import com.ty.identifty.base.TyLivingModel
 
 interface FaceDetectorInterface {
     val faceFeatureThreshold: Float
         get() = 0.75f
 
     fun init(context: Context, finish: (Boolean) -> Unit?)
-
-    fun isDetecting(): Boolean
 
     fun loadStudentFace(studentList: List<StudentEntity>?, replace: Boolean)
 
@@ -22,6 +20,10 @@ interface FaceDetectorInterface {
 
     fun removeTeacherFace(teacherList: List<TeacherEntity>)
 
+    fun getUserId(faceInfo: TyLivingModel?): String?
+
+    fun isDetecting(): Boolean
+
     fun detectFace(
         key: String?,
         yuv: ByteArray?,
@@ -29,11 +31,7 @@ interface FaceDetectorInterface {
         height: Int,
         rectF: RectF?,
         type: Int = 0
-    )
-
-    fun setFindUserStrategy(strategy: IFindUserStrategy)
-
-    fun setFaceCallback(callback: OnFaceCallback?)
+    ): TyLivingModel?
 
     fun release()
 }

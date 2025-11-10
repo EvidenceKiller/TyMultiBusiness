@@ -232,7 +232,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
      * @return 返回函数结果，失败返回null
      */
     @Override
-    public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height, RectF rectF, float scale, int featureCheckMode, boolean savePic) {
+    public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height, RectF rectF, float scale, int featureCheckMode) {
         if (!isInit) return errorReturn("初始化未完成");
         TyLivingModel jfFaceResult = null;
         //构建图片信息
@@ -251,10 +251,6 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         ret = mStQuality.sdkVideoQualityDetect(stImage, detectInfo);
         StHelper.parseSdkErrorCode(ret, "质量");
         if (ret != 0){
-            if (savePic){
-                saveBitmap(yuv,width,height,System.currentTimeMillis()
-                        +"_quality_.jpg");
-            }
             return errorReturn("质量检测异常");
         }
         //获取质量检测结果
@@ -263,10 +259,6 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         int faceNum = stQualityResult.getQualityCount();
         //人脸数量校验
         if (faceNum < 1){
-            if (savePic){
-                saveBitmap(yuv,width,height,System.currentTimeMillis()
-                        +"_no_face_.jpg");
-            }
             return errorReturn("未找到人脸");
         }
 
@@ -313,10 +305,6 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 //提取特征
                 StVerifyResult stVerifyResult = getFeature(stImage, detectInfo[i], stQualityInfo[i]);
                 if (stVerifyResult == null){
-                    if (savePic){
-                        saveBitmap(yuv,width,height,System.currentTimeMillis()
-                                +"_quality_low_.jpg");
-                    }
                     continue;
                 }
                 stVerifyResults[0] = stVerifyResult;
@@ -326,10 +314,6 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 int id = mStDb.getStDbResult().getCompareResultId()[0];
                 float score = mStDb.getStDbResult().getCompareResultScore()[0];
                 if (faceFeatureThreshold > score){
-                    if (savePic){
-                        saveBitmap(yuv,width,height,System.currentTimeMillis()
-                                +"_score_low_"+score+".jpg");
-                    }
                     continue;
                 }
                 jfFaceResult = new TyLivingModel();

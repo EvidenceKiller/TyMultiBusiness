@@ -221,8 +221,7 @@ object StFaceHelper {
                         targetH,
                         null,
                         1.0f,
-                        3,
-                        savePic
+                        3
                     )
                 if (jfLivingModel != null) {
                     val faceInfo = jfLivingModel.faceInfo

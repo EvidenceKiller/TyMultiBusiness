@@ -16,7 +16,7 @@ val dformat2 = SimpleDateFormat("yyyyMMdd")
 val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
 
 object LogUtil {
-    private var logPath = "/sdcard/zy.sport.cache/bsscreen/log"
+    private var logPath = "/sdcard/zy.sport.cache/busi/log"
     private val writeSize = 1 * 1024 // 1K
     private val logcatLength = 256
     private var writeFileEnable = true

@@ -8,7 +8,6 @@ import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
 import com.ty.identifty.base.TyFaceAuthCallback
-import com.ty.identifty.base.TyFaceCallback
 import com.ty.identifty.base.TyFaceFeature
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.identifty.base.TyLivingModel
@@ -19,12 +18,10 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.FaceDetectorInterface
-import com.ty.tybusbase.face.OnFaceCallback
-import com.ty.tybusbase.face.strategy.FindUserByDatabase
-import com.ty.tybusbase.face.strategy.IFindUserStrategy
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.text.isEmpty
 
 class BaiduFaceDetectorImp : FaceDetectorInterface {
 
@@ -35,13 +32,6 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
 
     @Volatile
     private var isIsDetecting = false
-
-    private var mFaceCallback: OnFaceCallback? = null
-
-    //查找学生的策略，默认从数据库查找
-    private var findUerStrategy: IFindUserStrategy = FindUserByDatabase()
-
-    private var faceType = 1 //人脸识别类型
 
     override fun init(context: Context, finish: (Boolean) -> Unit?) {
         if (isInitOk) return
@@ -60,16 +50,7 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
                         )
                     )
                     faceBdDetector?.setFaceFeatureThreshold(faceFeatureThreshold)
-                    faceBdDetector?.init(context, object : TyFaceCallback {
-                        override fun onFaceFast(model: TyLivingModel?) {
-                            handleDetectResult(model)
-                        }
-
-                        override fun onFaceInfo(model: TyLivingModel?) {
-                            handleDetectResult(model)
-                        }
-
-                    })
+                    faceBdDetector?.init(context, null)
                     finish.invoke(true)
                 }
 
@@ -79,8 +60,6 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
                 }
             })
     }
-
-    override fun isDetecting(): Boolean = isIsDetecting
 
     override fun loadStudentFace(
         studentList: List<StudentEntity>?,
@@ -108,10 +87,34 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         teacherList: List<TeacherEntity>?,
         replace: Boolean
     ) {
+        faceBdDetector ?: return
+        //  百度加载人脸
+        val bdFeatures: MutableList<TyFaceFeature<Any>> = ArrayList()
+
+        teacherList?.forEachIndexed { index, userBase ->
+            var feature = userBase.faceDataList?.find { it.type == "1" }?.faceData
+            if (feature == null || feature.isEmpty()) return@forEachIndexed
+            val jfFeature = TyFaceFeature<Any>()
+            jfFeature.userId = userBase.userId
+            jfFeature.feature = Base64.decode(feature, Base64.DEFAULT)
+            bdFeatures.add(jfFeature)
+        }
+        faceBdDetector?.loadFace(bdFeatures)
     }
 
     override fun removeTeacherFace(teacherList: List<TeacherEntity>) {
     }
+
+    override fun getUserId(faceInfo: TyLivingModel?): String? {
+        val faceInfo: TyFaceInfo<*> = faceInfo?.faceInfo ?: return null
+        var userId: String? = null
+        if (faceInfo.extendObject is TyFaceFeature<*>) {
+            userId = (faceInfo.extendObject as TyFaceFeature<*>).userId
+        }
+        return userId
+    }
+
+    override fun isDetecting(): Boolean = isIsDetecting
 
     override fun detectFace(
         key: String?,
@@ -120,20 +123,19 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         height: Int,
         rectF: RectF?,
         type: Int
-    ) {
-        this.faceType = type
+    ): TyLivingModel? {
         if (!isInitOk) {
             AdlLogger.d("ERROR: 人脸未初始化")
-            return
+            return null
         }
         if (yuv == null) {
             AdlLogger.d("ERROR: yuv is null")
-            return
+            return null
         }
         // 检测裁剪矩形
         if (rectF == null || (rectF.left < 0 || rectF.top < 0 || rectF.right > width || rectF.bottom > height)) {
             AdlLogger.d("ERROR : 人脸裁剪区域错误")
-            return
+            return null
         }
         /***************************连续一次识别中，隔三帧检测一次*******************************/
 
@@ -148,9 +150,10 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
             rectF.top = max(centerY - 20, 0f)
             rectF.bottom = min(centerY + 20, height.toFloat())
         }
-        if (isIsDetecting) return
+        if (isIsDetecting) return null
         isIsDetecting = true
         val startDetectFace = System.currentTimeMillis()
+        var jfLivingModel: TyLivingModel? = null
         try {
             var targetW = width
             var targetH = height
@@ -162,9 +165,9 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
 
             if (bytes == null) {
                 StHelper.logE("警告： 人脸数据为null")
-                return
+                return null
             }
-            val jfLivingModel =
+            jfLivingModel =
                 faceBdDetector?.detectByYuv(
                     key,
                     bytes,
@@ -176,49 +179,16 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
                 )
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            isIsDetecting = false
+            val endDetect = System.currentTimeMillis()
+            StHelper.logI("百度人脸识别耗时:" + (endDetect - startDetectFace))
         }
-    }
-
-    override fun setFindUserStrategy(strategy: IFindUserStrategy) {
-        this.findUerStrategy = strategy
-    }
-
-    override fun setFaceCallback(callback: OnFaceCallback?) {
-        this.mFaceCallback = callback
+        return jfLivingModel
     }
 
     override fun release() {
-
-        mFaceCallback = null
+        isIsDetecting = false
     }
 
-    private fun handleDetectResult(model: TyLivingModel?) {
-        val faceInfo: TyFaceInfo<*> = model?.faceInfo ?: return
-        var userId: String? = null
-        if (faceInfo.extendObject is TyFaceFeature<*>) {
-            userId = (faceInfo.extendObject as TyFaceFeature<*>).userId
-        } else {
-            mFaceCallback?.onFindFail(faceInfo)
-            return
-        }
-        when (faceType) {
-            BusiBaseConstantsValue.FACE_DETECT_TYPE_STUDENT -> {
-                val stu = findUerStrategy.findStudent(userId)
-                if (stu != null) {
-                    mFaceCallback?.onFindStudent(stu)
-                } else {
-                    mFaceCallback?.onFindFail(faceInfo)
-                }
-            }
-
-            BusiBaseConstantsValue.FACE_DETECT_TYPE_TEACHER -> {
-                val tea = findUerStrategy.findTeacher(userId)
-                if (tea != null) {
-                    mFaceCallback?.onFindTeacher(tea)
-                } else {
-                    mFaceCallback?.onFindFail(faceInfo)
-                }
-            }
-        }
-    }
 }
