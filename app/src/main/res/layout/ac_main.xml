@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <ScrollView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerHorizontal="true"
         android:scrollbars="vertical">
@@ -99,6 +100,7 @@
                     android:text="10人跳绳"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
                 <Button
                     android:id="@+id/btn_10_region_set"
                     android:layout_width="wrap_content"
@@ -106,6 +108,7 @@
                     android:text="十人运动框设置"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
                 <Button
                     android:id="@+id/btn_ipc_set"
                     android:layout_width="wrap_content"
@@ -142,4 +145,13 @@
         </LinearLayout>
 
     </ScrollView>
-</RelativeLayout>
+
+    <TextView
+        android:id="@+id/tv_org_id"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_60"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

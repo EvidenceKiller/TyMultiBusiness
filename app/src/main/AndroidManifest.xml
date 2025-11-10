@@ -91,6 +91,8 @@
             android:screenOrientation="landscape"
             android:theme="@style/AppBaseTheme" />
 
+        <activity android:name="com.ai.ui.init.InitActivity" />
+
     </application>
 
 </manifest>

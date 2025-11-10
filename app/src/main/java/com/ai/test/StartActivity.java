@@ -9,7 +9,13 @@ import com.adl.auth.core.AdlAuthCallback;
 import com.adl.auth.core.AdlAuthFactory;
 import com.adl.base.activity.NextWriter;
 import com.adl.base.log.AdlLogger;
+import com.adl.service.common.IDefine;
+import com.adl.service.outer.AdlService;
+import com.ai.constants.MultiDemoConstants;
+import com.ai.ui.init.InitActivity;
+import com.qiniu.android.utils.LogUtil;
 import com.ty.bus.multi.demo.R;
+import com.ty.tybusbase.utils.MMKVUtil;
 import com.yanzhenjie.permission.AndPermission;
 
 public class StartActivity extends BaseActivity {
@@ -40,8 +46,18 @@ public class StartActivity extends BaseActivity {
                     }).start();
         }
     }
-
+private String testUrl = "http://172.16.0.206:8082/gateway/api";
     private void next() {
+
+        AdlService.getService()
+                .setSdcard("zy.sport.cache")
+                .setDebug(true)
+                .setPlatform(IDefine.PlatformK12)
+                .setQiNiuHost(testUrl)
+                .setQiNiuBucket("adl-publicres")
+                .setHost(testUrl)
+                .setFacePrefix("https://f.nezhasport.com/")
+                .build();
 
         AdlAuthFactory authFactory = AdlAuthFactory.create(getApplicationContext());
         authFactory.setAuthHost(testHost);
@@ -53,7 +69,14 @@ public class StartActivity extends BaseActivity {
         authFactory.startAuth(this, new AdlAuthCallback() {
             @Override
             public void onSucceed() {
-                NextWriter.with(StartActivity.this, MainActivity.class).closeCurrent(true).go();
+                AdlService.getService().setDeviceToken(authFactory.getAccessToken());
+                LogUtil.d("token:${authFactory.accessToken}");
+                LogUtil.d("sn:${DeviceUtil.getSerialNumber()}");
+                MMKVUtil.INSTANCE.encode(MultiDemoConstants.ACCESS_TOKEN, authFactory.getAccessToken());
+                MMKVUtil.INSTANCE.encode(MultiDemoConstants.REGISTER_CODE, authFactory.getRegisterCode());
+                MMKVUtil.INSTANCE.encode(MultiDemoConstants.PRODUCT_CODE, authFactory.getProductCode());
+                MMKVUtil.INSTANCE.encode(MultiDemoConstants.APP_CODE, authFactory.getAppCode());
+                NextWriter.with(StartActivity.this, InitActivity.class).closeCurrent(true).go();
             }
 
             @Override
