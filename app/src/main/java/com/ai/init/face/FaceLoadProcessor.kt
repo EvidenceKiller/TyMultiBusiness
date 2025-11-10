@@ -45,7 +45,7 @@ class FaceLoadProcessor : InitProcessor() {
                     callBack(false, true, "数据库未查询到特证值")
                     return
                 }
-                FaceDetectorHelper.getInstance().loadTeacherFace(tList,true){
+                FaceDetectorHelper.getInstance().loadTeacherFace(tList,false){
                     initStatus = true
                     callBack(true, true, "特征入库完成")
                 }

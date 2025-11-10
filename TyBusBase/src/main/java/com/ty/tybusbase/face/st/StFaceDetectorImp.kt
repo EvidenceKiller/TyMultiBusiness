@@ -126,7 +126,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
                 LogUtil.e("${user.accountName} 特征入库失败,特征空")
             }
         }
-        LogUtil.d("学生特征入库完成**成功:$secCount***失败：$failCount")
+        LogUtil.d("商汤学生特征入库完成**成功:$secCount***失败：$failCount")
         failCount = 0
         secCount = 0
     }
@@ -177,7 +177,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
                 StHelper.logI("${user.accountName} 特征入库失败,特征空")
             }
         }
-        LogUtil.d("老师特征入库完成**成功:${secCount}***失败：${failCount}")
+        LogUtil.d("商汤老师特征入库完成**成功:${secCount}***失败：${failCount}")
         failCount = 0
         secCount = 0
     }

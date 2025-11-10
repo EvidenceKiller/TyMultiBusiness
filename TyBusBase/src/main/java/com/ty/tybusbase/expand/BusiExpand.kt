@@ -1,8 +1,11 @@
 package com.ty.tybusbase.expand
 
+import android.graphics.Bitmap
 import androidx.annotation.StringRes
+import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.utils.ApplicationUtil
 import java.io.File
+import java.nio.ByteBuffer
 
 typealias Action = () -> Unit
 typealias Action1<T> = (t: T) -> Unit
@@ -38,10 +41,60 @@ fun getSerialNumber(): String? {
 }
 
 
-fun getString(@StringRes id: Int, vararg fre: Any):String = ApplicationUtil.getContext().getString(id, *fre)
+fun getString(@StringRes id: Int, vararg fre: Any): String =
+    ApplicationUtil.getContext().getString(id, *fre)
 
 fun Int.toEven(): Int {
     return if (this % 2 > 0) {
         this - 1
     } else this
+}
+
+fun getFaceBitmap(info: TyFaceInfo<*>): Bitmap {
+    val fw: Int
+    val fh: Int
+    if (info.width * 1.5 <= info.faceWidth && info.height * 1.5 <= info.faceHeight) {
+        fw = (info.width * 1.5).toInt()
+        fh = (info.height * 1.5).toInt()
+    } else {
+        fw = info.width.toInt()
+        fh = info.height.toInt()
+    }
+
+    val x: Int = (info.centerX - fw / 2).toInt()
+    val y: Int = (info.centerY - fh / 2).toInt()
+
+    val ic = bgr2Bitmap(info.faceIconData, info.faceWidth, info.faceHeight)
+
+    var nx = 0.coerceAtLeast(x)
+    var ny = 0.coerceAtLeast(y)
+
+    if (nx + fw > info.faceWidth) {
+        nx = info.faceWidth - fw
+    }
+    if (ny + fh > info.faceHeight) {
+        ny = info.faceHeight - fh
+    }
+
+    return Bitmap.createBitmap(ic, nx, ny, fw, fh)
+}
+
+fun bgr2Bitmap(bytes: ByteArray, width: Int, height: Int): Bitmap {
+    val stitchBmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val rgba = ByteArray(width * height * 4)
+
+    for (i in 0 until width * height) {
+        val idx1 = i * 3
+        val b1 = bytes[idx1 + 2]
+        val b2 = bytes[idx1 + 1]
+        val b3 = bytes[idx1 + 0]
+        val idx2 = i * 4
+        rgba[idx2 + 0] = b3
+        rgba[idx2 + 1] = b2
+        rgba[idx2 + 2] = b1
+        rgba[idx2 + 3] = -1
+    }
+
+    stitchBmp.copyPixelsFromBuffer(ByteBuffer.wrap(rgba))
+    return stitchBmp
 }

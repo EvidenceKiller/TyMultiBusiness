@@ -32,7 +32,8 @@ class FaceTestActivity : BaseSingleIdentifyActivity<ActivityFaceTestBinding, Bas
             viewModel.toStatusIdentifyFace()
             return
         }
-        SpeechWrapper.speech("识别到人员：${accountInfo.teacherEntity?.accountName}")
+        ToastUtil.getInstance(this, "识别到人员：${accountInfo.studentEntity?.accountName}").show()
+        SpeechWrapper.speech("识别到人员：${accountInfo.studentEntity?.accountName}")
         finish()
     }
 

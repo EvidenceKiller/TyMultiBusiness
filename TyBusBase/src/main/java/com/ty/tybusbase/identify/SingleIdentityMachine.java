@@ -1,6 +1,7 @@
 package com.ty.tybusbase.identify;
 
 
+import static com.ty.tybusbase.expand.BusiExpandKt.getFaceBitmap;
 import static com.ty.tybusbase.expand.BusiExpandKt.getString;
 
 import android.annotation.SuppressLint;
@@ -9,6 +10,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -535,7 +537,6 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 
             @Override
             public void onFindFail(@Nullable TyFaceInfo<?> info) {
-
             }
 
             @Override
@@ -544,6 +545,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             }
         });
     }
+
 
     /**
      * 扫码

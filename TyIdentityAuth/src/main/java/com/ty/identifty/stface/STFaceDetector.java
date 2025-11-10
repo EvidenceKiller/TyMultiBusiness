@@ -250,7 +250,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         /*---------人脸质量检测----------*/
         ret = mStQuality.sdkVideoQualityDetect(stImage, detectInfo);
         StHelper.parseSdkErrorCode(ret, "质量");
-        if (ret != 0){
+        if (ret != 0) {
             return errorReturn("质量检测异常");
         }
         //获取质量检测结果
@@ -258,10 +258,11 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         StQualityInfo[] stQualityInfo = stQualityResult.getQualityInfo();
         int faceNum = stQualityResult.getQualityCount();
         //人脸数量校验
-        if (faceNum < 1){
+        if (faceNum < 1) {
             return errorReturn("未找到人脸");
         }
-
+        saveBitmap(yuv, width, height, System.currentTimeMillis()
+                + "_no_face_.jpg");
         /*---------人脸功能逻辑----------*/
         // 【1: 不提取特征】只返回人脸位置
         if (featureCheckMode == 1) {
@@ -304,7 +305,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             for (int i = 0; i < faceNum; i++) {
                 //提取特征
                 StVerifyResult stVerifyResult = getFeature(stImage, detectInfo[i], stQualityInfo[i]);
-                if (stVerifyResult == null){
+                if (stVerifyResult == null) {
                     continue;
                 }
                 stVerifyResults[0] = stVerifyResult;
@@ -313,7 +314,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 if (ret != 0) continue;
                 int id = mStDb.getStDbResult().getCompareResultId()[0];
                 float score = mStDb.getStDbResult().getCompareResultScore()[0];
-                if (faceFeatureThreshold > score){
+                if (faceFeatureThreshold > score) {
                     continue;
                 }
                 jfFaceResult = new TyLivingModel();
