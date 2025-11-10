@@ -15,6 +15,8 @@ import com.ai.constants.MultiDemoConstants;
 import com.ai.ui.init.InitActivity;
 import com.qiniu.android.utils.LogUtil;
 import com.ty.bus.multi.demo.R;
+import com.ty.tybusbase.constants.BusiBaseConstantsValue;
+import com.ty.tybusbase.constants.MMKVBusiKey;
 import com.ty.tybusbase.utils.MMKVUtil;
 import com.yanzhenjie.permission.AndPermission;
 
@@ -48,6 +50,8 @@ public class StartActivity extends BaseActivity {
     }
 private String testUrl = "http://172.16.0.206:8082/gateway/api";
     private void next() {
+        MMKVUtil.INSTANCE.encode(MMKVBusiKey.MODEL_DEBUG,true);
+        MMKVUtil.INSTANCE.encode(MMKVBusiKey.SKELETON_ABLE,true);
 
         AdlService.getService()
                 .setSdcard("zy.sport.cache")
