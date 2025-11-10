@@ -28,6 +28,11 @@ class InitViewModel(application: Application):BaseViewModel(application) {
                 }
             })
 
+        InitManager.adlModelInitProcessor.apply { isOk: Boolean?, isContinue: Boolean?, msg: String ->
+            progressData.postValue(1)
+            //这里回调是主线程
+            bindLiveData.postValue(true)
+        }
     }
 
     override fun onDestroy() {

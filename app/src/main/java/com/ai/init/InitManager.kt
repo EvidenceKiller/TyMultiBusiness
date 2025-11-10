@@ -1,6 +1,7 @@
 package com.ai.init
 
 import com.ai.init.face.FaceInitProcessors
+import com.ai.init.model.AdlModelInitProcessor
 
 
 /**
@@ -38,6 +39,11 @@ object InitManager {
         removeListener()
         faceInitProcessors.stop().clear()
     }
+
+    /**
+     * 模型文件更新处理
+     */
+    val adlModelInitProcessor = AdlModelInitProcessor()
 
     /**
      * 重新装载初始化处理队列

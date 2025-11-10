@@ -81,7 +81,7 @@ class InitActivity : BaseActivity<ActivityInitBinding, InitViewModel>() {
     }
 
     private fun nextActivity() {
-        if (processCount < 1) return
+        if (processCount < 2) return
         // 跳转到首页
         NextWriter.with(this, MainActivity::class.java).closeCurrent(true).go()
         finish()
