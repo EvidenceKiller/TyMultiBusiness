@@ -93,6 +93,7 @@
 
         <activity android:name="com.ai.ui.init.InitActivity" />
         <activity android:name="com.ai.ui.facetest.FaceTestActivity"/>
+        <activity android:name="com.ai.ui.facetest2.FaceTest2Activity"/>
 
     </application>
 

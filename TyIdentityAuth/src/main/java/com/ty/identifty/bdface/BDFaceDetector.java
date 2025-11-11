@@ -152,6 +152,9 @@ public final class BDFaceDetector extends TyFaceDetector<Object> {
         TyLivingModel livingModel = new TyLivingModel();
         FaceInfo info = model.getFaceInfo();
         TyFaceInfo fi = toFaceInfo(info);
+        if (model.getUser() != null) {
+            fi.setId(model.getUser().getId());
+        }
         fi.setKey(model.getKey());
         fi.setFeature(model.getFeature());
         fi.setExtendObject(model.getUser());

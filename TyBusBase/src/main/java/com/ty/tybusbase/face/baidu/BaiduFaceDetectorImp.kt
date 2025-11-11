@@ -2,6 +2,7 @@ package com.ty.tybusbase.face.baidu
 
 import android.content.Context
 import android.graphics.RectF
+import android.os.SystemClock
 import android.util.Base64
 import com.adl.base.log.AdlLogger
 import com.adl.lib.AdlYUVUtil
@@ -19,13 +20,17 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.FaceDetectorInterface
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.text.isEmpty
 
 class BaiduFaceDetectorImp : FaceDetectorInterface {
 
     private var faceBdDetector: BDFaceDetector? = null
+
+    private val faceIdMap = hashMapOf<Int, String>()
 
     @Volatile
     private var isInitOk = false
@@ -66,6 +71,9 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         replace: Boolean
     ) {
         faceBdDetector ?: return
+        if (replace) {
+            faceIdMap.clear()
+        }
         //  百度加载人脸
         val bdFeatures: MutableList<TyFaceFeature<Any>> = ArrayList()
 
@@ -73,9 +81,11 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
             var feature = userBase.faceDataList?.find { it.type == "1" }?.faceData
             if (feature == null || feature.isEmpty()) return@forEachIndexed
             val jfFeature = TyFaceFeature<Any>()
-            jfFeature.userId = userBase.userId
+            jfFeature.userId = userBase.accountId
             jfFeature.feature = Base64.decode(feature, Base64.DEFAULT)
+            jfFeature.id = generateUUid(8)
             bdFeatures.add(jfFeature)
+            faceIdMap[jfFeature.id] = userBase.accountId
         }
         faceBdDetector?.loadFace(bdFeatures)
     }
@@ -88,6 +98,9 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         replace: Boolean
     ) {
         faceBdDetector ?: return
+        if (replace) {
+            faceIdMap.clear()
+        }
         //  百度加载人脸
         val bdFeatures: MutableList<TyFaceFeature<Any>> = ArrayList()
 
@@ -95,9 +108,11 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
             var feature = userBase.faceDataList?.find { it.type == "1" }?.faceData
             if (feature == null || feature.isEmpty()) return@forEachIndexed
             val jfFeature = TyFaceFeature<Any>()
-            jfFeature.userId = userBase.userId
+            jfFeature.userId = userBase.accountId
             jfFeature.feature = Base64.decode(feature, Base64.DEFAULT)
+            jfFeature.id = generateUUid(8)
             bdFeatures.add(jfFeature)
+            faceIdMap[jfFeature.id] = userBase.accountId
         }
         faceBdDetector?.loadFace(bdFeatures)
     }
@@ -107,11 +122,11 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
 
     override fun getUserId(faceInfo: TyLivingModel?): String? {
         val faceInfo: TyFaceInfo<*> = faceInfo?.faceInfo ?: return null
-        var userId: String? = null
-        if (faceInfo.extendObject is TyFaceFeature<*>) {
-            userId = (faceInfo.extendObject as TyFaceFeature<*>).userId
-        }
-        return userId
+//        var userId: String? = null
+//        if (faceInfo.extendObject is TyFaceFeature<*>) {
+//            userId = (faceInfo.extendObject as TyFaceFeature<*>).userId
+//        }
+        return faceIdMap[faceInfo.id]
     }
 
     override fun isDetecting(): Boolean = isIsDetecting
@@ -132,47 +147,17 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
             AdlLogger.d("ERROR: yuv is null")
             return null
         }
-        // 检测裁剪矩形
-        if (rectF == null || (rectF.left < 0 || rectF.top < 0 || rectF.right > width || rectF.bottom > height)) {
-            AdlLogger.d("ERROR : 人脸裁剪区域错误")
-            return null
-        }
-        /***************************连续一次识别中，隔三帧检测一次*******************************/
-
-        //裁剪区矫正,rect太小会导致人脸识别程序崩溃
-        if (rectF.width() < 40) {
-            val centerX = rectF.centerX()
-            rectF.left = max(centerX - 20, 0f)
-            rectF.right = min(centerX + 20, width.toFloat())
-        }
-        if (rectF.height() < 40) {
-            val centerY = rectF.centerY()
-            rectF.top = max(centerY - 20, 0f)
-            rectF.bottom = min(centerY + 20, height.toFloat())
-        }
         if (isIsDetecting) return null
         isIsDetecting = true
         val startDetectFace = System.currentTimeMillis()
         var jfLivingModel: TyLivingModel? = null
         try {
-            var targetW = width
-            var targetH = height
-            targetW = rectF.width().toInt().toEven()
-            targetH = rectF.height().toInt().toEven()
-            val left = rectF.left.toInt().toEven()
-            val top = rectF.top.toInt().toEven()
-            var bytes = AdlYUVUtil.cropNV21(yuv, width, height, left, top, targetW, targetH)
-
-            if (bytes == null) {
-                StHelper.logE("警告： 人脸数据为null")
-                return null
-            }
             jfLivingModel =
                 faceBdDetector?.detectByYuv(
                     key,
-                    bytes,
-                    targetW,
-                    targetH,
+                    yuv,
+                    width,
+                    height,
                     null,
                     1.0f,
                     3
@@ -191,4 +176,10 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         isIsDetecting = false
     }
 
+    private fun generateUUid(len: Int): Int {
+        //延时1毫秒，确保每次的时间戳在毫秒数值上不同
+        SystemClock.sleep(1)
+        val uuid = (System.currentTimeMillis() % 10.0.pow(len.toDouble())).toInt()
+        return abs(uuid)
+    }
 }
