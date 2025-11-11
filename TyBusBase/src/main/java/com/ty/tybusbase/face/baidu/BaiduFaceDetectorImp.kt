@@ -19,6 +19,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.FaceDetectorInterface
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlin.math.abs
 import kotlin.math.max
@@ -76,7 +77,6 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         }
         //  百度加载人脸
         val bdFeatures: MutableList<TyFaceFeature<Any>> = ArrayList()
-
         studentList?.forEachIndexed { index, userBase ->
             var feature = userBase.faceDataList?.find { it.type == "1" }?.faceData
             if (feature == null || feature.isEmpty()) return@forEachIndexed
@@ -122,10 +122,6 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
 
     override fun getUserId(faceInfo: TyLivingModel?): String? {
         val faceInfo: TyFaceInfo<*> = faceInfo?.faceInfo ?: return null
-//        var userId: String? = null
-//        if (faceInfo.extendObject is TyFaceFeature<*>) {
-//            userId = (faceInfo.extendObject as TyFaceFeature<*>).userId
-//        }
         return faceIdMap[faceInfo.id]
     }
 

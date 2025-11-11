@@ -1,6 +1,7 @@
 package com.ty.identifty.bdface;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.baidu.idl.main.facesdk.FaceAuth;
 import com.baidu.idl.main.facesdk.FaceDarkEnhance;
@@ -17,6 +18,7 @@ import com.ty.identifty.base.TyFaceFeature;
 import com.ty.identifty.base.TyFaceLogger;
 import com.ty.identifty.bdface.model.GlobalSet;
 import com.ty.identifty.bdface.model.LivenessModel;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,8 +42,7 @@ public class FaceSDKManager {
 
     private FaceDarkEnhance faceDarkEnhance;
 
-    // add by wei.zhou
-    private List<TyFaceFeature> allFeature = new ArrayList<>();
+    private int featureSize = 0;
 
     private FaceSDKManager() {
         faceAuth = new FaceAuth();
@@ -189,18 +190,17 @@ public class FaceSDKManager {
     // 加载人脸地库
     public synchronized void loadFace(List<TyFaceFeature<Object>> faces) {
         if (!isOk() || faces == null || faces.isEmpty()) return;
-        allFeature.clear();
-        allFeature.addAll(faces);
+        featureSize = faces.size();
         List<Feature> features = new ArrayList<>();
-        for (int j = 0; j < allFeature.size(); j++) {
-            TyFaceFeature item = allFeature.get(j);
+        long time = System.currentTimeMillis();
+        faces.stream().forEach(item -> {
             Feature feature = new Feature();
-            item.setId(j);
-            feature.setId(j);
+            feature.setId(item.getId());
             feature.setUserId(item.getUserId());
             feature.setFeature(item.getFeature());
             features.add(feature);
-        }
+        });
+        Log.d("BUSI>>", "loadFace time:" + (System.currentTimeMillis() - time));
         faceFeature.featurePush(features);
     }
 
@@ -448,20 +448,23 @@ public class FaceSDKManager {
                     TyFaceLogger.d("从底库查询到人脸，"
                             + ",id=" + topFeature.getId()
                             + ",特征分数=" + topFeature.getScore()
-                            + ",底库大小=" + allFeature.size()
+                            + ",底库大小=" + this.featureSize
                             + ",是否满足条件=" + (topFeature.getScore() >= threholdScore));
 
                     if (topFeature.getScore() >= threholdScore) {
                         // 特征分数
                         livenessModel.setFeatureScore(topFeature.getScore());
+                        TyFaceFeature user = new TyFaceFeature();
+                        user.setId(topFeature.getId());
+                        livenessModel.setUser(user);
 
                         // 从内存中用户数据详情
-                        for (TyFaceFeature user : allFeature) {
-                            if (topFeature.getId() == user.getId()) {
-                                livenessModel.setUser(user);
-                                break;
-                            }
-                        }
+//                        for (TyFaceFeature user : allFeature) {
+//                            if (topFeature.getId() == user.getId()) {
+//                                livenessModel.setUser(user);
+//                                break;
+//                            }
+//                        }
                     }
                 }
             }
