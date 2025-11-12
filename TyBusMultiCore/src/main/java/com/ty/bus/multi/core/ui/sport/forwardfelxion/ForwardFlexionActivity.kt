@@ -38,6 +38,7 @@ import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.ToastUtil
 
 
 class ForwardFlexionActivity :
@@ -346,10 +347,30 @@ class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
+                        runOnUiThread {
+                            showLoadingDialog(getString(R.string.model_loding))
+                        }
                     }
 
                     override fun onSucceed(list: MutableList<TsModelInfo>?) {
                         startMatDetect()
+                    }
+
+                    override fun onFinish(
+                        list: List<TsModelInfo?>?,
+                        errrorList: List<TsModelInfo?>?
+                    ) {
+                        runOnUiThread {
+                            errrorList?.size?.let {
+                                if (it > 0) {
+                                    ToastUtil.getInstance(
+                                        this@ForwardFlexionActivity,
+                                        getString(R.string.model_load_error)
+                                    ).show()
+                                }
+                            }
+                            hideLoadingDialog()
+                        }
                     }
 
                 })

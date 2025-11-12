@@ -95,4 +95,7 @@
     <string name="retest">重测</string>
     <string name="end_test">结束测试</string>
 
+    <string name="model_loding">运动引擎准备中，请稍后...</string>
+    <string name="model_load_error">模型加载出错</string>
+
 </resources>

@@ -90,4 +90,7 @@
   <string name="prompt_move_to_rect_sport">请移动到框内运动</string>
   <string name="retest">重測</string>
   <string name="end_test">结束测试</string>
+
+  <string name="model_loding">运动引擎准备中，请稍后...</string>
+  <string name="model_load_error">模型加载出错</string>
 </resources>
