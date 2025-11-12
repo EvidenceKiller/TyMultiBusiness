@@ -9,6 +9,7 @@ import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
+import com.ai.ui.nfc.NfcReaderActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
@@ -95,6 +96,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
         mBinding.btnFaceTest2.setOnClickListener {
             startActivity(Intent(this, FaceTest2Activity::class.java))
+        }
+
+        mBinding.btnNfcTest.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    NfcReaderActivity::class.java
+                )
+            )
         }
 
         val org = UserCaller.instance().getCurrentOrg()

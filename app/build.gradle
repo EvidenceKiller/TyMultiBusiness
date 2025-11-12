@@ -12,7 +12,7 @@ android {
     namespace 'com.ty.bus.multi.demo'
 
     compileSdk 33
-    packagingOptions{
+    packagingOptions {
         pickFirst 'lib/arm64-v8a/libUVCCamera.so'
         pickFirst 'lib/arm64-v8a/libjpeg-turbo212.so'
         pickFirst 'lib/arm64-v8a/libusb1.0.so'
@@ -139,6 +139,7 @@ dependencies {
 
     implementation project(path: ':TyBusMultiCore')
     implementation project(path: ':TyIdentityAuth')
+    implementation project(path: ':nfcReader')
 
     //  Rxjava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.14'

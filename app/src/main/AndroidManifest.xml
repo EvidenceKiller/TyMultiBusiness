@@ -42,6 +42,8 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
+    <uses-feature android:name="android.hardware.usb.host" android:required="true"/>
+    <uses-permission android:name="android.permission.USB_PERMISSION" />
 
     <application
         android:name="com.ai.test.DemoApp"
@@ -92,8 +94,9 @@
             android:theme="@style/AppBaseTheme" />
 
         <activity android:name="com.ai.ui.init.InitActivity" />
-        <activity android:name="com.ai.ui.facetest.FaceTestActivity"/>
-        <activity android:name="com.ai.ui.facetest2.FaceTest2Activity"/>
+        <activity android:name="com.ai.ui.facetest.FaceTestActivity" />
+        <activity android:name="com.ai.ui.facetest2.FaceTest2Activity" />
+        <activity android:name="com.ai.ui.nfc.NfcReaderActivity" />
 
     </application>
 
