@@ -18,6 +18,13 @@ class NfcReaderManager {
         nfcReader?.init(context)
     }
 
+    /**
+     * 设置间隔时间;单位毫秒
+     */
+    fun setInterval(interval: Long) {
+        nfcReader?.interval = interval
+    }
+
     fun startRead(callback: ReadCallback) {
         nfcReader?.startRead(callback)
     }
@@ -29,5 +36,6 @@ class NfcReaderManager {
     fun release() {
         nfcReader?.release()
     }
+
 
 }

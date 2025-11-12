@@ -2,13 +2,13 @@ package com.ty.nfc.reader.base
 
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
 
 abstract class AbstractNfcReader : INfcReader {
     protected var mReadCallback: ReadCallback? = null
     protected val scheduler = Executors.newSingleThreadScheduledExecutor()
     protected var readingTask: ScheduledFuture<*>? = null
-    protected var interval = 2L
+    var interval = 2000L
+
     override fun startRead(callback: ReadCallback) {
         this.mReadCallback = callback
     }

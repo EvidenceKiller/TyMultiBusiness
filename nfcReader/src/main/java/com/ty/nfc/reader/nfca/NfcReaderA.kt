@@ -55,6 +55,7 @@ class NfcReaderA : AbstractNfcReader() {
         //获取卡号 UID
         val result = callContactLess!!.fw_card_str(devNum, 1.toShort(), strCard).toInt()
         if (0 == result) {
+            callContactLess!!.fw_beep(devNum, 10)
             callContactLess!!.a_hex(hexCard, strCard, 4)
             for (i in 0 until 4) {
                 rvHexCard[i] = hexCard[3 - i]

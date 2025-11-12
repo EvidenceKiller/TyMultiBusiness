@@ -32,7 +32,7 @@ class NfcReaderB : AbstractNfcReader() {
         }
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
-        }, 0, interval, TimeUnit.SECONDS)
+        }, 0, interval, TimeUnit.MILLISECONDS)
     }
 
     private fun performReaderARead() {
@@ -56,6 +56,7 @@ class NfcReaderB : AbstractNfcReader() {
         //获取卡号 UID
         val result = callComPro!!.lc_card(devNum, 1.toByte(), pSnrM1, snrSize, tag, sak);
         if (0 == result) {
+            callComPro!!.lc_beep(devNum,10)
             for (i in 0 until snrSize[0]) {
                 pCharSingle[i] = Char(pSnrM1[i].toUShort())
             }
