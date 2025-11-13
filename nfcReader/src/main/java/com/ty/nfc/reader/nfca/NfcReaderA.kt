@@ -30,7 +30,7 @@ class NfcReaderA : AbstractNfcReader() {
         }
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
-        }, 0, interval, TimeUnit.SECONDS)
+        }, 0, interval, TimeUnit.MILLISECONDS)
     }
 
     private fun performReaderARead() {
@@ -39,7 +39,6 @@ class NfcReaderA : AbstractNfcReader() {
             if (devNum != -1) {
                 val result = callContactLess!!.fw_getver(devNum, pModVer).toInt()
                 if (result == 0) {
-                    callContactLess!!.fw_reset(devNum, 10)
                     callContactLess!!.fw_config_card(devNum, 'A'.code.toByte())
                     Log.d(TAG, "设备初始化成功")
                 } else {
@@ -53,9 +52,11 @@ class NfcReaderA : AbstractNfcReader() {
             }
         }
         //获取卡号 UID
+        callContactLess!!.fw_reset(devNum, 10)
         val result = callContactLess!!.fw_card_str(devNum, 1.toShort(), strCard).toInt()
         if (0 == result) {
             callContactLess!!.fw_beep(devNum, 10)
+            callContactLess!!.fw_halt(devNum)
             callContactLess!!.a_hex(hexCard, strCard, 4)
             for (i in 0 until 4) {
                 rvHexCard[i] = hexCard[3 - i]
@@ -72,6 +73,7 @@ class NfcReaderA : AbstractNfcReader() {
 
     override fun stopRead() {
         super.stopRead()
+        Log.d(TAG, "停止读卡")
         callContactLess?.fw_exit(devNum);
         devNum = -1
     }
