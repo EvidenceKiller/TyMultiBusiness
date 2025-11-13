@@ -22,6 +22,8 @@ class NfcReaderActivity : BaseActivity<ActivityNfcReaderBinding, BaseViewModel>(
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+
+        mBinding.btnFinish.setOnClickListener { finish() }
         mBinding.btnType1.setOnClickListener {
             nfcType = NfcType.NFC_A
         }
