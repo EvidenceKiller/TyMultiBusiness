@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.ty.tybusbase.view.MyLinerGradientTextVIewType1
+        android:id="@+id/tv_count_down_notice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_40"
+        android:textSize="@dimen/dp_64"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SportCardSportView
+        android:id="@+id/srcv_number1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_16"
+        android:layout_marginBottom="@dimen/dp_316"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_shadow1"
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_158"
+        android:background="@mipmap/pic_cpt_already_shadow"
+        app:layout_constraintLeft_toLeftOf="@+id/srcv_number1"
+        app:layout_constraintRight_toRightOf="@+id/srcv_number1"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SportCardSportView
+        android:id="@+id/srcv_number2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_393"
+        android:layout_marginBottom="@dimen/dp_136"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_shadow2"
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_158"
+        android:background="@mipmap/pic_cpt_already_shadow"
+        app:layout_constraintLeft_toLeftOf="@+id/srcv_number2"
+        app:layout_constraintRight_toRightOf="@+id/srcv_number2"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SportCardSportView
+        android:id="@+id/srcv_number3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_374"
+        app:layout_constraintLeft_toRightOf="@+id/srcv_number1"
+        app:layout_constraintTop_toTopOf="@+id/srcv_number1" />
+
+    <ImageView
+        android:id="@+id/iv_shadow3"
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_158"
+        android:background="@mipmap/pic_cpt_already_shadow"
+        app:layout_constraintLeft_toLeftOf="@+id/srcv_number3"
+        app:layout_constraintRight_toRightOf="@+id/srcv_number3"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SportCardSportView
+        android:id="@+id/srcv_number4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_374"
+        app:layout_constraintLeft_toRightOf="@id/srcv_number2"
+        app:layout_constraintTop_toTopOf="@+id/srcv_number2" />
+
+    <ImageView
+        android:id="@+id/iv_shadow4"
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_158"
+        android:background="@mipmap/pic_cpt_already_shadow"
+        app:layout_constraintLeft_toLeftOf="@+id/srcv_number4"
+        app:layout_constraintRight_toRightOf="@+id/srcv_number4"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SportCardSportView
+        android:id="@+id/srcv_number5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_374"
+        app:layout_constraintLeft_toRightOf="@+id/srcv_number3"
+        app:layout_constraintTop_toTopOf="@+id/srcv_number1" />
+
+    <ImageView
+        android:id="@+id/iv_shadow5"
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_158"
+        android:background="@mipmap/pic_cpt_already_shadow"
+        app:layout_constraintLeft_toLeftOf="@+id/srcv_number5"
+        app:layout_constraintRight_toRightOf="@+id/srcv_number5"
+        app:layout_constraintTop_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_count_down_go"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_50"
+        android:gravity="center"
+        android:text="3"
+        android:textColor="@color/white"
+        android:textFontWeight="600"
+        android:textSize="@dimen/dp_400"
+        android:visibility="gone" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

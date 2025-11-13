@@ -3,7 +3,9 @@
     package="com.adl.sport.general">
 
     <application>
-
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity"
+            android:exported="true" />
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity"
             android:exported="true" />

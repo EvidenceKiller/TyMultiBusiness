@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/dp_380"
+    android:orientation="vertical"
+    android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_gr"
+        android:layout_gravity="center_horizontal"
+        android:visibility="invisible"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:background="@mipmap/ic_mutil_rose_tips"
+            android:layout_width="@dimen/dp_332"
+            android:layout_height="@dimen/dp_64"/>
+        <ImageView
+            android:id="@+id/iv_gr_icon"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toLeftOf="@+id/tv_gr"
+            android:background="@mipmap/ic_tips_face_id"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"/>
+        <TextView
+            android:id="@+id/tv_gr"
+            app:layout_constraintTop_toTopOf="@+id/iv_gr_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_gr_icon"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/iv_gr_icon"
+            android:layout_marginBottom="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_11"
+            android:textSize="@dimen/dp_24"
+            android:textColor="@color/white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/interference_detected"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/dp_380"
+        android:layout_height="@dimen/dp_608">
+
+        <ImageView
+            android:id="@+id/iv_bg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@mipmap/pic_cpt_nobody" />
+
+        <TextView
+            android:id="@+id/tv_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_60"
+            android:layout_marginTop="@dimen/dp_32"
+            android:text="1"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_64"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_skip_state"
+            android:layout_width="@dimen/dp_96"
+            android:layout_height="@dimen/dp_55"
+            android:layout_marginTop="@dimen/dp_24"
+            android:layout_marginRight="@dimen/dp_24"
+            android:background="@drawable/pk_skip_rose_card_state_shape"
+            android:gravity="center"
+            android:text="@string/idle_state"
+            android:textColor="@color/white_60"
+            android:textFontWeight="600"
+            android:textSize="@dimen/dp_24"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_90"
+            android:text="@string/prompt_move_to_sport_area"
+            android:textColor="@color/white_60"
+            android:textSize="@dimen/sp_28"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <!--  识别中的UI  -->
+        <RelativeLayout
+            android:id="@+id/rl_identity_notice"
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="@dimen/dp_200"
+            android:background="@drawable/rect_black_bg"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_state"
+                android:layout_width="@dimen/dp_110"
+                android:layout_height="@dimen/dp_110"
+                android:layout_centerInParent="true"
+                android:scaleType="fitXY"
+                android:src="@mipmap/hand_up_icon" />
+
+            <com.ty.tybusbase.view.ArcCircleProgressView
+                android:id="@+id/progress_view"
+                android:layout_width="@dimen/dp_130"
+                android:layout_height="@dimen/dp_130"
+                android:layout_centerInParent="true" />
+
+        </RelativeLayout>
+
+
+        <!-- 已准备状态   头像和名字-->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_prepared"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="iv_header,tv_name,tv_prepared" />
+
+        <ImageView
+            android:id="@+id/iv_header"
+            android:layout_width="@dimen/dp_124"
+            android:layout_height="@dimen/dp_124"
+            android:layout_marginTop="@dimen/dp_209"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_64"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:maxEms="4"
+            android:textColor="@color/white"
+            android:textFontWeight="500"
+            android:textSize="@dimen/dp_32"
+            android:visibility="gone"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/iv_header" />
+
+        <TextView
+            android:id="@+id/tv_prepared"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_57"
+            android:layout_marginRight="@dimen/dp_42"
+            android:text="@string/ready_state"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_32"
+            android:visibility="gone"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <!--  运动中  -->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/group_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="civ_header,tv_name_sport,tv_count,tv_unit,ll_time" />
+
+        <com.ty.tybusbase.view.CircleImageView
+            android:id="@+id/civ_header"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginRight="@dimen/dp_12"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_name_sport"
+            app:layout_constraintRight_toLeftOf="@+id/tv_name_sport"
+            app:layout_constraintTop_toTopOf="@+id/tv_name_sport" />
+
+        <TextView
+            android:id="@+id/tv_name_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_60"
+            android:layout_marginRight="@dimen/dp_48"
+            android:singleLine="true"
+            android:maxEms="4"
+            android:ellipsize="end"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0"
+            android:textColor="@color/white"
+            android:textFontWeight="600"
+            android:textSize="@dimen/dp_124"
+            app:layout_constraintBottom_toTopOf="@+id/tv_unit"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tv_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ge"
+            android:textColor="@color/white_80"
+            android:textFontWeight="700"
+            android:textSize="@dimen/dp_40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tv_count" />
+
+        <LinearLayout
+            android:id="@+id/ll_time"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_56"
+            android:layout_marginBottom="@dimen/dp_48"
+            android:background="@drawable/pk_skip_rose_time_shape"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingHorizontal="@dimen/dp_20"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent">
+
+            <ImageView
+                android:id="@+id/iv_time_icon"
+                android:layout_width="@dimen/dp_32"
+                android:layout_height="@dimen/dp_32"
+                android:background="@mipmap/icon_time_countdown" />
+
+            <TextView
+                android:id="@+id/tv_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/dp_12"
+                android:text="0"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_32" />
+
+        </LinearLayout>
+
+        <!--  运动中离开  -->
+
+        <TextView
+            android:id="@+id/tv_leave_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_186"
+            android:text="@string/back_to_sport_area"
+            android:textColor="@color/white"
+            android:textFontWeight="500"
+            android:textSize="@dimen/dp_32"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+        <!--  位置无人，比赛已开始  -->
+        <TextView
+            android:id="@+id/tv_nobody_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_218"
+            android:text="@string/competition_started"
+            android:textColor="#66DBDDFF"
+            android:textSize="@dimen/dp_40"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>

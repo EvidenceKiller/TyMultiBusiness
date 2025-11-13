@@ -97,5 +97,6 @@
 
     <string name="model_loding">运动引擎准备中，请稍后...</string>
     <string name="model_load_error">模型加载出错</string>
+    <string name="rec_face_fail">未识别到身份</string>
 
 </resources>
