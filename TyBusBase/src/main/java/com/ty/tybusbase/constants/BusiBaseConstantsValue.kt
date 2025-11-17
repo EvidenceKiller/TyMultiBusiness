@@ -106,4 +106,6 @@ object BusiBaseConstantsValue {
 
     const val FACE_DETECT_TYPE_STUDENT = 0 //人脸识别类型：学生
     const val FACE_DETECT_TYPE_TEACHER = 1 //人脸识别类型：老师
+
+    const val THREE_SPORT_CONFIG_KEY = "overlay_three_sport_config_key"
 }

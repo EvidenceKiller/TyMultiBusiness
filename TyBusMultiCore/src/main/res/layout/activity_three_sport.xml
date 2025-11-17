@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_exe_cpt_5jumprope">
+
+    <com.ty.tybusbase.camera.BSCameraPreview
+        android:id="@+id/camera_view"
+        android:layout_width="@dimen/dp_1920"
+        android:layout_height="@dimen/dp_1080"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <com.adl.base.overlay.SportOverlayMultiRegion
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_45"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_56"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_top1_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp_38"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/ll_top1_info"
+        app:layout_constraintRight_toLeftOf="@+id/ll_top1_info"
+        app:layout_constraintTop_toTopOf="@+id/ll_top1_info">
+
+        <ImageView
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:background="@mipmap/ic_exe_cpt_5jp_top1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/the_best_today"
+            android:textColor="#FDD401"
+            android:textSize="@dimen/sp_20" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_top1_info"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginRight="@dimen/dp_40"
+        android:background="@drawable/pk_rank_top1_three_sport_bg"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/dp_32"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.ty.tybusbase.view.CircleImageView
+            android:id="@+id/civ_header"
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_48"
+            android:background="@mipmap/ic_exe_cpt_5jp_nobody" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_18"
+            android:maxEms="5"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:text="@string/no_one_on_list"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24" />
+
+        <TextView
+            android:id="@+id/tv_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:text="260"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_48"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@string/ge"
+            android:textColor="@color/white_80"
+            android:textSize="@dimen/sp_24"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_today_top"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="ll_top1_info,ll_top1_icon" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_skip_sport_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <!--  提示  -->
+    <ImageView
+        android:id="@+id/iv_in_tip_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_50" />
+
+    <TextView
+        android:id="@+id/tv_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_180"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_80"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_in_tip"
+        android:layout_width="@dimen/dp_800"
+        android:layout_height="@dimen/dp_222"
+        android:layout_marginTop="@dimen/dp_80"
+        android:background="@mipmap/pic_3fwc_tips"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/tv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/tv_in_tip" />
+
+    <Button
+        android:id="@+id/btn_in_tip_confirm"
+        android:layout_width="@dimen/dp_232"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_120"
+        android:background="@drawable/pk_border_white_r50_bg"
+        android:text="@string/countdown_3s_confirm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/iv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/iv_in_tip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btn_in_tip_confirm,iv_in_tip,tv_in_tip,iv_in_tip_bg" />
+    <!--  提示  -->
+
+    <!--  识别过程中提示  -->
+    <com.ty.bus.multi.core.view.common.TipTextViewFradientBgView
+        android:id="@+id/tv_sport_tip_bg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/translate"
+        app:layout_constraintTop_toTopOf="@+id/tv_sport_tip"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_sport_tip"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_sport_tip"
+        app:layout_constraintRight_toRightOf="@+id/tv_sport_tip"/>
+    <TextView
+        android:id="@+id/tv_sport_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_120"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_tv_sport_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_sport_tip,tv_sport_tip_bg"/>
+    <!--  识别过程中提示  -->
+
+    <com.ty.bus.multi.core.view.threesport.ThreeSportIdentityView
+        android:id="@+id/three_identity_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.ty.bus.multi.core.view.threesport.ThreeSportDetailView
+        android:id="@+id/three_sport_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

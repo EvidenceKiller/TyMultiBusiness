@@ -91,8 +91,7 @@ object MMKVBusiKey {
 
     const val MULTI_ROPE_SKIP_COMPENSATION = "multi_rope_skip_compensation" //多人跳绳补偿值
 
-    const val MULTI_ROPE_SKIP_VISITOR = "multi_rope_skip_visitor" //多人跳绳游客使能
-
+    const val VISITOR_ABLE = "VISITOR_ABLE"  //游客模式
 
     const val MULTI_ROPE_SKIP_THRESHOLD = "multi_rope_skip_threshold" //多人跳绳游客使能
 

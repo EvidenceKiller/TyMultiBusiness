@@ -111,7 +111,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
 
     private fun initFaceIdentify() {
         var visitor: Boolean =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR, true) && matchId == null
+            MMKVUtil.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, true) && matchId == null
         multiIdentityEngine.visitorAble = visitor
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {

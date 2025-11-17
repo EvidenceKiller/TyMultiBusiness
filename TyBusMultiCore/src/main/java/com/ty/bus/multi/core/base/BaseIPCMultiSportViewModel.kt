@@ -338,7 +338,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
          */
         var visitor: Boolean =
             MMKVUtil.decodeBoolean(
-                MMKVBusiKey.MULTI_ROPE_SKIP_VISITOR,
+                MMKVBusiKey.VISITOR_ABLE,
                 BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor

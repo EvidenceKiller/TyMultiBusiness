@@ -13,9 +13,7 @@ import com.ai.ui.nfc.NfcReaderActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
-import com.ty.bus.multi.core.UIMultiNavigation.goFiveSkipRope
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
-import com.ty.bus.multi.core.UIMultiNavigation.goThreeSitReach
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
@@ -23,8 +21,6 @@ import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.UINavConfig
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
-import com.ty.tybusbase.face.FaceDetectorHelper
-import com.ty.tybusbase.utils.LogUtil
 
 
 class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
@@ -51,7 +47,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        mBinding.bnt0.setOnClickListener { goFiveSkipRope(this, UINavConfig()) }
+        mBinding.bnt0.setOnClickListener { UIMultiNavigation.goFiveSport(this, UINavConfig()) }
 
         mBinding.bnt11.setOnClickListener {
             goTenSportRope(this, UINavConfig().apply {
@@ -63,8 +59,29 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 }
             })
         }
+        mBinding.bnt8.setOnClickListener {
+            UIMultiNavigation.goThreeSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SIT_UP + "0001"
+                    sportItemCode = SportConstant.SPORT_SIT_UP
+                    sportSkuName = "三人仰卧起坐"
+                    testCount = "3"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+            })
+        }
 
-        mBinding.bnt10.setOnClickListener { goThreeSitReach(this, UINavConfig()) }
+        mBinding.bnt9.setOnClickListener {
+            UIMultiNavigation.goThreeSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_PUSH_UP + "0001"
+                    sportItemCode = SportConstant.SPORT_PUSH_UP
+                    sportSkuName = "三人俯卧撑"
+                    testCount = "3"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+            })
+        }
 
         mBinding.btn10RegionSet.setOnClickListener {
             UIMultiNavigation.goMultiRegionSetting(

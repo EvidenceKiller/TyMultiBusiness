@@ -7,6 +7,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
+import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.config.UINavConfig
 
 /**
@@ -19,17 +20,7 @@ object UIMultiNavigation {
     @JvmStatic
     fun goTenSportRope(context: Context, config: UINavConfig?) {
         val intent = Intent(context, TenSportActivity::class.java)
-        intent.putExtra("sport_info", config?.sportInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("scene_id", config?.sceneId)
-        intent.putExtra("account_info", config?.accountInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("model_id", config?.modelId)
-        intent.putExtra("match_name", config?.matchName)
-        intent.putExtra("match_sport_id", config?.matchSportId)
-        intent.putExtra("pt_plan_id", config?.ptPlanId)
-        intent.putExtra("pt_standard_id", config?.ptStandardId)
-        context.startActivity(intent)
+        startActivity(context, intent, config)
     }
 
     /**
@@ -38,37 +29,19 @@ object UIMultiNavigation {
     @JvmStatic
     fun goForwardFlexion(context: Context, config: UINavConfig?) {
         val intent = Intent(context, ForwardFlexionActivity::class.java)
-        intent.putExtra("sport_info", config?.sportInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("scene_id", config?.sceneId)
-        intent.putExtra("account_info", config?.accountInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("model_id", config?.modelId)
-        intent.putExtra("match_name", config?.matchName)
-        intent.putExtra("pt_plan_id", config?.ptPlanId)
-        intent.putExtra("pt_standard_id", config?.ptStandardId)
-        context.startActivity(intent)
+        startActivity(context, intent, config)
     }
 
     @JvmStatic
     fun goFiveSport(context: Context, config: UINavConfig?) {
         val intent = Intent(context, FiveSportActivity::class.java)
-        intent.putExtra("sport_info", config?.sportInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("scene_id", config?.sceneId)
-        intent.putExtra("account_info", config?.accountInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("model_id", config?.modelId)
-        intent.putExtra("match_name", config?.matchName)
-        intent.putExtra("match_sport_id", config?.matchSportId)
-        intent.putExtra("pt_plan_id", config?.ptPlanId)
-        intent.putExtra("pt_standard_id", config?.ptStandardId)
-        context.startActivity(intent)
+        startActivity(context, intent, config)
     }
 
     @JvmStatic
-    fun goThreeSitReach(context: Context?, config: UINavConfig?) {
-        // TODO 导航跳转
+    fun goThreeSport(context: Context, config: UINavConfig?) {
+        val intent = Intent(context, ThreeSportActivity::class.java)
+        startActivity(context, intent, config)
     }
 
     fun goMultiRegionSetting(context: Context, number: Int) {
@@ -81,5 +54,22 @@ object UIMultiNavigation {
     fun goForwardFlexionSetting(context: Context) {
         // TODO 跳转
         context.startActivity(Intent(context, ForwardFlexionSettingActivity::class.java))
+    }
+
+    /**
+     * 设置传参，并跳转页面
+     */
+    private fun startActivity(context: Context, intent: Intent, config: UINavConfig?) {
+        intent.putExtra("sport_info", config?.sportInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("scene_id", config?.sceneId)
+        intent.putExtra("account_info", config?.accountInfo)
+        intent.putExtra("match_id", config?.matchId)
+        intent.putExtra("model_id", config?.modelId)
+        intent.putExtra("match_name", config?.matchName)
+        intent.putExtra("match_sport_id", config?.matchSportId)
+        intent.putExtra("pt_plan_id", config?.ptPlanId)
+        intent.putExtra("pt_standard_id", config?.ptStandardId)
+        context.startActivity(intent)
     }
 }

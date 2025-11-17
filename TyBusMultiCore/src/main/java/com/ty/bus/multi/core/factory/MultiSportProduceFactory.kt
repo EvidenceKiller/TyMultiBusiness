@@ -6,6 +6,15 @@ object MultiSportProduceFactory {
 
     fun getFactory(itemCode: String?, testCount: String? = null): AbstractMultiSportFactory {
         return when (itemCode) {
+
+            SportConstant.SPORT_SIT_UP -> {
+                ThreeSiteUpFactory()
+            }
+
+            SportConstant.SPORT_PUSH_UP -> {
+                ThreePushUpFactory()
+            }
+
             SportConstant.SPORT_SKIP_ROPE -> {
                 if (testCount == "5") {
                     FiveSkipRopeFactory()

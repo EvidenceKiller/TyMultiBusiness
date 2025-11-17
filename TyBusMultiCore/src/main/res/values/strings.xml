@@ -31,5 +31,10 @@
     <string name="forward_flexion_sport_times_end">第%d次测试结束</string>
     <string name="five_skip_rope">5人跳绳</string>
     <string name="interference_detected">附近有人干扰计数</string>
-
+    <string name="countdown_3s_confirm">确定（3）</string>
+    <string name="pull_up_start_tips">"请确保 仰卧起坐垫 \n已放在标注区域内"</string>
+    <string name="sit_on_mat_and_look_at_screen">请坐在垫子上并看向屏幕</string>
+    <string name="move_in_marked_area">请在 标注区域内运动</string>
+    <string name="enter_identification_area">请进入识别区并看向屏幕</string>
+    <string name="prepare_side_facing_screen">请侧对屏幕俯卧准备</string>
 </resources>
