@@ -15,10 +15,12 @@ import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.entity.SceneSportInfoEntity
+import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -26,8 +28,10 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
+import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -101,6 +105,53 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
     }
 
+    //模拟
+    fun mockResult() {
+        srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
+
+        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
+            srrvResult.setReportOnclickListener {
+                viewReport(viewModel.getIndicatorsResultDto(it))
+            }
+        }
+
+        val params =
+            ConstraintLayout.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                mBinding.clSkipSportViewContainer.height
+            )
+        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+        mBinding.clSkipSportViewContainer.addView(
+            srrvResult,
+            params
+        )
+        srrvResult.setConfirmOnclickListener {
+            finish()
+        }
+        srrvResult.setNextOnclickListener {
+            mBinding.clSkipSportViewContainer.removeView(srrvResult)
+        }
+        doResultViewTranslateAnimation(srrvResult)
+        srrvResult.setResult(
+            mutableListOf(
+                MultiSportResult(AccountInfo().apply {
+                    studentEntity = StudentEntity().apply {
+                        accountName = "张三"
+                        userFaceImgUrl = ""
+                    }
+                }, 1, 100, 1),
+                MultiSportResult(AccountInfo().apply {
+                    studentEntity = StudentEntity().apply {
+                        accountName = "王五"
+                        userFaceImgUrl = ""
+                    }
+                }, 3, 10, 2)
+            ),
+            if (viewModel.matchId != null) 100000 else top1Count,
+            true
+        )
+    }
+
     override fun initObserver() {
         super.initObserver()
         viewModel.startPreviewLD.observe(this) {
@@ -171,30 +222,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         viewModel.toDoneLD.observe(this) {
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
-            //创建结果页，并添加到页面中
-            srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
-
-            if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-                srrvResult.setReportOnclickListener {
-                    viewReport(viewModel.getIndicatorsResultDto(it))
-                }
-            }
-
-            val params =
-                ConstraintLayout.LayoutParams(
-                    RecyclerView.LayoutParams.MATCH_PARENT,
-                    mBinding.clSkipSportViewContainer.height
-                )
-            params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-            mBinding.clSkipSportViewContainer.addView(
-                srrvResult,
-                params
-            )
-            srrvResult.setConfirmOnclickListener {
-                finish()
-            }
-            doResultViewTranslateAnimation(srrvResult)
-            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count)
+            addResultView(it)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
@@ -209,6 +237,38 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             initTopView(it)
         }
 
+    }
+
+    private fun addResultView(resultList: MutableList<MultiSportResult>) {
+        //创建结果页，并添加到页面中
+        srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
+
+        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
+            srrvResult.setReportOnclickListener {
+                viewReport(viewModel.getIndicatorsResultDto(it))
+            }
+        }
+
+        val params =
+            ConstraintLayout.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                mBinding.clSkipSportViewContainer.height
+            )
+        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+        mBinding.clSkipSportViewContainer.addView(
+            srrvResult,
+            params
+        )
+        srrvResult.setConfirmOnclickListener {
+            finish()
+        }
+        srrvResult.setNextOnclickListener {
+            mBinding.clSkipSportViewContainer.removeView(srrvResult)
+            reset()
+        }
+
+        doResultViewTranslateAnimation(srrvResult)
+        srrvResult.setResult(resultList, if (viewModel.matchId != null) 100000 else top1Count,true)
     }
 
     private fun setTips(text: String) {
@@ -232,6 +292,11 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
 
     override fun onStatusEnd() {
         mBinding.cameraView.stopPreview()
+    }
+
+    fun reset() {
+        mBinding.sportView.reset()
+        viewModel.reset()
     }
 
     /**

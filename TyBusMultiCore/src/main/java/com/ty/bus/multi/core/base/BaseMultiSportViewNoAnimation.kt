@@ -61,7 +61,10 @@ abstract class BaseMultiSportViewNoAnimation(
     }
 
     fun setUserInfo(p: Pair<Int, AccountInfo>) {
-        cardMap[p.first]?.setUserInfo(p.second.studentEntity!!.accountName, p.second.studentEntity?.userFaceImgUrl)
+        cardMap[p.first]?.setUserInfo(
+            p.second.studentEntity!!.accountName,
+            p.second.studentEntity?.userFaceImgUrl
+        )
     }
 
     fun setAccountInfo(person: SparseArray<MultiSportResult>) {
@@ -85,6 +88,7 @@ abstract class BaseMultiSportViewNoAnimation(
     open fun readyGo(block: Action) {
         getCountDownNoticeTv().text =
             context.getString(R.string.race_start_cheer)
+        countDownTime = 4L
         countTimer = object : CountDownTimer(countDownTime * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 countDownTime--
@@ -153,4 +157,10 @@ abstract class BaseMultiSportViewNoAnimation(
         }
     }
 
+    open fun reset() {
+        preparedMap.clear()
+        cardMap.forEach { _, value ->
+            value.reset()
+        }
+    }
 }

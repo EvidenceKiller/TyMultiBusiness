@@ -14,6 +14,7 @@
     <string name="forward_flexion_identified_tip">请坐在垫子上并看向屏幕</string>
     <string name="forward_flexion_in_tip">请确认测垫刻度板放在标注区域内</string>
     <string name="next_count_down">下一组(%d)</string>
+    <string name="next_group">下一组</string>
     <string name="forward_flexion_prepare_tip">请面向刻度双脚伸直准备</string>
     <string name="forward_flexion_auto_mat">自动识别刻度板</string>
     <string name="forward_flexion_auto_mat_fail">识别失败</string>
@@ -32,5 +33,8 @@
     <string name="move_in_marked_area">请在 标注区域内运动</string>
     <string name="enter_identification_area">请进入识别区并看向屏幕</string>
     <string name="prepare_side_facing_screen">请侧对屏幕俯卧准备</string>
+    <string name="result_speech">成绩播报</string>
+    <string name="pause_result_speech">暂停播报</string>
+    <string name="auto_next">自动下一组</string>
 
 </resources>

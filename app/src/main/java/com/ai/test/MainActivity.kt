@@ -55,6 +55,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 sportInfo = SceneSportInfoEntity().apply {
                     sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
                     sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    endValue = "10000"
                     sportSkuName = "十人"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }

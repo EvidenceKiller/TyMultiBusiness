@@ -387,4 +387,11 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     override fun setTimeBackground(res: Int) {
     }
 
+    override fun reset() {
+        mBinding.tvCount.visibility = GONE
+        mBinding.tvUnit.visibility = GONE
+        mBinding.tvCount.text = "0"
+        toNobody()
+    }
+
 }

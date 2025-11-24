@@ -1,6 +1,7 @@
 package com.ty.bus.multi.core.view.tensport
 
 import android.content.Context
+import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -10,12 +11,15 @@ import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.getString
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ItemTenSportResult2Binding
 import com.ty.bus.multi.databinding.ItemTenSportResultBinding
 import com.ty.bus.multi.databinding.TenSportResultViewBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.helper.SpeechWrapper
+import com.ty.tybusbase.utils.MMKVUtil
 
 class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -27,7 +31,15 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     private val mBinding: TenSportResultViewBinding
     var top1Count: Int = Int.MAX_VALUE
 
-    protected var reportClickListener:Action1<Int>? =null
+    protected var reportClickListener: Action1<Int>? = null
+    private var resultList: MutableList<MultiSportResult>? = null
+
+    //倒计时
+    private var timer: CountDownTimer? = null
+    private var COUNTDOWN_TIME = 10
+    private var countDownCount = 10
+    private var isDetached = false
+    private var isSpeech = true
 
     init {
         mBinding = TenSportResultViewBinding.inflate(LayoutInflater.from(context), this, true)
@@ -37,6 +49,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun setReportOnclickListener(listener: (view: Int) -> Unit) {
         reportClickListener = listener
     }
+
     private fun initView() {
         mBinding.rvResult1.layoutManager = LinearLayoutManager(context)
         mBinding.rvResult1.adapter =
@@ -103,12 +116,65 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.number) }
                 }
             }
+
+        mBinding.cbAutoNext.setOnCheckedChangeListener { _, isChecked ->
+            MMKVUtil.encode(MultiCoreConstant.MULTI_SKIP_AUTO_NEXT, isChecked)
+        }
+
+        mBinding.llSpeech.setOnClickListener {
+            //正在播，停止
+            if (isSpeech) {
+                SpeechWrapper.stop()
+                mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_play_default)
+                mBinding.tvSpeech.text = getString(R.string.result_speech)
+            } else {
+                resultList?.let {
+                    resultSpeech(it)
+                }
+            }
+            isSpeech = !isSpeech
+        }
     }
 
     fun setConfirmOnclickListener(listener: (view: View) -> Unit) {
         mBinding.tvConfirm.setOnClickListener {
             listener.invoke(it)
         }
+    }
+
+    /**
+     * 设置下一组按钮的回调，不设置就不会自动下一组
+     */
+    fun setNextOnclickListener(listener: () -> Unit) {
+        val autoNext = MMKVUtil.decodeBoolean(MultiCoreConstant.MULTI_SKIP_AUTO_NEXT, true)
+        mBinding.cbAutoNext.isChecked = autoNext
+        if (autoNext) {
+            //自动下一组开启
+            startCountTimer(listener)
+        } else {
+            mBinding.tvNext.text = getString(R.string.next_group)
+        }
+        mBinding.tvNext.visibility = VISIBLE
+        mBinding.groupAutoNext.visibility = VISIBLE
+        mBinding.tvNext.setOnClickListener {
+            listener.invoke()
+        }
+    }
+
+    private fun startCountTimer(function: () -> Unit) {
+        countDownCount = COUNTDOWN_TIME
+        mBinding.tvNext.text = getString(R.string.next_count_down, countDownCount)
+        timer = object : CountDownTimer(COUNTDOWN_TIME * 1000L, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                mBinding.tvNext.text = getString(R.string.next_count_down, --countDownCount)
+            }
+
+            override fun onFinish() {
+                function.invoke()
+            }
+
+        }
+        timer?.start()
     }
 
 
@@ -118,7 +184,9 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun setResult(
         resultList: MutableList<MultiSportResult>,
         top1Count: Int,
+        speech: Boolean = false
     ) {
+        this.resultList = resultList
         this.top1Count = top1Count
         if (resultList.size > 5) {
             val list = resultList.subList(0, 5)
@@ -136,5 +204,45 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
             )
         }
 
+        //播报语音
+        if (speech) {
+            resultSpeech(resultList)
+        }
+    }
+
+    private fun resultSpeech(resultList: MutableList<MultiSportResult>) {
+        isSpeech = true
+        mBinding.llSpeech.visibility = VISIBLE
+        mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_stop_default)
+        mBinding.tvSpeech.text = getString(R.string.pause_result_speech)
+        resultList.forEachIndexed { index, value ->
+            val endCallback = if (index == resultList.size - 1) {
+                object : Runnable {
+                    override fun run() {
+                        speechEnd()
+                    }
+                }
+            } else {
+                null
+            }
+            SpeechWrapper.speech2(
+                "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
+                endCallback
+            )
+        }
+    }
+
+    private fun speechEnd() {
+        isSpeech = false
+        if (isDetached) return
+        mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_play_default)
+        mBinding.tvSpeech.text = getString(R.string.result_speech)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        SpeechWrapper.stop()
+        timer?.cancel()
+        isDetached = true
     }
 }

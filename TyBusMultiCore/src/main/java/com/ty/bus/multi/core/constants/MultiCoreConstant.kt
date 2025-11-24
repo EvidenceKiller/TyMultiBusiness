@@ -11,4 +11,6 @@ object MultiCoreConstant {
     const val FORWARD_FLEXION_SET_PARAM = "forward_flexion_set_param"  //体前屈设置项
 
     const val MULTI_SKIP_PERFORMANCE = "multi_skip_performance" //十人跳绳性能模式是否开
+
+    const val MULTI_SKIP_AUTO_NEXT = "multi_skip_auto_next" //十人跳绳是否自动下一组
 }

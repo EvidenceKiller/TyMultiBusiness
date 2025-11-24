@@ -722,6 +722,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      * 开始录像,在此回调中处理录像，解决切换分辨率，录像还是录的4K的问题
      */
     fun onCameraOpen() {
+        multiSportProcessor.clearTransform()
         if (skipRoseState == MultiSportState.SPORTING || skipRoseState == MultiSportState.COUNTDOWN) {
             startRecord()
         }
@@ -1058,4 +1059,43 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     fun getIndicatorsResultDto(number: Int): IndicatorsResultDto? =
         indicatorsMap.getOrDefault(number, null)
 
+    override fun reset() {
+        super.reset()
+        //重置，重新开始运动流程
+        //清除所有数据
+        indicatorsMap.clear()
+        currentPersonState.clear()
+        currentCardState.clear()
+        for (index in 1..skipManCount) {
+            currentPersonState.add(GroupSportsBaseChannelStatus.none)
+            currentCardState.add(MultiSportCardViewState.NOBODY)
+        }
+        skipPersonArray.clear()
+
+        //重置人脸识别
+        initFaceIdentify()
+
+        //切换摄像头分辨率
+        initCamera()
+        multiSportProcessor.onReset()
+        openTsProcess()
+        onResume()
+//        viewModelScope.launch(Dispatchers.IO) {
+//            /********************切换分辨率********************/
+//            ipcHik.pauseProcessor()
+//            setResolution(ipcHik, getIdentifyResolution())
+//            SystemClock.sleep(100)
+//            stopPreviewLD.postValue(true)
+//            SystemClock.sleep(100)
+//            changeResolution()
+//            ipcHik.restartProcessor()
+//            startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+//            SystemClock.sleep(200)
+//            /********************切换分辨率********************/
+//            multiSportProcessor.clearTransform()
+//            multiSportProcessor.onReset()
+//            openTsProcess()
+//        }
+
+    }
 }

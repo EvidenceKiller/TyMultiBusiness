@@ -105,4 +105,6 @@ interface ISportCardView {
 
 
     fun setTimeBackground(res: Int)
+
+    fun reset()
 }

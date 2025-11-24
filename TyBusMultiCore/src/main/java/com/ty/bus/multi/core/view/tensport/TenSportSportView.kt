@@ -15,7 +15,7 @@ class TenSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    var startNowCallback:Action? = null
+    var startNowCallback: Action? = null
 
     private val mBinding: TenSportSportViewBinding
 
@@ -53,16 +53,21 @@ class TenSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
 
     override fun setCountDownNotice(notice: String) {
         super.setCountDownNotice(notice)
-        mBinding.tvStartNow.visibility = View.VISIBLE
+        mBinding.tvStartNow.visibility = VISIBLE
     }
 
     override fun readyGo(block: Action) {
         super.readyGo(block)
-        mBinding.tvStartNow.visibility = View.GONE
+        mBinding.tvStartNow.visibility = GONE
     }
 
     override fun onStarted() {
         super.onStarted()
-        mBinding.llTime.visibility = View.VISIBLE
+        mBinding.llTime.visibility = VISIBLE
+    }
+
+    override fun reset() {
+        super.reset()
+        mBinding.llTime.visibility = GONE
     }
 }

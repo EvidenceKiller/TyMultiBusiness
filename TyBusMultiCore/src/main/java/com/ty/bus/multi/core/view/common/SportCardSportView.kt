@@ -385,4 +385,8 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.llTime.setBackgroundResource(res)
     }
 
+    override fun reset() {
+        toNobody()
+    }
+
 }
