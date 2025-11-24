@@ -5,7 +5,7 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
 import com.ty.tybusbase.utils.MMKVUtil
 
-object MultiConfig {
+object MultiCoreConfig {
     /**
      * 更新体前屈参数
      */

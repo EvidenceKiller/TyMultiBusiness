@@ -59,7 +59,6 @@ import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.abs
@@ -67,8 +66,7 @@ import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
 import com.adl.service.entity.SportRecordEntity
-import com.ty.bus.multi.core.config.MultiConfig
-import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionViewModel
+import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import java.util.concurrent.ConcurrentHashMap
@@ -226,7 +224,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         config.drawSkeleton = true
         config.sportType = factory.getMultiSportType()
         config.loadModel(null)
-        val lite = MultiConfig.getMultiSportPerformance()
+        val lite = MultiCoreConfig.getMultiSportPerformance()
         if (lite) {
             config.liteBodyCheck = lite
         }
