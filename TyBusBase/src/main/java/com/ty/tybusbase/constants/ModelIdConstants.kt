@@ -1,7 +1,7 @@
 package com.ty.tybusbase.constants
 
 object ModelIdConstants {
-    const val COMMON_BODY_MODEL_ID = 10003  //通用人框
+    const val COMMON_BODY_MODEL_ID = 11003  //通用人框
     const val COMMON_POSE_MODEL_ID = 20004  //通用骨骼
 
     const val THREE_BODY_MODEL_ID = 10054  //三人地面框体
