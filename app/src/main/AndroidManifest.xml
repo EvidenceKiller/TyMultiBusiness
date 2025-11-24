@@ -97,6 +97,7 @@
         <activity android:name="com.ai.ui.facetest.FaceTestActivity" />
         <activity android:name="com.ai.ui.facetest2.FaceTest2Activity" />
         <activity android:name="com.ai.ui.nfc.NfcReaderActivity" />
+        <activity android:name="com.ai.ui.bodytest.BodyChooseTestActivity"/>
 
     </application>
 

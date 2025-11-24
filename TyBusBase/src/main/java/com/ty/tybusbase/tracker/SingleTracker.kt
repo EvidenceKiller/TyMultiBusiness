@@ -10,19 +10,19 @@ import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.utils.ApplicationUtil
 
-class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTracker() {
+open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTracker() {
     //        private var preRect: Rect = Rect(
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_690),
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_820),
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_1230),
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_1000)
 //    )
-    private var sportStatus = SportStatusEnum.IDENTIFY_FACE
+    protected var sportStatus = SportStatusEnum.IDENTIFY_FACE
     private var initCenterBottom = PointF(
         ApplicationUtil.getContext().resources.getDimensionPixelOffset(R.dimen.dp_960).toFloat(),
         ApplicationUtil.getContext().resources.getDimensionPixelOffset(R.dimen.dp_910).toFloat()
     )
-    private var preCenterBottom = PointF(initCenterBottom.x, initCenterBottom.y)
+    protected var preCenterBottom = PointF(initCenterBottom.x, initCenterBottom.y)
 
     val pList = mutableListOf<PointF>()
     override fun onTracker(list: MutableList<AdlObject>?, region: TsSportRegion?): AdlObject? {

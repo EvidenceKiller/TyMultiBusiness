@@ -7,6 +7,7 @@ import com.adl.service.entity.FaceDataEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
+import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
 import com.ai.ui.nfc.NfcReaderActivity
@@ -120,6 +121,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 Intent(
                     this,
                     NfcReaderActivity::class.java
+                )
+            )
+        }
+
+        mBinding.btnBodyTest.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    BodyChooseTestActivity::class.java
                 )
             )
         }
