@@ -3,6 +3,8 @@ package com.ty.bus.multi.core.config
 import com.google.gson.Gson
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
+import com.ty.bus.multi.core.entity.IpcCameraInfo
+import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 
 object MultiCoreConfig {
@@ -39,4 +41,26 @@ object MultiCoreConfig {
     fun getMultiSportPerformance(): Boolean =
         MMKVUtil.decodeBoolean(MultiCoreConstant.MULTI_SKIP_PERFORMANCE, true)
 
+    /**
+     * 更新IPC摄像头参数
+     */
+    fun updateIPCCameraParam(ipcCameraInfo: IpcCameraInfo) {
+        MMKVUtil.encode(MMKVBusiKey.HTTP_CAMERA_IP, ipcCameraInfo.ip)
+        MMKVUtil.encode(
+            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
+            ipcCameraInfo.account
+        )
+        MMKVUtil.encode(MMKVBusiKey.HTTP_CAMERA_PSW, ipcCameraInfo.psw)
+    }
+
+    /**
+     * 获取IPC摄像头参数
+     */
+    fun getIPCCameraParam(): IpcCameraInfo {
+        return IpcCameraInfo(
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP) ?: "",
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_ACCOUNT) ?: "",
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW) ?: ""
+        )
+    }
 }
