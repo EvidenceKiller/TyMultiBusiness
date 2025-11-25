@@ -10,11 +10,14 @@ import com.ty.tybusbase.utils.ApplicationUtil
 import androidx.core.net.toUri
 import com.adl.base.log.AdlLogger
 import com.adl.mount.sport.TsSportChannel
+import com.ty.bus.multi.core.config.TenSportConfig
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
 class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(application) {
+
+    var tenSportConfig: TenSportConfig? = null
     override fun getDefaultCountDownTime(): Long = 15
 
     override fun getCountDownBgmUri(): Uri =

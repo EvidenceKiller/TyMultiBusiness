@@ -15,6 +15,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
+import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
@@ -51,15 +52,23 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.bnt0.setOnClickListener { UIMultiNavigation.goFiveSport(this, UINavConfig()) }
 
         mBinding.bnt11.setOnClickListener {
-            goTenSportRope(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
-                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                    endValue = "10000"
-                    sportSkuName = "十人"
-                    sceneId = SceneConstants.INDEPENDENT_TEST
-                }
-            })
+            goTenSportRope(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                        sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                        endValue = "40000"
+                        sportSkuName = "十人"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, TenSportConfig.builder()
+                    .setCountdownText("开始倒计时")
+                    .setResultPageText("测试结束")
+                    .setSportStartedText("开始咯，开始咯")
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(true)
+                    .build()
+            )
         }
         mBinding.bnt8.setOnClickListener {
             UIMultiNavigation.goThreeSport(this, UINavConfig().apply {

@@ -2,6 +2,7 @@ package com.ty.bus.multi.core.base
 
 import android.content.Context
 import android.os.CountDownTimer
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.View
@@ -13,6 +14,7 @@ import com.ty.tybusbase.expand.Action
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
 import java.util.concurrent.Executors
 
@@ -31,6 +33,8 @@ abstract class BaseMultiSportViewNoAnimation(
 
     private var countDownTime = 4L // 倒计时，单位S
     private var countTimer: CountDownTimer? = null
+
+    private var startedText: String = getString(R.string.race_start_cheer)
 
 
     abstract fun getCountDownNoticeTv(): TextView
@@ -86,8 +90,7 @@ abstract class BaseMultiSportViewNoAnimation(
      * 倒计时准备开始
      */
     open fun readyGo(block: Action) {
-        getCountDownNoticeTv().text =
-            context.getString(R.string.race_start_cheer)
+        getCountDownNoticeTv().text = startedText
         countDownTime = 4L
         countTimer = object : CountDownTimer(countDownTime * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -110,6 +113,15 @@ abstract class BaseMultiSportViewNoAnimation(
 
         }.start()
         getCountDownGoTv().visibility = VISIBLE
+    }
+
+    /**
+     * 设置开始文案
+     */
+    fun setSportStartedText(text: String?) {
+        if (TextUtils.isEmpty(text).not()) {
+            startedText = text.toString()
+        }
     }
 
     /**

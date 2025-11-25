@@ -1,7 +1,9 @@
 package com.ty.bus.multi.core.view.tensport
 
 import android.content.Context
+import android.icu.util.TimeUnit
 import android.os.CountDownTimer
+import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -177,6 +179,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         timer?.start()
     }
 
+    /**
+     * 设置结束标题
+     */
+    fun setResultTitleText(text: String?) {
+        if (TextUtils.isEmpty(text).not()) {
+            mBinding.tvFinish.text = text
+        }
+    }
 
     /**
      * 设置结果，需要先取出结果进行成绩排序，再设置卡片结果值

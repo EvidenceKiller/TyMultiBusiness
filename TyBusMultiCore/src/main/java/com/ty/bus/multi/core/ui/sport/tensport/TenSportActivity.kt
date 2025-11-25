@@ -20,6 +20,7 @@ import com.adl.service.outer.AdlService
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
 import com.ty.bus.multi.databinding.AcTenSportBinding
@@ -31,7 +32,6 @@ import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
-import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -44,6 +44,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.tenSportConfig = intent.getSerializableExtra("sport_config") as? TenSportConfig
         if (viewModel.sportInfo == null) {
             viewModel.sportInfo = SceneSportInfoEntity().apply {
                 sportSkuId = "0201010001"
@@ -103,6 +104,8 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 viewModel.readyGo()
             }.show(supportFragmentManager, "tips")
         }
+
+        mBinding.sportView.setSportStartedText(viewModel.tenSportConfig?.sportStartText)
     }
 
     //模拟
@@ -205,7 +208,13 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         viewModel.countDownNoticeLD.observe(this) {
-            mBinding.sportView.setCountDownNotice(it)
+            val configText = viewModel.tenSportConfig?.countdownText
+            val str = if (!TextUtils.isEmpty(configText)) "${configText}: $it" else "${
+                com.ty.tybusbase.expand.getString(
+                    R.string.race_start_countdown
+                )
+            }：$it"
+            mBinding.sportView.setCountDownNotice(str)
         }
 
         viewModel.countDownFinishLD.observe(this) {
@@ -262,13 +271,20 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         srrvResult.setConfirmOnclickListener {
             finish()
         }
-        srrvResult.setNextOnclickListener {
-            mBinding.clSkipSportViewContainer.removeView(srrvResult)
-            reset()
+        srrvResult.setResultTitleText(viewModel.tenSportConfig?.resultPageText)
+        if (viewModel.tenSportConfig?.isSupportNextGroup == true) {
+            srrvResult.setNextOnclickListener {
+                mBinding.clSkipSportViewContainer.removeView(srrvResult)
+                reset()
+            }
         }
 
         doResultViewTranslateAnimation(srrvResult)
-        srrvResult.setResult(resultList, if (viewModel.matchId != null) 100000 else top1Count,true)
+        srrvResult.setResult(
+            resultList,
+            if (viewModel.matchId != null) 100000 else top1Count,
+            viewModel.tenSportConfig?.isVoiceBroadcastSupported == true
+        )
     }
 
     private fun setTips(text: String) {

@@ -2,6 +2,7 @@ package com.ty.bus.multi.core
 
 import android.content.Context
 import android.content.Intent
+import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
@@ -18,8 +19,13 @@ import com.ty.tybusbase.config.UINavConfig
  */
 object UIMultiNavigation {
     @JvmStatic
-    fun goTenSportRope(context: Context, config: UINavConfig?) {
+    fun goTenSportRope(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: TenSportConfig? = null
+    ) {
         val intent = Intent(context, TenSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
         startActivity(context, intent, config)
     }
 

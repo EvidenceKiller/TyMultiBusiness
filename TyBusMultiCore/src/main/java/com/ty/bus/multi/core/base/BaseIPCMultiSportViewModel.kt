@@ -147,7 +147,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     //X秒竞技倒计时的Timer任务
     val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
-            countDownNoticeLD.postValue("${getString(R.string.race_start_countdown)}：${countDownTime--}")
+            countDownNoticeLD.postValue("${countDownTime--}")
         }
 
         override fun onFinish() {

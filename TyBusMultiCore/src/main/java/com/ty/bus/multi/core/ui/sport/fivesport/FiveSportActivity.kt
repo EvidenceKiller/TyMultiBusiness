@@ -149,7 +149,7 @@ class FiveSportActivity :
         }
 
         viewModel.countDownNoticeLD.observe(this) {
-            srsvSport.setCountDownNotice(it)
+            srsvSport.setCountDownNotice("${com.ty.tybusbase.expand.getString(R.string.race_start_countdown)}：$it")
         }
 
         viewModel.countDownFinishLD.observe(this) {
