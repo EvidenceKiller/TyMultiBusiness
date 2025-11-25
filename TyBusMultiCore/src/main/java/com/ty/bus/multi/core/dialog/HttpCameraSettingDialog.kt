@@ -33,19 +33,12 @@ class HttpCameraSettingDialog :
     private var pswIsEmpty = false
     private var thresholdIsEmpty = false
 
-    private lateinit var preRbRecordChecked: RadioButton
-
-    private lateinit var preTvRecordChecked: TextView
-
     override fun initData() {
         isCancelable = false
         mBinding.etIp.setText(MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP))
         mBinding.etAccount.setText(MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_ACCOUNT, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT))
         mBinding.etPsw.setText(MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD))
-        mBinding.etThreshold.setText(MMKVUtil.decodeString(MMKVBusiKey.MULTI_ROPE_SKIP_THRESHOLD, "8"))
-        preRbRecordChecked = mBinding.rbRecordDefault
-        preTvRecordChecked = mBinding.tvRecordDefault
         textChanged()
     }
 
@@ -56,58 +49,6 @@ class HttpCameraSettingDialog :
         mBinding.debugDialogConfirm.setOnClickListener(this)
         mBinding.debugDialogEye.setOnClickListener(this)
 
-        //初始化录制选择
-        mBinding.rgRecordBtn.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.rb_record_default -> {
-                    preRbRecordChecked.isChecked = false
-                    updateTvColor(preTvRecordChecked, false)
-                    mBinding.rbRecordDefault.isChecked = true
-                    updateTvColor(mBinding.tvRecordDefault, true)
-                    preRbRecordChecked = mBinding.rbRecordDefault
-                    preTvRecordChecked = mBinding.tvRecordDefault
-                    MMKVUtil.encode(
-                        MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-                        BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT
-                    )
-                }
-
-                R.id.rb_record_ipc -> {
-                    mBinding.rbRecordIpc.isChecked = true
-                    updateTvColor(mBinding.tvRecordIpc, true)
-                    preRbRecordChecked.isChecked = false
-                    updateTvColor(preTvRecordChecked, false)
-                    preRbRecordChecked = mBinding.rbRecordIpc
-                    preTvRecordChecked = mBinding.tvRecordIpc
-                    MMKVUtil.encode(
-                        MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-                        BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_IPC
-                    )
-                }
-            }
-            if (!ipIsEmpty && !accountIsEmpty && !pswIsEmpty) {
-                enableConfirm()
-            }
-        }
-        val recordModel: Int = MMKVUtil.decodeInt(
-            MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
-        )
-        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
-            mBinding.rbRecordDefault.isChecked = true
-        } else {
-            mBinding.rbRecordIpc.isChecked = true
-        }
-        val compensationProgress: Int = MMKVUtil.decodeInt(MMKVBusiKey.MULTI_ROPE_SKIP_COMPENSATION, 0)
-        mBinding.skCompensationBar.progress = compensationProgress
-        mBinding.skCompensationBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                MMKVUtil.encode(MMKVBusiKey.MULTI_ROPE_SKIP_COMPENSATION, progress)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
     }
 
     private fun textChanged() {
@@ -115,19 +56,6 @@ class HttpCameraSettingDialog :
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 pswIsEmpty = TextUtils.isEmpty(s)
-                if (!ipIsEmpty && !accountIsEmpty && !pswIsEmpty && !thresholdIsEmpty) {
-                    enableConfirm()
-                } else {
-                    disableConfirm()
-                }
-            }
-
-            override fun afterTextChanged(s: Editable) {}
-        })
-        mBinding.etThreshold.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                thresholdIsEmpty = TextUtils.isEmpty(s)
                 if (!ipIsEmpty && !accountIsEmpty && !pswIsEmpty && !thresholdIsEmpty) {
                     enableConfirm()
                 } else {
@@ -191,10 +119,6 @@ class HttpCameraSettingDialog :
                     mBinding.etAccount.text.toString().trim()
                 )
                 MMKVUtil.encode(MMKVBusiKey.HTTP_CAMERA_PSW, mBinding.etPsw.text.toString().trim())
-                MMKVUtil.encode(
-                    MMKVBusiKey.MULTI_ROPE_SKIP_THRESHOLD,
-                    mBinding.etThreshold.text.toString().trim()
-                )
                 dismiss()
             }
 
@@ -225,7 +149,4 @@ class HttpCameraSettingDialog :
         imm.hideSoftInputFromWindow(mBinding.etPsw.windowToken, 0)
     }
 
-    private fun updateTvColor(tv: TextView, select: Boolean) {
-        tv.setTextColor(if (select) Color.WHITE else Color.parseColor("#88ffffff"))
-    }
 }
