@@ -156,6 +156,7 @@
         android:id="@+id/group_auto_next"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:constraint_referenced_ids="cb_auto_next,tv_auto_next" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
