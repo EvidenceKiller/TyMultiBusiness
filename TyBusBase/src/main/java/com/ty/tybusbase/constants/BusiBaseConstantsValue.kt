@@ -64,6 +64,10 @@ object BusiBaseConstantsValue {
 
     const val IDENTITY_TYPE_QR = 1 shl 2 //二维码识别
 
+    const val NFC_READER_TYPE_A = 1 //读卡设备1（旧设备）
+    const val NFC_READER_TYPE_B = 2 //读卡设备2（新设备）
+    const val DEFAULT_NFC_READER_TYPE = NFC_READER_TYPE_B //NFC 读卡设备默认使用2（新设备）
+
 
     /********************
      * 0:前置，1：后置，2：USB（预留）

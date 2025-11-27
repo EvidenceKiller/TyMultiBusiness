@@ -8,6 +8,7 @@ import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
 import com.ai.ui.bodytest.BodyChooseTestActivity
+import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
 import com.ai.ui.nfc.NfcReaderActivity
@@ -142,6 +143,20 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     BodyChooseTestActivity::class.java
                 )
             )
+        }
+
+        mBinding.btnDoubleFace.setOnClickListener {
+            val intent = Intent(this, DoubleFaceTestActivity::class.java)
+            val sportInfo = SceneSportInfoEntity().apply {
+                sportSkuId = SportConstant.SPORT_PUSH_UP + "0001"
+                sportItemCode = SportConstant.SPORT_PUSH_UP
+                sportSkuName = "三人俯卧撑"
+                testCount = "3"
+            }
+            intent.putExtra("sport_info", sportInfo)
+            intent.putExtra("scene_id", SceneConstants.INDEPENDENT_TEST)
+            startActivity(intent)
+
         }
 
         val org = UserCaller.instance().getCurrentOrg()
