@@ -72,8 +72,27 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     private val mTimer: Timer = Timer()
 
+    protected var matchId: String? = null
+    protected var modelId: String? = null
+
+    //賽事名字
+    protected var matchName: String? = null
+
+    protected var sceneId: String? = null
+
+    //赛事运动详情ID
+    protected var matchSportId: String? = null
+
+    var accountInfo: AccountInfo? = null
+
     override fun initData() {
         val intent = intent
+        matchId = intent.getStringExtra("match_id")
+        modelId = intent.getStringExtra("model_id")
+        matchName = intent.getStringExtra("match_name")
+        sceneId = intent.getStringExtra("scene_id")
+        matchSportId = intent.getStringExtra("match_sport_id")
+        accountInfo = intent.getParcelableExtra("account_info")
         val sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity
         if (sportInfo == null) {
             ToastUtil.getInstance(this, "没有获取到运动信息").show()
