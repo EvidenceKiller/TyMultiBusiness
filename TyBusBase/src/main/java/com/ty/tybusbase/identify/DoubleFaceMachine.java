@@ -282,20 +282,20 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                 isFistDelay = true;
                 getHandler().post(() -> {
                     mBinding.tvStateNotice.setText(R.string.scan_notice);
-                    mBinding.progressView.setProgress((System.currentTimeMillis() - identityStarLeftTime) / 100 * 2);
+                    int progress = (int) ((double) (System.currentTimeMillis() - identityStarLeftTime) / VISITOR_TIME * 100);
+                    mBinding.progressView.setProgress(progress);
                 });
             }
 
             getHandler().post(() -> {
-                mBinding.progressView.setProgress((System.currentTimeMillis() - identityStarLeftTime) / 100 >= 99 ? 99 : (System.currentTimeMillis() - identityStarLeftTime) / 100);
+                int progress = (int) ((double) (System.currentTimeMillis() - identityStarLeftTime) / VISITOR_TIME * 100);
+                mBinding.progressView.setProgress(Math.min(progress, 99));
             });
 
         } else {
-            LogUtil.INSTANCE.e((System.currentTimeMillis() - identityStartRightTime) + "========右边识别时间", false);
-            getHandler().postDelayed(() -> {
+            if (((System.currentTimeMillis() - identityStartRightTime) > VISITOR_TIME)) {
                 if (visitorAble) {
                     createVisitor();
-                    LogUtil.INSTANCE.d("face 识别为游客2", false);
                 } else {
                     if (mBinding.progressViewRight.getVisibility() == View.VISIBLE) {
                         SpeechWrapper.INSTANCE.speech2(getContext().getString(R.string.rec_face_fail_retry), () -> getHandler().postDelayed(() -> {
@@ -311,18 +311,20 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                 }
 
                 return;
-            }, 2000);
+            }
 
             if (isFirst) {
                 isFirst = false;
                 getHandler().post(() -> {
                     mBinding.tvStateNoticeRight.setText(R.string.scan_notice);
-                    mBinding.progressViewRight.setProgress((System.currentTimeMillis() - identityStartRightTime) / 100 * 2);
+                    int progress = (int) ((double) (System.currentTimeMillis() - identityStartRightTime) / VISITOR_TIME * 100);
+                    mBinding.progressViewRight.setProgress(progress);
                 });
             }
 
             getHandler().post(() -> {
-                mBinding.progressViewRight.setProgress((System.currentTimeMillis() - identityStartRightTime) / 100 >= 99 ? 99 : (System.currentTimeMillis() - identityStartRightTime) / 100);
+                int progress = (int) ((double) (System.currentTimeMillis() - identityStartRightTime) / VISITOR_TIME * 100);
+                mBinding.progressViewRight.setProgress(Math.min(progress, 99));
             });
         }
 
@@ -337,7 +339,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 //                if (isFistDelay) {//只有第一次才需要延迟
                 getHandler().postDelayed(() -> {
 //                    LogUtils.e("延迟两秒识别右边");
-                    identityStartRightTime = 0;//重置时间
+//                    identityStartRightTime = 0;//重置时间
                     faceDetect(System.currentTimeMillis() + "", data, w, h, skeleton, false);
                     isFistDelay = false;
                 }, 0);
@@ -669,20 +671,6 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         }
     }
 
-    public void getAccountInfoWithAccount(String accountId) {
-//        UserBaseForFace user = DaoManager.getInstance().getSession().getUserBaseForFaceDao().queryBuilder().where(UserBaseForFaceDao.Properties.Uid.eq(accountId)).limit(1).unique();
-//        if (user != null) {
-//            identity(user, accountId);
-//        } else {
-//            createVisitor();
-//            LogUtils.d("face 识别为游客3");
-//        }
-        StudentEntity studentEntity = UserCaller.instance().queryStudentByAccountId(accountId);
-        if (studentEntity != null) {
-            identity(studentEntity);
-        }
-    }
-
     public void getAccountInfoWithCard(String card) {
         List<StudentEntity> studentList = UserCaller.instance().queryStudentByCarNum(card);
         for (StudentEntity baseForFace : studentList) {
@@ -722,6 +710,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 
     public void createVisitor() {
         post(() -> {
+            LogUtil.INSTANCE.d("识别为游客", false);
             AccountInfo accountInfo;
             if (!isLeftOk && isLeft) {
                 getHandler().post(() -> {
