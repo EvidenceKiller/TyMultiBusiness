@@ -13,16 +13,16 @@
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.adl.base.overlay.SportOverlayMultiRegion
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
 
     <FrameLayout
         android:id="@+id/fl_content_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.adl.base.overlay.SportOverlayMultiRegion
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
 
     <com.ty.tybusbase.identify.DoubleFaceMachine
         android:id="@+id/face_identify"

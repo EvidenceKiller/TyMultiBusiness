@@ -182,7 +182,9 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                 MMKVBusiKey.SKELETON_ABLE,
                 BusiBaseConstantsValue.DEFAULT_SKELETON
             )
+
         mBaseBinding.overlay.apply {
+            overlayVessel = this
             enableDebug(isDebug)
             enableDrawBox(false)
             enableDrawSkeleton(skeleton)
