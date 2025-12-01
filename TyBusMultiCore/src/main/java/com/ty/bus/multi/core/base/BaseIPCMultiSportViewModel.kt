@@ -327,7 +327,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         val hkSource = camera as NsCameraHKSource
         val deviceItem = hkSource.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, 17)
     }
 
     open fun initFaceIdentify() {
