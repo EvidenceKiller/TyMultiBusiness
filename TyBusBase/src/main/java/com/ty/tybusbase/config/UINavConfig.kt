@@ -1,6 +1,7 @@
 package com.ty.tybusbase.config
 
 import com.adl.service.entity.SceneSportInfoEntity
+import com.adl.service.entity.SportRecordEntity
 import com.ty.tybusbase.entity.AccountInfo
 import java.io.Serializable
 
@@ -19,5 +20,6 @@ data class UINavConfig(
     var matchName: String? = null,
     var matchSportId: String? = null,
     var ptPlanId: String? = null,
-    var ptStandardId: String? = null
+    var ptStandardId: String? = null,
+    var recordMeet: SportRecordEntity.RecordMeeting? = null
 ) : Serializable

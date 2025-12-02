@@ -23,6 +23,7 @@ import com.adl.lib.pose.AdlPoseKeyPoint;
 import com.adl.lib.pose.AdlPoseSkeleton;
 import com.adl.service.entity.StudentEntity;
 import com.adl.service.entity.TeacherEntity;
+import com.adl.service.outer.AdlService;
 import com.adl.service.outer.UserCaller;
 import com.adl.sport.general.EuHelper;
 import com.ty.identifty.base.TyFaceInfo;
@@ -801,6 +802,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 
     public void identity(StudentEntity user) {
         accountInfo = new AccountInfo();
+        user.setUserFaceImgUrl(AdlService.getService().getFacePrefix() + user.getUserFaceImgUrl());
         accountInfo.setStudentEntity(user);
         getHandler().post(() -> {
             mBinding.progressView.setProgress(100);
@@ -811,6 +813,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 
     public void identity(TeacherEntity user) {
         accountInfo = new AccountInfo();
+        user.setAccountAvatar(AdlService.getService().getFacePrefix() + user.getAccountAvatar());
         accountInfo.setTeacherEntity(user);
         getHandler().post(() -> {
             mBinding.progressView.setProgress(100);
