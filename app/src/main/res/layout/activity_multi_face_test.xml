@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_exe_cpt_5jumprope">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_skip_sport_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.ty.bus.multi.core.view.tensport.TenSportSportView
+            android:id="@+id/sport_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/color_black">
+
+        <Button
+            android:id="@+id/bnt_set"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/qb_px_16"
+            android:layout_marginTop="@dimen/qb_px_16"
+            android:layout_marginEnd="@dimen/qb_px_16"
+            android:layout_marginBottom="@dimen/qb_px_16"
+            android:text="设置"
+            android:textColor="@color/color_black"
+            android:textSize="@dimen/text_size_16" />
+
+        <FrameLayout
+            android:id="@+id/layout"
+            android:layout_width="1280px"
+            android:layout_height="720px">
+
+            <SurfaceView
+                android:id="@+id/surface_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+            <com.adl.base.overlay.SportOverlayMultiRegion
+                android:id="@+id/overlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
+
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/layout"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bnt_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="开始"
+                android:textColor="@color/color_black"
+                android:textSize="@dimen/text_size_12" />
+
+            <Button
+                android:id="@+id/btn_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="暂停"
+                android:textColor="@color/color_black"
+                android:textSize="@dimen/text_size_12" />
+
+            <Button
+                android:id="@+id/bnt_change"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="change"
+                android:textColor="@color/color_black"
+                android:textSize="@dimen/text_size_12" />
+
+            <Button
+                android:id="@+id/bnt_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="重置"
+                android:textColor="@color/color_black"
+                android:textSize="@dimen/text_size_12" />
+
+            <Button
+                android:id="@+id/bnt_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="下一帧"
+                android:textColor="@color/color_black"
+                android:textSize="@dimen/text_size_12" />
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

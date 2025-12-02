@@ -101,6 +101,7 @@
         <activity android:name="com.ai.ui.nfc.NfcReaderActivity" />
         <activity android:name="com.ai.ui.bodytest.BodyChooseTestActivity" />
         <activity android:name="com.ai.ui.doubleface.DoubleFaceTestActivity" />
+        <activity android:name="com.ai.ui.multiface.MultiFaceTestActivity"/>
 
     </application>
 

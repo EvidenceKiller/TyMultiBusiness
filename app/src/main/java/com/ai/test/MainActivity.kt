@@ -11,6 +11,7 @@ import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
+import com.ai.ui.multiface.MultiFaceTestActivity
 import com.ai.ui.nfc.NfcReaderActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
@@ -157,6 +158,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             intent.putExtra("scene_id", SceneConstants.INDEPENDENT_TEST)
             startActivity(intent)
 
+        }
+        mBinding.btnTenFace.setOnClickListener {
+            startActivity(Intent(this, MultiFaceTestActivity::class.java))
         }
 
         val org = UserCaller.instance().getCurrentOrg()

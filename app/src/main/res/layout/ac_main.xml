@@ -117,6 +117,13 @@
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
 
+                <Button
+                    android:id="@+id/btn_ten_face"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="十人人脸识别"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -170,9 +177,11 @@
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <Button
                     android:id="@+id/btn_nfc_test"
                     android:layout_width="wrap_content"
@@ -181,9 +190,11 @@
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
             </LinearLayout>
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <Button
                     android:id="@+id/btn_body_test"
                     android:layout_width="wrap_content"
