@@ -167,5 +167,14 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         if (org != null) {
             mBinding.tvOrgId.setText(org.getOrgCode())
         }
+
+        mBinding.btnForward6.setOnClickListener {
+            UIMultiNavigation.goForwardFlexionSix(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
+                    sportSkuName = "坐位体前屈"
+                }
+            })
+        }
     }
 }

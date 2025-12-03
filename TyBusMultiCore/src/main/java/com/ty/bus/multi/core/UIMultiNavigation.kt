@@ -8,6 +8,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
+import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.config.UINavConfig
 
@@ -35,6 +36,12 @@ object UIMultiNavigation {
     @JvmStatic
     fun goForwardFlexion(context: Context, config: UINavConfig?) {
         val intent = Intent(context, ForwardFlexionActivity::class.java)
+        startActivity(context, intent, config)
+    }
+
+    @JvmStatic
+    fun goForwardFlexionSix(context: Context, config: UINavConfig?) {
+        val intent = Intent(context, ForwardFlexionSixActivity::class.java)
         startActivity(context, intent, config)
     }
 
