@@ -8,17 +8,17 @@ import com.adl.mount.core.TsModelResGroup
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
 import com.adl.processor.SportProcessorStatus
-import com.adl.sport.common.bean.Point
-import com.adl.sport.forwardflexion.callback.FFlexionSportCallBack
-import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
-import com.adl.sport.forwardflexion.config.FFlexionSportConfig
-import com.adl.sport.forwardflexion.config.FFlexionSportResult
-import com.adl.sport.forwardflexion.informCode.InformCode
-import com.adl.sport.forwardflexion.processor.ForwardFlexionProcessor
-import com.adl.sport.forwardflexion.processor.ForwardFlexionSportOverlay
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivityForwardFlexionSettingBinding
+import com.ty.forwardflexion.callback.FFlexionSportCb
+import com.ty.forwardflexion.config.FFlexionRoleConfig
+import com.ty.forwardflexion.config.FFlexionSportResult
+import com.ty.forwardflexion.informCode.InformCode
+import com.ty.forwardflexion.processor.ForwardFlexionProcessor
+import com.ty.forwardflexion.processor.ForwardFlexionSportOverlay
+import com.ty.sport.common.basic.bean.Point
+import com.ty.sport.common.sport.processor.SportConfig
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -42,7 +42,7 @@ class ForwardFlexionSettingActivity :
     private var isModelLoadOk = false
 
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
-    private var sportConfig: FFlexionSportConfig? = null
+    private var sportConfig: SportConfig? = null
     override fun initObserver() {
 
     }
@@ -56,9 +56,6 @@ class ForwardFlexionSettingActivity :
             MultiCoreConstant.ZWTQQ_TEST_TIMES,
             MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
         )
-
-        ForwardFlexionSportOverlay.previewWidth = 1920;
-        ForwardFlexionSportOverlay.previewHeight = 1080;
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -137,18 +134,16 @@ class ForwardFlexionSettingActivity :
 
     private fun startMat() {
         // 运动配置
-        sportConfig = FFlexionSportConfig.builder()
+        sportConfig = SportConfig.builder()
             .debug(true)
-            .isRecord(true)
+            .record(false)
             .videoFps(30)
             .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(testPeopleCount, 60, 20, 110, 125))
-            .isCheckFootLocation(false)
-            .isCheckLegUncurl(false)
-            .isCheckHandAlign(false)
+            .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125,1))
+            .valueBool(booleanArrayOf(false,false,false))
             .build()
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.open(mBinding.overlay)
@@ -176,21 +171,19 @@ class ForwardFlexionSettingActivity :
     }
 
     private fun initProcessor() {
-        sportConfig = FFlexionSportConfig.builder()
+        sportConfig = SportConfig.builder()
             .debug(true)
-            .isRecord(true)
+            .record(false)
             .videoFps(30)
             .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(testPeopleCount, 60, 20, 110, 125))
-            .isCheckFootLocation(false)
-            .isCheckLegUncurl(false)
-            .isCheckHandAlign(false)
+            .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125,1))
+            .valueBool(booleanArrayOf(false,false,false))
             .build()
         forwardFlexionProcessor.setConfig(sportConfig)
-        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCallBack {
+        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
             override fun onResult(result: FFlexionSportResult) {
             }
 

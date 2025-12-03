@@ -20,13 +20,6 @@ import com.adl.mount.core.TsModelResGroup
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
 import com.adl.processor.SportProcessorStatus
-import com.adl.sport.common.bean.Point
-import com.adl.sport.forwardflexion.callback.FFlexionSportCallBack
-import com.adl.sport.forwardflexion.config.FFlexionRoleConfig
-import com.adl.sport.forwardflexion.config.FFlexionSportConfig
-import com.adl.sport.forwardflexion.config.FFlexionSportResult
-import com.adl.sport.forwardflexion.informCode.InformCode
-import com.adl.sport.forwardflexion.processor.ForwardFlexionProcessor
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
@@ -37,6 +30,13 @@ import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.databinding.ActivityForwardFlexion6Binding
+import com.ty.forwardflexion.callback.FFlexionSportCb
+import com.ty.forwardflexion.config.FFlexionRoleConfig
+import com.ty.forwardflexion.config.FFlexionSportResult
+import com.ty.forwardflexion.informCode.InformCode
+import com.ty.forwardflexion.processor.ForwardFlexionProcessor
+import com.ty.sport.common.basic.bean.Point
+import com.ty.sport.common.sport.processor.SportConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
@@ -53,7 +53,7 @@ class ForwardFlexionSixActivity :
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
-    private var sportConfig: FFlexionSportConfig? = null
+    private var sportConfig: SportConfig? = null
     val isDebug =
         MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
@@ -188,39 +188,6 @@ class ForwardFlexionSixActivity :
             startMatDetect()
         }
     }
-
-//    private fun initCamera() {
-//        mBinding.cameraView.setRotate(MMKVUtil.decodeInt(MMKVBusiKey.SKELETON_ROTATE, 0))
-//        mBinding.cameraView.setMirror(
-//            MMKVUtil.decodeBoolean(
-//                MMKVBusiKey.SKELETON_MIRROR,
-//                BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
-//            )
-//        )
-//        mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
-//            override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-//                p1?.let {
-//                    if (preFrameTime != 0L && checkTimeOk.not()) {
-//                        if (it.frameTimestamp - preFrameTime > 1000_000) {
-//                            isNus = true
-//                        }
-//                        checkTimeOk = true
-//                    } else {
-//                        preFrameTime = it.frameTimestamp
-//                    }
-//                    if (isNus) {
-//                        p1.frameTimestamp = p1.frameTimestamp / 1000_000
-//                    }
-//                }
-//                if (checkTimeOk) {
-//                    forwardFlexionProcessor.onFrame(p0, p1)
-//                }
-//            }
-//        })
-//        mBinding.cameraView.addProcessor(viewModel.onceCacheProcessor)
-//        mBinding.cameraView.addProcessor(viewModel.sportEngine)
-//        mBinding.cameraView.setFps(30)
-//    }
 
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
@@ -374,23 +341,21 @@ class ForwardFlexionSixActivity :
         MultiCoreConfig
         val param = MultiCoreConfig.getForwardFlexionParam()
         // 运动配置
-        sportConfig = FFlexionSportConfig.builder()
+        sportConfig = SportConfig.builder()
             .debug(isDebug)
-            .isRecord(true)
+            .record(true)
             .videoFps(30)
             .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .value(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
-            .isCheckFootLocation(param.checkFoot)
-            .isCheckLegUncurl(param.checkLeg)
-            .isCheckHandAlign(param.checkHand)
+            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(),1))
+            .valueBool(booleanArrayOf(param.checkLeg,param.checkFoot,param.checkHand))
             .build()
 
         mBinding.overlay.setMarkerAreaNum(diskNum)
         forwardFlexionProcessor.setConfig(sportConfig)
-        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCallBack {
+        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
             override fun onResult(result: FFlexionSportResult) {
                 runOnUiThread {
                     //显示成绩

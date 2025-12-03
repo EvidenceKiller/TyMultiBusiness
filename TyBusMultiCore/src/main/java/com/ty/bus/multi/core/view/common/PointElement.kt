@@ -5,7 +5,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
 import com.adl.base.element.ElementBase
-import com.adl.sport.common.bean.Point
+import com.ty.sport.common.basic.bean.Point
 
 class PointElement : ElementBase() {
 
