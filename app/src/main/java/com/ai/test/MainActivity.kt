@@ -176,5 +176,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 }
             })
         }
+
+        mBinding.btnForward6Set.setOnClickListener {
+            UIMultiNavigation.goForwardFlexionSixSetting(this)
+        }
     }
 }

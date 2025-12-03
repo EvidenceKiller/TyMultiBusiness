@@ -6,6 +6,7 @@ import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
+import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
@@ -58,15 +59,20 @@ object UIMultiNavigation {
     }
 
     fun goMultiRegionSetting(context: Context, number: Int) {
-        // TODO 导航跳转
         context.startActivity(Intent(context, MultiRegionSettingActivity::class.java).apply {
             putExtra("test_count", number)
         })
     }
 
     fun goForwardFlexionSetting(context: Context) {
-        // TODO 跳转
         context.startActivity(Intent(context, ForwardFlexionSettingActivity::class.java))
+    }
+
+    /**
+     * 6个位置体前屈
+     */
+    fun goForwardFlexionSixSetting(context: Context) {
+        context.startActivity(Intent(context, ForwardFlexionSixSettingActivity::class.java))
     }
 
     /**

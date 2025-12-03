@@ -55,6 +55,9 @@ object BusiBaseConstantsValue {
     const val CAMERA_PREVIEW_WIDTH = 1920
     const val CAMERA_PREVIEW_HEIGHT = 1080
 
+    const val CAMERA_PREVIEW_4K_WIDTH = 3840
+    const val CAMERA_PREVIEW_4K_HEIGHT = 2160
+
 
     /**
      * 身份识别类型

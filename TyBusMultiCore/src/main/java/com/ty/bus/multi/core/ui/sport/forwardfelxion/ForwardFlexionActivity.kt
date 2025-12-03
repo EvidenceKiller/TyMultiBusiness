@@ -180,8 +180,8 @@ class ForwardFlexionActivity :
             )
         )
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
-            override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-                p1?.let {
+            override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
+                previewInfo?.let {
                     if (preFrameTime != 0L && checkTimeOk.not()) {
                         if (it.frameTimestamp - preFrameTime > 1000_000) {
                             isNus = true
@@ -191,11 +191,18 @@ class ForwardFlexionActivity :
                         preFrameTime = it.frameTimestamp
                     }
                     if (isNus) {
-                        p1.frameTimestamp = p1.frameTimestamp / 1000_000
+                        previewInfo.frameTimestamp = previewInfo.frameTimestamp / 1000_000
                     }
                 }
                 if (checkTimeOk) {
-                    forwardFlexionProcessor.onFrame(p0, p1)
+                    forwardFlexionProcessor.onFrame(
+                        1,
+                        yuv,
+                        previewInfo.width,
+                        previewInfo.height,
+                        previewInfo.frameTimestamp,
+                        1
+                    )
                 }
             }
         })
@@ -203,7 +210,6 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(viewModel.sportEngine)
         mBinding.cameraView.setFps(30)
     }
-
     private fun initOverlay() {
         val isDebug = MMKVUtil.decodeBoolean(
             MMKVBusiKey.MODEL_DEBUG,

@@ -3,6 +3,8 @@ package com.ty.bus.multi.core.ui.set.forwardflexionset
 import android.os.Bundle
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.overlay.OnRenderScene
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.mount.core.TsModelInfo
 import com.adl.mount.core.TsModelResGroup
 import com.adl.mount.core.TsModelResPool
@@ -167,7 +169,18 @@ class ForwardFlexionSettingActivity :
                 BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
             )
         )
-        mBinding.cameraView.addProcessor(forwardFlexionProcessor)
+        mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
+            override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
+                forwardFlexionProcessor.onFrame(
+                    1,
+                    yuv,
+                    previewInfo.width,
+                    previewInfo.height,
+                    previewInfo.frameTimestamp,
+                    1
+                )
+            }
+        })
     }
 
     private fun initProcessor() {
