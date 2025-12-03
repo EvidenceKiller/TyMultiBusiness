@@ -62,6 +62,11 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
         onExitDialogShow()
     }
 
+    fun showExitView(show: Boolean) {
+        if (!::mBaseBinding.isInitialized) return
+        mBaseBinding.ivExit.visibility = if (show) View.VISIBLE else View.GONE
+    }
+
     /**
      * 退出对话框显示
      */
@@ -77,8 +82,16 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
      */
     open fun onExitDialogClose() {}
 
+    fun getBaseBinding(): BaseActivitySportExitBinding {
+        return mBaseBinding
+    }
+
     override fun initViewDataBinding() {
         mBaseBinding = BaseActivitySportExitBinding.inflate(layoutInflater)
+        initContentBinding()
+    }
+
+    open fun initContentBinding(){
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             var mdPosition = -1

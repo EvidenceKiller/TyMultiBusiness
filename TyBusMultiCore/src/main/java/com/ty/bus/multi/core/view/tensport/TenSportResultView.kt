@@ -22,6 +22,10 @@ import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -42,6 +46,8 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     private var countDownCount = 10
     private var isDetached = false
     private var isSpeech = true
+
+    private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
     init {
         mBinding = TenSportResultViewBinding.inflate(LayoutInflater.from(context), this, true)
@@ -194,11 +200,12 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun setResult(
         resultList: MutableList<MultiSportResult>,
         top1Count: Int,
-        speech: Boolean = false
+        speech: Boolean = false,
+        isLargeScreen: Boolean = true
     ) {
         this.resultList = resultList
         this.top1Count = top1Count
-        if (resultList.size > 5) {
+        if (resultList.size > 5&&isLargeScreen) {
             val list = resultList.subList(0, 5)
             (mBinding.rvResult1.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
                 list
@@ -216,7 +223,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
 
         //播报语音
         if (speech) {
-            resultSpeech(resultList)
+            coroutineScope.launch {
+                runCatching {
+                    delay(3000)
+                    resultSpeech(resultList)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
         }
     }
 

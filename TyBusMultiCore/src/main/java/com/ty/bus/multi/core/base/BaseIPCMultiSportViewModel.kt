@@ -229,6 +229,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             config.liteBodyCheck = lite
         }
 
+        config.checkExercisePrescription = isOpenReport()
         multiSportProcessor.setConfig(config)
         multiSportProcessor.setBodyFilter(getBodyFilter())
         multiSportProcessor.setSmooth(false)
@@ -1095,5 +1096,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 //            openTsProcess()
 //        }
 
+    }
+
+    open fun isOpenReport(): Boolean {
+        return true
     }
 }

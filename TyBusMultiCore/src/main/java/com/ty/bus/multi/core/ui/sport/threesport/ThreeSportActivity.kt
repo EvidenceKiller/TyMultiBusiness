@@ -42,7 +42,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 
-class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
+open class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
 
     private var top1Count: Int = 0
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }

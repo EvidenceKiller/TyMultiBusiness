@@ -2,6 +2,8 @@ package com.ty.bus.multi.core.config
 
 import com.google.gson.Gson
 import com.ty.bus.multi.core.constants.MultiCoreConstant
+import com.ty.bus.multi.core.constants.MultiCoreConstant.MULTI_THEME_STYLE_LARGE_SCREEN
+import com.ty.bus.multi.core.constants.MultiCoreConstant.MULTI_THEME_STYLE_SMALL_SCREEN
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
 import com.ty.bus.multi.core.entity.IpcCameraInfo
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -63,4 +65,17 @@ object MultiCoreConfig {
             MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW) ?: ""
         )
     }
+
+        /**
+         * 更新多人运动风格
+         */
+        fun setMultiSportThemeFixedStyle() {
+            MMKVUtil.encode(MultiCoreConstant.MULTI_THEME_STYLE, MULTI_THEME_STYLE_SMALL_SCREEN)
+        }
+
+        /**
+         * 获取多人运动风格
+         */
+        fun isMultiSportThemeLargeScreenStyle(): Boolean =
+            MMKVUtil.decodeInt(MultiCoreConstant.MULTI_THEME_STYLE, MULTI_THEME_STYLE_LARGE_SCREEN) == MULTI_THEME_STYLE_LARGE_SCREEN
 }

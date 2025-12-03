@@ -20,6 +20,7 @@ import com.adl.service.outer.AdlService
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
@@ -151,7 +152,8 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 }, 3, 10, 2)
             ),
             if (viewModel.matchId != null) 100000 else top1Count,
-            true
+            true,
+            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
         )
     }
 
@@ -283,7 +285,8 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         srrvResult.setResult(
             resultList,
             if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.tenSportConfig?.isVoiceBroadcastSupported == true
+            viewModel.tenSportConfig?.isVoiceBroadcastSupported == true,
+            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
         )
     }
 
