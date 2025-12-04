@@ -46,6 +46,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     private var countDownCount = 10
     private var isDetached = false
     private var isSpeech = true
+    private var currentSpeechIndex = 0
 
     private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -130,17 +131,17 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         }
 
         mBinding.llSpeech.setOnClickListener {
-            //正在播，停止
             if (isSpeech) {
                 SpeechWrapper.stop()
                 mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_play_default)
                 mBinding.tvSpeech.text = getString(R.string.result_speech)
+                isSpeech = false
             } else {
                 resultList?.let {
+                    // 继续从当前索引播报
                     resultSpeech(it)
                 }
             }
-            isSpeech = !isSpeech
         }
     }
 
@@ -236,24 +237,37 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
 
     private fun resultSpeech(resultList: MutableList<MultiSportResult>) {
         isSpeech = true
+        currentSpeechIndex = 0
         mBinding.llSpeech.visibility = VISIBLE
         mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_stop_default)
         mBinding.tvSpeech.text = getString(R.string.pause_result_speech)
-        resultList.forEachIndexed { index, value ->
-            val endCallback = if (index == resultList.size - 1) {
-                object : Runnable {
-                    override fun run() {
-                        speechEnd()
-                    }
-                }
-            } else {
-                null
-            }
-            SpeechWrapper.speech2(
-                "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
-                endCallback
-            )
+        speakNext(resultList)
+    }
+
+    private fun speakNext(resultList: MutableList<MultiSportResult>) {
+        if (!isSpeech || isDetached) return
+        if (currentSpeechIndex >= resultList.size) {
+            speechEnd()
+            return
         }
+        val value = resultList[currentSpeechIndex]
+        val isLast = currentSpeechIndex == resultList.size - 1
+        val endCallback = object : Runnable {
+            override fun run() {
+                if (isDetached) return
+                if (!isSpeech) return
+                if (isLast) {
+                    speechEnd()
+                } else {
+                    currentSpeechIndex++
+                    speakNext(resultList)
+                }
+            }
+        }
+        SpeechWrapper.speech2(
+            "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
+            endCallback
+        )
     }
 
     private fun speechEnd() {
