@@ -273,10 +273,10 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
     @SuppressLint("NotifyDataSetChanged")
     fun addScore(score: Int) {
-        scoreList.add(score)
         if (scoreList.isNullOrEmpty()) {
             initScoreRv()
         }
+        scoreList.add(score)
         changeState(ForwardFlexionCardState.RESULT_IN_SPORTING)
         setCurrentScore(score)
 
