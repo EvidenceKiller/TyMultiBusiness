@@ -43,10 +43,10 @@
 
     <ImageView
         android:id="@+id/iv_in_tip"
-        android:layout_width="@dimen/dp_800"
-        android:layout_height="@dimen/dp_222"
+        android:layout_width="@dimen/dp_1200"
+        android:layout_height="@dimen/dp_330"
         android:layout_marginTop="@dimen/dp_80"
-        android:background="@mipmap/pic_zwtqq_lead"
+        android:background="@mipmap/pic_6rzwtqq_tips"
         app:layout_constraintLeft_toLeftOf="@+id/tv_in_tip"
         app:layout_constraintRight_toRightOf="@+id/tv_in_tip"
         app:layout_constraintTop_toBottomOf="@+id/tv_in_tip" />

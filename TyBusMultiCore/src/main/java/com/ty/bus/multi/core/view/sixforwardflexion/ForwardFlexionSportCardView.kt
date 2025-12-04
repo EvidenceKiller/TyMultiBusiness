@@ -1,0 +1,248 @@
+package com.ty.bus.multi.core.view.sixforwardflexion
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.util.AttributeSet
+import android.util.Log
+import android.view.LayoutInflater
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.adl.service.outer.AdlService
+import com.bumptech.glide.Glide
+import com.ty.bus.multi.R
+import com.ty.bus.multi.core.state.ForwardFlexionCardState
+import com.ty.bus.multi.databinding.ItemForwardFlexionScoreBinding
+import com.ty.bus.multi.databinding.ItemForwardFlexionSportScoreBinding
+import com.ty.bus.multi.databinding.ViewForwardFlexionSportCardBinding
+import com.ty.tybusbase.base.BaseBindingAdapter
+import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.getString
+
+class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+    ConstraintLayout(context, attrs, defStyleAttr) {
+    private val TAG = "FORWARD>>"
+    private var mBinding = ViewForwardFlexionSportCardBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    )
+    private var scoreList: MutableList<Int> = mutableListOf()
+
+    private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
+
+    init {
+        initView()
+    }
+
+    /**
+     * 切换状态
+     */
+    fun changeState(state: ForwardFlexionCardState) {
+        if (preState == state) {
+            Log.d(TAG, "状态未改变")
+            return
+        }
+
+        //退出上一状态
+        when (preState) {
+            ForwardFlexionCardState.IDLE -> {
+                exitIdle()
+            }
+
+            ForwardFlexionCardState.IDENTIFYING -> {
+                exitIdentifying()
+            }
+
+            ForwardFlexionCardState.IDENTIFIED -> {
+                exitIdentified()
+            }
+
+            ForwardFlexionCardState.PREPARED -> {
+                exitPrepared()
+            }
+
+            ForwardFlexionCardState.SPORTING -> {
+                exitSporting()
+            }
+
+            ForwardFlexionCardState.RESULT_IN_SPORTING -> {
+                exitResultInSporting()
+            }
+
+            ForwardFlexionCardState.CURRENT_SPORT_END -> {
+                exitCurrentSportEnd()
+            }
+
+            ForwardFlexionCardState.FINISHED -> {
+                exitFinished()
+            }
+
+        }
+
+        //进入新状态处理
+        when (state) {
+            ForwardFlexionCardState.IDLE -> {
+                enterIdle()
+            }
+
+            ForwardFlexionCardState.IDENTIFYING -> {
+                enterIdentifying()
+            }
+
+            ForwardFlexionCardState.IDENTIFIED -> {
+                enterIdentified()
+            }
+
+            ForwardFlexionCardState.PREPARED -> {
+                enterPrepared()
+            }
+
+            ForwardFlexionCardState.SPORTING -> {
+                enterSporting()
+            }
+
+            ForwardFlexionCardState.RESULT_IN_SPORTING -> {
+                enterResultInSporting()
+            }
+
+            ForwardFlexionCardState.CURRENT_SPORT_END -> {
+                enterCurrentSportEnd()
+            }
+
+            ForwardFlexionCardState.FINISHED -> {
+                enterFinished()
+            }
+        }
+
+        preState = state
+    }
+
+    private fun enterIdle() {
+        mBinding.groupIdle.visibility = VISIBLE
+    }
+
+    private fun exitIdle() {
+        mBinding.groupIdle.visibility = GONE
+    }
+
+    private fun enterIdentifying() {
+        mBinding.groupIdentifying.visibility = VISIBLE
+    }
+
+    private fun exitIdentifying() {
+        mBinding.groupIdentifying.visibility = GONE
+    }
+
+    private fun enterIdentified() {
+        mBinding.groupAccountInfo.visibility = VISIBLE
+        mBinding.groupIdentified.visibility = VISIBLE
+    }
+
+    private fun exitIdentified() {
+        mBinding.groupAccountInfo.visibility = GONE
+        mBinding.groupIdentified.visibility = GONE
+    }
+
+    private fun enterPrepared() {
+        mBinding.groupAccountInfo.visibility = VISIBLE
+        mBinding.groupPrepared.visibility = VISIBLE
+    }
+
+    private fun exitPrepared() {
+        mBinding.groupAccountInfo.visibility = GONE
+        mBinding.groupPrepared.visibility = GONE
+    }
+
+    private fun enterSporting() {
+        mBinding.groupAccountInfo.visibility = VISIBLE
+        mBinding.ivSportAni.visibility = VISIBLE
+    }
+
+    private fun exitSporting() {
+        mBinding.groupAccountInfo.visibility = GONE
+        mBinding.ivSportAni.visibility = GONE
+    }
+
+    private fun enterResultInSporting() {
+        mBinding.groupAccountInfo.visibility = VISIBLE
+        mBinding.rvScore.visibility = VISIBLE
+        mBinding.groupResultInSporting.visibility = VISIBLE
+    }
+
+    private fun exitResultInSporting() {
+        mBinding.groupResultInSporting.visibility = GONE
+    }
+
+    private fun enterCurrentSportEnd() {
+
+    }
+
+    private fun exitCurrentSportEnd() {
+
+    }
+
+    private fun enterFinished() {
+
+    }
+
+    private fun exitFinished() {
+
+    }
+
+    fun setAccountInfo(accountInfo: AccountInfo) {
+        Glide.with(this)
+            .load(AdlService.getService().facePrefix + accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
+        mBinding.tvName.text = accountInfo.studentEntity?.accountName
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun addScore(score: Int) {
+        if (scoreList.isNullOrEmpty()) {
+            initScoreRv()
+        }
+        //todo 设置adapter
+        //todo 处理显示当前成绩
+        scoreList.add(score)
+        mBinding.tvSportTimes.text = getString(R.string.how_many_times, scoreList.size)
+        mBinding.rvScore.adapter?.notifyDataSetChanged()
+    }
+
+    private fun initScoreRv() {
+        mBinding.rvScore.layoutManager = LinearLayoutManager(context)
+        mBinding.rvScore.adapter =
+            object : BaseBindingAdapter<ItemForwardFlexionSportScoreBinding, Int>(scoreList) {
+                @SuppressLint("SetTextI18n")
+                override fun convert(
+                    holder: VBViewHolder<ItemForwardFlexionSportScoreBinding>,
+                    item: Int
+                ) {
+                    holder.vb.tvIndex.text = "${holder.layoutPosition + 1}"
+                    holder.vb.tvScore.text = when {
+                        item == -300 -> {
+                            holder.vb.tvScore.setTextColor(Color.RED)
+                            getString(R.string.violations)
+                        }
+
+                        item > -200 && item <= 400 -> {
+                            holder.vb.tvScore.setTextColor(Color.WHITE)
+                            "${item / 10.0}"
+                        }
+
+                        else -> {
+                            holder.vb.tvScore.setTextColor(Color.RED)
+                            getString(R.string.un_do)
+                        }
+                    }
+                }
+
+            }
+    }
+
+    private fun initView() {
+
+    }
+}
