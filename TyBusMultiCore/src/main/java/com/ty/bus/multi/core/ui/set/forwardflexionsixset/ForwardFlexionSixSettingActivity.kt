@@ -101,7 +101,7 @@ class ForwardFlexionSixSettingActivity :
             }
             testPeopleCount--
             mBinding.tvNumber.text = testPeopleCount.toString()
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
             updateOverlay()
         }
 
@@ -111,7 +111,7 @@ class ForwardFlexionSixSettingActivity :
             }
             testPeopleCount++
             mBinding.tvNumber.text = testPeopleCount.toString()
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
             updateOverlay()
         }
 
@@ -121,7 +121,7 @@ class ForwardFlexionSixSettingActivity :
             }
             testTimes--
             mBinding.tvTime.text = testTimes.toString()
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_TIMES, testTimes)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES, testTimes)
         }
 
         mBinding.ivTimeAdd.setOnClickListener {
@@ -130,7 +130,7 @@ class ForwardFlexionSixSettingActivity :
             }
             testTimes++
             mBinding.tvTime.text = testTimes.toString()
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_TIMES, testTimes)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES, testTimes)
         }
 
         mBinding.tvReset.setOnClickListener {
@@ -138,8 +138,8 @@ class ForwardFlexionSixSettingActivity :
             testTimes = MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
             mBinding.tvNumber.text = testPeopleCount.toString()
             mBinding.tvTime.text = testTimes.toString()
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER, testPeopleCount)
-            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_TEST_TIMES, testTimes)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
+            MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES, testTimes)
             updateOverlay()
             mBinding.overlay.saveConfig()
         }

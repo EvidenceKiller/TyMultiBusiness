@@ -251,15 +251,11 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 changeSportCardState(it.key, ForwardFlexionCardState.PREPARED)
                 prepareCount++
                 prepareStatusList[it.key - 1] = true
-                LogUtil.d(it.key.toString() + "号准备完成")
             } else if (it.value == InformCode.PREPAREERR) {
-                LogUtil.d(it.key.toString() + "号准备异常")
                 //准备异常，需要重新准备
                 resetLD.postValue(true)
                 SystemClock.sleep(100)
                 toStatusPrepare()
-            } else if (it.value == InformCode.NOTCHECKIN) {
-                LogUtil.d(it.key.toString() + "号未检录")
             }
         }
         //全部准备完成，开始运动
@@ -267,7 +263,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         //没有人准备，则返回
         if (prepareList.isEmpty()) return
         val checkPerson = checkMap.filter { it.value }
-
+        LogUtil.d("准备完成人数：${prepareList.size} 开始运动 ${sportState.name}")
         if (prepareList.size == checkPerson.size && sportState != MultiSportState.SPORTING) {
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
@@ -285,17 +281,22 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             sportStartLD.postValue(currentSportTimes)
             startSportCountDown()
             //切换卡片状态，方便重置
-            sportPersonArray.forEach { key, value ->
-                changeSportCardState(key, ForwardFlexionCardState.SPORTING)
-            }
-            for (index in 1..sportManCount) {
-                val value = sportPersonArray.get(index)
-                if (value != null) {
+            //第一次测试进入第一次测试状态
+            if (currentSportTimes == 1) {
+                for (index in 1..sportManCount) {
+                    val value = sportPersonArray.get(index)
+                    if (value != null) {
+                        changeSportCardState(index, ForwardFlexionCardState.FIRST_SPORTING)
+                    } else {
+                        changeSportCardState(index, ForwardFlexionCardState.SPORTING_NO_USER)
+                    }
+                }
+            } else {
+                sportPersonArray.forEach { index, value ->
                     changeSportCardState(index, ForwardFlexionCardState.SPORTING)
-                } else {
-                    changeSportCardState(index, ForwardFlexionCardState.SPORTING_NO_USER)
                 }
             }
+
             sportState = MultiSportState.SPORTING
         }
     }
@@ -446,8 +447,12 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             return
         }
         stopSportCountDown()
+        LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
         sportState = MultiSportState.PREPARING
         currentSportTimes++
+        sportPersonArray.forEach { index, value ->
+            changeSportCardState(index, ForwardFlexionCardState.SPORTING)
+        }
         if (currentSportTimes > sportTimes) {
             //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
             SpeechWrapper.speech(

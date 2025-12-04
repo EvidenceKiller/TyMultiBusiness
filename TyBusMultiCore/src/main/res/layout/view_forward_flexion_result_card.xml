@@ -59,6 +59,7 @@
         tools:text="cm" />
 
     <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"

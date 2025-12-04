@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@mipmap/bg_new_all">
+
+    <ImageView
+        android:id="@+id/iv_complete"
+        android:layout_width="@dimen/dp_1088"
+        android:layout_height="@dimen/dp_88"
+        android:layout_marginTop="@dimen/dp_155"
+        android:background="@mipmap/pic_test_zwtqq_complete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/line_h_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_40"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_3"
+        app:layout_constraintEnd_toStartOf="@+id/line_h_center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:pk_index="1" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_5"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_1"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_1"
+        app:pk_index="3" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_1"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_3"
+        app:pk_index="5" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_40"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_4"
+        app:layout_constraintStart_toEndOf="@+id/line_h_center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:pk_index="2" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_6"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_2"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_2"
+        app:pk_index="4" />
+
+    <com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionResultCardView
+        android:id="@+id/ffs_sport_6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_2"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_4"
+        app:pk_index="6" />
+    
+
+    <TextView
+        android:id="@+id/tv_retest"
+        android:layout_width="@dimen/dp_360"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginBottom="@dimen/dp_120"
+        android:background="@drawable/bg_btn_white_r50"
+        android:gravity="center"
+        android:text="@string/retest"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_next"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_next"
+        android:layout_width="@dimen/dp_360"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginStart="@dimen/dp_60"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/tv_finish"
+        app:layout_constraintStart_toEndOf="@+id/tv_retest"
+        app:layout_constraintTop_toTopOf="@+id/tv_retest" />
+
+
+    <TextView
+        android:id="@+id/tv_finish"
+        android:layout_width="@dimen/dp_360"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginStart="@dimen/dp_60"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:gravity="center"
+        android:text="@string/end_test"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_next"
+        app:layout_constraintTop_toTopOf="@+id/tv_retest" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

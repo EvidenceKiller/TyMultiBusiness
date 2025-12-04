@@ -3,8 +3,9 @@ package com.ty.bus.multi.core.view.sixforwardflexion
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.AnimationDrawable
+import android.os.CountDownTimer
 import android.util.AttributeSet
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +20,7 @@ import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.utils.LogUtil
+
 
 @SuppressLint("CustomViewStyleable", "Recycle")
 class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -35,6 +37,26 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     private var scoreList: MutableList<Int> = mutableListOf()
 
     private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
+
+    /**
+     * 进度条假增
+     */
+    private val countDownTime = 1000L
+    private var tickTimes = 0f
+    private var totalTimes = 20f
+    private val identifyingTimer = object : CountDownTimer(
+        countDownTime,
+        (countDownTime / totalTimes).toLong()
+    ) {
+        override fun onTick(millisUntilFinished: Long) {
+            tickTimes++
+            mBinding.progressView.setProgress(tickTimes * 100 / totalTimes)
+        }
+
+        override fun onFinish() {
+            mBinding.progressView.setProgress(100f)
+        }
+    }
 
     init {
         val attributes =
@@ -69,6 +91,10 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
             ForwardFlexionCardState.PREPARED -> {
                 exitPrepared()
+            }
+
+            ForwardFlexionCardState.FIRST_SPORTING -> {
+                exitFirstSporting()
             }
 
             ForwardFlexionCardState.SPORTING -> {
@@ -108,6 +134,10 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
             ForwardFlexionCardState.PREPARED -> {
                 enterPrepared()
+            }
+
+            ForwardFlexionCardState.FIRST_SPORTING -> {
+                enterFirstSporting()
             }
 
             ForwardFlexionCardState.SPORTING -> {
@@ -152,10 +182,13 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     private fun enterIdentifying() {
+        tickTimes = 0f
+        identifyingTimer.start()
         mBinding.groupIdentifying.visibility = VISIBLE
     }
 
     private fun exitIdentifying() {
+        identifyingTimer.cancel()
         mBinding.groupIdentifying.visibility = GONE
     }
 
@@ -182,19 +215,31 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
         mBinding.groupPrepared.visibility = GONE
     }
 
-    private fun enterSporting() {
+    private fun enterFirstSporting() {
+        val frameAnimation = mBinding.ivSportAni.getDrawable() as AnimationDrawable?
+        frameAnimation?.start()
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.ivSportAni.visibility = VISIBLE
     }
 
-    private fun exitSporting() {
+    private fun exitFirstSporting() {
+        val frameAnimation = mBinding.ivSportAni.getDrawable() as AnimationDrawable?
+        frameAnimation?.stop()
         mBinding.groupAccountInfo.visibility = GONE
         mBinding.ivSportAni.visibility = GONE
     }
 
-    private fun enterResultInSporting() {
+    private fun enterSporting() {
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.rvScore.visibility = VISIBLE
+    }
+
+    private fun exitSporting() {
+        mBinding.groupAccountInfo.visibility = GONE
+    }
+
+    private fun enterResultInSporting() {
+        enterSporting()
         mBinding.groupResultInSporting.visibility = VISIBLE
     }
 
@@ -228,14 +273,35 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
     @SuppressLint("NotifyDataSetChanged")
     fun addScore(score: Int) {
+        scoreList.add(score)
         if (scoreList.isNullOrEmpty()) {
             initScoreRv()
         }
-        //todo 设置adapter
-        //todo 处理显示当前成绩
-        scoreList.add(score)
-        mBinding.tvSportTimes.text = getString(R.string.how_many_times, scoreList.size)
+        changeState(ForwardFlexionCardState.RESULT_IN_SPORTING)
+        setCurrentScore(score)
+
         mBinding.rvScore.adapter?.notifyDataSetChanged()
+    }
+
+    private fun setCurrentScore(score: Int) {
+        mBinding.tvSportTimes.text = getString(R.string.how_many_times, scoreList.size)
+        mBinding.tvSportCurrentResult.text = when {
+            score == -300 -> {
+                mBinding.tvSportCurrentResult.setTextColor(Color.RED)
+                getString(R.string.violations)
+            }
+
+            score > -200 && score <= 400 -> {
+                mBinding.tvSportCurrentResult.setTextColor(Color.WHITE)
+                mBinding.tvSportCurrentResultUnit.text = "cm"
+                "${score / 10.0}"
+            }
+
+            else -> {
+                mBinding.tvSportCurrentResult.setTextColor(Color.RED)
+                getString(R.string.un_do)
+            }
+        }
     }
 
     private fun initScoreRv() {
@@ -256,6 +322,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
                         item > -200 && item <= 400 -> {
                             holder.vb.tvScore.setTextColor(Color.WHITE)
+                            holder.vb.tvScoreUnit.text = "cm"
                             "${item / 10.0}"
                         }
 

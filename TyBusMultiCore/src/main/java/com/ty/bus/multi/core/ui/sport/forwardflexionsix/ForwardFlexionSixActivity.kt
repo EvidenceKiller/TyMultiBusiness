@@ -34,6 +34,7 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
+import com.ty.bus.multi.core.view.sixforwardflexion.SixForwardFlexionResultView
 import com.ty.bus.multi.databinding.ActivityForwardFlexion6Binding
 import com.ty.forwardflexion.callback.FFlexionSportCb
 import com.ty.forwardflexion.config.FFlexionRoleConfig
@@ -181,7 +182,7 @@ class ForwardFlexionSixActivity :
                     info.width,
                     info.height,
                     info.frameTimestamp,
-                    1
+                    0
                 )
             }
         })
@@ -206,6 +207,8 @@ class ForwardFlexionSixActivity :
                 mBinding.sportView.sportStarted()
             }
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
+            frameTime = System.currentTimeMillis()
+            LogUtil.d("开始运动")
         }
 
         viewModel.resetLD.observe(this) {
@@ -413,9 +416,9 @@ class ForwardFlexionSixActivity :
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT)
             .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
-            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
+//            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
+            .valueBool(booleanArrayOf(false, false, false))
             .build()
-        LogUtil.d("ananan:${param.getAngle()}  ssthv:${param.getSsdqThVaule()}")
         mBinding.overlay.setMarkerAreaNum(diskNum)
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
@@ -568,7 +571,7 @@ class ForwardFlexionSixActivity :
     }
 
     private fun addResultView() {
-        val resultView = ForwardFlexionResultView(this, null)
+        val resultView = SixForwardFlexionResultView(this, null)
         mBinding.clViewContainer.addView(
             resultView,
             LayoutParams.MATCH_PARENT,

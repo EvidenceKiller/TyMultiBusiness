@@ -13,6 +13,9 @@ enum class ForwardFlexionCardState {
     //已准备
     PREPARED,
 
+    //第一次运动中
+    FIRST_SPORTING,
+
     //运动中
     SPORTING,
 

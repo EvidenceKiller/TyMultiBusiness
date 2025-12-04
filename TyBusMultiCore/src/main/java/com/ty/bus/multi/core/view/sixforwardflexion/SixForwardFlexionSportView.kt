@@ -21,6 +21,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         this,
         true
     )
+    private var isStarted = false
 
     init {
         initView()
@@ -36,11 +37,15 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
     }
 
     fun changeState(index: Int, state: ForwardFlexionCardState) {
+        if (isStarted && state == ForwardFlexionCardState.PREPARED) {
+            return
+        }
         cardMap[index]?.changeState(state)
     }
 
     //运动已开始
     fun sportStarted() {
+        isStarted = true
         mBinding.tvBegin.visibility = GONE
 
     }

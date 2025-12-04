@@ -27,6 +27,8 @@ class ForwardFlexionResultCardView(context: Context, attrs: AttributeSet?, defSt
         result: MultiSportResult
     ) {
         mBinding.apply {
+            mBinding.groupResult.visibility = VISIBLE
+            mBinding.tvIdle.visibility = GONE
             Glide.with(context)
                 .load(result.accountInfo.studentEntity?.userFaceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
