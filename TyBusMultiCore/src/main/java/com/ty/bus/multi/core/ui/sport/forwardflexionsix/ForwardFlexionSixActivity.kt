@@ -124,6 +124,9 @@ class ForwardFlexionSixActivity :
             mainHandler.removeCallbacks(tipRunnable)
             hideInTips()
         }
+        mBinding.sportView.setStartListener {
+            viewModel.toStatusPrepare()
+        }
         mainHandler.postDelayed(tipRunnable, 1000)
 
         initOverlay()

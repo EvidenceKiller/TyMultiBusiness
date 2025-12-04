@@ -1,13 +1,17 @@
 package com.ty.bus.multi.core.view.sixforwardflexion
 
 import android.content.Context
+import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.ty.bus.multi.R
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ViewSixForwardFlexionSportBinding
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.Action
+import com.ty.tybusbase.expand.getString
 
 class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -22,6 +26,14 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         true
     )
     private var isStarted = false
+    private var startListener: Action? = null
+
+    /**
+     * 进度条假增
+     */
+    private val countDownTime = 50000L
+    private var currentTime = 5
+    private var countDownTimer: CountDownTimer? = null
 
     init {
         initView()
@@ -34,11 +46,50 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         cardMap.put(4, mBinding.ffsSport4)
         cardMap.put(5, mBinding.ffsSport5)
         cardMap.put(6, mBinding.ffsSport6)
+        mBinding.tvBegin.setOnClickListener {
+            countDownTimer?.cancel()
+            startListener?.invoke()
+        }
+    }
+
+    fun setStartListener(listener: Action) {
+        startListener = listener
+    }
+
+    private fun setConfirmText(lng: Int) {
+        if (lng <= 0) {
+            countDownTimer?.cancel()
+            startListener?.invoke()
+        } else {
+            mBinding.tvBegin.text = getString(R.string.start_now_num, lng)
+        }
     }
 
     fun changeState(index: Int, state: ForwardFlexionCardState) {
         if (isStarted && state == ForwardFlexionCardState.PREPARED) {
             return
+        }
+        if (state == ForwardFlexionCardState.IDENTIFIED) {
+            currentTime = 5
+            if (countDownTimer == null) {
+                mBinding.tvBegin.visibility = VISIBLE
+                countDownTimer = object : CountDownTimer(
+                    countDownTime,
+                    1000L
+                ) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        currentTime--
+
+                        setConfirmText(currentTime)
+                    }
+
+                    override fun onFinish() {
+                    }
+                }
+                countDownTimer?.start()
+            }
+
+
         }
         cardMap[index]?.changeState(state)
     }
@@ -47,10 +98,11 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
     fun sportStarted() {
         isStarted = true
         mBinding.tvBegin.visibility = GONE
-
+        countDownTimer?.cancel()
     }
 
     fun sportingTips(text: String) {
+        mBinding.tvSportingTips.visibility = VISIBLE
         mBinding.tvSportingTips.text = text
     }
 

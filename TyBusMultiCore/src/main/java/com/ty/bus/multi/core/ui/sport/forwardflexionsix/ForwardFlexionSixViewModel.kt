@@ -505,6 +505,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     override fun toStatusPrepare() {
         super.toStatusPrepare()
+        mHandler.removeCallbacksAndMessages(null)
         sportState = MultiSportState.COUNTDOWN
         for (i in 0 until sportManCount) {
             prepareStatusList[i] = false
