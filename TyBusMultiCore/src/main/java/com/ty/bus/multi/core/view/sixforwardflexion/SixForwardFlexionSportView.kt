@@ -60,6 +60,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         if (lng <= 0) {
             countDownTimer?.cancel()
             startListener?.invoke()
+            mBinding.tvBegin.visibility = GONE
         } else {
             mBinding.tvBegin.text = getString(R.string.start_now_num, lng)
         }

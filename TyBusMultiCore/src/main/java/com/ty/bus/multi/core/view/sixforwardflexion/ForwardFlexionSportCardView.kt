@@ -265,7 +265,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
     fun setAccountInfo(accountInfo: AccountInfo) {
         Glide.with(this)
-            .load(AdlService.getService().facePrefix + accountInfo.studentEntity?.userFaceImgUrl)
+            .load(accountInfo.studentEntity?.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
         mBinding.tvName.text = accountInfo.studentEntity?.accountName

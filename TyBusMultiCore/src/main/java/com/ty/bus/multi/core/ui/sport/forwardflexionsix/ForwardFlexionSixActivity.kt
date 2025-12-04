@@ -65,7 +65,7 @@ class ForwardFlexionSixActivity :
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/1.mp4"
 
     /***************************视频播放调试*************************/
-    private val streamType = 2 //1:摄像头播放，2:视频播放
+    private val streamType = 1 //1:摄像头播放，2:视频播放
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: SportConfig? = null
@@ -487,7 +487,9 @@ class ForwardFlexionSixActivity :
                     val points = mutableListOf<Point>()
                     val rects = mutableListOf<Rect>()
                     bonePoints.forEach {
-                        points.addAll(it.value)
+                        it.value.forEach { po ->
+                            points.add(Point(po.x,po.y))
+                        }
                         rects.add(viewModel.getIdentityRect(it.value))
                         mBinding.overlay.refreshNow()
                     }
@@ -658,6 +660,10 @@ class ForwardFlexionSixActivity :
 //        forwardFlexionProcessor.startRecording(file)
     }
 
+    override fun onPause() {
+        super.onPause()
+        mBinding.cameraView.stopPreview()
+    }
     override fun onDestroy() {
         super.onDestroy()
         forwardFlexionProcessor.stopRecord()

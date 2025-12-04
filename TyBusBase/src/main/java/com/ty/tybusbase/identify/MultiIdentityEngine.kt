@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
 import com.adl.base.log.AdlLogger
+import com.adl.lib.AdlYUVUtil
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity

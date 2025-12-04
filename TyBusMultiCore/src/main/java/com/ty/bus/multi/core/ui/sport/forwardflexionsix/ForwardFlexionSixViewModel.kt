@@ -10,6 +10,7 @@ import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
+import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
@@ -350,9 +351,16 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
+                val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
+                AdlYUVUtil.YV12toNV21(
+                    currentYuvData.yuv,
+                    nv21,
+                    currentYuvData.width,
+                    currentYuvData.height
+                )
                 multiIdentityEngine.identify(
                     getIdentityRect(skeletonPoint),
-                    currentYuvData.yuv,
+                    nv21,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -376,9 +384,16 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
+                val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
+                AdlYUVUtil.YV12toNV21(
+                    currentYuvData.yuv,
+                    nv21,
+                    currentYuvData.width,
+                    currentYuvData.height
+                )
                 multiIdentityEngine.identify(
                     getIdentityRect(map[it.key]),
-                    currentYuvData.yuv,
+                    nv21,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -412,7 +427,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         val rShouder = it[3]
         val centerX: Double =
             if (header.x > 0f) header.x.toDouble() else (lShouder.x + rShouder.x) / 2.0
-        val shoulderWidth = abs(lShouder.x - rShouder.x) * 1.7
+        val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
         rect.bottom = max(lShouder.y, rShouder.y).toInt()
         rect.left = (centerX - shoulderWidth / 2.0).toInt()
         rect.right = (centerX + shoulderWidth / 2).toInt()
