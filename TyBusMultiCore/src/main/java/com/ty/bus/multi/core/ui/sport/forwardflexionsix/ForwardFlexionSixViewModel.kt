@@ -13,10 +13,10 @@ import androidx.lifecycle.MutableLiveData
 import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
-import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.forwardflexion.config.FFlexionSportResult
 import com.ty.forwardflexion.informCode.InformCode
 import com.ty.sport.common.basic.bean.Point
@@ -80,21 +80,20 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     val resetLD = MutableLiveData<Boolean>()//成绩OK
 
-    val sportTipsInfoLD = MutableLiveData<Pair<String, Int>>() //运动提示信息
+    val sportTipsInfoLD = MutableLiveData<String>() //运动提示信息
 
-    //识别卡片状态
-    var changeIdentityCardStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>()
-
+    //运动卡片的状态
+    var sportCardStateLD = MutableLiveData<Pair<Int, ForwardFlexionCardState>>()
 
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
     fun initData() {
         val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
 
         sportTimes = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_TEST_TIMES,
+            MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES,
             MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
         )
         for (i in 1..diskNum) {
@@ -163,9 +162,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     if (value.accountInfo.studentEntity!!.accountId == accountInfo.studentEntity!!.accountId) {
                         LogUtil.d("已识别过${value.accountInfo.studentEntity!!.accountName}")
                         rmKey = key
-                        changeMultiIdentityCardState(
+                        changeSportCardState(
                             value.number,
-                            MultiSportCardViewState.IDENTIFY_CHANGE
+                            ForwardFlexionCardState.IDLE
                         )
                         checkMap[value.number] = false
                     }
@@ -181,7 +180,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             )
             identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
             checkMap[currentIdentifyNumber] = true
-            changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFIED)
+            changeSportCardState(currentIdentifyNumber, ForwardFlexionCardState.IDENTIFIED)
 
             LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
             //重置识别道次
@@ -201,7 +200,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     @Synchronized
     private fun handleIdentityTimeFail() {
-        changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
+        changeSportCardState(currentIdentifyNumber, ForwardFlexionCardState.IDLE)
         //处理下一道是否有人
         var tempNumber = currentIdentifyNumber + 1
         var findOk = false
@@ -213,9 +212,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 ) == null
             ) {
                 currentIdentifyNumber = tempNumber
-                changeMultiIdentityCardState(
+                changeSportCardState(
                     currentIdentifyNumber,
-                    MultiSportCardViewState.IDENTIFYING
+                    ForwardFlexionCardState.IDENTIFYING
                 )
                 multiIdentityEngine.reset()
                 findOk = true
@@ -230,9 +229,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     }
 
-    private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
+    private fun changeSportCardState(index: Int, state: ForwardFlexionCardState) {
         uiHandler.post {
-            changeIdentityCardStateLD.value = Pair(index, state)
+            sportCardStateLD.value = Pair(index, state)
         }
     }
 
@@ -249,7 +248,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         var prepareCount = 0
         map.forEach {
             if (it.value == InformCode.PREPAREFINSIH) {
-                changeMultiIdentityCardState(it.key, MultiSportCardViewState.PREPARED)
+                changeSportCardState(it.key, ForwardFlexionCardState.PREPARED)
                 prepareCount++
                 prepareStatusList[it.key - 1] = true
                 LogUtil.d(it.key.toString() + "号准备完成")
@@ -287,7 +286,15 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             startSportCountDown()
             //切换卡片状态，方便重置
             sportPersonArray.forEach { key, value ->
-                changeMultiIdentityCardState(key, MultiSportCardViewState.SPORTING)
+                changeSportCardState(key, ForwardFlexionCardState.SPORTING)
+            }
+            for (index in 1..sportManCount) {
+                val value = sportPersonArray.get(index)
+                if (value != null) {
+                    changeSportCardState(index, ForwardFlexionCardState.SPORTING)
+                } else {
+                    changeSportCardState(index, ForwardFlexionCardState.SPORTING_NO_USER)
+                }
             }
             sportState = MultiSportState.SPORTING
         }
@@ -375,9 +382,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentYuvData.height,
                     currentIdentifyNumber
                 )
-                changeMultiIdentityCardState(
+                changeSportCardState(
                     currentIdentifyNumber,
-                    MultiSportCardViewState.IDENTIFYING
+                    ForwardFlexionCardState.IDENTIFYING
                 )
                 LogUtil.d("处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
                 return
@@ -474,12 +481,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 override fun onTick(millisUntilFinished: Long) {
                     sportCountDown--
                     sportTipsInfoLD.postValue(
-                        Pair(
-                            getString(
-                                R.string.forward_flexion_sport_count_down_tips,
-                                sportCountDown
-                            ),
-                            if (sportCountDown % 2 == 0) R.mipmap.forward_flexion_ani1 else R.mipmap.forward_flexion_ani2
+                        getString(
+                            R.string.sport_count_down,
+                            sportCountDown
                         )
                     )
                 }

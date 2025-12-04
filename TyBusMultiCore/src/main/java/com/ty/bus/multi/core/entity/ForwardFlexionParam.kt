@@ -1,7 +1,7 @@
 package com.ty.bus.multi.core.entity
 
 class ForwardFlexionParam {
-    private var minAngle = 120
+    private var minAngle = 110
     private var maxAngle = 170
 
     private val maxSsdqTh = 80 //双手对齐最大值
@@ -10,7 +10,7 @@ class ForwardFlexionParam {
 
     var checkLeg = true //双膝伸直
 
-    var szth = 75 //伸直阈值
+    var szth = 0 //伸直阈值
 
     var checkFoot = true//双脚并拢
 

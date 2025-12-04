@@ -18,7 +18,9 @@ import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.utils.LogUtil
 
+@SuppressLint("CustomViewStyleable", "Recycle")
 class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
@@ -35,6 +37,10 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
 
     init {
+        val attributes =
+            context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
+        val index = attributes.getInt(R.styleable.MoreSportCardSportView_pk_index, 1)
+        mBinding.tvIndex.text = index.toString()
         initView()
     }
 
@@ -43,10 +49,10 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
      */
     fun changeState(state: ForwardFlexionCardState) {
         if (preState == state) {
-            Log.d(TAG, "状态未改变")
+            LogUtil.d("ForwardFlexionSportCardView状态未改变")
             return
         }
-
+        LogUtil.d("ForwardFlexionSportCardView ${mBinding.tvIndex.text} 状态切换: $preState -> $state")
         //退出上一状态
         when (preState) {
             ForwardFlexionCardState.IDLE -> {
@@ -81,6 +87,9 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
                 exitFinished()
             }
 
+            ForwardFlexionCardState.SPORTING_NO_USER -> {
+                exitSportingNoUser()
+            }
         }
 
         //进入新状态处理
@@ -116,9 +125,22 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
             ForwardFlexionCardState.FINISHED -> {
                 enterFinished()
             }
+
+            ForwardFlexionCardState.SPORTING_NO_USER -> {
+                enterSportingNoUser()
+            }
         }
 
         preState = state
+    }
+
+    private fun enterSportingNoUser() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_testing_empty)
+        mBinding.groupStartNoUser.visibility = VISIBLE
+    }
+
+    private fun exitSportingNoUser() {
+        mBinding.groupStartNoUser.visibility = GONE
     }
 
     private fun enterIdle() {
@@ -138,16 +160,19 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     private fun enterIdentified() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.groupIdentified.visibility = VISIBLE
     }
 
     private fun exitIdentified() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = GONE
         mBinding.groupIdentified.visibility = GONE
     }
 
     private fun enterPrepared() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.groupPrepared.visibility = VISIBLE
     }
@@ -245,6 +270,9 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     private fun initView() {
+    }
+
+    fun reset() {
 
     }
 }

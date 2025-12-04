@@ -16,6 +16,9 @@ enum class ForwardFlexionCardState {
     //运动中
     SPORTING,
 
+    //运动中，无用户，该卡片未识别到用户
+    SPORTING_NO_USER,
+
     //出成绩但还在运动过程中，倒计时未结束（还有其他人未出成绩）
     RESULT_IN_SPORTING,
 

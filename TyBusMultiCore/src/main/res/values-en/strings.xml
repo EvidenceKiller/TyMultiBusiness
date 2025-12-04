@@ -37,5 +37,6 @@
     <string name="pause_result_speech">暂停播报</string>
     <string name="auto_next">自动下一组</string>
     <string name="how_many_times">第%d次</string>
+    <string name="sport_count_down">运动倒计时: %d</string>
 
 </resources>

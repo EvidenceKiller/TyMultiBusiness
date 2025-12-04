@@ -478,7 +478,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
                                 R.string.forward_flexion_sport_count_down_tips,
                                 sportCountDown
                             ),
-                            if (sportCountDown % 2 == 0) R.mipmap.forward_flexion_ani1 else R.mipmap.forward_flexion_ani2
+                            if (sportCountDown % 2 == 0) R.drawable.forward_flexion_ani1 else R.drawable.forward_flexion_ani2
                         )
                     )
                 }

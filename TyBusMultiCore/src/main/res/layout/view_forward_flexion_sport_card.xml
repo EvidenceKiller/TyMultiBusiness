@@ -6,6 +6,7 @@
     android:layout_height="@dimen/dp_220">
 
     <ImageView
+        android:id="@+id/iv_bg"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@mipmap/bg_card_ready_nouser" />
@@ -54,7 +55,6 @@
         android:id="@+id/group_idle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         app:constraint_referenced_ids="tv_state,tv_idle_tips" />
 
     <!--  识别中状态  -->
@@ -134,7 +134,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_36"
-        android:text="@string/forward_flexion_identified_tip"
+        android:text="@string/forward_flexion_prepare_tip"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_40"
         app:layout_constraintBottom_toBottomOf="parent"

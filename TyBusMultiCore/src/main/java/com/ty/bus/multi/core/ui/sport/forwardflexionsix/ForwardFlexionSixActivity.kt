@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.forwardflexionsix
 
+import android.graphics.ImageFormat
 import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
@@ -7,12 +8,17 @@ import android.os.Looper
 import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup.LayoutParams
+import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
+import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraListener
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.mount.core.TsModelInfo
@@ -25,7 +31,6 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
-import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionViewModel
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
@@ -49,8 +54,17 @@ import com.ty.tybusbase.utils.ToastUtil
 
 
 class ForwardFlexionSixActivity :
-    BaseMultiSportActivity<ActivityForwardFlexion6Binding, ForwardFlexionViewModel>() {
+    BaseMultiSportActivity<ActivityForwardFlexion6Binding, ForwardFlexionSixViewModel>() {
 
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/1.mp4"
+
+    /***************************视频播放调试*************************/
+    private val streamType = 2 //1:摄像头播放，2:视频播放
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: SportConfig? = null
@@ -113,73 +127,104 @@ class ForwardFlexionSixActivity :
 
         initOverlay()
         initProcessor()
-        initCamera()
+        if (streamType == 1) {
+            initCamera()
+        } else {
+            initVideoView()
+            initVideo()
+        }
+    }
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray?, width: Int, height: Int, time: Long) {
+                frameTime += 66
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+                forwardFlexionProcessor.onFrame(
+                    1,
+                    yuv,
+                    info.width,
+                    info.height,
+                    info.frameTimestamp,
+                    1
+                )
+            }
+        })
     }
 
     override fun initObserver() {
         super.initObserver()
-        viewModel.changeIdentityCardStateLD.observe(this) {
-            mBinding.identityView.changeState(
-                it,
-                getString(R.string.forward_flexion_prepare_tip)
-            )
+        viewModel.sportCardStateLD.observe(this) {
+            mBinding.sportView.changeState(it.first, it.second)
         }
 
         viewModel.identifiedLD.observe(this) {
-            mBinding.identityView.setUserInfo(it)
+            mBinding.sportView.setAccountInfo(it.first, it.second)
         }
 
         viewModel.sportStartLD.observe(this) {
             if (it == 1) {
-                mBinding.sportView.visibility = View.VISIBLE
-                mBinding.sportView.setAccountInfo(viewModel.sportPersonArray)
-                hideSportTip()
                 startRecording()
                 if (isDebug) {
                     mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
                 }
+                mBinding.sportView.sportStarted()
             }
-            mBinding.identityView.visibility = View.GONE
-
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
         }
 
         viewModel.resetLD.observe(this) {
-            hideSportingTips()
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
             forwardFlexionProcessor.onReset()
         }
 
         viewModel.sportTipsInfoLD.observe(this) {
-            showSportingTips(it.first, it.second)
+            mBinding.sportView.sportingTips(it)
         }
 
     }
 
-    private fun showSportingTips(tip: String, imgRes: Int) {
-        mBinding.gSportingTips.visibility = View.VISIBLE
-        mBinding.tvSportingTips.text = tip
-        mBinding.ivSportingTips.setBackgroundResource(imgRes)
-    }
-
-    private fun hideSportingTips() {
-        mBinding.gSportingTips.visibility = View.GONE
-    }
 
     private fun showDesc(msg: String) {
         if (isDebug.not()) return
         runOnUiThread {
             mBinding.tvDes.append(msg)
         }
-    }
-
-    private fun setSportTip(tip: String) {
-        mBinding.groupTvSportTip.visibility = View.VISIBLE
-        mBinding.tvSportTip.text = tip
-    }
-
-    private fun hideSportTip() {
-        mBinding.groupTvSportTip.visibility = View.GONE
     }
 
     private fun hideInTips() {
@@ -192,6 +237,18 @@ class ForwardFlexionSixActivity :
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
+        cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
+            override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
+                forwardFlexionProcessor.onFrame(
+                    1,
+                    yuv,
+                    previewInfo.width,
+                    previewInfo.height,
+                    previewInfo.frameTimestamp,
+                    1
+                )
+            }
+        })
         val ip =
             MMKVUtil.decodeString(
                 MMKVBusiKey.HTTP_CAMERA_IP,
@@ -209,6 +266,7 @@ class ForwardFlexionSixActivity :
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = true
         ipcHik = hikSubConfig
+            .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
@@ -218,6 +276,7 @@ class ForwardFlexionSixActivity :
     }
 
     private fun cameraLogin() {
+        if (streamType != 1) return
         ipcHik.login(object : AdlCameraListener {
             override fun onOpenSucceed() {
 
@@ -325,7 +384,10 @@ class ForwardFlexionSixActivity :
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
         uiConfig = AdlUIConfig.instance()
-            .readConfig(mBinding.overlay.configKey, FFlexionRoleConfig::class.java)
+            .readConfig(
+                MultiCoreConstant.FORWARD_FLEXION_SIX_UI_KEY,
+                FFlexionRoleConfig::class.java
+            )
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.enableTouch(false)
         if (isDebug) {
@@ -335,8 +397,8 @@ class ForwardFlexionSixActivity :
 
     private fun initProcessor() {
         val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_TEST_PEOPLE_NUMBER_DEFAULT
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         MultiCoreConfig
         val param = MultiCoreConfig.getForwardFlexionParam()
@@ -344,15 +406,16 @@ class ForwardFlexionSixActivity :
         sportConfig = SportConfig.builder()
             .debug(isDebug)
             .record(true)
-            .videoFps(30)
+            .videoDevice(2)
+            .videoFps(15)
             .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(),1))
-            .valueBool(booleanArrayOf(param.checkLeg,param.checkFoot,param.checkHand))
+            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH)
+            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT)
+            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
+            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
             .build()
-
+        LogUtil.d("ananan:${param.getAngle()}  ssthv:${param.getSsdqThVaule()}")
         mBinding.overlay.setMarkerAreaNum(diskNum)
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
@@ -370,9 +433,16 @@ class ForwardFlexionSixActivity :
 
             override fun onInform(code: InformCode?, error: String?) {
                 LogUtil.d("$code:$error")
-//                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-//                    viewModel.toStatusIdentifyFace()
-//                }
+                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+                    ToastUtil.getInstance(
+                        this@ForwardFlexionSixActivity,
+                        if (code == InformCode.LANDMARKFINSIH) getString(R.string.forward_flexion_auto_mat_success) else getString(
+                            R.string.forward_flexion_auto_mat_fail
+                        )
+                    ).show()
+                    viewModel.toStatusIdentifyFace()
+                    mBinding.overlay.saveConfig()
+                }
             }
 
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
@@ -423,9 +493,8 @@ class ForwardFlexionSixActivity :
 
     override fun onStatusIdentify() {
         LogUtil.d("开始人脸识别")
-        setSportTip(getString(R.string.forward_flexion_identified_tip))
-        mBinding.identityView.visibility = View.VISIBLE
         mBinding.overlay.post {
+            mBinding.sportView.visibility = View.VISIBLE
             forwardFlexionProcessor.open(mBinding.overlay)
             forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
         }
@@ -491,7 +560,6 @@ class ForwardFlexionSixActivity :
     }
 
     override fun onStatusEnd() {
-        hideSportingTips()
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.stopRecord()
@@ -540,9 +608,12 @@ class ForwardFlexionSixActivity :
     private fun startMatDetect() {
         if (isInit) return
         isInit = true
-//        forwardFlexionProcessor.open(mBinding.overlay)
-//        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
-        viewModel.toStatusIdentifyFace()
+        runOnUiThread {
+            mBinding.bntStart.performClick()
+        }
+        forwardFlexionProcessor.open(mBinding.overlay)
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+//        viewModel.toStatusIdentifyFace()
     }
 
 
@@ -551,8 +622,7 @@ class ForwardFlexionSixActivity :
      */
     private fun next() {
         viewModel.reset()
-        mBinding.identityView.reset()
-        mBinding.sportView.reset()
+//        mBinding.sportView.reset()
         viewModel.toStatusIdentifyFace()
     }
 
@@ -561,7 +631,7 @@ class ForwardFlexionSixActivity :
      */
     private fun retest() {
         forwardFlexionProcessor.onReset()
-        mBinding.sportView.reset()
+//        mBinding.sportView.reset()
         viewModel.retest()
     }
 
@@ -574,8 +644,8 @@ class ForwardFlexionSixActivity :
      * 开始录像
      */
     private fun startRecording() {
-        val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
-        forwardFlexionProcessor.startRecording(file)
+//        val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
+//        forwardFlexionProcessor.startRecording(file)
     }
 
     override fun onDestroy() {
@@ -584,6 +654,7 @@ class ForwardFlexionSixActivity :
         forwardFlexionProcessor.onRelease();
         mBinding.cameraView.release()
         mBinding.overlay.release()
+        videoReader?.release()
         releaseModel()
     }
 
