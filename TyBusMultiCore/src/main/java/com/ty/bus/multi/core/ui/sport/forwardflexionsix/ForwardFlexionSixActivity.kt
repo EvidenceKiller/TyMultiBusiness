@@ -397,6 +397,10 @@ class ForwardFlexionSixActivity :
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.enableTouch(false)
         if (isDebug) {
+            pointElement.setPreviewSize(
+                BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH,
+                BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT
+            )
             mBinding.overlay.addElement(pointElement)
         }
     }
