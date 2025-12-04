@@ -12,7 +12,6 @@ import com.adl.service.outer.AdlService
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
-import com.ty.bus.multi.databinding.ItemForwardFlexionScoreBinding
 import com.ty.bus.multi.databinding.ItemForwardFlexionSportScoreBinding
 import com.ty.bus.multi.databinding.ViewForwardFlexionSportCardBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
@@ -22,6 +21,9 @@ import com.ty.tybusbase.expand.getString
 
 class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context) : this(context, null)
+
     private val TAG = "FORWARD>>"
     private var mBinding = ViewForwardFlexionSportCardBinding.inflate(
         LayoutInflater.from(context),
