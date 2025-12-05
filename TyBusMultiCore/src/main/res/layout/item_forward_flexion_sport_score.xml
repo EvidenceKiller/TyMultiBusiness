@@ -7,16 +7,26 @@
     android:layout_marginTop="@dimen/dp_2"
     android:background="@drawable/bg_forward_flexion_item_score">
 
+    <ImageView
+        android:id="@+id/iv_this_result"
+        android:layout_width="@dimen/dp_24"
+        android:layout_height="@dimen/dp_24"
+        android:layout_marginStart="@dimen/dp_8"
+        android:background="@mipmap/ic_this_result"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <TextView
         android:id="@+id/tv_index"
         android:layout_width="@dimen/dp_48"
         android:layout_height="@dimen/dp_48"
-        android:layout_marginStart="@dimen/dp_32"
+        android:layout_marginStart="@dimen/dp_44"
         android:gravity="center"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_32"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_this_result"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="1" />
 
@@ -27,11 +37,10 @@
         android:layout_marginStart="@dimen/dp_20"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_56"
-        android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="@dimen/dp_8"
         app:layout_constraintStart_toEndOf="@+id/tv_index"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="11.58" />
+        tools:text="19.58" />
 
     <TextView
         android:id="@+id/tv_score_unit"

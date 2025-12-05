@@ -36,6 +36,8 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
     private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
 
+    private var bestScore = -1000 //最高分
+
     /**
      * 进度条假增
      */
@@ -234,6 +236,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
 
     private fun exitSporting() {
         mBinding.groupAccountInfo.visibility = GONE
+        mBinding.rvScore.visibility = GONE
     }
 
     private fun enterResultInSporting() {
@@ -274,11 +277,19 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
         if (scoreList.isNullOrEmpty()) {
             initScoreRv()
         }
-        scoreList.add(score)
+        scoreList.add(0, score)
         changeState(ForwardFlexionCardState.RESULT_IN_SPORTING)
         setCurrentScore(score)
-
+        updateBestScore(score)
         mBinding.rvScore.adapter?.notifyDataSetChanged()
+    }
+
+    private fun updateBestScore(score: Int) {
+        if (score > -200 && score <= 400) {
+            mBinding.groupBest.visibility = VISIBLE
+            bestScore = bestScore.coerceAtLeast(score)
+            mBinding.tvBestScore.text = "${bestScore / 10.0}"
+        }
     }
 
     private fun setCurrentScore(score: Int) {
@@ -311,7 +322,12 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
                     holder: VBViewHolder<ItemForwardFlexionSportScoreBinding>,
                     item: Int
                 ) {
-                    holder.vb.tvIndex.text = "${holder.layoutPosition + 1}"
+                    if (holder.layoutPosition == 0) {
+                        holder.vb.ivThisResult.visibility = VISIBLE
+                    } else {
+                        holder.vb.ivThisResult.visibility = INVISIBLE
+                    }
+                    holder.vb.tvIndex.text = "${scoreList.size - holder.layoutPosition}"
                     holder.vb.tvScore.text = when {
                         item == -300 -> {
                             holder.vb.tvScore.setTextColor(Color.RED)
@@ -340,6 +356,8 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     fun reset() {
         tickTimes = 0f
         scoreList.clear()
+        bestScore = -1000
+        mBinding.groupBest.visibility = GONE
         changeState(ForwardFlexionCardState.IDLE)
     }
 

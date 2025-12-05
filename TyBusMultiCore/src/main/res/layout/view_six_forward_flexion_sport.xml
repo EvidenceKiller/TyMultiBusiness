@@ -12,9 +12,9 @@
         android:layout_marginTop="@dimen/dp_24"
         android:background="@drawable/bg_forward_flexion_sport_tips"
         android:gravity="center"
-        android:visibility="gone"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_72"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -103,4 +103,52 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         tools:text="确定" />
+
+    <TextView
+        android:id="@+id/tv_finish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/end_test"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/ffs_sport_1" />
+
+
+    <TextView
+        android:id="@+id/tv_retest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_border_r50_white_shape"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/retest"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_next" />
+
+    <TextView
+        android:id="@+id/tv_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_border_r50_white_shape"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/next_group"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/ffs_sport_2" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

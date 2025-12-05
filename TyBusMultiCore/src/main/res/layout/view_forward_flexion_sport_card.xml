@@ -209,6 +209,68 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!--  成绩列表  -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_forward_flexion_sport_score" />
+
+    <!--  最佳  -->
+    <ImageView
+        android:id="@+id/iv_best_top"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_119"
+        android:background="@mipmap/ic_todaybest"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_best_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="最佳"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintEnd_toEndOf="@+id/iv_best_top"
+        app:layout_constraintStart_toStartOf="@+id/iv_best_top"
+        app:layout_constraintTop_toBottomOf="@+id/iv_best_top" />
+
+    <TextView
+        android:id="@+id/tv_best_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:text="11"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_best_best"
+        app:layout_constraintStart_toEndOf="@+id/iv_best_top"
+        app:layout_constraintTop_toTopOf="@+id/iv_best_top" />
+
+    <TextView
+        android:id="@+id/tv_best_score_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="cm"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_best_score"
+        app:layout_constraintStart_toEndOf="@+id/tv_best_score" />
+    <!--  最佳  -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_best_best,iv_best_top,tv_best_score,tv_best_score_unit" />
     <!--运动过程中出成绩-->
     <ImageView
         android:id="@+id/iv_sporting_bg"
@@ -261,15 +323,5 @@
         android:visibility="gone"
         app:constraint_referenced_ids="iv_sporting_bg,tv_sport_current_result_unit,tv_sport_current_result,tv_sport_times" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_score"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:itemCount="3"
-        tools:listitem="@layout/item_forward_flexion_sport_score" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

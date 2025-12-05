@@ -62,6 +62,14 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
         onExitDialogShow()
     }
 
+    protected fun hideBackBtn(){
+        mBaseBinding.ivExit.visibility = View.GONE
+    }
+
+    open fun showBackBtn(){
+        mBaseBinding.ivExit.visibility = View.VISIBLE
+    }
+
     /**
      * 退出对话框显示
      */

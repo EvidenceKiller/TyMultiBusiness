@@ -108,6 +108,12 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             prepareStatusList.add(false)
             resultStatusList.add(false)
         }
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(1, 1)))
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(2, 1)))
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(3, 1)))
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(4, 1)))
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(5, 1)))
+        multiIdentityEngine.setIdentityCountMap(hashMapOf(Pair(6, 1)))
         sportManCount = diskNum
         initFaceIdentify()
         sportState = MultiSportState.IDENTIFYING

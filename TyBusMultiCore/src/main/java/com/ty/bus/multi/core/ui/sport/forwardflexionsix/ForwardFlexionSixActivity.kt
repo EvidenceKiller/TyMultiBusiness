@@ -127,6 +127,23 @@ class ForwardFlexionSixActivity :
         mBinding.sportView.setStartListener {
             viewModel.toStatusPrepare()
         }
+
+        mBinding.sportView.showNextBtn()
+
+        mBinding.sportView.listener = object : ForwardFlexionResultViewListener {
+            override fun onRetestClick() {
+                retest()
+            }
+
+            override fun onNextClick() {
+                next()
+            }
+
+            override fun onEndTestClick() {
+                finish()
+            }
+        }
+
         mainHandler.postDelayed(tipRunnable, 1000)
 
         initOverlay()
@@ -423,8 +440,8 @@ class ForwardFlexionSixActivity :
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT)
             .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
-//            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
-            .valueBool(booleanArrayOf(false, false, false))
+            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
+//            .valueBool(booleanArrayOf(false, false, false))
             .build()
         mBinding.overlay.setMarkerAreaNum(diskNum)
         forwardFlexionProcessor.setConfig(sportConfig)
@@ -507,6 +524,7 @@ class ForwardFlexionSixActivity :
         LogUtil.d("开始人脸识别")
         mBinding.overlay.post {
             mBinding.sportView.visibility = View.VISIBLE
+            hideBackBtn()
             forwardFlexionProcessor.open(mBinding.overlay)
             forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
         }
@@ -573,11 +591,11 @@ class ForwardFlexionSixActivity :
 
     override fun onStatusEnd() {
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
-        forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
+        forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.stopRecord()
-        mBinding.sportView.visibility = View.GONE
-        addResultView()
+        mBinding.sportView.sportFinish()
+//        addResultView()
     }
 
     private fun addResultView() {
@@ -621,12 +639,13 @@ class ForwardFlexionSixActivity :
     private fun startMatDetect() {
         if (isInit) return
         isInit = true
+        hideLoadingDialog()
         runOnUiThread {
             mBinding.bntStart.performClick()
         }
-        forwardFlexionProcessor.open(mBinding.overlay)
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
-//        viewModel.toStatusIdentifyFace()
+//        forwardFlexionProcessor.open(mBinding.overlay)
+//        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+        viewModel.toStatusIdentifyFace()
     }
 
 
@@ -635,7 +654,6 @@ class ForwardFlexionSixActivity :
      */
     private fun next() {
         viewModel.reset()
-        mBinding.sportView.reset()
         viewModel.toStatusIdentifyFace()
     }
 
@@ -644,9 +662,8 @@ class ForwardFlexionSixActivity :
      */
     private fun retest() {
         LogUtil.d("retest  retest  restets")
-        forwardFlexionProcessor.onReset()
+//        forwardFlexionProcessor.onReset()
         mBinding.sportView.visibility = View.VISIBLE
-        mBinding.sportView.retest()
         viewModel.retest()
     }
 
