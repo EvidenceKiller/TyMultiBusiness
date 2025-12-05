@@ -127,7 +127,7 @@ class ForwardFlexionSixActivity :
             viewModel.toStatusPrepare()
         }
 
-        mBinding.sportView.showNextBtn()
+//        mBinding.sportView.showNextBtn()
 
         mBinding.sportView.listener = object : ForwardFlexionResultViewListener {
             override fun onRetestClick() {
@@ -148,6 +148,8 @@ class ForwardFlexionSixActivity :
         initOverlay()
         initProcessor()
         if (viewModel.streamType == 1) {
+            mBinding.layout.visibility = View.GONE
+            mBinding.llBtn.visibility = View.GONE
             initCamera()
         } else {
             initVideoView()
@@ -231,7 +233,6 @@ class ForwardFlexionSixActivity :
         }
 
         viewModel.testOnceFinishLD.observe(this) {
-            LogUtil.d("重置 idle idle idle")
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
             forwardFlexionProcessor.onReset()
             forwardFlexionProcessor.stopRecord()
@@ -289,7 +290,7 @@ class ForwardFlexionSixActivity :
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
-        hikSubConfig.isPreviewEnable = true
+        hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig
             .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
@@ -680,6 +681,7 @@ class ForwardFlexionSixActivity :
      */
     private fun startRecording() {
         if (viewModel.streamType == 1) {
+            viewModel.videoFile = null
             val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
             forwardFlexionProcessor.startRecording(file)
         }

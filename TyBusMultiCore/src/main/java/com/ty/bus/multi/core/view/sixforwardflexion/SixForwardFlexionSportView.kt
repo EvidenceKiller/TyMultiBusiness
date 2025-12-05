@@ -190,6 +190,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         cardMap.forEach { (_, value) ->
             value.reset()
         }
+        mBinding.tvSportingTips.visibility = GONE
     }
 
     /**
@@ -200,6 +201,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         listener?.onRetestClick()
         mBinding.tvRetest.visibility = GONE
         mBinding.tvNext.visibility = GONE
+        mBinding.tvSportingTips.visibility = GONE
         cardMap.forEach { (_, value) ->
             value.retest()
         }
