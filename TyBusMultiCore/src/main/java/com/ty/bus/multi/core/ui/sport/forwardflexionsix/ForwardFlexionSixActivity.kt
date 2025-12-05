@@ -32,7 +32,6 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.core.view.sixforwardflexion.SixForwardFlexionResultView
 import com.ty.bus.multi.databinding.ActivityForwardFlexion6Binding
@@ -219,8 +218,8 @@ class ForwardFlexionSixActivity :
         }
 
         viewModel.sportStartLD.observe(this) {
+            startRecording()
             if (it == 1) {
-                startRecording()
                 if (isDebug) {
                     mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
                 }
@@ -231,9 +230,12 @@ class ForwardFlexionSixActivity :
             LogUtil.d("开始运动")
         }
 
-        viewModel.resetLD.observe(this) {
+        viewModel.testOnceFinishLD.observe(this) {
             LogUtil.d("重置 idle idle idle")
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
+            forwardFlexionProcessor.onReset()
+            forwardFlexionProcessor.stopRecord()
+            viewModel.uploadResult()
         }
 
         viewModel.sportTipsInfoLD.observe(this) {
@@ -593,7 +595,6 @@ class ForwardFlexionSixActivity :
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.onReset()
-        forwardFlexionProcessor.stopRecord()
         mBinding.sportView.sportFinish()
 //        addResultView()
     }

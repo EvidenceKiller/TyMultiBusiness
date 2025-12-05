@@ -82,7 +82,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     val sportStartLD = MutableLiveData<Int>() //开始运动
 
-    val resetLD = MutableLiveData<Boolean>()//成绩OK
+    val testOnceFinishLD = MutableLiveData<Boolean>()//成绩OK
 
     val sportTipsInfoLD = MutableLiveData<String>() //运动提示信息
 
@@ -266,7 +266,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 prepareStatusList[it.key - 1] = true
             } else if (it.value == InformCode.PREPAREERR) {
                 //准备异常，需要重新准备
-                resetLD.postValue(true)
+                testOnceFinishLD.postValue(true)
                 SystemClock.sleep(100)
                 toStatusPrepare()
             }
@@ -472,9 +472,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         result.grade.forEach {
             val person = sportPersonArray.get(it.key)
             if (person == null) return@forEach
-            val name = person.accountInfo.studentEntity?.accountName ?: ""
-            person.count = max(person.count, it.value)
-//            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
+            person.count = it.value
             resultStatusList[it.key - 1] = true
         }
         val list = resultStatusList.filter { it }
@@ -490,6 +488,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         sportPersonArray.forEach { index, value ->
             changeSportCardState(index, ForwardFlexionCardState.SPORTING)
         }
+        testOnceFinishLD.postValue(true)
         if (currentSportTimes > sportTimes) {
             //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
             SpeechWrapper.speech(
@@ -498,23 +497,17 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentSportTimes - 1
                 )
             )
-            SystemClock.sleep(2000)
             toStatusSportEnd()
         } else {
-            resetLD.postValue(true)
             SpeechWrapper.speech(
                 getString(
                     R.string.forward_flexion_sport_times_end,
                     currentSportTimes - 1
                 )
             )
-            LogUtil.d("重置，，重置，，重置")
-            SystemClock.sleep(1500)
-            LogUtil.d("准备，准备，准备")
+            SystemClock.sleep(2000)
             toStatusPrepare()
         }
-
-
     }
 
     private fun startSportCountDown() {
@@ -552,13 +545,10 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         }
     }
 
-    //结束处理成绩
-    override fun toStatusSportEnd() {
-        super.toStatusSportEnd()
-        sportState = MultiSportState.IDLE
+    fun uploadResult() {
         endSportTime = System.currentTimeMillis()
         //延迟200ms，等待录制视屏结束
-        SystemClock.sleep(200)
+        SystemClock.sleep(100)
         sportPersonArray.forEach { key, value ->
             //如果是-200,表示未完成，不上传成绩
             if (value.count == -200) return@forEach
@@ -598,7 +588,12 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             )
 
         }
+    }
 
+    //结束处理成绩
+    override fun toStatusSportEnd() {
+        super.toStatusSportEnd()
+        sportState = MultiSportState.IDLE
     }
 
     private fun getResultSpeech(result: Int): String {
