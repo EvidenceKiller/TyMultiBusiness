@@ -21,8 +21,11 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity"
             android:exported="true" />
-        <activity android:name="com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity"
-            android:exported="true">
-        </activity>
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity"
+            android:exported="true"/>
+        <activity
+            android:name="com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>
