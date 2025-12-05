@@ -2,6 +2,7 @@ package com.ty.bus.multi.core
 
 import android.content.Context
 import android.content.Intent
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
@@ -41,8 +42,13 @@ object UIMultiNavigation {
     }
 
     @JvmStatic
-    fun goForwardFlexionSix(context: Context, config: UINavConfig?) {
+    fun goForwardFlexionSix(
+        context: Context,
+        config: UINavConfig?,
+        ffConfig: ForwardFlexionConfig? = null
+    ) {
         val intent = Intent(context, ForwardFlexionSixActivity::class.java)
+        intent.putExtra("sport_config", ffConfig)
         startActivity(context, intent, config)
     }
 
