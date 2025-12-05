@@ -119,9 +119,22 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
         cardMap[index]?.setAccountInfo(accountInfo)
     }
 
+    /**
+     * 重置，恢复初始状态（下一组）
+     */
     fun reset() {
+        isStarted = false
         cardMap.forEach { (_, value) ->
             value.reset()
+        }
+    }
+
+    /**
+     * 重测，当前人员继续测试
+     */
+    fun retest() {
+        cardMap.forEach { (_, value) ->
+            value.retest()
         }
     }
 }

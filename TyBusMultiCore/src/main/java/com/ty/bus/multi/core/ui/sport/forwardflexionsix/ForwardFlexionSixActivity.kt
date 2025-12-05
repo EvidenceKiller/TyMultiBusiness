@@ -65,7 +65,7 @@ class ForwardFlexionSixActivity :
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/1.mp4"
 
     /***************************视频播放调试*************************/
-    private val streamType = 1 //1:摄像头播放，2:视频播放
+
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
     private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
     private var sportConfig: SportConfig? = null
@@ -131,7 +131,7 @@ class ForwardFlexionSixActivity :
 
         initOverlay()
         initProcessor()
-        if (streamType == 1) {
+        if (viewModel.streamType == 1) {
             initCamera()
         } else {
             initVideoView()
@@ -215,8 +215,8 @@ class ForwardFlexionSixActivity :
         }
 
         viewModel.resetLD.observe(this) {
+            LogUtil.d("重置 idle idle idle")
             forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
-            forwardFlexionProcessor.onReset()
         }
 
         viewModel.sportTipsInfoLD.observe(this) {
@@ -282,7 +282,7 @@ class ForwardFlexionSixActivity :
     }
 
     private fun cameraLogin() {
-        if (streamType != 1) return
+        if (viewModel.streamType != 1) return
         ipcHik.login(object : AdlCameraListener {
             override fun onOpenSucceed() {
 
@@ -488,7 +488,7 @@ class ForwardFlexionSixActivity :
                     val rects = mutableListOf<Rect>()
                     bonePoints.forEach {
                         it.value.forEach { po ->
-                            points.add(Point(po.x,po.y))
+                            points.add(Point(po.x, po.y))
                         }
                         rects.add(viewModel.getIdentityRect(it.value))
                         mBinding.overlay.refreshNow()
@@ -572,6 +572,7 @@ class ForwardFlexionSixActivity :
     }
 
     override fun onStatusEnd() {
+        LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.stopRecord()
@@ -634,7 +635,7 @@ class ForwardFlexionSixActivity :
      */
     private fun next() {
         viewModel.reset()
-//        mBinding.sportView.reset()
+        mBinding.sportView.reset()
         viewModel.toStatusIdentifyFace()
     }
 
@@ -642,13 +643,17 @@ class ForwardFlexionSixActivity :
      * 重测试
      */
     private fun retest() {
+        LogUtil.d("retest  retest  restets")
         forwardFlexionProcessor.onReset()
-//        mBinding.sportView.reset()
+        mBinding.sportView.visibility = View.VISIBLE
+        mBinding.sportView.retest()
         viewModel.retest()
     }
 
     protected fun processorPrepare() {
+        LogUtil.d("processorPrepare processorPrepare processorPrepare processorPrepare")
         forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
+        forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
     }
 
@@ -656,14 +661,17 @@ class ForwardFlexionSixActivity :
      * 开始录像
      */
     private fun startRecording() {
-//        val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
-//        forwardFlexionProcessor.startRecording(file)
+        if (viewModel.streamType == 1) {
+            val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
+            forwardFlexionProcessor.startRecording(file)
+        }
     }
 
     override fun onPause() {
         super.onPause()
         mBinding.cameraView.stopPreview()
     }
+
     override fun onDestroy() {
         super.onDestroy()
         forwardFlexionProcessor.stopRecord()

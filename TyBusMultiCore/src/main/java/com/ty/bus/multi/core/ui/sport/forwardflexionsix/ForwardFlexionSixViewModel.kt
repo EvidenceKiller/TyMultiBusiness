@@ -37,6 +37,9 @@ import kotlin.math.abs
 import kotlin.math.max
 
 class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
+
+    val streamType = 2 //1:摄像头播放，2:视频播放
+
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
 
     private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
@@ -87,6 +90,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     var sportCardStateLD = MutableLiveData<Pair<Int, ForwardFlexionCardState>>()
 
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
+
+    private var isRetest = false //是否为重测
+
     fun initData() {
         val diskNum = MMKVUtil.decodeInt(
             MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
@@ -283,7 +289,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             startSportCountDown()
             //切换卡片状态，方便重置
             //第一次测试进入第一次测试状态
-            if (currentSportTimes == 1) {
+            if (currentSportTimes == 1 && isRetest.not()) {
                 for (index in 1..sportManCount) {
                     val value = sportPersonArray.get(index)
                     if (value != null) {
@@ -351,16 +357,21 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                AdlYUVUtil.YV12toNV21(
-                    currentYuvData.yuv,
-                    nv21,
-                    currentYuvData.width,
-                    currentYuvData.height
-                )
+                val data = if (streamType == 1) {
+                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
+                    AdlYUVUtil.YV12toNV21(
+                        currentYuvData.yuv,
+                        nv21,
+                        currentYuvData.width,
+                        currentYuvData.height
+                    )
+                    nv21
+                } else {
+                    currentYuvData.yuv
+                }
                 multiIdentityEngine.identify(
                     getIdentityRect(skeletonPoint),
-                    nv21,
+                    data,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -384,16 +395,21 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                AdlYUVUtil.YV12toNV21(
-                    currentYuvData.yuv,
-                    nv21,
-                    currentYuvData.width,
-                    currentYuvData.height
-                )
+                val data = if (streamType == 1) {
+                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
+                    AdlYUVUtil.YV12toNV21(
+                        currentYuvData.yuv,
+                        nv21,
+                        currentYuvData.width,
+                        currentYuvData.height
+                    )
+                    nv21
+                } else {
+                    currentYuvData.yuv
+                }
                 multiIdentityEngine.identify(
                     getIdentityRect(map[it.key]),
-                    nv21,
+                    data,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -486,7 +502,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentSportTimes - 1
                 )
             )
+            LogUtil.d("重置，，重置，，重置")
             SystemClock.sleep(1500)
+            LogUtil.d("准备，准备，准备")
             toStatusPrepare()
         }
 
@@ -592,6 +610,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     }
 
     fun retest() {
+        isRetest = true
         sportPersonArray.forEach { index, result ->
             result.count = -1000
         }
@@ -603,6 +622,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     override fun reset() {
         super.reset()
+        isRetest = false
         prepareStatusList.clear()
         resultStatusList.clear()
         for (i in 1..sportManCount) {

@@ -9,7 +9,6 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.adl.service.outer.AdlService
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
@@ -28,7 +27,6 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private val TAG = "FORWARD>>"
     private var mBinding = ViewForwardFlexionSportCardBinding.inflate(
         LayoutInflater.from(context),
         this,
@@ -340,6 +338,12 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     fun reset() {
+        tickTimes = 0f
+        scoreList.clear()
+        changeState(ForwardFlexionCardState.IDLE)
+    }
 
+    fun retest() {
+        changeState(ForwardFlexionCardState.SPORTING)
     }
 }
