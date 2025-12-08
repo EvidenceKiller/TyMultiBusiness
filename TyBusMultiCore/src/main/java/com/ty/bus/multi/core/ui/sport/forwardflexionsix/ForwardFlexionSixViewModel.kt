@@ -613,11 +613,16 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         multiIdentityEngine.closeMachine()
     }
 
+    /**
+     * 重测，只测一次
+     */
     fun retest() {
+
         isRetest = true
         sportPersonArray.forEach { index, result ->
             result.count = -1000
         }
+        sportTimes = 1
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
         toStatusPrepare()

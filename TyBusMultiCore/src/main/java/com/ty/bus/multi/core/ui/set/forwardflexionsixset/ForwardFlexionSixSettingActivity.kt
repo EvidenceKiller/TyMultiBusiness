@@ -385,6 +385,7 @@ class ForwardFlexionSixSettingActivity :
         mBinding.cameraView.release()
         forwardFlexionProcessor.onRelease()
         mBinding.overlay.release()
+        cameraDispatcher.quit()
         releaseModel()
     }
 

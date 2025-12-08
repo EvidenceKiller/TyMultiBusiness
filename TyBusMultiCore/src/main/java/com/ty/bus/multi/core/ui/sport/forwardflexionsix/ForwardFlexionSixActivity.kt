@@ -704,6 +704,7 @@ class ForwardFlexionSixActivity :
         forwardFlexionProcessor.onRelease();
         mBinding.cameraView.release()
         mBinding.overlay.release()
+        cameraDispatcher.quit()
         videoReader?.release()
         releaseModel()
     }

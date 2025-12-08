@@ -362,6 +362,6 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     fun retest() {
-        changeState(ForwardFlexionCardState.SPORTING)
+//        changeState(ForwardFlexionCardState.SPORTING)
     }
 }
