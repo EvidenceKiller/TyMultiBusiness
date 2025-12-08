@@ -441,7 +441,6 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         val lWrist = it[6]
         val rWrist = it[7]
         return lWrist.y < header.y
-        return true
     }
 
     fun getIdentityRect(it: MutableList<Point>?): Rect {

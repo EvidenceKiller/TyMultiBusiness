@@ -717,8 +717,9 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
      * @return
      */
     private boolean judgeHandUp(AdlPoseSkeleton skeleton) {
-        boolean isHandUp = EuHelper.leftHandsUp(skeleton);
-        return isHandUp;
+        if (skeleton == null || skeleton.getLWrist() == null || skeleton.getLShoulder() == null)
+            return false;
+        return skeleton.getLWrist().y < skeleton.getLShoulder().y;
     }
 
     /**
