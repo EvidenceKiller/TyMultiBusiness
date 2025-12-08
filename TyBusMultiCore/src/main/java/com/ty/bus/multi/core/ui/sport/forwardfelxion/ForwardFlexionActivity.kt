@@ -17,11 +17,11 @@ import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
 import com.adl.processor.SportProcessorStatus
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultView
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.databinding.ActivityForwardFlexionBinding
 import com.ty.forwardflexion.callback.FFlexionSportCb
 import com.ty.forwardflexion.config.FFlexionRoleConfig
@@ -412,7 +412,7 @@ class ForwardFlexionActivity :
             resultView.showNextBtn()
         }
         resultView.setSportResult(viewModel.sportPersonArray)
-        resultView.listener = object : ForwardFlexionResultViewListener {
+        resultView.listener = object : ResultViewBtnClickListener {
             override fun onRetestClick() {
                 retest()
                 mBinding.clViewContainer.removeView(resultView)

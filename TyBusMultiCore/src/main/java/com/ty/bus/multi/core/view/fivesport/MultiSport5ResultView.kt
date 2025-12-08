@@ -31,7 +31,7 @@ class MultiSport5ResultView(context: Context, attrs: AttributeSet?, defStyleAttr
         resultCardArray.put(2, mBinding.srvNumber3)
         resultCardArray.put(3, mBinding.srvNumber4)
         resultCardArray.put(4, mBinding.srvNumber5)
-        mBinding.tvFinish.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
+        mBinding.mtvFinish.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
         resultCardArray.forEach { key, value ->
             value.setReportOnclickListener {
                 reportClickListener?.invoke(key)

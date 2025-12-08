@@ -9,8 +9,8 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.entity.MultiSportResult
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.databinding.ViewForwardFlexionSixResultBinding
 import com.ty.tybusbase.expand.getString
 
@@ -19,7 +19,7 @@ class SixForwardFlexionResultView(context: Context, attrs: AttributeSet?, defSty
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    var listener: ForwardFlexionResultViewListener? = null
+    var listener: ResultViewBtnClickListener? = null
     private var cardMap = HashMap<Int, ForwardFlexionResultCardView>()
     private val COUNT_DOWN_TIME = 5 //倒计时时间
 

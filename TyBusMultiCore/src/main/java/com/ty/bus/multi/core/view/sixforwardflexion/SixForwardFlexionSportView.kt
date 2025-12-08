@@ -9,8 +9,8 @@ import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.databinding.ViewSixForwardFlexionSportBinding
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
@@ -31,7 +31,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
     private var isStarted = false
     private var startListener: Action? = null
 
-    var listener: ForwardFlexionResultViewListener? = null
+    var listener: ResultViewBtnClickListener? = null
 
     private val NEXT_COUNT_DOWN_TIME = 5 //倒计时时间
 

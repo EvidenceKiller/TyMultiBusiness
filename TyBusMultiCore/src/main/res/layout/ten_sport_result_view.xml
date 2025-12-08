@@ -18,12 +18,12 @@
         android:layout_width="@dimen/dp_720"
         android:layout_height="@dimen/dp_4"
         android:layout_marginRight="@dimen/dp_28"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_finish"
-        app:layout_constraintRight_toLeftOf="@+id/tv_finish"
-        app:layout_constraintTop_toTopOf="@+id/tv_finish" />
+        app:layout_constraintBottom_toBottomOf="@+id/mtv_finish"
+        app:layout_constraintRight_toLeftOf="@+id/mtv_finish"
+        app:layout_constraintTop_toTopOf="@+id/mtv_finish" />
 
     <com.ty.tybusbase.view.MyLinerGradientTextVIewType2
-        android:id="@+id/tv_finish"
+        android:id="@+id/mtv_finish"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_90"
@@ -38,9 +38,9 @@
         android:layout_width="@dimen/dp_720"
         android:layout_height="@dimen/dp_4"
         android:layout_marginLeft="@dimen/dp_28"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_finish"
-        app:layout_constraintLeft_toRightOf="@+id/tv_finish"
-        app:layout_constraintTop_toTopOf="@+id/tv_finish" />
+        app:layout_constraintBottom_toBottomOf="@+id/mtv_finish"
+        app:layout_constraintLeft_toRightOf="@+id/mtv_finish"
+        app:layout_constraintTop_toTopOf="@+id/mtv_finish" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_result1"

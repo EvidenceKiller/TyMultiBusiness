@@ -6,14 +6,13 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.LayoutInflater
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
-import com.adl.service.outer.AdlService
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ViewForwardFlexionResultBinding
 import com.ty.tybusbase.expand.getString
@@ -25,7 +24,7 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
 
     private var mBinding: ViewForwardFlexionResultBinding
 
-    var listener: ForwardFlexionResultViewListener? = null
+    var listener: ResultViewBtnClickListener? = null
 
     private val COUNT_DOWN_TIME = 5 //倒计时时间
 
@@ -174,10 +173,4 @@ class ForwardFlexionResultView(context: Context, attrs: AttributeSet?, defStyleA
         }
     }
 
-}
-
-interface ForwardFlexionResultViewListener {
-    fun onRetestClick()
-    fun onNextClick()
-    fun onEndTestClick()
 }

@@ -49,4 +49,10 @@ class ThreeSportIdentityView(context: Context, attrs: AttributeSet?, defStyleAtt
         )
     }
 
+    fun reset() {
+        cardMap.forEach { (_, value) ->
+            value.reset()
+        }
+    }
+
 }

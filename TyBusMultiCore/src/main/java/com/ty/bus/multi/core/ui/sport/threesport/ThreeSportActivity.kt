@@ -35,6 +35,9 @@ import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.adl.sport.general.multi.MultiSportCallback
 import com.adl.sport.general.multi.MultiSportRegionCheckFilter
 import com.bumptech.glide.Glide
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.utils.ThreeSportStandFilter
 import com.ty.bus.multi.core.view.threesport.ThreeSportResultView
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -42,7 +45,8 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 
-class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
+class ThreeSportActivity :
+    BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
 
     private var top1Count: Int = 0
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
@@ -55,7 +59,7 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
 
     private val imgMap = hashMapOf<Int, ImageView>()
 
-    private lateinit var srrvResult: BaseMultiSportResultView
+    private lateinit var srrvResult: ThreeSportResultView
 
     private lateinit var factory: AbstractMultiSportFactory
 
@@ -77,6 +81,8 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
 
     override fun initData() {
         super.initData()
+        viewModel.tsConfig =
+            intent.getSerializableExtra("sport_config") as? ThreeSportConfig
         for (i in 0 until viewModel.sportManCount) {
             checkStatusList.add(false)
         }
@@ -196,6 +202,23 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
                 it,
                 if (viewModel.matchId != null) Int.MAX_VALUE else top1Count
             )
+            if (viewModel.tsConfig?.isSupportNextGroup == true) {
+                srrvResult.showNextBtn()
+            }
+            srrvResult.listener = object : ResultViewBtnClickListener {
+                override fun onRetestClick() {
+                    retest()
+                }
+
+                override fun onNextClick() {
+                    next()
+                }
+
+                override fun onEndTestClick() {
+                    finish()
+                }
+            }
+
             val params =
                 ConstraintLayout.LayoutParams(
                     RecyclerView.LayoutParams.MATCH_PARENT,
@@ -206,9 +229,6 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
                 srrvResult,
                 params
             )
-            srrvResult.setConfirmOnclickListener {
-                finish()
-            }
             doResultViewTranslateAnimation(srrvResult)
         }
 
@@ -252,8 +272,7 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
         hideTip()
         parser.checkChannelStatus = false
         parser.checkSkipScore = false
-        multiSportProcessor.changeTo(SportProcessorStatus.Done)
-        multiSportProcessor.onRelease()
+        multiSportProcessor.changeTo(SportProcessorStatus.Idle)
         //隐藏运动页
         mBinding.threeSportView.visibility = View.GONE
         //结束清除骨骼数据等
@@ -376,6 +395,28 @@ class ThreeSportActivity: BaseMultiSportActivity<ActivityThreeSportBinding, Thre
         }
     }
 
+    /**
+     * 下一组
+     */
+    private fun next() {
+        mBinding.clSkipSportViewContainer.removeView(srrvResult)
+        mBinding.threeIdentityView.visibility = View.VISIBLE
+        mBinding.threeIdentityView.reset()
+        viewModel.reset()
+        viewModel.toStatusIdentifyFace()
+        multiSportProcessor.onReset()
+    }
+
+    /**
+     * 重测试
+     */
+    private fun retest() {
+        mBinding.threeSportView.visibility = View.VISIBLE
+        mBinding.threeSportView.retest()
+        mBinding.clSkipSportViewContainer.removeView(srrvResult)
+        multiSportProcessor.onReset()
+        viewModel.retest()
+    }
 
     override fun onResume() {
         super.onResume()

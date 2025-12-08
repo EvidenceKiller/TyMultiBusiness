@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.threesport
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.graphics.Rect
 import android.os.CountDownTimer
@@ -15,6 +16,7 @@ import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.sport.common.basic.bean.Point
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
@@ -35,10 +37,13 @@ import java.util.Date
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
+import androidx.core.util.size
+import com.ty.bus.multi.core.config.ThreeSportConfig
 
 class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
     //记录开始和结束时间
+    var tsConfig: ThreeSportConfig? = null
     var startTime: Long = 0
     var endTime: Long = 0
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
@@ -85,27 +90,7 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
     val sportCountDownLD = MutableLiveData<String>()//更新倒计时的LD
 
     //运动倒计时任务
-    private val sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {
-            sportCountDownTime--
-            //每隔10秒，且剩余时间大于等于5秒，播放音效,millisUntilFinished > 0.5过滤掉开始时间也能整除10的情况
-//            if (sportCountDownTime % 10 == 0L && sportCountDownTime >= 5) {
-//                SoundPlayUtils.play(25 + soundIndex++ % soundCount)
-//            }
-            if (sportCountDownTime == 10L) {
-                changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_warning_shape)
-            }
-
-            sportCountDownLD.postValue(simpleFormat.format(Date((sportCountDownTime) * 1000)))
-        }
-
-        override fun onFinish() {
-            //比赛结束
-            sportCountDownLD.postValue("0:00")
-            toStatusSportEnd()
-        }
-
-    }
+    private var sportingCountDownTimer: CountDownTimer? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -332,10 +317,9 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
         }
 
         skipRopeManList.forEach {
-            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown && sportPersonArray.get(
-                    it.positionNum,
-                    null
-                ) == null
+            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
+                && sportPersonArray.get(it.positionNum, null) == null
+                && checkHandUp(it)
             ) {
                 currentIdentifyNumber = it.positionNum
                 multiIdentityEngine.reset()
@@ -473,6 +457,12 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
         }
     }
 
+    private fun checkHandUp(it: GroupSportBaseMan): Boolean {
+        if (it.skeleton == null || it.skeleton.lShoulder == null || it.skeleton.rWrist == null)
+            return false
+        return it.skeleton.lWrist.y < it.skeleton.lShoulder.y
+    }
+
     private fun getIdentityRect(it: TsSportChannel?): Rect {
         if (it?.body == null || it.skeleton == null) {
             LogUtil.d("it.bodyrect  is Null null null null ------", true)
@@ -533,16 +523,33 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
     override fun toStatusSportStart() {
         super.toStatusSportStart()
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
-        sportingCountDownTimer.start()
+        sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                sportCountDownTime--
+                if (sportCountDownTime == 10L) {
+                    changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_warning_shape)
+                }
+                sportCountDownLD.postValue(simpleFormat.format(Date((sportCountDownTime) * 1000)))
+            }
+
+            override fun onFinish() {
+                //比赛结束
+                sportCountDownLD.postValue("0:00")
+                toStatusSportEnd()
+            }
+
+        }
+        sportingCountDownTimer?.start()
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until sportPersonArray.size()) {
+        for (index in 0 until sportPersonArray.size) {
             val multiResult = sportPersonArray.valueAt(index)
             currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
         }
     }
 
+    @SuppressLint("ImplicitSamInstance")
     override fun toStatusSportEnd() {
         endTime = System.currentTimeMillis()
         sportState = MultiSportState.IDLE
@@ -637,11 +644,31 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
         toDoneLD.postValue(skipList)
     }
 
+    override fun reset() {
+        super.reset()
+        multiIdentityEngine.clearCountMap()
+        sportPersonArray.clear()
+        layDownStatusList.clear()
+        sportState = MultiSportState.PREPARING
+    }
+
+    fun retest() {
+        sportPersonArray.forEach { index, result ->
+            changeMultiIdentityCardState(index, MultiSportCardViewState.IDENTIFIED)
+            result.count = 0
+        }
+
+        layDownStatusList.clear()
+        sportState = MultiSportState.PREPARING
+        toStatusPrepare()
+        videoFile = null
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         sportEngine.stopRecorder(null)
         multiIdentityEngine.closeMachine()
-        sportingCountDownTimer.cancel()
+        sportingCountDownTimer?.cancel()
         uiHandler.removeCallbacksAndMessages(null)
     }
 

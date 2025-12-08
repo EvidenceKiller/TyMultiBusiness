@@ -78,6 +78,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuId = SportConstant.SPORT_SIT_UP + "0001"
                     sportItemCode = SportConstant.SPORT_SIT_UP
                     sportSkuName = "三人仰卧起坐"
+                    endValue = "20000"
                     testCount = "3"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
@@ -90,6 +91,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuId = SportConstant.SPORT_PUSH_UP + "0001"
                     sportItemCode = SportConstant.SPORT_PUSH_UP
                     sportSkuName = "三人俯卧撑"
+                    endValue = "20000"
                     testCount = "3"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
@@ -151,6 +153,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             val sportInfo = SceneSportInfoEntity().apply {
                 sportSkuId = SportConstant.SPORT_PUSH_UP + "0001"
                 sportItemCode = SportConstant.SPORT_PUSH_UP
+                endValue = "20000"
                 sportSkuName = "三人俯卧撑"
                 testCount = "3"
             }

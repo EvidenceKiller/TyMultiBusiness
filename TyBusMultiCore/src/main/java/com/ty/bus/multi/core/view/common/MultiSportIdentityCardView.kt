@@ -164,4 +164,8 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
         identifyingTimer?.cancel()
     }
 
+    fun reset() {
+        toIdle()
+    }
+
 }

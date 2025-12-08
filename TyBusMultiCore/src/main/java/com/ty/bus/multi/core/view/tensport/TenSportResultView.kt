@@ -184,7 +184,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
      */
     fun setResultTitleText(text: String?) {
         if (TextUtils.isEmpty(text).not()) {
-            mBinding.tvFinish.text = text
+            mBinding.mtvFinish.text = text
         }
     }
 

@@ -29,12 +29,12 @@ import com.adl.processor.SportProcessorStatus
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
-import com.ty.bus.multi.core.view.forwardflexion.ForwardFlexionResultViewListener
 import com.ty.bus.multi.core.view.sixforwardflexion.SixForwardFlexionResultView
 import com.ty.bus.multi.databinding.ActivityForwardFlexion6Binding
 import com.ty.forwardflexion.callback.FFlexionSportCb
@@ -135,7 +135,7 @@ class ForwardFlexionSixActivity :
             mBinding.sportView.showNextBtn()
         }
 
-        mBinding.sportView.listener = object : ForwardFlexionResultViewListener {
+        mBinding.sportView.listener = object : ResultViewBtnClickListener {
             override fun onRetestClick() {
                 retest()
             }
@@ -603,37 +603,7 @@ class ForwardFlexionSixActivity :
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.onReset()
         mBinding.sportView.sportFinish()
-//        addResultView()
     }
-
-    private fun addResultView() {
-        val resultView = SixForwardFlexionResultView(this, null)
-        mBinding.clViewContainer.addView(
-            resultView,
-            LayoutParams.MATCH_PARENT,
-            LayoutParams.MATCH_PARENT
-        )
-        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
-            resultView.showNextBtn()
-        }
-        resultView.setSportResult(viewModel.sportPersonArray)
-        resultView.listener = object : ForwardFlexionResultViewListener {
-            override fun onRetestClick() {
-                retest()
-                mBinding.clViewContainer.removeView(resultView)
-            }
-
-            override fun onNextClick() {
-                next()
-                mBinding.clViewContainer.removeView(resultView)
-            }
-
-            override fun onEndTestClick() {
-                finish()
-            }
-        }
-    }
-
 
     override fun onResume() {
         super.onResume()
