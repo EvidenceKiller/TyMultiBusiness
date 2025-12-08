@@ -102,6 +102,10 @@ class ThreeSportActivity :
             viewModel.toStatusIdentifyFace()
         }
         mainHandler.postDelayed(tipRunnable, 1000)
+        if (viewModel.tsConfig?.hideTopOne == true) {
+            mBinding.llTop1Info.visibility = View.GONE
+            mBinding.llTop1Icon.visibility = View.GONE
+        }
         initOverlay()
         initPersonStateImageView()
         initProcess()

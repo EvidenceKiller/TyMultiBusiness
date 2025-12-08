@@ -128,7 +128,7 @@
         android:background="@drawable/bg_border_r50_white_shape"
         android:paddingHorizontal="@dimen/dp_88"
         android:paddingVertical="@dimen/dp_19"
-        android:text="@string/retest"
+        android:text="@string/retest_once"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
         android:visibility="gone"

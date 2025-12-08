@@ -98,4 +98,5 @@
   <string name="wait_left_identify_first">请等待左侧用户完成识别...</string>
   <string name="prompt_card_or_hand_up">请刷卡或者保持右手举起站到框内</string>
   <string name="player_exist">选手已存在，以游客身份加入</string>
+  <string name="retest_once">再测一次</string>
 </resources>
