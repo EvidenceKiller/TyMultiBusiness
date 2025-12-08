@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
@@ -59,8 +60,9 @@ object UIMultiNavigation {
     }
 
     @JvmStatic
-    fun goThreeSport(context: Context, config: UINavConfig?) {
+    fun goThreeSport(context: Context, config: UINavConfig?, tsConfig: ThreeSportConfig? = null) {
         val intent = Intent(context, ThreeSportActivity::class.java)
+        intent.putExtra("sport_config", tsConfig)
         startActivity(context, intent, config)
     }
 

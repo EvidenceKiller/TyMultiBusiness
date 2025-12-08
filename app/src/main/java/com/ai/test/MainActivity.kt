@@ -18,6 +18,7 @@ import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
@@ -95,7 +96,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     testCount = "3"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
-            })
+            }, ThreeSportConfig.builder().setSupportNextGroup(true).build())
         }
 
         mBinding.btn10RegionSet.setOnClickListener {

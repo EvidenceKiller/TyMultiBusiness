@@ -142,7 +142,9 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.tvSkipState.visibility = VISIBLE
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_nobody)
-
+        mBinding.tvLeaveNotice.visibility = GONE
+        mBinding.tvCount.text = "0"
+        setTimeBackground(R.drawable.pk_skip_rose_time_shape)
         //识别中
         mBinding.rlIdentityNotice.visibility = GONE
 
@@ -209,6 +211,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         state = MultiSportCardViewState.PREPARED
         //设置头像和名字
         mBinding.groupPrepared.visibility = VISIBLE
+        mBinding.tvCount.text = "0"
         //更换背景
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_already)
         //设置提示
@@ -277,6 +280,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         //隐藏准备中的UI
         mBinding.groupPrepared.visibility = GONE
         mBinding.tvNotice.visibility = GONE
+        mBinding.tvLeaveNotice.visibility = GONE
     }
 
     /**

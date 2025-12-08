@@ -26,6 +26,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.overlay.OnRenderScene
+import com.adl.mount.core.TsModelInfo
+import com.adl.mount.core.TsModelResPool
 import com.adl.processor.SportProcessorStatus
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.outer.AdlService
@@ -276,7 +278,7 @@ class ThreeSportActivity :
         //隐藏运动页
         mBinding.threeSportView.visibility = View.GONE
         //结束清除骨骼数据等
-        mBinding.overlay.clearScreen()
+//        mBinding.overlay.clearScreen()
     }
 
     private fun initCamera() {
@@ -345,7 +347,25 @@ class ThreeSportActivity :
         sportConfig.drawBody = isDebug
         sportConfig.drawSkeleton = skeleton
         sportConfig.sportType = factory.getMultiSportType()
-        sportConfig.loadModel(null)
+        sportConfig.loadModel(object : TsModelResPool.OnLoadModelCallback {
+            override fun onStart() {
+                showLoadingDialog(getString(R.string.model_loding))
+            }
+
+            override fun onSucceed(list: List<TsModelInfo?>?) {
+            }
+
+            override fun onFinish(
+                list: List<TsModelInfo?>?,
+                errrorList: List<TsModelInfo?>?
+            ) {
+                hideLoadingDialog()
+            }
+
+            override fun onEnd(str: String?) {
+            }
+
+        })
 
         parser = factory.getParser()
 
@@ -399,12 +419,23 @@ class ThreeSportActivity :
      * 下一组
      */
     private fun next() {
+        //切换Pose模型ID
+        mBinding.overlay.multiRegion.setDrawing(true)
+        sportConfig.poseModelId = factory.getFacePoseModelId()
+        sportConfig.bodyModelId = factory.getFaceBodyModelId()
+        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
+        multiSportProcessor.setConfig(sportConfig)
         mBinding.clSkipSportViewContainer.removeView(srrvResult)
         mBinding.threeIdentityView.visibility = View.VISIBLE
         mBinding.threeIdentityView.reset()
+        mBinding.threeSportView.reset()
+        //显示所有空闲图片
+        imgMap.forEach { (_, u) ->
+            u.visibility = View.VISIBLE
+        }
         viewModel.reset()
-        viewModel.toStatusIdentifyFace()
         multiSportProcessor.onReset()
+        viewModel.toStatusIdentifyFace()
     }
 
     /**

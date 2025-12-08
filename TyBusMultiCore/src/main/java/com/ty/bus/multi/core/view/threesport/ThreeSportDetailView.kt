@@ -38,4 +38,6 @@ class ThreeSportDetailView(context: Context, attrs: AttributeSet?, defStyleAttr:
     override fun getCountDownGoTv(): TextView = mBinding.tvCountDownGo
     fun retest() {
     }
+
+
 }

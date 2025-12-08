@@ -498,7 +498,6 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
     }
 
     fun readyGo() {
-        multiIdentityEngine.closeMachine()
         sportState = MultiSportState.COUNTDOWN
         countDownFinishLD.postValue(sportPersonArray)
         startRecord()
@@ -568,26 +567,6 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
 //        } else {
 //            NsCameraHKRecorder.instance().onStop()
 //        }
-        //处理上传视频
-        viewModelScope.launch(Dispatchers.IO) {
-            for (index in 0 until sportPersonArray.size()) {
-                //有一人大于5个就上传成绩
-                if (sportPersonArray.valueAt(index).count >= 5) {
-//                    videoFile?.let {
-                    //todo 上传运动视频
-//                        startUpload(
-//                            it,
-//                            sportInfo.sportAi,
-//                            sportInfo.sportName,
-//                            createTime,
-//                            0,
-//                            null
-//                        )
-//                    }
-                    break
-                }
-            }
-        }
         super.toStatusSportEnd()
     }
 
@@ -647,20 +626,28 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
     override fun reset() {
         super.reset()
         multiIdentityEngine.clearCountMap()
+        currentPersonState.clear()
+        currentCardState.clear()
         sportPersonArray.clear()
         layDownStatusList.clear()
+        for (index in 1..sportManCount) {
+            currentPersonState.add(GroupSportsBaseChannelStatus.none)
+            currentCardState.add(MultiSportCardViewState.NOBODY)
+            layDownStatusList.add(false)
+        }
         sportState = MultiSportState.PREPARING
     }
 
     fun retest() {
+        super.reset()
         sportPersonArray.forEach { index, result ->
-            changeMultiIdentityCardState(index, MultiSportCardViewState.IDENTIFIED)
+            changeMultiIdentityCardState(index, MultiSportCardViewState.PREPARED)
             result.count = 0
+            changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_shape)
         }
-
         layDownStatusList.clear()
         sportState = MultiSportState.PREPARING
-        toStatusPrepare()
+        readyGo()
         videoFile = null
     }
 
