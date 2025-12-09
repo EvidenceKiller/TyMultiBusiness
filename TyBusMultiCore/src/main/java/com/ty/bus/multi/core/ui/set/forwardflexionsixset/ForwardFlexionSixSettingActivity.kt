@@ -377,13 +377,16 @@ class ForwardFlexionSixSettingActivity :
 
     override fun onPause() {
         super.onPause()
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.Done)
         mBinding.cameraView.stopPreview()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         mBinding.cameraView.release()
-        forwardFlexionProcessor.onRelease()
+        Thread {
+            forwardFlexionProcessor.onRelease()
+        }.start()
         mBinding.overlay.release()
         cameraDispatcher.quit()
         releaseModel()

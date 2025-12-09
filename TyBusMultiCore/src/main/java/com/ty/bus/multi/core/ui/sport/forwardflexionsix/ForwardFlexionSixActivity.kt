@@ -145,7 +145,7 @@ class ForwardFlexionSixActivity :
             }
 
             override fun onEndTestClick() {
-                finish()
+                showExitDialog()
             }
         }
 
@@ -665,13 +665,16 @@ class ForwardFlexionSixActivity :
 
     override fun onPause() {
         super.onPause()
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.Done)
         mBinding.cameraView.stopPreview()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        forwardFlexionProcessor.stopRecord()
-        forwardFlexionProcessor.onRelease();
+        Thread {
+            forwardFlexionProcessor.stopRecord()
+            forwardFlexionProcessor.onRelease();
+        }.start()
         mBinding.cameraView.release()
         mBinding.overlay.release()
         cameraDispatcher.quit()
