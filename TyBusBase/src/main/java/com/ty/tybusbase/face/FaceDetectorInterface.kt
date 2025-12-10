@@ -7,10 +7,9 @@ import com.adl.service.entity.TeacherEntity
 import com.ty.identifty.base.TyLivingModel
 
 interface FaceDetectorInterface {
-    val faceFeatureThreshold: Float
-        get() = 0.75f
+    fun setFaceFeatureThreshold(thres: Float)
 
-    fun init(context: Context, finish: (Boolean) -> Unit?)
+    fun init(context: Context, licenseKey: String? = null, finish: (Boolean) -> Unit?)
 
     fun loadStudentFace(studentList: List<StudentEntity>?, replace: Boolean)
 

@@ -63,7 +63,7 @@ class FaceDetectorHelper private constructor() {
 
     private var minScoreThreshold = 0.5f //最小之心分数阈值
 
-    private var minTimes = 2 //最小匹配次数
+    private var minMatchTimes = 2 //最小匹配次数
 
     private var maxCountTimes = 4 //连续帧数
 
@@ -71,7 +71,12 @@ class FaceDetectorHelper private constructor() {
      * 初始化
      * type: 1:商汤：STFaceDetector 2:百度
      */
-    fun init(context: Context, type: Int = 1, finish: (Boolean) -> Unit?) {
+    fun init(
+        context: Context,
+        type: Int = 1,
+        licenseKey: String? = null,
+        finish: (Boolean) -> Unit?
+    ) {
         if (isInitOk) {
             finish.invoke(true)
             return
@@ -87,7 +92,7 @@ class FaceDetectorHelper private constructor() {
             else -> StFaceDetectorImp()
         }
         faceHandler?.post {
-            faceDetector?.init(context) {
+            faceDetector?.init(context, licenseKey) {
                 isInitOk = it
                 finish.invoke(it)
             }
@@ -192,7 +197,7 @@ class FaceDetectorHelper private constructor() {
         score: Float
     ) {
 //        if (BusiBaseConfig.getDebugEnable().not()) return
-        if (score < 0.5 || yuv == null || rectF == null || userId == null) return
+        if (score < minScoreThreshold || yuv == null || rectF == null || userId == null) return
         if (executor == null) {
             executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory())
         }
@@ -258,6 +263,22 @@ class FaceDetectorHelper private constructor() {
         this.findUerStrategy = strategy
     }
 
+    fun setFaceFeatureThreshold(thres: Float) {
+        faceDetector?.setFaceFeatureThreshold(thres)
+    }
+
+    fun setMinScoreThreshold(thres: Float) {
+        minScoreThreshold = thres
+    }
+
+    fun setMinTimes(times: Int) {
+        minMatchTimes = times
+    }
+
+    fun setMaxCountTimes(times: Int) {
+        maxCountTimes = times
+    }
+
     fun isInitOk(): Boolean {
         return isInitOk
     }
@@ -277,7 +298,7 @@ class FaceDetectorHelper private constructor() {
         val count = pair.first + 1
         val times = if (score > minScoreThreshold) pair.second + 1 else pair.second
         tempIdentityMap.clear()
-        return if (count >= maxCountTimes && times >= minTimes) {
+        return if (count >= maxCountTimes && times >= minMatchTimes) {
             true
         } else {
             tempIdentityMap[faceId] = Pair(count, times)

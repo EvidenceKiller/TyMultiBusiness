@@ -39,10 +39,11 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
     @Volatile
     private var isIsDetecting = false
 
-    override fun init(context: Context, finish: (Boolean) -> Unit?) {
+    private var faceFeatureThreshold: Float = 0.75f
+    override fun init(context: Context, licenseKey: String?, finish: (Boolean) -> Unit?) {
         if (isInitOk) return
         BDFaceFactory.auth(
-            context, BusiBaseConstantsValue.FACE_LICENSE_KEY,
+            context, licenseKey,
             object : TyFaceAuthCallback {
                 override fun initLicenseSuccess() {
                     AdlLogger.d("百度人脸授权成功,初始化百度人脸算法")
@@ -65,6 +66,11 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
                     AdlLogger.e("百度人脸初始化失败, code=$errorCode, msg=$msg")
                 }
             })
+    }
+
+    override fun setFaceFeatureThreshold(thres: Float) {
+        faceFeatureThreshold = thres
+        faceBdDetector?.setFaceFeatureThreshold(thres)
     }
 
     override fun loadStudentFace(

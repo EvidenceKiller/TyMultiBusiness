@@ -26,9 +26,12 @@ import com.ty.identifty.base.TyFaceInfo;
 import com.ty.identifty.base.TyLivingModel;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 1.初始化
@@ -256,13 +259,67 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         //获取质量检测结果
         StQualityResult stQualityResult = mStQuality.getStQualityResult();
         StQualityInfo[] stQualityInfo = stQualityResult.getQualityInfo();
-        int faceNum = stQualityResult.getQualityCount();
-        //人脸数量校验
-        if (faceNum < 1) {
-            return errorReturn("未找到人脸");
+        /**************************************************************/
+        // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
+// 水平角(Yaw) :  大于45度，直接丢弃
+// 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
+// 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
+/*if (stTrackInfo != null) {
+    //StRect rect = stTrackInfo.getRect();
+    d(" 人脸置信度: " + stTrackInfo.getConfidence()
+            + ", 人脸大小: " + (rect != null ? (rect.getRight() - rect.getLeft())
+            + "," + (rect.getBottom() - rect.getTop()) : " 0,0,0,0"));
+}*/
+
+        List<StQualityInfo> qualityInfos = Arrays.stream(stQualityInfo).filter(qualityInfo -> {
+            float quality = 0.0f;
+            String ss = "水平角: " + qualityInfo.getYaw()
+                    + ", 俯仰角: " + qualityInfo.getPitch()
+                    + ", 遮挡比例: " + qualityInfo.getOcclusionRatio()
+                    + ", 左眼状态: " + qualityInfo.getEyestateLeft()
+                    + ", 综合质量: " + (quality = qualityInfo.getQuality());
+            StHelper.logI(ss);
+            // 综合质量低于0.55的时候，开启丢弃策略
+            if (quality < 0.55f) {
+                // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
+                if (Math.abs(qualityInfo.getPitch()) > 45) {
+                    return false;
+                }
+
+                // 水平角(Yaw) :  大于45度，直接丢弃
+                if (Math.abs(qualityInfo.getYaw()) > 45) {
+                    //d(" 警告： 水平角异常，直接丢弃 !");
+                    return false;
+                }
+
+                // 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
+                if (Math.abs(qualityInfo.getOcclusionRatio()) > 0.35f) {
+                    //d(" 警告： 遮挡比例异常，直接丢弃 !");
+                    return false;
+                }
+
+                // 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
+                if (Math.abs(qualityInfo.getQuality()) < 0.2f) {
+                    //d(" 警告： 综合质量异常，直接丢弃 !");
+                    return false;
+                }
+            }
+            return true;
+        }).collect(Collectors.toList());
+
+        /**************************************************************/
+        if (qualityInfos.isEmpty()) {
+            return errorReturn("质量角度检测异常");
         }
-        saveBitmap(yuv, width, height, System.currentTimeMillis()
-                + "_no_face_.jpg");
+        int faceNum = qualityInfos.size();
+
+//        int faceNum = stQualityResult.getQualityCount();
+        //人脸数量校验
+        List<StTrackInfo> detectInfos = Arrays.stream(detectInfo).filter(stTrackInfo -> {
+            return qualityInfos.stream().anyMatch(qi -> qi.getId() == stTrackInfo.getId());
+        }).collect(Collectors.toList());
+
+
         /*---------人脸功能逻辑----------*/
         // 【1: 不提取特征】只返回人脸位置
         if (featureCheckMode == 1) {
@@ -284,7 +341,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         else if (featureCheckMode == 2) {
             if (faceNum > 1) return errorReturn("特征抽取失败，图片中发现多个人脸");
             //提取特征值
-            StVerifyResult stVerifyResult = getFeature(stImage, detectInfo[0], stQualityInfo[0]);
+            StVerifyResult stVerifyResult = getFeature(stImage, detectInfos.get(0), qualityInfos.get(0));
             if (stVerifyResult == null) return errorReturn("特征提取异常");
             jfFaceResult = new TyLivingModel();
             TyFaceInfo<float[]> jfFaceInfo = new TyFaceInfo();
@@ -304,7 +361,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             StVerifyResult[] stVerifyResults = new StVerifyResult[1];
             for (int i = 0; i < faceNum; i++) {
                 //提取特征
-                StVerifyResult stVerifyResult = getFeature(stImage, detectInfo[i], stQualityInfo[i]);
+                StVerifyResult stVerifyResult = getFeature(stImage, detectInfos.get(i), qualityInfos.get(i));
                 if (stVerifyResult == null) {
                     continue;
                 }
@@ -332,16 +389,6 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         }
 
     }
-
-    private String bitmapDic = "/sdcard/zy.sport.cache/pic";
-    private ExecutorService executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory());
-
-    private void saveBitmap(byte[] yuv, int width, int height, String name) {
-        executor.execute(() -> {
-            SaveBitmapUtil.INSTANCE.saveBitmap(yuv, width, height, bitmapDic, name);
-        });
-    }
-
 
     private TyLivingModel errorReturn(String errorMsg) {
         StHelper.logE(errorMsg);

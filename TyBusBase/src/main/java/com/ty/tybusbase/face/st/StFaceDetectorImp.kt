@@ -42,10 +42,13 @@ class StFaceDetectorImp : FaceDetectorInterface {
 
     private var secCount: Long = 0
 
-    override val faceFeatureThreshold: Float
-        get() = 0.4f
+    private var faceFeatureThreshold: Float = 0.4f
+    override fun setFaceFeatureThreshold(thres: Float) {
+        faceFeatureThreshold = thres
+        faceDetector?.setFaceFeatureThreshold(faceFeatureThreshold)
+    }
 
-    override fun init(context: Context, finish: (Boolean) -> Unit?) {
+    override fun init(context: Context, licenseKey: String?, finish: (Boolean) -> Unit?) {
         if (isInitOk) {
             finish.invoke(true)
             return
@@ -202,7 +205,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
         return faceIdMap[faceInfo.id]
     }
 
-    override fun isDetecting(): Boolean  = isIsDetecting
+    override fun isDetecting(): Boolean = isIsDetecting
 
     override fun detectFace(
         key: String?,
