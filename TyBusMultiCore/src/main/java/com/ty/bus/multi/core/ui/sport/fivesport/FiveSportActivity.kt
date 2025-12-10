@@ -50,6 +50,7 @@ class FiveSportActivity :
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
     }
 
 
@@ -277,6 +278,7 @@ class FiveSportActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面关闭")
         mBinding.cameraView.release()
         srsvSport.release()
         mBinding.overlay.release()

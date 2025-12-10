@@ -69,6 +69,7 @@ import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
+import com.ty.tybusbase.utils.LogUtil
 import java.util.concurrent.ConcurrentHashMap
 
 open class BaseIPCMultiSportViewModel(application: Application) :
@@ -722,6 +723,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     fun onCameraOpen() {
         multiSportProcessor.clearTransform()
         if (skipRoseState == MultiSportState.SPORTING || skipRoseState == MultiSportState.COUNTDOWN) {
+            LogUtil.d("${skipManCount}人运动，开始录像")
             startRecord()
         }
     }

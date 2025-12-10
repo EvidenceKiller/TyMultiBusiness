@@ -32,6 +32,7 @@ import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -53,6 +54,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 testCount = "10"
             }
         }
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
     }
@@ -362,6 +364,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
 
     override fun onDestroy() {
         super.onDestroy()
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面关闭")
         mBinding.cameraView.release()
         mBinding.sportView.release()
         mBinding.overlay.release()
