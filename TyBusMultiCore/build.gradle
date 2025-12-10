@@ -33,7 +33,7 @@ dependencies {
 
     api project(':TyBusBase')
     api(name: 'TySport-ForwardFlexion-2025-12-10', ext: 'aar')
-    api(name: 'TySport-Basic-Common-2025-12-08', ext: 'aar')
+    api(name: 'TySport-Basic-Common-2025-12-10', ext: 'aar')
     api(name: 'TySport-Special-Project-Common-2025-12-03', ext: 'aar')
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
