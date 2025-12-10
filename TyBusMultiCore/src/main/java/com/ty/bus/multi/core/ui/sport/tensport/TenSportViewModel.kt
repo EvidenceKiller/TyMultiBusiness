@@ -27,6 +27,8 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
 
     override fun getSportResolution(): Byte = 70
 
+    override fun getCameraSize(): Pair<Int, Int> = 2560 to 1440
+
     override fun getIdentityRect(
         it: TsSportChannel?,
         width: Int,

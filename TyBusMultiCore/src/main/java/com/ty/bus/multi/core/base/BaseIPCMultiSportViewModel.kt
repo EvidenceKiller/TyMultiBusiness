@@ -807,7 +807,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         //延时一丢丢，等分辨率切换过来，sportEngine的宽高是切换后的，才开始录像
         viewModelScope.launch(Dispatchers.IO) {
             SystemClock.sleep(1000)
-            sportEngine.startRecorder(videoFile)
+            val size = getCameraSize()
+            sportEngine.startRecorder(videoFile, size.first * size.second * 2)
         }
     }
 
@@ -1021,6 +1022,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     open fun getIdentifyResolution(): Byte = 64
     open fun getSportResolution(): Byte = 27
+
+    open fun getCameraSize(): Pair<Int, Int> = 1920 to 1080
 
     open fun getIdentityRect(
         it: TsSportChannel?,
