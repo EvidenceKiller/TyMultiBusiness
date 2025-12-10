@@ -10,6 +10,7 @@ import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.R
@@ -34,6 +35,8 @@ import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -253,12 +256,15 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     fun onPostureStatus(map: MutableMap<Int, InformCode>) {
         statusMap = map
-        handlePrepareStatus(map)
+        viewModelScope.launch(Dispatchers.IO) {
+            handlePrepareStatus(map)
+        }
     }
 
     /**
      * 处理姿态状态
      */
+    @Synchronized
     private fun handlePrepareStatus(map: MutableMap<Int, InformCode>) {
         if (sportState == MultiSportState.SPORTING) return
         var prepareCount = 0
@@ -342,8 +348,10 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
      ********************************************************************/
     fun onBonePoints(map: MutableMap<Int, MutableList<Point>>?) {
-        if (map != null) {
-            handleIdentify(map)
+        viewModelScope.launch(Dispatchers.IO) {
+            if (map != null) {
+                handleIdentify(map)
+            }
         }
     }
 
@@ -434,13 +442,14 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     }
 
     private fun checkHandUp(it: MutableList<Point>?): Boolean {
-        if (it.isNullOrEmpty() || it.size < 8) return false
-        val header = it[0]
-        val lShouder = it[2]
-        val rShouder = it[3]
-        val lWrist = it[6]
-        val rWrist = it[7]
-        return lWrist.y < header.y
+//        if (it.isNullOrEmpty() || it.size < 8) return false
+//        val header = it[0]
+//        val lShouder = it[2]
+//        val rShouder = it[3]
+//        val lWrist = it[6]
+//        val rWrist = it[7]
+//        return lWrist.y < header.y
+        return true
     }
 
     fun getIdentityRect(it: MutableList<Point>?): Rect {
@@ -468,47 +477,49 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     }
 
     fun handleResult(result: FFlexionSportResult) {
-        if (result.grade == null) {
-            return
-        }
-        result.grade.forEach {
-            val person = sportPersonArray.get(it.key)
-            if (person == null) return@forEach
-            person.count = it.value
-            resultStatusList[it.key - 1] = true
-        }
-        val list = resultStatusList.filter { it }
-        val checkSize = checkMap.filter { it.value }.size
-        //还有人未出成绩
-        if (list.size != checkSize) {
-            return
-        }
-        stopSportCountDown()
-        LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
-        sportState = MultiSportState.PREPARING
-        currentSportTimes++
-        sportPersonArray.forEach { index, value ->
-            changeSportCardState(index, ForwardFlexionCardState.SPORTING)
-        }
-        testOnceFinishLD.postValue(true)
-        if (currentSportTimes > sportTimes) {
-            //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
-            SpeechWrapper.speech(
-                getString(
-                    R.string.end_test,
-                    currentSportTimes - 1
+        viewModelScope.launch(Dispatchers.IO){
+            if (result.grade == null) {
+                return@launch
+            }
+            result.grade.forEach {
+                val person = sportPersonArray.get(it.key)
+                if (person == null) return@forEach
+                person.count = it.value
+                resultStatusList[it.key - 1] = true
+            }
+            val list = resultStatusList.filter { it }
+            val checkSize = checkMap.filter { it.value }.size
+            //还有人未出成绩
+            if (list.size != checkSize) {
+                return@launch
+            }
+            stopSportCountDown()
+            LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
+            sportState = MultiSportState.PREPARING
+            currentSportTimes++
+            sportPersonArray.forEach { index, value ->
+                changeSportCardState(index, ForwardFlexionCardState.SPORTING)
+            }
+            testOnceFinishLD.postValue(true)
+            if (currentSportTimes > sportTimes) {
+                //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
+                SpeechWrapper.speech(
+                    getString(
+                        R.string.end_test,
+                        currentSportTimes - 1
+                    )
                 )
-            )
-            toStatusSportEnd()
-        } else {
-            SpeechWrapper.speech(
-                getString(
-                    R.string.forward_flexion_sport_times_end,
-                    currentSportTimes - 1
+                toStatusSportEnd()
+            } else {
+                SpeechWrapper.speech(
+                    getString(
+                        R.string.forward_flexion_sport_times_end,
+                        currentSportTimes - 1
+                    )
                 )
-            )
-            SystemClock.sleep(2000)
-            toStatusPrepare()
+                SystemClock.sleep(2000)
+                toStatusPrepare()
+            }
         }
     }
 

@@ -477,7 +477,7 @@ class ForwardFlexionSixActivity :
                         )
                     ).show()
                     viewModel.toStatusIdentifyFace()
-                    mBinding.overlay.saveConfig()
+//                    mBinding.overlay.saveConfig()
                 }
             }
 
@@ -639,8 +639,6 @@ class ForwardFlexionSixActivity :
      * 重测试
      */
     private fun retest() {
-        LogUtil.d("retest  retest  restets")
-//        forwardFlexionProcessor.onReset()
         mBinding.sportView.visibility = View.VISIBLE
         viewModel.retest()
     }
