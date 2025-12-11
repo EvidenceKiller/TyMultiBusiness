@@ -157,6 +157,7 @@ class SixForwardFlexionSportView(context: Context, attrs: AttributeSet?, defStyl
     }
 
     fun sportFinish() {
+        nextCountDownTime = NEXT_COUNT_DOWN_TIME
         mBinding.tvRetest.visibility = VISIBLE
         mBinding.tvSportingTips.visibility = GONE
         if (isShowNext) {
