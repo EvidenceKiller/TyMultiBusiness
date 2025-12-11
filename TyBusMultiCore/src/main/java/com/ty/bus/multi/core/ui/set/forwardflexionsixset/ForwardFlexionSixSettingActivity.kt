@@ -383,6 +383,7 @@ class ForwardFlexionSixSettingActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        hideLoadingDialog()
         mBinding.cameraView.release()
         Thread {
             forwardFlexionProcessor.onRelease()

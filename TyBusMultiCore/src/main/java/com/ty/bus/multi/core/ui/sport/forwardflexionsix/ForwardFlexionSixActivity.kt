@@ -669,6 +669,7 @@ class ForwardFlexionSixActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        hideLoadingDialog()
         Thread {
             forwardFlexionProcessor.stopRecord()
             forwardFlexionProcessor.onRelease();
