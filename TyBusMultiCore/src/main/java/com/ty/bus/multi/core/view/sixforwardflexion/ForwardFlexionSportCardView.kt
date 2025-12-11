@@ -174,6 +174,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
     }
 
     private fun enterIdle() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_nouser)
         mBinding.groupIdle.visibility = VISIBLE
     }
 
