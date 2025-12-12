@@ -15,19 +15,25 @@ import com.ai.constants.MultiDemoConstants;
 import com.ai.ui.init.InitActivity;
 import com.qiniu.android.utils.LogUtil;
 import com.ty.bus.multi.demo.R;
-import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;
 import com.ty.tybusbase.utils.MMKVUtil;
 import com.yanzhenjie.permission.AndPermission;
 
 public class StartActivity extends BaseActivity {
 
+    //测试外网
     private static String testHost = "http://112.19.167.50:18005/gateway/api/device/auth";
     private static String testBusHost = "http://112.19.167.50:18082/gateway/api";
 
+    //测试内网
+    private static String testUrl = "http://172.16.2.102:18005/gateway/api/device/auth";
+    private static String testBusUrl = "http://172.16.0.206:8082/gateway/api";
     //生产环境
     private static String host = "http://globalauth.nezhasport.com/gateway/api/device/auth";
     private static String busHost = "https://ssp.nezhasport.com/gateway/api";
+
+    private static String httpHost = testUrl;
+    private static String httpBusHost = testBusUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,24 +54,24 @@ public class StartActivity extends BaseActivity {
                     }).start();
         }
     }
-private String testUrl = "http://172.16.0.206:8082/gateway/api";
+
     private void next() {
-        MMKVUtil.INSTANCE.encode(MMKVBusiKey.MODEL_DEBUG,true);
-        MMKVUtil.INSTANCE.encode(MMKVBusiKey.SKELETON_ABLE,true);
+        MMKVUtil.INSTANCE.encode(MMKVBusiKey.MODEL_DEBUG, true);
+        MMKVUtil.INSTANCE.encode(MMKVBusiKey.SKELETON_ABLE, true);
 
         AdlService.getService()
                 .setSdcard("zy.sport.cache")
                 .setDebug(true)
                 .setPlatform(IDefine.PlatformK12)
-                .setQiNiuHost(testUrl)
+                .setQiNiuHost(httpBusHost)
                 .setQiNiuBucket("adl-publicres")
-                .setHost(testUrl)
+                .setHost(httpBusHost)
                 .setFacePrefix("https://f.nezhasport.com/")
                 .build();
 
         AdlAuthFactory authFactory = AdlAuthFactory.create(getApplicationContext());
-        authFactory.setAuthHost(testHost);
-        authFactory.setBusinessHost(testBusHost);
+        authFactory.setAuthHost(httpHost);
+        authFactory.setBusinessHost(httpBusHost);
         authFactory.setChipType(3);// 1.高通， 2.天山， 3.自动识别
         authFactory.setDebug(true);
         authFactory.setUseNewTsModel(true);

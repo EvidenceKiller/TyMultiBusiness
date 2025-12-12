@@ -53,7 +53,17 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        mBinding.bnt0.setOnClickListener { UIMultiNavigation.goFiveSport(this, UINavConfig()) }
+        mBinding.bnt0.setOnClickListener {
+            UIMultiNavigation.goFiveSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    endValue = "40000"
+                    sportSkuName = "五人"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+            })
+        }
 
         mBinding.bnt11.setOnClickListener {
             goTenSportRope(
