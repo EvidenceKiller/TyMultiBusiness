@@ -3,7 +3,9 @@ package com.ty.tybusbase.face.baidu
 import android.content.Context
 import android.graphics.RectF
 import android.os.SystemClock
+import android.system.StructCmsghdr
 import android.util.Base64
+import android.util.Log
 import com.adl.base.log.AdlLogger
 import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
@@ -14,6 +16,7 @@ import com.ty.identifty.base.TyFaceInfo
 import com.ty.identifty.base.TyLivingModel
 import com.ty.identifty.bdface.BDFaceDetector
 import com.ty.identifty.bdface.BDFaceFactory
+import com.ty.identifty.stface.StContact
 import com.ty.identifty.stface.StHelper
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -169,7 +172,7 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
         } finally {
             isIsDetecting = false
             val endDetect = System.currentTimeMillis()
-            StHelper.logI("百度人脸识别耗时:" + (endDetect - startDetectFace))
+            Log.d("BDFace","百度人脸识别耗时:" + (endDetect - startDetectFace))
         }
         return jfLivingModel
     }

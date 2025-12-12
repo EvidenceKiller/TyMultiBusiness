@@ -210,7 +210,7 @@ object StFaceHelperBack {
                 bytes = AdlYUVUtil.cropNV21(yuv, width, height, left, top, targetW, targetH)
 
                 if (bytes == null) {
-                    StHelper.logE("警告： 人脸数据为null")
+                    StHelper.e("警告： 人脸数据为null")
                     return@post
                 }
                 val jfLivingModel =
@@ -229,13 +229,13 @@ object StFaceHelperBack {
                         return@post
                     }
                     val id = faceIdMap[faceInfo.id]
-                    StHelper.logI("识别到底库的FeatureId：$id")
+                    StHelper.d("识别到底库的FeatureId：$id")
                     if (type == 0) {
                         val studentEntity =
                             AdlService.getService().studentDao.queryStudentByAccountId(id)
                         if (studentEntity != null) {
                             mFaceCallback?.onFindUser(studentEntity);
-                            StHelper.logI("本地数据库中查询到学生：${studentEntity.accountName}")
+                            StHelper.d("本地数据库中查询到学生：${studentEntity.accountName}")
                             if (savePic) {
                                 saveBitmap(
                                     bytes,
@@ -253,28 +253,28 @@ object StFaceHelperBack {
                                     "${System.currentTimeMillis()}_no_student_${id}_${jfLivingModel.faceInfo.score}.jpg"
                                 )
                             }
-                            StHelper.logI("本地数据库中未查询到学生：空")
+                            StHelper.d("本地数据库中未查询到学生：空")
                         }
                     } else {
                         val teacherEntity =
                             AdlService.getService().teacherDao.queryTeacherByAccountId(id)
                         if (teacherEntity != null) {
                             mFaceCallback?.onFindTeacher(teacherEntity)
-                            StHelper.logI("本地数据库中查询到老师：${teacherEntity.accountName}")
+                            StHelper.d("本地数据库中查询到老师：${teacherEntity.accountName}")
                         } else {
-                            StHelper.logI("本地数据库中未查询到老师：空");
+                            StHelper.d("本地数据库中未查询到老师：空");
                         }
                     }
                 } else {
-                    StHelper.logI("jfLivingModel == null null null")
+                    StHelper.d("jfLivingModel == null null null")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                StHelper.logI("人脸识别异常：" + e.message)
+                StHelper.d("人脸识别异常：" + e.message)
             } finally {
                 isIsDetecting = false
                 val endDetect = System.currentTimeMillis()
-                StHelper.logI("人脸识别耗时:" + (endDetect - startDetectFace))
+                StHelper.d("人脸识别耗时:" + (endDetect - startDetectFace))
             }
         }
     }
@@ -388,9 +388,9 @@ object StFaceHelperBack {
                             )
 
                         if (addFace(replace, user.accountId, stVerifyResult)) {
-                            StHelper.logI("${user.accountName} 特征入库ok")
+                            StHelper.d("${user.accountName} 特征入库ok")
                         } else {
-                            StHelper.logI("${user.accountName} 特征入库失败")
+                            StHelper.d("${user.accountName} 特征入库失败")
                         }
                     } catch (e: Exception) {
                         failCount++
@@ -401,7 +401,7 @@ object StFaceHelperBack {
                     Log.e(TAG, "${user.accountName} 特征入库失败,特征空")
                 }
             }
-            StHelper.logI("学生特征入库完成**成功:$secCount***失败：$failCount")
+            StHelper.d("学生特征入库完成**成功:$secCount***失败：$failCount")
             failCount = 0
             secCount = failCount
             finish?.invoke()
@@ -434,9 +434,9 @@ object StFaceHelperBack {
                             )
 
                         if (addFace(replace, user.accountId, stVerifyResult)) {
-                            StHelper.logI("${user.accountName} 特征入库ok")
+                            StHelper.d("${user.accountName} 特征入库ok")
                         } else {
-                            StHelper.logI("${user.accountName} 特征入库失败")
+                            StHelper.d("${user.accountName} 特征入库失败")
                         }
                     } catch (e: Exception) {
                         failCount++
@@ -447,7 +447,7 @@ object StFaceHelperBack {
                     Log.e(TAG, "${user.accountName} 特征入库失败,特征空")
                 }
             }
-            StHelper.logI("老师特征入库完成**成功:$secCount***失败：$failCount")
+            StHelper.d("老师特征入库完成**成功:$secCount***失败：$failCount")
             failCount = 0
             secCount = failCount
             finish?.invoke()

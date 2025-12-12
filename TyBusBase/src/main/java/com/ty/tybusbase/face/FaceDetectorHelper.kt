@@ -197,7 +197,7 @@ class FaceDetectorHelper private constructor() {
         score: Float
     ) {
 //        if (BusiBaseConfig.getDebugEnable().not()) return
-        if (score < minScoreThreshold || yuv == null || rectF == null || userId == null) return
+        if (yuv == null || rectF == null || userId == null) return
         if (executor == null) {
             executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory())
         }
@@ -290,17 +290,22 @@ class FaceDetectorHelper private constructor() {
      */
     private fun verifyUser(faceId: String, score: Float): Boolean {
         if (score >= 0.9f) {
+            LogUtil.d("识别的置信分数达到0.9，直接确认身份")
             tempIdentityMap.clear()
             return true
         }
+        val studentEntity = findUerStrategy.findStudent(faceId)
         // 低分时，累计识别次数
         val pair = tempIdentityMap.getOrDefault(faceId, Pair(0, 0f))
         val count = pair.first + 1
         val times = if (score > minScoreThreshold) pair.second + 1 else pair.second
-        tempIdentityMap.clear()
+//        tempIdentityMap.clear()
         return if (count >= maxCountTimes && times >= minMatchTimes) {
+            tempIdentityMap.clear()
+            LogUtil.d("识别成功,达到累计策略${studentEntity?.accountName},当前帧置信分数： ${score},累计识别次数：$count,累计超分次数：$times")
             true
         } else {
+            LogUtil.d("累计帧数不够人员：${studentEntity?.accountName},当前帧置信分数： ${score},累计识别次数：$count,累计超分次数：$times")
             tempIdentityMap[faceId] = Pair(count, times)
             false
         }

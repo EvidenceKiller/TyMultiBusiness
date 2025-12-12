@@ -163,6 +163,14 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         return ret;
     }
 
+    private String bitmapDic = "/sdcard/zy.sport.cache/pic";
+    private ExecutorService executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory());
+
+    private void saveBitmap(byte[] yuv, int width, int height, String name) {
+        executor.execute(() -> {
+            SaveBitmapUtil.INSTANCE.saveBitmap(yuv, width, height, bitmapDic, name);
+        });
+    }
 
     /**
      * 特征值入库，需要在子线程中调用
@@ -181,7 +189,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             if (i == 0) secCount++;
             else {
                 failCount++;
-                StHelper.logE(faceFeature.getUserId() + "入库失败");
+                StHelper.INSTANCE.e(faceFeature.getUserId() + "入库失败", true);
             }
         }
         Log.d(LOG_TAG, "底库更新结束：入库成功" + secCount + "条 失败：" + failCount + "条 ");
@@ -270,36 +278,44 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             + ", 人脸大小: " + (rect != null ? (rect.getRight() - rect.getLeft())
             + "," + (rect.getBottom() - rect.getTop()) : " 0,0,0,0"));
 }*/
-
+        StHelper.INSTANCE.d("人脸检测结果人脸数：" + stQualityResult.getQualityCount(), false);
         List<StQualityInfo> qualityInfos = Arrays.stream(stQualityInfo).filter(qualityInfo -> {
+
+            String fileName = "detect_" + key + ".jpg";
             float quality = 0.0f;
             String ss = "水平角: " + qualityInfo.getYaw()
                     + ", 俯仰角: " + qualityInfo.getPitch()
                     + ", 遮挡比例: " + qualityInfo.getOcclusionRatio()
                     + ", 左眼状态: " + qualityInfo.getEyestateLeft()
                     + ", 综合质量: " + (quality = qualityInfo.getQuality());
-            StHelper.logI(ss);
+            StHelper.INSTANCE.d(ss, false);
+
+            fileName = "invalide_" + qualityInfo.getYaw() + "_" + qualityInfo.getPitch() + "_" + quality + ".jpg";
             // 综合质量低于0.55的时候，开启丢弃策略
             if (quality < 0.55f) {
                 // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
                 if (Math.abs(qualityInfo.getPitch()) > 45) {
+                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 水平角(Yaw) :  大于45度，直接丢弃
                 if (Math.abs(qualityInfo.getYaw()) > 45) {
                     //d(" 警告： 水平角异常，直接丢弃 !");
+                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
                 if (Math.abs(qualityInfo.getOcclusionRatio()) > 0.35f) {
                     //d(" 警告： 遮挡比例异常，直接丢弃 !");
+                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
                 if (Math.abs(qualityInfo.getQuality()) < 0.2f) {
+                    saveBitmap(yuv, width, height, fileName);
                     //d(" 警告： 综合质量异常，直接丢弃 !");
                     return false;
                 }
@@ -387,11 +403,10 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             }
             return errorReturn("未查询到人员");
         }
-
     }
 
     private TyLivingModel errorReturn(String errorMsg) {
-        StHelper.logE(errorMsg);
+        StHelper.INSTANCE.e(errorMsg, true);
         onFaceFast(null);
         return null;
     }

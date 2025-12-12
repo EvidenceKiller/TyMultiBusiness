@@ -3,6 +3,7 @@ package com.ty.tybusbase.face.st
 import android.content.Context
 import android.graphics.RectF
 import android.os.SystemClock
+import android.util.Log
 import com.adl.base.file.AdlFileHelper
 import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
@@ -13,6 +14,7 @@ import com.ty.identifty.base.TyLivingModel
 import com.ty.identifty.stface.BeforeSenseActiveCallBack
 import com.ty.identifty.stface.STFaceDetector
 import com.ty.identifty.stface.STFaceFactory
+import com.ty.identifty.stface.StContact
 import com.ty.identifty.stface.StHelper
 import com.ty.identifty.stface.StParameter
 import com.ty.tybusbase.expand.toEven
@@ -116,9 +118,9 @@ class StFaceDetectorImp : FaceDetectorInterface {
                         )
 
                     if (addFace(replace, user.accountId, stVerifyResult)) {
-                        StHelper.logI("${user.accountName} 特征入库ok")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库ok")
                     } else {
-                        StHelper.logI("${user.accountName} 特征入库失败")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库失败")
                     }
                 } catch (e: Exception) {
                     failCount++
@@ -167,17 +169,17 @@ class StFaceDetectorImp : FaceDetectorInterface {
                         )
 
                     if (addFace(replace, user.accountId, stVerifyResult)) {
-                        StHelper.logI("${user.accountName} 特征入库ok")
+                        Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库ok")
                     } else {
-                        StHelper.logI("${user.accountName} 特征入库失败")
+                        Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败")
                     }
                 } catch (e: Exception) {
                     failCount++
-                    StHelper.logI("${user.accountName} 特征入库失败 $e")
+                    Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败 $e")
                 }
             } else {
                 failCount++
-                StHelper.logI("${user.accountName} 特征入库失败,特征空")
+                Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败,特征空")
             }
         }
         LogUtil.d("商汤老师特征入库完成**成功:${secCount}***失败：${failCount}")
@@ -255,7 +257,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
             bytes = AdlYUVUtil.cropNV21(yuv, width, height, left, top, targetW, targetH)
 
             if (bytes == null) {
-                StHelper.logE("警告： 人脸数据为null")
+                LogUtil.d("警告： 人脸数据为null")
                 return null
             }
             jfLivingModel =
@@ -270,11 +272,11 @@ class StFaceDetectorImp : FaceDetectorInterface {
                 )
         } catch (e: Exception) {
             e.printStackTrace()
-            StHelper.logI("人脸识别异常：" + e.message)
+            LogUtil.e("人脸识别异常：" + e.message)
         } finally {
             isIsDetecting = false
             val endDetect = System.currentTimeMillis()
-            StHelper.logI("人脸识别耗时:" + (endDetect - startDetectFace))
+            Log.d(StContact.LOG_TAG, "人脸识别耗时:" + (endDetect - startDetectFace))
         }
         return jfLivingModel
     }

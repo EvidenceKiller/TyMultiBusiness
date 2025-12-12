@@ -13,6 +13,7 @@ import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
 import com.ai.ui.multiface.MultiFaceTestActivity
 import com.ai.ui.nfc.NfcReaderActivity
+import com.ai.ui.picfacetest.PicFaceTestActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
@@ -183,6 +184,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         mBinding.btnForward6Set.setOnClickListener {
             UIMultiNavigation.goForwardFlexionSixSetting(this)
+        }
+
+        mBinding.btnPicIdentify.setOnClickListener {
+            startActivity(Intent(this, PicFaceTestActivity::class.java))
         }
     }
 }

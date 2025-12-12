@@ -11,6 +11,7 @@ import androidx.core.net.toUri
 import com.adl.base.log.AdlLogger
 import com.adl.mount.sport.TsSportChannel
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.tybusbase.utils.LogUtil
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -36,24 +37,90 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
         currentIdentifyNumber: Int
     ): Rect {
         if (it?.body == null || it.skeleton == null) {
-            AdlLogger.d("it.bodyrect  is Null null null null ------")
-            AdlLogger.flushNow()
+            LogUtil.d("it.bodyrect  is Null null null null ------", true)
             return Rect(0, 0, 50, 50)
         }
         var rect = Rect(it.body.x, it.body.y, it.body.right(), it.body.bottom())
-        if (it.skeleton != null && it.skeleton.LShoulder != null && it.skeleton.RShoulder != null) {
-            val shoulderWidth = abs(it.skeleton.LShoulder.x - it.skeleton.RShoulder.x)
-            rect.bottom = max(it.skeleton.LShoulder.y, it.skeleton.RShoulder.y).toInt()
-            rect.left =
-                max(
-                    min(
-                        it.skeleton.LShoulder.x,
-                        it.skeleton.RShoulder.x
-                    ).toInt() - shoulderWidth.div(2).toInt(), 0
-                )
-            rect.right = min(rect.left + shoulderWidth.times(2).toInt(), width)
-            rect.top = max((rect.bottom - 1.8 * shoulderWidth).toInt(), 0)
+        val chin = it.skeleton.chin
+        val headTop = it.skeleton.headTop
+        if (chin != null && headTop != null) {
+            val height = (chin.y - headTop.y) * 1.2
+            rect.top = headTop.y.toInt()
+            rect.bottom = (chin.y + height / 8).toInt()
+            rect.left = (headTop.x - height / 2).toInt()
+            rect.right = (headTop.x + height / 2).toInt()
+            when (currentIdentifyNumber) {
+                4 -> {
+                    rect.left += (height / 8).toInt()
+                    rect.right += (height / 8).toInt()
+                }
+
+                9 -> {
+                    rect.left -= (height / 8).toInt()
+                    rect.right -= (height / 8).toInt()
+                }
+
+                0, 5 -> {
+                    rect.left += (height / 10).toInt()
+                    rect.right += (height / 10).toInt()
+                }
+
+                3, 6 -> {
+                    rect.left -= (height / 10).toInt()
+                    rect.right -= (height / 10).toInt()
+                }
+
+            }
+        } else {
+            if (it.skeleton != null && it.skeleton.LShoulder != null && it.skeleton.RShoulder != null) {
+                val shoulderWidth = abs(it.skeleton.LShoulder.x - it.skeleton.RShoulder.x)
+                when (currentIdentifyNumber) {
+                    0, 1, 2, 3, 6, 7 -> {
+
+                    }
+
+                    5 -> {
+
+                    }
+
+                    8 -> {
+
+                    }
+
+                    4 -> {
+
+                    }
+
+                    9 -> {
+
+                    }
+
+                    else -> {
+                        0
+                    }
+                } as Int
+                rect.bottom = (if (it.skeleton.chin != null) {
+                    it.skeleton.chin.y.toInt()
+                } else {
+                    max(it.skeleton.LShoulder.y, it.skeleton.RShoulder.y) + shoulderWidth / 8
+                }) as Int
+                rect.left =
+                    max(
+                        min(
+                            it.skeleton.LShoulder.x,
+                            it.skeleton.RShoulder.x
+                        ).toInt(), 0
+                    )
+                rect.right = min(rect.left + (shoulderWidth).toInt(), width)
+                rect.top = if (it.skeleton.headTop != null) {
+                    it.skeleton.headTop.y.toInt()
+                } else {
+                    max((rect.bottom - 1.8 * shoulderWidth).toInt(), 0)
+                }
+            }
         }
+
+        //框体纠正
         if (rect.width() < 40 || rect.height() < 40) {
             rect.left = max(rect.left - 20, 0)
             rect.right = min(rect.left + 40, width)
@@ -67,5 +134,7 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
         super.initFaceIdentify()
         multiIdentityEngine.addIdentityCount(4, 6)
         multiIdentityEngine.addIdentityCount(9, 6)
+        multiIdentityEngine.addIdentityCount(5, 4)
+        multiIdentityEngine.addIdentityCount(8, 4)
     }
 }

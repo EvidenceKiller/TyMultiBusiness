@@ -1,7 +1,6 @@
 package com.ty.identifty.stface;
 
 
-
 import static com.ty.identifty.stface.StContact.AUTH_ACTIVE;
 import static com.ty.identifty.stface.StContact.AUTH_ESAM;
 import static com.ty.identifty.stface.StContact.AUTH_ON_LING;
@@ -10,6 +9,7 @@ import static com.ty.identifty.stface.StHelper.parseSdkErrorCode;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -70,7 +70,7 @@ public final class STFaceFactory {
      */
     public synchronized STFaceDetector detectorCreate(@NonNull Context context, BeforeSenseActiveCallBack beforeSenseActiveCallBack) {
         if (mStFaceDetector == null || !mStFaceDetector.isOk()) {
-            StHelper.logI("-----------开始初始化商汤人脸----------");
+            Log.d(StContact.LOG_TAG, "-----------开始初始化商汤人脸----------");
             String myJson = getJson(context, paramJson);
             mStParameter = JSON.parseObject(myJson, StParameter.class);
             int ret = sdkFileInit(mStParameter.getParams(), context);
@@ -83,7 +83,7 @@ public final class STFaceFactory {
             ret &= licenseRet;
             if (ret == 0)
                 mStFaceDetector = STFaceDetector.crateStDetector(mStParameter, trackConfigStr);
-            else StHelper.logE("模型/license文件准备失败,放弃创建");
+            else StHelper.INSTANCE.e("模型/license文件准备失败,放弃创建", true);
         }
         return mStFaceDetector;
     }
@@ -142,20 +142,20 @@ public final class STFaceFactory {
         int ret = -1;
         if (mSdkVideoMode.equals(AUTH_ON_LING)) {
             ret = stCommon.sdkVideoAddLicense(licenseFile);
-            StHelper.logI("license mode is online");
+            Log.d(StContact.LOG_TAG, "license mode is online");
         } else if (mSdkVideoMode.equals(AUTH_ESAM)) {
             ret = stCommon.sdkVideoAddChipLicense(licenseFile, "/dev/i2c-2");
-            StHelper.logI("license mode is esam--- ret = " + ret);
+            Log.d(StContact.LOG_TAG, "license mode is esam--- ret = " + ret);
         } else {
             if (null != beforeforActive) {
                 beforeforActive.beforeDo(stParams);
             }
             ret = stCommon.sdkVideoAddLicenseActivated(licenseFile, licenseSignCodeFile);
-            StHelper.logI("license mode is activated");
+            Log.d(StContact.LOG_TAG, "license mode is activated");
         }
         parseSdkErrorCode(ret, "授权");
         String sdkVersion = stCommon.sdkVideoVersion();
-        StHelper.logI("sdkVersion:" + sdkVersion);
+        Log.d(StContact.LOG_TAG, "sdkVersion:" + sdkVersion);
         return ret;
     }
 
@@ -175,20 +175,20 @@ public final class STFaceFactory {
         int ret = -1;
         if (mSdkVideoMode.equals(AUTH_ON_LING)) {
             ret = stCommon.sdkVideoAddLicense(licenseFile);
-            StHelper.logI("license mode is online");
+            Log.d(StContact.LOG_TAG, "license mode is online");
         } else if (mSdkVideoMode.equals(AUTH_ESAM)) {
             ret = stCommon.sdkVideoAddChipLicense(licenseFile, "/dev/i2c-2");
-            StHelper.logI("license mode is esam--- ret = " + ret);
+            Log.d(StContact.LOG_TAG, "license mode is esam--- ret = " + ret);
         } else {
             if (null != beforeActive) {
                 beforeActive.beforeDo(stParams);
             }
             ret = stCommon.sdkVideoAddLicenseActivated(licenseFile, licenseSignCodeFile);
-            StHelper.logI("license mode is activated");
+            Log.d(StContact.LOG_TAG, "license mode is activated");
         }
         parseSdkErrorCode(ret, "授权");
         String sdkVersion = stCommon.sdkVideoVersion();
-        StHelper.logI("sdkVersion:" + sdkVersion);
+        Log.d(StContact.LOG_TAG, "sdkVersion:" + sdkVersion);
         return ret;
     }
 

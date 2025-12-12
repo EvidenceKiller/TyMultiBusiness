@@ -453,7 +453,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                     accountInfoLD.postValue(accountInfo)
                 }
-                AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
+                LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
                 changeMultiIdentityCardState(
                     identifyNumber,
                     MultiSportCardViewState.PREPARED
@@ -479,7 +479,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     }
 
     private fun resetIdentifyNumber() {
-        AdlLogger.d("重置识别编号为-1")
+        LogUtil.d("重置识别编号为-1")
         currentIdentifyNumber = -1
     }
 
@@ -511,7 +511,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY)
                     }
                 }
-                AdlLogger.d("处理无人时的状态复位")
+                LogUtil.d("处理无人时的状态复位")
                 resetIdentifyNumber()
                 skipRoseState = MultiSportState.PREPARING
             }
@@ -610,12 +610,12 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private fun handleIdentify(skipRopeManList: MutableList<GroupSportBaseMan>) {
         //如果为识别状态
         if (skipRoseState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
-            AdlLogger.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
+            LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
             val skipRopeMan =
                 skipRopeManList.find { skipRopeMan -> skipRopeMan.positionNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
             if (skipRopeMan == null) {
-                AdlLogger.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
+                LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 changeMultiIdentityCardState(
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFY_FAIL
@@ -624,7 +624,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 skipRoseState = MultiSportState.PREPARING
             } else {
                 //送数据进行人脸识别
-                AdlLogger.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
+                LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = bsSkipRoseMultiProcessor.getCurrentYuvData()
                 multiIdentityEngine.identify(
                     getIdentityRect(
@@ -643,7 +643,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
         //如果正在识别，则等待识别完再处理下一个人脸识别
         if (multiIdentityEngine.isIdentifying()) {
-            AdlLogger.d("处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
+            LogUtil.d("处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
             return
         }
 
@@ -673,7 +673,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFYING
                 )
-                AdlLogger.d("处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
+                LogUtil.d("处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
                 return
             }
         }
@@ -712,7 +712,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
         uiHandler.post {
-            AdlLogger.d("changeMultiIdentityCardState: index $index state ${state.name}")
+            LogUtil.d("changeMultiIdentityCardState: index $index state ${state.name}")
             changeSportViewStateLD.value = Pair(index, state)
         }
     }
@@ -1032,10 +1032,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         currentIdentifyNumber: Int
     ): Rect {
         if (it?.body == null || it.skeleton == null) {
-            AdlLogger.d("it.bodyrect  is Null null null null ------")
-            AdlLogger.flushNow()
+            LogUtil.d("it.bodyrect  is Null null null null ------", true)
             return Rect(0, 0, 50, 50)
         }
+        var shoulderOffset = 0
         var rect = Rect(it.body.x, it.body.y, it.body.right(), it.body.bottom())
         if (it.skeleton != null && it.skeleton.LShoulder != null && it.skeleton.RShoulder != null) {
             val shoulderWidth = abs(it.skeleton.LShoulder.x - it.skeleton.RShoulder.x)
@@ -1045,11 +1045,17 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     min(
                         it.skeleton.LShoulder.x,
                         it.skeleton.RShoulder.x
-                    ).toInt() - shoulderWidth.div(2).toInt(), 0
+                    ).toInt() - shoulderOffset, 0
                 )
-            rect.right = min(rect.left + shoulderWidth.times(2).toInt(), width)
-            rect.top = max((rect.bottom - 1.8 * shoulderWidth).toInt(), 0)
+            rect.right = min(rect.left + (shoulderWidth + 2 * shoulderOffset).toInt(), width)
+            rect.top = if (it.skeleton.headTop != null) {
+                it.skeleton.headTop.y.toInt()
+            } else {
+                max((rect.bottom - 1.8 * shoulderWidth).toInt(), 0)
+            }
         }
+
+        //框体纠正
         if (rect.width() < 40 || rect.height() < 40) {
             rect.left = max(rect.left - 20, 0)
             rect.right = min(rect.left + 40, width)

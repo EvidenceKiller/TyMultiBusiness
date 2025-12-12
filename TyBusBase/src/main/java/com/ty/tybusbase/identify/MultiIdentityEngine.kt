@@ -20,6 +20,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
 import com.ty.tybusbase.helper.SportHelper
+import com.ty.tybusbase.utils.LogUtil
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -193,7 +194,7 @@ class MultiIdentityEngine {
             identityStartTime = System.currentTimeMillis()
         }
         if (skeleton == null) {
-            AdlLogger.d("MultiIdentityEngine skeleton = null")
+            LogUtil.d("MultiIdentityEngine skeleton = null")
             return
         }
         val faceRecTime: Long = System.currentTimeMillis() - identityStartTime
@@ -280,6 +281,7 @@ class MultiIdentityEngine {
     }
 
     fun closeMachine() {
+        identifyCountMap.clear()
         identityListener = null
         FaceDetectorHelper.getInstance().setFaceCallback(null)
     }
