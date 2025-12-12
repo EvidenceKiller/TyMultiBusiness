@@ -13,8 +13,10 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.baidu.BaiduFaceDetectorImp
 import com.ty.tybusbase.face.st.StFaceDetectorImp
+import com.ty.tybusbase.face.strategy.DefaultVerifyStrategy
 import com.ty.tybusbase.face.strategy.FindUserByDatabase
 import com.ty.tybusbase.face.strategy.IFindUserStrategy
+import com.ty.tybusbase.face.strategy.IVerifyStrategy
 import com.ty.tybusbase.utils.LogUtil
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -45,6 +47,9 @@ class FaceDetectorHelper private constructor() {
     //获取用户信息的策略类
     private var findUerStrategy: IFindUserStrategy = FindUserByDatabase()
 
+    //检验策略
+    private var verifyStrategy: IVerifyStrategy = DefaultVerifyStrategy()
+
     private val tempIdentityMap by lazy { HashMap<String, Pair<Int, Float>>() }
 
     /**
@@ -57,15 +62,23 @@ class FaceDetectorHelper private constructor() {
      */
     private var preDetectTime = 0L
 
-    private val frameInterval = 4 //几帧检测一帧
-
     private val resetFrameCountTime = 60 * 1000 //1分钟重置帧数统计
 
-    private var minScoreThreshold = 0.5f //最小之心分数阈值
+    private val defaultFrameInterval = 4  //默认检测间隔
 
-    private var minMatchTimes = 2 //最小匹配次数
+    private val defaultMinScoreThreshold = 0.5f //默认最小信任分数阈值
 
-    private var maxCountTimes = 4 //连续帧数
+    private val defaultMinMatchTimes = 2 //默认最小匹配次数
+
+    private val defaultMaxCountTimes = 4 //默认最大连续帧数
+
+    private var frameInterval = defaultFrameInterval //几帧检测一帧
+
+    private var minScoreThreshold = defaultMinScoreThreshold //最小之心分数阈值
+
+    private var minMatchTimes = defaultMinMatchTimes //最小匹配次数
+
+    private var maxCountTimes = defaultMaxCountTimes //连续帧数
 
     /**
      * 初始化
@@ -158,7 +171,11 @@ class FaceDetectorHelper private constructor() {
             val livingModel = faceDetector?.detectFace(key, yuv, width, height, rectF, type)
             val userId = faceDetector?.getUserId(livingModel)
             savePic(yuv, width, height, rectF, userId, livingModel?.faceInfo?.score ?: 0f)
-            if (userId != null && verifyUser(userId, livingModel?.faceInfo?.score ?: 0f)) {
+            if (userId != null && verifyStrategy.verifyUser(
+                    userId,
+                    livingModel?.faceInfo?.score ?: 0f
+                )
+            ) {
                 LogUtil.d("识别到用户ID：$userId")
                 if (type == BusiBaseConstantsValue.FACE_DETECT_TYPE_STUDENT) {
                     val studentEntity = findUerStrategy.findStudent(userId)
@@ -263,20 +280,26 @@ class FaceDetectorHelper private constructor() {
         this.findUerStrategy = strategy
     }
 
-    fun setFaceFeatureThreshold(thres: Float) {
-        faceDetector?.setFaceFeatureThreshold(thres)
+    /**
+     * 设置人脸检验策略类
+     */
+    fun setVerifyStrategy(strategy: IVerifyStrategy) {
+        verifyStrategy = strategy
     }
 
-    fun setMinScoreThreshold(thres: Float) {
-        minScoreThreshold = thres
+    /**
+     * 获取默认人脸检验策略类
+     * 可以设置策略里的相应参数
+     */
+    fun getDefaultVerifyStrategy(): DefaultVerifyStrategy? {
+        return verifyStrategy as? DefaultVerifyStrategy
     }
 
-    fun setMinTimes(times: Int) {
-        minMatchTimes = times
-    }
-
-    fun setMaxCountTimes(times: Int) {
-        maxCountTimes = times
+    /**
+     * 设置检测的帧间隔
+     */
+    fun setFrameInterval(interval: Int) {
+        frameInterval = interval
     }
 
     fun isInitOk(): Boolean {
@@ -285,30 +308,10 @@ class FaceDetectorHelper private constructor() {
 
     fun isDetecting() = faceDetector?.isDetecting() == true
 
-    /**
-     * 校验人员，如果，分数低于0.6的，需要三次连续识别是同一个人，且其中一帧的分要达到一个阈值（如0.5），才认为是识别成功
-     */
-    private fun verifyUser(faceId: String, score: Float): Boolean {
-        if (score >= 0.9f) {
-            LogUtil.d("识别的置信分数达到0.9，直接确认身份")
-            tempIdentityMap.clear()
-            return true
-        }
-        val studentEntity = findUerStrategy.findStudent(faceId)
-        // 低分时，累计识别次数
-        val pair = tempIdentityMap.getOrDefault(faceId, Pair(0, 0f))
-        val count = pair.first + 1
-        val times = if (score > minScoreThreshold) pair.second + 1 else pair.second
-//        tempIdentityMap.clear()
-        return if (count >= maxCountTimes && times >= minMatchTimes) {
-            tempIdentityMap.clear()
-            LogUtil.d("识别成功,达到累计策略${studentEntity?.accountName},当前帧置信分数： ${score},累计识别次数：$count,累计超分次数：$times")
-            true
-        } else {
-            LogUtil.d("累计帧数不够人员：${studentEntity?.accountName},当前帧置信分数： ${score},累计识别次数：$count,累计超分次数：$times")
-            tempIdentityMap[faceId] = Pair(count, times)
-            false
-        }
+    fun reset() {
+        mFaceCallback = null
+        frameInterval = defaultFrameInterval
+        verifyStrategy.reset()
     }
 
     fun release() {
