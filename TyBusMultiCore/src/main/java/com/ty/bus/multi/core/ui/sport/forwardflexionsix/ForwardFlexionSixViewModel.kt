@@ -20,6 +20,7 @@ import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
+import com.ty.forwardflexion.callback.FFlexionSportCb
 import com.ty.forwardflexion.config.FFlexionSportResult
 import com.ty.forwardflexion.informCode.InformCode
 import com.ty.sport.common.basic.bean.Point
@@ -347,7 +348,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     skeleton.setRHeel(toPoint(value[offset + 57], value[offset + 58], value[offset + 59], "RHeel"));
 
      ********************************************************************/
-    fun onBonePoints(map: MutableMap<Int, MutableList<Point>>?) {
+    fun onBonePoints(map: Map<Int, FFlexionSportCb.FFlexionBody>?) {
         viewModelScope.launch(Dispatchers.IO) {
             if (map != null) {
                 handleIdentify(map)
@@ -356,7 +357,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     }
 
     @Synchronized
-    private fun handleIdentify(map: MutableMap<Int, MutableList<Point>>) {
+    private fun handleIdentify(map: Map<Int, FFlexionSportCb.FFlexionBody>) {
         if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
             //不是识别状态
             return
@@ -364,7 +365,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         //如果为识别状态
         if (sportState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
-            val skeletonPoint = map.getOrDefault(currentIdentifyNumber, null)
+            val skeletonPoint = map.getOrDefault(currentIdentifyNumber, null)?.body
             //没找到人，说明，人已离开位置，则重置状态
             if (skeletonPoint == null) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
@@ -406,7 +407,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             if (it.value == InformCode.PREPARECHECKINFINSIH
                 && sportPersonArray.get(it.key, null) == null
                 && map.getOrDefault(it.key, null) != null
-                && checkHandUp(map[it.key])
+                && checkHandUp(map[it.key]?.body)
             ) {
                 currentIdentifyNumber = it.key
                 multiIdentityEngine.reset()
@@ -425,7 +426,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentYuvData.yuv
                 }
                 multiIdentityEngine.identify(
-                    getIdentityRect(map[it.key]),
+                    getIdentityRect(map[it.key]?.body),
                     data,
                     currentYuvData.width,
                     currentYuvData.height,
@@ -477,7 +478,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
     }
 
     fun handleResult(result: FFlexionSportResult) {
-        viewModelScope.launch(Dispatchers.IO){
+        viewModelScope.launch(Dispatchers.IO) {
             if (result.grade == null) {
                 return@launch
             }

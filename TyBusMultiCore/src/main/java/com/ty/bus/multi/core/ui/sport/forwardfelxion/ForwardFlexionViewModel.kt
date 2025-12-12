@@ -17,6 +17,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.forwardflexion.callback.FFlexionSportCb
 import com.ty.forwardflexion.config.FFlexionSportResult
 import com.ty.forwardflexion.informCode.InformCode
 import com.ty.sport.common.basic.bean.Point
@@ -316,14 +317,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
     skeleton.setRHeel(toPoint(value[offset + 57], value[offset + 58], value[offset + 59], "RHeel"));
 
      ********************************************************************/
-    fun onBonePoints(map: MutableMap<Int, MutableList<Point>>?) {
+    fun onBonePoints(map: Map<Int, FFlexionSportCb.FFlexionBody>?) {
         if (map != null) {
             handleIdentify(map)
         }
     }
 
     @Synchronized
-    private fun handleIdentify(map: MutableMap<Int, MutableList<Point>>) {
+    private fun handleIdentify(map: Map<Int, FFlexionSportCb.FFlexionBody>) {
         if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
             //不是识别状态
             return
@@ -331,7 +332,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
         //如果为识别状态
         if (sportState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
-            val skeletonPoint = map.getOrDefault(currentIdentifyNumber, null)
+            val skeletonPoint = map.getOrDefault(currentIdentifyNumber, null)?.body
             //没找到人，说明，人已离开位置，则重置状态
             if (skeletonPoint == null) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
@@ -361,14 +362,14 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (it.value == InformCode.PREPARECHECKINFINSIH
                 && sportPersonArray.get(it.key, null) == null
                 && map.getOrDefault(it.key, null) != null
-                && checkHandUp(map[it.key])
+                && checkHandUp(map[it.key]?.body)
             ) {
                 currentIdentifyNumber = it.key
                 multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
                 multiIdentityEngine.identify(
-                    getIdentityRect(map[it.key]),
+                    getIdentityRect(map[it.key]?.body),
                     currentYuvData.yuv,
                     currentYuvData.width,
                     currentYuvData.height,

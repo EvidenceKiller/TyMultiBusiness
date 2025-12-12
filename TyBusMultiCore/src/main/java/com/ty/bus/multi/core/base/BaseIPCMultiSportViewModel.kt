@@ -324,11 +324,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     /**
      * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
      */
-    private fun setResolution(camera: AdlCamera, re: Byte) {
+    private fun setResolution(camera: AdlCamera, re: Byte, frameRate: Byte = 17) {
         val hkSource = camera as NsCameraHKSource
         val deviceItem = hkSource.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, 17)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, frameRate)
     }
 
     open fun initFaceIdentify() {
@@ -736,7 +736,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             }
 
             override fun onLoginSucceed() {
-                setResolution(ipcHik, getIdentifyResolution())
+                setResolution(ipcHik, getIdentifyResolution(), 14)
                 SystemClock.sleep(100)
                 cameraLoginStateLD.postValue(true)
                 startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))

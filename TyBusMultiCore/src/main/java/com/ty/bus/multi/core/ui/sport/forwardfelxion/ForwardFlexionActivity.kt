@@ -304,20 +304,21 @@ class ForwardFlexionActivity :
                 }
             }
 
-            override fun onBonePoints(bonePoints: MutableMap<Int, MutableList<Point>>) {
+            override fun onBonePoints(body: Map<Int, FFlexionSportCb.FFlexionBody>?) {
                 if (isDebug) {
                     val points = mutableListOf<Point>()
                     val rects = mutableListOf<Rect>()
-                    bonePoints.forEach {
-                        points.addAll(it.value)
-                        rects.add(viewModel.getIdentityRect(it.value))
+                    body?.forEach {
+                        points.addAll(it.value.body)
+                        rects.add(viewModel.getIdentityRect(it.value.body))
                         mBinding.overlay.refreshNow()
                     }
                     pointElement.setPoints(points)
                     pointElement.setRects(rects)
                 }
-                viewModel.onBonePoints(bonePoints)
+                viewModel.onBonePoints(body)
             }
+
         })
         forwardFlexionProcessor.onInit()
         loadModel()

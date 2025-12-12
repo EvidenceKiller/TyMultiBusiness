@@ -325,8 +325,9 @@ class ForwardFlexionSixSettingActivity :
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
             }
 
-            override fun onBonePoints(bonePoints: MutableMap<Int, MutableList<Point>>) {
+            override fun onBonePoints(p0: Map<Int?, FFlexionSportCb.FFlexionBody?>?) {
             }
+
         })
         forwardFlexionProcessor.onInit()
         loadModel()
