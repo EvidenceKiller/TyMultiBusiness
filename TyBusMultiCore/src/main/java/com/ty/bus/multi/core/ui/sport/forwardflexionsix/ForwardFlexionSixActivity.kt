@@ -90,12 +90,13 @@ class ForwardFlexionSixActivity :
     }
 
     private lateinit var ipcHik: NsCameraHKSource
-
+    private var tipsHide = false //位置提示是否隐藏
     private var tipCountDownCount = 3  //提示的倒计时时间
     private val tipRunnable: Runnable = object : Runnable {
         override fun run() {
             tipCountDownCount--
             if (tipCountDownCount == 0) {
+                tipsHide = true
                 hideInTips()
                 return
             }
@@ -563,6 +564,7 @@ class ForwardFlexionSixActivity :
                     }
 
                     override fun onSucceed(list: MutableList<TsModelInfo>?) {
+                        isModelOk = true
                         startMatDetect()
                     }
 
@@ -615,7 +617,7 @@ class ForwardFlexionSixActivity :
      * 开始检测垫子
      */
     private fun startMatDetect() {
-        if (isInit) return
+        if (isInit || tipsHide.not()) return
         isInit = true
         hideLoadingDialog()
         runOnUiThread {
