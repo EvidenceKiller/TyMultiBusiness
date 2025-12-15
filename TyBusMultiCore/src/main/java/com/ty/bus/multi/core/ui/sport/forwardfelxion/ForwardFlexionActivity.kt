@@ -210,6 +210,7 @@ class ForwardFlexionActivity :
         mBinding.cameraView.addProcessor(viewModel.sportEngine)
         mBinding.cameraView.setFps(30)
     }
+
     private fun initOverlay() {
         val isDebug = MMKVUtil.decodeBoolean(
             MMKVBusiKey.MODEL_DEBUG,
@@ -251,8 +252,8 @@ class ForwardFlexionActivity :
             .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(),1))
-            .valueBool(booleanArrayOf(param.checkLeg,param.checkFoot,param.checkHand))
+            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(), 1))
+            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
             .build()
 
         mBinding.overlay.setMarkerAreaNum(diskNum)
@@ -452,6 +453,7 @@ class ForwardFlexionActivity :
      * 下一组
      */
     private fun next() {
+        timeOutHelper.start()
         viewModel.reset()
         mBinding.identityView.reset()
         mBinding.sportView.reset()
@@ -468,6 +470,7 @@ class ForwardFlexionActivity :
     }
 
     protected fun processorPrepare() {
+        timeOutHelper.cancel()
         forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
     }

@@ -631,6 +631,7 @@ class ForwardFlexionSixActivity :
      * 下一组
      */
     private fun next() {
+        timeOutHelper.start()
         viewModel.reset()
         viewModel.toStatusIdentifyFace()
     }
@@ -644,7 +645,7 @@ class ForwardFlexionSixActivity :
     }
 
     protected fun processorPrepare() {
-        LogUtil.d("processorPrepare processorPrepare processorPrepare processorPrepare")
+        timeOutHelper.cancel()
         forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
