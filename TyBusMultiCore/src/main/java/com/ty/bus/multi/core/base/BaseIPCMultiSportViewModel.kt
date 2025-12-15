@@ -10,6 +10,7 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.provider.Settings
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.MutableLiveData
@@ -70,6 +71,7 @@ import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.utils.LogUtil
+import kotlinx.coroutines.GlobalScope
 import java.util.concurrent.ConcurrentHashMap
 
 open class BaseIPCMultiSportViewModel(application: Application) :
@@ -892,8 +894,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      * 处理上传成绩
      */
     private fun handleUploadResult(resultList: MutableList<MultiSportResult>) {
-
-        viewModelScope.launch(Dispatchers.IO) {
+        GlobalScope.launch(Dispatchers.IO) {
+            SystemClock.sleep(1500)
             val multiId = System.currentTimeMillis().toString()
             for (index in resultList.indices) {
                 var multiResult = resultList[index]
