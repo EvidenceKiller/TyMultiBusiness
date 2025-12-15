@@ -832,16 +832,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         SoundPlayUtils.play(24)
         //停止录像，上传录像成绩
         sportEngine.changeToNone()
-        val recordModel = MMKVUtil.decodeInt(
-            MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
-        )
-        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
-            sportEngine.stopRecorder {
-                handleResult(skipPersonArray)
-            }
-        } else {
-            NsCameraHKRecorder.instance().onStop()
+        sportEngine.stopRecorder {
             handleResult(skipPersonArray)
         }
         //处理上传视频
@@ -998,15 +989,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         cameraDispatcher.quit()
         uiHandler.removeCallbacksAndMessages(null)
         focalHandler.removeCallbacksAndMessages(null)
-        val recordModel = MMKVUtil.decodeInt(
-            MMKVBusiKey.HTTP_CAMERA_RECORD_MODEL,
-            BusiBaseConstantsValue.HTTP_CAMERA_RECORD_DEFAULT_MODEL
-        )
-        if (recordModel == BusiBaseConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
-            sportEngine.stopRecorder(null)
-        } else {
-            NsCameraHKRecorder.instance().onStop()
-        }
+        sportEngine.stopRecorder(null)
         sportEngine.onStop()
         asyncPlayer.stop()
         config.unloadModel()

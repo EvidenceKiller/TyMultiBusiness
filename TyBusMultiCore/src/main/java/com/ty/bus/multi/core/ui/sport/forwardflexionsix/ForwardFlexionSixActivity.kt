@@ -623,9 +623,12 @@ class ForwardFlexionSixActivity :
         runOnUiThread {
             mBinding.bntStart.performClick()
         }
-        forwardFlexionProcessor.open(mBinding.overlay)
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
-//        viewModel.toStatusIdentifyFace()
+        if (viewModel.streamType == 1) {
+            viewModel.toStatusIdentifyFace()
+        } else {
+            forwardFlexionProcessor.open(mBinding.overlay)
+            forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+        }
     }
 
 
@@ -666,7 +669,7 @@ class ForwardFlexionSixActivity :
 
     override fun onPause() {
         super.onPause()
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Done)
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         mBinding.cameraView.stopPreview()
     }
 

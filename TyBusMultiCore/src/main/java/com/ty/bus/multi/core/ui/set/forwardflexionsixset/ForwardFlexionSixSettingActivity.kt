@@ -140,6 +140,7 @@ class ForwardFlexionSixSettingActivity :
             mBinding.tvTime.text = testTimes.toString()
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
             MMKVUtil.encode(MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES, testTimes)
+            mBinding.overlay.setConfig(FFlexionRoleConfig(), OnRenderScene.StatusSportSet)
             updateOverlay()
             mBinding.overlay.saveConfig()
         }
