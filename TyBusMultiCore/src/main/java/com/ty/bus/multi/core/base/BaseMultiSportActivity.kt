@@ -44,5 +44,9 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
         }
     }
 
+    override fun onStatusSport() {
+        timeOutHelper.cancel()
+    }
+
 
 }

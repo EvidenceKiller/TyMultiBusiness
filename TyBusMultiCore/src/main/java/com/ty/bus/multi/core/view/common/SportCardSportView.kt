@@ -220,6 +220,8 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.rlIdentityNotice.visibility = GONE
         mBinding.tvSkipState.visibility = GONE
+        mBinding.groupSport.visibility = GONE
+        mBinding.tvLeaveNotice.visibility = GONE
         identifyingTimer.cancel()
     }
 

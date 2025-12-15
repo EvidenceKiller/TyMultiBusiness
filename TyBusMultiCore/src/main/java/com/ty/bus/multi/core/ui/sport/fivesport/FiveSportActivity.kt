@@ -143,6 +143,7 @@ class FiveSportActivity :
         viewModel.identifiedLD.observe(this) {
             LogUtil.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity?.accountName}")
             srsvSport.setUserInfo(it)
+            timeOutHelper.cancel()
         }
 
         viewModel.changeSportViewStateLD.observe(this) {

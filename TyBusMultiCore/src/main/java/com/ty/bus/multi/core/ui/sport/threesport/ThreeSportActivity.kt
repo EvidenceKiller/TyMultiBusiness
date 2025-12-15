@@ -268,6 +268,7 @@ class ThreeSportActivity :
     }
 
     override fun onStatusSport() {
+        super.onStatusSport()
         multiSportProcessor.changeTo(SportProcessorStatus.Sporting)
         multiSportProcessor.setBodyFilter(MultiSportRegionCheckFilter())
         parser.checkSkipScore = true
