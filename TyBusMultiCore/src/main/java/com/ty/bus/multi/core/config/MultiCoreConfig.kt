@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
 import com.ty.bus.multi.core.entity.IpcCameraInfo
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 
@@ -58,9 +59,9 @@ object MultiCoreConfig {
      */
     fun getIPCCameraParam(): IpcCameraInfo {
         return IpcCameraInfo(
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP) ?: "",
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_ACCOUNT) ?: "",
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW) ?: ""
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP,
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_ACCOUNT) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT,
+            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
         )
     }
 }
