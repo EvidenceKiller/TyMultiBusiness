@@ -43,7 +43,7 @@ import kotlin.math.max
 
 class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
-    val streamType = 1 //1:摄像头播放，2:视频播放
+    val streamType = 2 //1:摄像头播放，2:视频播放
 
     var ffSportConfig: ForwardFlexionConfig? = null
 
@@ -306,7 +306,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
             //切换卡片状态，方便重置
             //第一次测试进入第一次测试状态
             if (currentSportTimes == 1 && isRetest.not()) {
-                for (index in 1..sportManCount) {
+                for (index in 1..6) {
                     val value = sportPersonArray.get(index)
                     if (value != null) {
                         changeSportCardState(index, ForwardFlexionCardState.FIRST_SPORTING)
