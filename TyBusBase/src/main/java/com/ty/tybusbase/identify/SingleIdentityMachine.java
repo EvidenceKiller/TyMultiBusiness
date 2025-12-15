@@ -765,19 +765,23 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             float sx = (float) displayWidth / w;
             float sy = (float) displayHeight / h;
             RectF rectF = null;
+            float headerTop = 0;
+            if (skeleton.getHeadTop() != null) {
+                AdlPoseKeyPoint header = resetPoint(skeleton.getHeadTop(), sx, sy);
+                headerTop = header.y;
+            }
             if (vlEar != null && vrEar != null && vNose != null) {
                 // 点映射
                 AdlPoseKeyPoint lEar = resetPoint(vlEar, sx, sy);
                 AdlPoseKeyPoint rEar = resetPoint(vrEar, sx, sy);
                 AdlPoseKeyPoint nose = resetPoint(vNose, sx, sy);
-
                 // 以鼻子为圆心，眼距2倍为半径
                 int centerX = (int) nose.getX();
                 int centerY = (int) nose.getY();
 //                int radius = (int) (Math.abs(EuHelper.readX(lEar) - EuHelper.readX(rEar)) * 2f);
                 int radius = (int) (Math.abs(lEar.x - rEar.x) * 2f);
                 float l = Math.max(centerX - radius / 2, 0);
-                float t = Math.max(centerY - radius / 2, 0);
+                float t = headerTop == 0 ? Math.max(centerY - radius / 2, 0) : headerTop;
                 float fw = Math.min(l + radius, w);
                 float fh = Math.min(t + radius, h);
                 rectF = new RectF(l, t, fw, fh);
@@ -787,7 +791,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
                 //头部裁剪框，以肩膀向上1.5倍肩宽
                 float height = (float) (EuHelper.distance(lShoulder, rShoulder) * 1.5f);
                 float l = Math.max(rShoulder.x, 0);
-                float t = Math.max((lShoulder.y + rShoulder.y) / 2 - height, 0);
+                float t = headerTop == 0 ? Math.max((lShoulder.y + rShoulder.y) / 2 - height, 0) : headerTop;
                 float r = Math.min(lShoulder.x, w);
                 float b = Math.min((lShoulder.y + rShoulder.y) / 2, h);
                 rectF = new RectF(l, t, r, b);
