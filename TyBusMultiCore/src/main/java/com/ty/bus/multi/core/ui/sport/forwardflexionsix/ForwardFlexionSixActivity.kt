@@ -96,7 +96,6 @@ class ForwardFlexionSixActivity :
         override fun run() {
             tipCountDownCount--
             if (tipCountDownCount == 0) {
-                tipsHide = true
                 hideInTips()
                 return
             }
@@ -261,6 +260,7 @@ class ForwardFlexionSixActivity :
     }
 
     private fun hideInTips() {
+        tipsHide = true
         mBinding.groupInTip.visibility = View.GONE
         if (isModelOk) {
             startMatDetect()
@@ -517,7 +517,7 @@ class ForwardFlexionSixActivity :
                         it.value.body?.forEach { po ->
                             points.add(Point(po.x, po.y))
                         }
-                        rects.add(viewModel.getIdentityRect(it.value.body))
+                        rects.add(viewModel.getIdentityRect(it.value))
                         mBinding.overlay.refreshNow()
                     }
                     pointElement.setPoints(points)
@@ -623,9 +623,9 @@ class ForwardFlexionSixActivity :
         runOnUiThread {
             mBinding.bntStart.performClick()
         }
-//        forwardFlexionProcessor.open(mBinding.overlay)
-//        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
-        viewModel.toStatusIdentifyFace()
+        forwardFlexionProcessor.open(mBinding.overlay)
+        forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+//        viewModel.toStatusIdentifyFace()
     }
 
 
@@ -672,6 +672,7 @@ class ForwardFlexionSixActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        SpeechWrapper.stop()
         hideLoadingDialog()
         Thread {
             forwardFlexionProcessor.stopRecord()

@@ -21,6 +21,7 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.forwardflexion.callback.FFlexionSportCb
+import com.ty.forwardflexion.callback.FFlexionSportCb.FFlexionBody
 import com.ty.forwardflexion.config.FFlexionSportResult
 import com.ty.forwardflexion.informCode.InformCode
 import com.ty.sport.common.basic.bean.Point
@@ -365,9 +366,9 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         //如果为识别状态
         if (sportState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
-            val skeletonPoint = map.getOrDefault(currentIdentifyNumber, null)?.body
+            val flexionBody = map.getOrDefault(currentIdentifyNumber, null)
             //没找到人，说明，人已离开位置，则重置状态
-            if (skeletonPoint == null) {
+            if (flexionBody == null) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 currentIdentifyNumber = -1
                 sportState = MultiSportState.PREPARING
@@ -388,7 +389,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentYuvData.yuv
                 }
                 multiIdentityEngine.identify(
-                    getIdentityRect(skeletonPoint),
+                    getIdentityRect(flexionBody),
                     data,
                     currentYuvData.width,
                     currentYuvData.height,
@@ -426,7 +427,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                     currentYuvData.yuv
                 }
                 multiIdentityEngine.identify(
-                    getIdentityRect(map[it.key]?.body),
+                    getIdentityRect(map[it.key]),
                     data,
                     currentYuvData.width,
                     currentYuvData.height,
@@ -453,28 +454,49 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         return true
     }
 
-    fun getIdentityRect(it: MutableList<Point>?): Rect {
+    fun getIdentityRect(it: FFlexionBody?): Rect {
         var rect = Rect(0, 0, 50, 50)
-        if (it.isNullOrEmpty() || it.size < 4) return rect
-        val header = it[0]
-        val lShouder = it[2]
-        val rShouder = it[3]
-        val centerX: Double =
-            if (header.x > 0f) header.x.toDouble() else (lShouder.x + rShouder.x) / 2.0
-        val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
-        rect.bottom = max(lShouder.y, rShouder.y).toInt()
-        rect.left = (centerX - shoulderWidth / 2.0).toInt()
-        rect.right = (centerX + shoulderWidth / 2).toInt()
-        rect.top =
-            if (header.y != 0f) header.y.toInt() else (rect.bottom - 1.2 * shoulderWidth).toInt()
+        if (it == null || (it.body == null && it.headBox == null)) return rect
+        //用头框
+        if (it.headBox != null) {
+            LogUtil.d("处理人脸识别：用头框")
+            return Rect(
+                it.headBox.x,
+                it.headBox.y,
+                it.headBox.right.toInt(),
+                it.headBox.bottom.toInt()
+            )
+        } else {
+            //无头框，用骨骼推测
+            if (it.body == null) return rect
+            LogUtil.d("处理人脸识别：用骨骼")
+            val width = 180
+            val header = it.body[0]
+            if (header != null) {
+                rect.top = header.y.toInt()
+                rect.left = header.x.toInt() - width / 2
+                rect.right = header.x.toInt() + width / 2
+                rect.bottom = header.y.toInt() + width
+            } else {
+                val lShouder = it.body[2]
+                val rShouder = it.body[3]
+                val centerX: Double = (lShouder.x + rShouder.x) / 2.0
+                val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
+                rect.bottom = max(lShouder.y, rShouder.y).toInt()
+                rect.left = (centerX - shoulderWidth / 2.0).toInt()
+                rect.right = (centerX + shoulderWidth / 2).toInt()
+                rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
+            }
 
-        if (rect.width() < 40 || rect.height() < 40) {
-            rect.left = rect.left - 20
-            rect.right = rect.left + 40
-            rect.top = rect.top - 20
-            rect.bottom = rect.top + 40
+            if (rect.width() < 40 || rect.height() < 40) {
+                rect.left = rect.left - 20
+                rect.right = rect.left + 40
+                rect.top = rect.top - 20
+                rect.bottom = rect.top + 40
+            }
+            return rect
         }
-        return rect
+
     }
 
     fun handleResult(result: FFlexionSportResult) {
