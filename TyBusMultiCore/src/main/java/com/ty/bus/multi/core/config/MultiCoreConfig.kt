@@ -59,9 +59,18 @@ object MultiCoreConfig {
      */
     fun getIPCCameraParam(): IpcCameraInfo {
         return IpcCameraInfo(
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP,
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_ACCOUNT) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT,
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_PSW) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_IP,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+            ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP,
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+            ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT,
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_PSW,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+            ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
         )
     }
 }
