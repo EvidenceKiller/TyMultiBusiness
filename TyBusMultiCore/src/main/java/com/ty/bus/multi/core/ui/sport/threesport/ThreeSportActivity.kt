@@ -83,6 +83,8 @@ class ThreeSportActivity :
 
     override fun initData() {
         super.initData()
+        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
+        viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tsConfig =
             intent.getSerializableExtra("sport_config") as? ThreeSportConfig
         for (i in 0 until viewModel.sportManCount) {
@@ -118,6 +120,7 @@ class ThreeSportActivity :
         }
 
         viewModel.changeIdentityCardStateLD.observe(this) {
+            if (mBinding.clSkipSportViewContainer.childCount == 0) return@observe
             mBinding.threeIdentityView.changeState(it, factory.getReadyTip())
             val imageView = imgMap[it.first]
             if (it.second == MultiSportCardViewState.NOBODY) {

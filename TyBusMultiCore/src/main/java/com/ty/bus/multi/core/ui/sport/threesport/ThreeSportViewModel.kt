@@ -38,12 +38,18 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
+import com.adl.service.entity.SportRecordEntity
+import com.ty.bus.multi.core.base.BaseIPCMultiSportViewModel
 import com.ty.bus.multi.core.config.ThreeSportConfig
 
 class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
     //记录开始和结束时间
     var tsConfig: ThreeSportConfig? = null
+
+    //组织测试相关ID
+    var ptPlanId: String? = null
+    var ptStandardId: String? = null
     var startTime: Long = 0
     var endTime: Long = 0
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
@@ -612,10 +618,18 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
                 sportResult.sportResult = multiResult.count.toString()
                 sportResult.videoCover = videoCover
                 sportResult.videoFile = videoFile
+                var recordPlan: SportRecordEntity.RecordPlan? = null
+                if (sceneId == SceneConstants.ORGANIZE_TEST) {
+                    recordPlan = SportRecordEntity.RecordPlan().apply {
+                        ptPlanId = this@ThreeSportViewModel.ptPlanId
+                        ptStandardId = this@ThreeSportViewModel.ptStandardId
+                    }
+                }
                 uploadSportResult(
                     sceneId = sceneId ?: SceneConstants.PK,
                     sportResult,
-                    sportResult.userId
+                    sportResult.userId,
+                    recordPlan = recordPlan
                 )
             }
         }
