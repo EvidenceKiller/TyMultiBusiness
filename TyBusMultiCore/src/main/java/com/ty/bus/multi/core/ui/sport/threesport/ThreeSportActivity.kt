@@ -46,6 +46,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
+import androidx.core.view.isNotEmpty
 
 class ThreeSportActivity :
     BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
@@ -120,7 +121,7 @@ class ThreeSportActivity :
         }
 
         viewModel.changeIdentityCardStateLD.observe(this) {
-            if (mBinding.clSkipSportViewContainer.childCount == 0) return@observe
+            if (mBinding.clSkipSportViewContainer.isNotEmpty()) return@observe
             mBinding.threeIdentityView.changeState(it, factory.getReadyTip())
             val imageView = imgMap[it.first]
             if (it.second == MultiSportCardViewState.NOBODY) {
