@@ -8,7 +8,6 @@ import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
 import com.ty.identifty.stface.SaveBitmapUtil
-import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.baidu.BaiduFaceDetectorImp
@@ -74,11 +73,7 @@ class FaceDetectorHelper private constructor() {
 
     private var frameInterval = defaultFrameInterval //几帧检测一帧
 
-    private var minScoreThreshold = defaultMinScoreThreshold //最小之心分数阈值
-
-    private var minMatchTimes = defaultMinMatchTimes //最小匹配次数
-
-    private var maxCountTimes = defaultMaxCountTimes //连续帧数
+    private var defaultFaceFeatureThreshold = 0.4f //默认人脸阈值
 
     /**
      * 初始化
@@ -266,6 +261,14 @@ class FaceDetectorHelper private constructor() {
         )
     }
 
+    fun setDefaultFaceFeatureThreshold(th: Float) {
+        defaultFaceFeatureThreshold = th
+    }
+
+    fun setFaceFeatureThreshold(score: Float) {
+        faceDetector?.setFaceFeatureThreshold(score)
+    }
+
     /**
      * 设置人脸回调
      */
@@ -311,6 +314,7 @@ class FaceDetectorHelper private constructor() {
     fun reset() {
         mFaceCallback = null
         frameInterval = defaultFrameInterval
+        faceDetector?.setFaceFeatureThreshold(defaultFaceFeatureThreshold)
         verifyStrategy.reset()
     }
 

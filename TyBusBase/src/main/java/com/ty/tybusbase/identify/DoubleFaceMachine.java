@@ -433,7 +433,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
     }
 
     private void selectFace() {
-
+        FaceDetectorHelper.Companion.getInstance().setFaceFeatureThreshold(BusiBaseConstantsValue.DEFAULT_SINGLE_FACE_THRESHOLD);
         FaceDetectorHelper.Companion.getInstance().setFaceCallback(new OnFaceCallback() {
             @Override
             public void onFindStudent(@Nullable StudentEntity studentEntity) {
@@ -850,7 +850,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         leftAccountInfo = null;
         rightAccountInfo = null;
         identityListener = null;
-        FaceDetectorHelper.Companion.getInstance().setFaceCallback(null);
+        FaceDetectorHelper.Companion.getInstance().reset();
         mQrDisposable.dispose();
         if (nfcReaderManager != null) {
             nfcReaderManager.stopRead();

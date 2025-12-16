@@ -530,6 +530,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
      * 人脸识别
      */
     private void selectFace() {
+        FaceDetectorHelper.Companion.getInstance().setFaceFeatureThreshold(BusiBaseConstantsValue.DEFAULT_SINGLE_FACE_THRESHOLD);
         FaceDetectorHelper.Companion.getInstance().setFaceCallback(new OnFaceCallback() {
             @Override
             public void onFindStudent(@Nullable StudentEntity user) {
@@ -847,7 +848,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         identityListener = null;
         accountInfo = null;
 //        UsbReader.getUsbReader().stop();
-        FaceDetectorHelper.Companion.getInstance().setFaceCallback(null);
+        FaceDetectorHelper.Companion.getInstance().reset();
         cancelTimeOutTask();
         if (mHandler != null) {
             mHandler.removeCallbacksAndMessages(null);

@@ -3,20 +3,16 @@ package com.ty.tybusbase.identify
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
-import com.adl.base.log.AdlLogger
-import com.adl.lib.AdlYUVUtil
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.StudentEntity
-import com.adl.service.entity.TeacherEntity
 import com.adl.service.outer.AdlService
 import com.adl.service.outer.UserCaller
 import com.adl.sport.general.EuHelper
-import com.ty.tybusbase.expand.getString
 import com.ty.identifty.base.TyFaceInfo
-import com.ty.tybusbase.BuildConfig
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
 import com.ty.tybusbase.helper.SportHelper
@@ -70,6 +66,8 @@ class MultiIdentityEngine {
     }
 
     private fun initFaceDetect() {
+        FaceDetectorHelper.getInstance()
+            .setFaceFeatureThreshold(BusiBaseConstantsValue.DEFAULT_MULTI_FACE_THRESHOLD)
         FaceDetectorHelper.getInstance().setFaceCallback(object : OnFaceCallback {
             override fun onFindStudent(user: StudentEntity?) {
                 user?.let {
@@ -283,7 +281,7 @@ class MultiIdentityEngine {
     fun closeMachine() {
         identifyCountMap.clear()
         identityListener = null
-        FaceDetectorHelper.getInstance().setFaceCallback(null)
+        FaceDetectorHelper.getInstance().reset()
     }
 
     /**

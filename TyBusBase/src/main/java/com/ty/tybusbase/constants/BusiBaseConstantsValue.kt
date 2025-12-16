@@ -115,4 +115,7 @@ object BusiBaseConstantsValue {
     const val FACE_DETECT_TYPE_TEACHER = 1 //人脸识别类型：老师
 
     const val THREE_SPORT_CONFIG_KEY = "overlay_three_sport_config_key"
+
+    const val DEFAULT_SINGLE_FACE_THRESHOLD = 0.75f //默认单人人脸阈值
+    const val DEFAULT_MULTI_FACE_THRESHOLD = 0.4f //默认多人人脸阈值
 }
