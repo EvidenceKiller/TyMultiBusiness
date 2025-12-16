@@ -107,7 +107,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     testCount = "3"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
-            }, ThreeSportConfig.builder().setSupportNextGroup(true).setHideTopOne(true).build())
+            }, ThreeSportConfig.builder().setSupportNextGroup(false).setHideTopOne(true).build())
         }
 
         mBinding.btn10RegionSet.setOnClickListener {
