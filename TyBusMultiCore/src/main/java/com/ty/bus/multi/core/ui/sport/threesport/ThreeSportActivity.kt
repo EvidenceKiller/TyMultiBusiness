@@ -6,6 +6,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
 import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
@@ -437,6 +438,15 @@ class ThreeSportActivity :
         mBinding.threeIdentityView.visibility = View.VISIBLE
         mBinding.threeIdentityView.reset()
         mBinding.threeSportView.reset()
+
+        //摄像头预览全屏
+        val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
+        params.width = ViewGroup.LayoutParams.MATCH_PARENT
+        params.height = ViewGroup.LayoutParams.MATCH_PARENT
+        params.rightMargin = 0
+        params.bottomMargin = 0
+        mBinding.cameraView.layoutParams = params
+
         //显示所有空闲图片
         imgMap.forEach { (_, u) ->
             u.visibility = View.VISIBLE
