@@ -49,4 +49,9 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
     }
 
 
+    override fun onDestroy() {
+        super.onDestroy()
+        timeOutHelper.cancel()
+    }
+
 }
