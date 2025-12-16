@@ -808,7 +808,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         cameraDispatcher.addFrameProcessor(sportEngine)
         //延时一丢丢，等分辨率切换过来，sportEngine的宽高是切换后的，才开始录像
         viewModelScope.launch(Dispatchers.IO) {
-            SystemClock.sleep(1000)
+            SystemClock.sleep(500)
             val size = getCameraSize()
             sportEngine.startRecorder(videoFile, size.first * size.second * 2)
         }
