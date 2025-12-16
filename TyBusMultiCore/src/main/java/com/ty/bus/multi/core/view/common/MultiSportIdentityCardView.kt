@@ -165,6 +165,7 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
     }
 
     fun reset() {
+        mBinding.ivHeader.setImageBitmap(null)
         toIdle()
     }
 

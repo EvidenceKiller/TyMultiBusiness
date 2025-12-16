@@ -438,7 +438,7 @@ class ThreeSportActivity :
         mBinding.threeIdentityView.visibility = View.VISIBLE
         mBinding.threeIdentityView.reset()
         mBinding.threeSportView.reset()
-
+        timeOutHelper.start()
         //摄像头预览全屏
         val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
         params.width = ViewGroup.LayoutParams.MATCH_PARENT
