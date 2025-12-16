@@ -59,7 +59,7 @@ dependencies {
     api(name: 'AdlWebSerivce-2025-11-03', ext: 'aar')
     api(name: 'AdlAuthCore-v2-2025-09-30', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
-    api(name: 'AdlSportGeneral-2025-10-10', ext: 'aar')
+    api(name: 'AdlSportGeneral-2025-12-16', ext: 'aar')
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 

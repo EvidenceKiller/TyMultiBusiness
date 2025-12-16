@@ -10,6 +10,7 @@ import com.ty.tybusbase.utils.ApplicationUtil
 import androidx.core.net.toUri
 import com.adl.base.log.AdlLogger
 import com.adl.mount.sport.TsSportChannel
+import com.adl.sport.general.RegionFilter
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.tybusbase.utils.LogUtil
 import kotlin.math.abs
@@ -23,8 +24,6 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
 
     override fun getCountDownBgmUri(): Uri =
         ("android.resource://" + ApplicationUtil.getContext().packageName + "/" + R.raw.bgm_15_prepare).toUri()
-
-    override fun getBodyFilter() = TsTaskBodyDefaultFilter(0.1f)
 
     override fun getSportResolution(): Byte = 70
 

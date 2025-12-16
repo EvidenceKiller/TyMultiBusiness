@@ -67,6 +67,7 @@ import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
 import com.adl.service.entity.SportRecordEntity
+import com.adl.sport.general.RegionFilter
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
@@ -1003,7 +1004,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     open fun getCountDownBgmUri() =
         Uri.parse("android.resource://" + getContext()?.packageName + "/" + R.raw.rope_catdown)
 
-    open fun getBodyFilter(): TsTaskBodyFilter = MultiSportFilter(false)
+    open fun getBodyFilter(): TsTaskBodyFilter = RegionFilter()
 
     open fun getIdentifyResolution(): Byte = 64
     open fun getSportResolution(): Byte = 27
