@@ -41,6 +41,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
 
     private lateinit var srrvResult: TenSportResultView
     private val number = 10
+    private var startDialog: CommonTipDialog? = null
     override fun initData() {
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
@@ -102,9 +103,11 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
 
         mBinding.sportView.startNowCallback = {
-            CommonTipDialog().setCallback {
+            startDialog = CommonTipDialog().setCallback {
+                startDialog = null
                 viewModel.readyGo()
-            }.show(supportFragmentManager, "tips")
+            }
+            startDialog?.show(supportFragmentManager, "tips")
         }
 
         mBinding.sportView.setSportStartedText(viewModel.tenSportConfig?.sportStartText)
@@ -221,6 +224,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         viewModel.countDownFinishLD.observe(this) {
+            startDialog?.dismiss()
             mBinding.sportView.readyGo {
                 //比赛开始
                 viewModel.toStatusSportStart()
