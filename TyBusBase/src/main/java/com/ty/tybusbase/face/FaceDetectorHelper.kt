@@ -17,6 +17,9 @@ import com.ty.tybusbase.face.strategy.FindUserByDatabase
 import com.ty.tybusbase.face.strategy.IFindUserStrategy
 import com.ty.tybusbase.face.strategy.IVerifyStrategy
 import com.ty.tybusbase.utils.LogUtil
+import com.ty.tybusbase.utils.dformat
+import java.text.SimpleDateFormat
+import java.util.Date
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import kotlin.math.max
@@ -251,12 +254,15 @@ class FaceDetectorHelper private constructor() {
 
     private val bitmapDic = "/sdcard/zy.sport.cache/pic"
     private var executor: ExecutorService? = null
+    val dformat = SimpleDateFormat("yyyy-MM-dd")
     private fun saveBitmap(yuv: ByteArray, width: Int, height: Int, name: String) {
+        val date = dformat.format(Date())
+        val path = "$bitmapDic/$date"
         SaveBitmapUtil.saveBitmap(
             yuv,
             width,
             height,
-            bitmapDic,
+            path,
             name
         )
     }
