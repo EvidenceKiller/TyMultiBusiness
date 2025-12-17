@@ -48,6 +48,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 import androidx.core.view.isNotEmpty
+import com.ty.tybusbase.utils.DeviceUtil
 
 class ThreeSportActivity :
     BaseMultiSportActivity<ActivityThreeSportBinding, ThreeSportViewModel>() {
@@ -358,7 +359,9 @@ class ThreeSportActivity :
         sportConfig.sportType = factory.getMultiSportType()
         sportConfig.loadModel(object : TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
-                showLoadingDialog(getString(R.string.model_loding))
+                if (DeviceUtil.isTsRk3588()) {
+                    showLoadingDialog(getString(R.string.model_loding))
+                }
             }
 
             override fun onSucceed(list: List<TsModelInfo?>?) {

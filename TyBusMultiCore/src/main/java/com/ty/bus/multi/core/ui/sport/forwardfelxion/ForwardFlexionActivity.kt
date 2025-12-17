@@ -35,6 +35,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
+import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -353,8 +354,10 @@ class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
-                        runOnUiThread {
-                            showLoadingDialog(getString(R.string.model_loding))
+                        if (DeviceUtil.isTsRk3588()){
+                            runOnUiThread {
+                                showLoadingDialog(getString(R.string.model_loding))
+                            }
                         }
                     }
 
