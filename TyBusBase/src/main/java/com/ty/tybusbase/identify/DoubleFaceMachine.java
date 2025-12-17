@@ -231,7 +231,9 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         }
 
         // 脚是否在区域内
-        if (!judgeBodyIn(skeleton, scW, scH)) {
+        boolean footIn = judgeBodyIn(skeleton, scW, scH);
+        changeAreaState(footIn);
+        if (!footIn) {
             return;
         }
         // 判断有没有举手
@@ -581,18 +583,12 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
     private boolean judgeHandUp(AdlPoseSkeleton body, boolean isLeftIdentity) {
 
         //因为骨骼点左右是对调的所以要判断右手需要获取左边的骨骼
-        if (body.getLWrist() == null || body.getLElbow() == null || body.getChin() == null) {
+        if (body == null || body.getLWrist() == null || body.getLShoulder() == null) {
             return false;
         }
-
-        float wristY = body.getLElbow().getY();
-        float earY = body.getChin().y;
-
-        if (wristY < earY) {
-            return true;
-        }
-
-        return false;
+        float wristY = body.getLWrist().y;
+        float shoulderY = body.getLShoulder().y;
+        return wristY < shoulderY;
     }
 
     /**
