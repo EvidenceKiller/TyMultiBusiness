@@ -241,7 +241,7 @@ class FaceDetectorHelper private constructor() {
                     bytes,
                     targetW,
                     targetH,
-                    "${System.currentTimeMillis()}_${studentEntity?.accountId}_${studentEntity?.accountName}_${score}.jpg"
+                    "${formatHms.format(Date(System.currentTimeMillis()))}_${studentEntity?.accountId}_${studentEntity?.accountName}_${score}.jpg"
                 )
 
             } catch (e: Exception) {
@@ -255,6 +255,7 @@ class FaceDetectorHelper private constructor() {
     private val bitmapDic = "/sdcard/zy.sport.cache/pic"
     private var executor: ExecutorService? = null
     val dformat = SimpleDateFormat("yyyy-MM-dd")
+    val formatHms = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss")
     private fun saveBitmap(yuv: ByteArray, width: Int, height: Int, name: String) {
         val date = dformat.format(Date())
         val path = "$bitmapDic/$date"
