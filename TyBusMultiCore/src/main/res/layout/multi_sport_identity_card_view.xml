@@ -21,7 +21,6 @@
         android:layout_height="@dimen/dp_88"
         android:layout_marginLeft="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_24"
-        android:background="@mipmap/ic_head_default"
         app:layout_constraintLeft_toLeftOf="@+id/iv_account_info_bg"
         app:layout_constraintTop_toTopOf="@+id/iv_account_info_bg" />
 
