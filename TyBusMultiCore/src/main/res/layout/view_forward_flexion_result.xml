@@ -278,7 +278,7 @@
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
         android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/mtv_finish"
+        app:layout_constraintEnd_toStartOf="@+id/tv_finish"
         app:layout_constraintStart_toEndOf="@+id/tv_retest"
         app:layout_constraintTop_toTopOf="@+id/tv_retest" />
 
