@@ -136,4 +136,8 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
         multiIdentityEngine.addIdentityCount(5, 4)
         multiIdentityEngine.addIdentityCount(8, 4)
     }
+
+    override fun isOpenReport(): Boolean {
+        return tenSportConfig?.isOpenReport != false
+    }
 }

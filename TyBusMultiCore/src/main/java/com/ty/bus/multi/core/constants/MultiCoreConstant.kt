@@ -20,4 +20,8 @@ object MultiCoreConstant {
     const val MULTI_SKIP_AUTO_NEXT = "multi_skip_auto_next" //十人跳绳是否自动下一组
 
     const val FORWARD_FLEXION_SIX_UI_KEY = "forward_flexion_six_ui_key"  //六人体前屈框框设置KEY
+    const val MULTI_THEME_STYLE = "multi_theme_style" //多人运动风格
+
+    const val MULTI_THEME_STYLE_LARGE_SCREEN = 0 //多人运动风格-大屏幕
+    const val MULTI_THEME_STYLE_SMALL_SCREEN = 1 //多人运动风格-小屏幕
 }

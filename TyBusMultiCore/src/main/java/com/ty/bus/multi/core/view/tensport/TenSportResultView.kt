@@ -22,6 +22,11 @@ import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -42,6 +47,9 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     private var countDownCount = 10
     private var isDetached = false
     private var isSpeech = true
+    private var currentSpeechIndex = 0
+
+    private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
     init {
         mBinding = TenSportResultViewBinding.inflate(LayoutInflater.from(context), this, true)
@@ -124,17 +132,17 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         }
 
         mBinding.llSpeech.setOnClickListener {
-            //正在播，停止
             if (isSpeech) {
                 SpeechWrapper.stop()
                 mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_play_default)
                 mBinding.tvSpeech.text = getString(R.string.result_speech)
+                isSpeech = false
             } else {
                 resultList?.let {
+                    // 继续从当前索引播报
                     resultSpeech(it)
                 }
             }
-            isSpeech = !isSpeech
         }
     }
 
@@ -194,11 +202,12 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun setResult(
         resultList: MutableList<MultiSportResult>,
         top1Count: Int,
-        speech: Boolean = false
+        speech: Boolean = false,
+        isLargeScreen: Boolean = true
     ) {
         this.resultList = resultList
         this.top1Count = top1Count
-        if (resultList.size > 5) {
+        if (resultList.size > 5&&isLargeScreen) {
             val list = resultList.subList(0, 5)
             (mBinding.rvResult1.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
                 list
@@ -216,30 +225,50 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
 
         //播报语音
         if (speech) {
-            resultSpeech(resultList)
+            coroutineScope.launch {
+                runCatching {
+                    delay(3000)
+                    resultSpeech(resultList)
+                }.onFailure {
+                    it.printStackTrace()
+                }
+            }
         }
     }
 
     private fun resultSpeech(resultList: MutableList<MultiSportResult>) {
         isSpeech = true
+        currentSpeechIndex = 0
         mBinding.llSpeech.visibility = VISIBLE
         mBinding.ivPlayerIcon.setBackgroundResource(R.mipmap.video_ic_stop_default)
         mBinding.tvSpeech.text = getString(R.string.pause_result_speech)
-        resultList.forEachIndexed { index, value ->
-            val endCallback = if (index == resultList.size - 1) {
-                object : Runnable {
-                    override fun run() {
-                        speechEnd()
-                    }
-                }
-            } else {
-                null
-            }
-            SpeechWrapper.speech2(
-                "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
-                endCallback
-            )
+        speakNext(resultList)
+    }
+
+    private fun speakNext(resultList: MutableList<MultiSportResult>) {
+        if (!isSpeech || isDetached) return
+        if (currentSpeechIndex >= resultList.size) {
+            speechEnd()
+            return
         }
+        val value = resultList[currentSpeechIndex]
+        val isLast = currentSpeechIndex == resultList.size - 1
+        val endCallback = object : Runnable {
+            override fun run() {
+                if (isDetached) return
+                if (!isSpeech) return
+                if (isLast) {
+                    speechEnd()
+                } else {
+                    currentSpeechIndex++
+                    speakNext(resultList)
+                }
+            }
+        }
+        SpeechWrapper.speech2(
+            "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
+            endCallback
+        )
     }
 
     private fun speechEnd() {
@@ -254,5 +283,6 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         SpeechWrapper.stop()
         timer?.cancel()
         isDetached = true
+        coroutineScope.cancel()
     }
 }

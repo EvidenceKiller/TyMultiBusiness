@@ -7,7 +7,8 @@ class TenSportConfig private constructor(
     val isSupportNextGroup: Boolean,
     val countdownText: String,
     val sportStartText: String,
-    val resultPageText: String
+    val resultPageText: String,
+    val isOpenReport: Boolean,
 ) : Serializable {
 
     class Builder {
@@ -16,6 +17,7 @@ class TenSportConfig private constructor(
         private var countdownText: String = ""
         private var gameStartText: String = ""
         private var resultPageText: String = ""
+        private var isOpenReport: Boolean = false
 
         /**
          * 是否支持语音播报
@@ -56,6 +58,13 @@ class TenSportConfig private constructor(
             this.resultPageText = text
             return this
         }
+        /**
+         * 是否开启报告
+         */
+        fun setOpenReport(open: Boolean): Builder {
+            this.isOpenReport = open
+            return this
+        }
 
         fun build(): TenSportConfig {
             return TenSportConfig(
@@ -63,7 +72,8 @@ class TenSportConfig private constructor(
                 isSupportNextGroup,
                 countdownText,
                 gameStartText,
-                resultPageText
+                resultPageText,
+                isOpenReport
             )
         }
     }

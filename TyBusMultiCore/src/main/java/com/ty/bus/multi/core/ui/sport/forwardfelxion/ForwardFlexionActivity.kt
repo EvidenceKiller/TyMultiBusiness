@@ -41,7 +41,7 @@ import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
 
-class ForwardFlexionActivity :
+open class ForwardFlexionActivity :
     BaseMultiSportActivity<ActivityForwardFlexionBinding, ForwardFlexionViewModel>() {
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }

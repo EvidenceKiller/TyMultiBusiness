@@ -62,12 +62,17 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
         onExitDialogShow()
     }
 
-    protected fun hideBackBtn(){
+    protected fun hideBackBtn() {
         mBaseBinding.ivExit.visibility = View.GONE
     }
 
-    open fun showBackBtn(){
+    open fun showBackBtn() {
         mBaseBinding.ivExit.visibility = View.VISIBLE
+    }
+
+    fun showExitView(show: Boolean) {
+        if (!::mBaseBinding.isInitialized) return
+        mBaseBinding.ivExit.visibility = if (show) View.VISIBLE else View.GONE
     }
 
     /**
@@ -85,8 +90,16 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
      */
     open fun onExitDialogClose() {}
 
+    fun getBaseBinding(): BaseActivitySportExitBinding {
+        return mBaseBinding
+    }
+
     override fun initViewDataBinding() {
         mBaseBinding = BaseActivitySportExitBinding.inflate(layoutInflater)
+        initContentBinding()
+    }
+
+    open fun initContentBinding() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             var mdPosition = -1

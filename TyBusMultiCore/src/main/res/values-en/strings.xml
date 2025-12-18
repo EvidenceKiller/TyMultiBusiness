@@ -39,4 +39,5 @@
     <string name="how_many_times">第%d次</string>
     <string name="sport_count_down">运动倒计时: %d</string>
     <string name="start_now_num">立即开始（%d）</string>
+    <string name="settings">设置</string>
 </resources>

@@ -15,7 +15,6 @@ import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
-import com.ty.bus.multi.core.base.BaseMultiSportResultView
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
 import com.ty.bus.multi.core.factory.MultiSportProduceFactory
@@ -39,7 +38,6 @@ import com.adl.sport.general.multi.MultiSportCallback
 import com.adl.sport.general.multi.MultiSportRegionCheckFilter
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
-import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.utils.ThreeSportStandFilter
 import com.ty.bus.multi.core.view.threesport.ThreeSportResultView
