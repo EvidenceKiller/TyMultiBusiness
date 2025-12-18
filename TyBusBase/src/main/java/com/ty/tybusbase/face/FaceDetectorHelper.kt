@@ -44,6 +44,9 @@ class FaceDetectorHelper private constructor() {
     private var faceHandlerThread: HandlerThread? = null
     private var faceHandler: Handler? = null
 
+    @Volatile
+    private var isIsDetecting = false  //是否正在检测人脸
+
     private var isInitOk = false //是否初始化OK
 
     //获取用户信息的策略类
@@ -51,8 +54,6 @@ class FaceDetectorHelper private constructor() {
 
     //检验策略
     private var verifyStrategy: IVerifyStrategy = DefaultVerifyStrategy()
-
-    private val tempIdentityMap by lazy { HashMap<String, Pair<Int, Float>>() }
 
     /**
      * 记录帧数，识别人脸隔三针识别一次
@@ -148,6 +149,7 @@ class FaceDetectorHelper private constructor() {
         rectF: RectF?,
         type: Int = 0
     ) {
+
         /***************************连续一次识别中，隔三帧检测一次*******************************/
         //重置检测帧数和
         if (System.currentTimeMillis() - preDetectTime > resetFrameCountTime) {
@@ -159,7 +161,9 @@ class FaceDetectorHelper private constructor() {
         if (detectCount % frameInterval != 0) {
             return
         }
-
+        //如果在识别，则返回
+        if (isIsDetecting) return
+        isIsDetecting = true
         /***************************连续一次识别中，隔三帧检测一次*******************************/
         faceHandler?.post {
             val livingModel = faceDetector?.detectFace(key, yuv, width, height, rectF, type)
@@ -193,6 +197,7 @@ class FaceDetectorHelper private constructor() {
             } else {
                 mFaceCallback?.onFindFail(livingModel?.faceInfo)
             }
+            isIsDetecting = false
         }
     }
 
@@ -327,7 +332,7 @@ class FaceDetectorHelper private constructor() {
         return isInitOk
     }
 
-    fun isDetecting() = faceDetector?.isDetecting() == true
+    fun isDetecting() = isIsDetecting
 
     fun reset() {
         mFaceCallback = null
