@@ -144,7 +144,8 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         mBinding = ViewDoubleFaceIdentifyBinding.inflate(LayoutInflater.from(context), this);
 
         //1.获取是否开启游客模式，如果未开启游客模式会倒计时推出
-        visitorAble = MMKVUtil.INSTANCE.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
+//        visitorAble = MMKVUtil.INSTANCE.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
+        visitorAble = false;
         //2.获取身份识别的方式
         identityType = MMKVUtil.INSTANCE.decodeInt(IDENTITY_TYPE, IDENTITY_TYPE_FACE);
         //3.获取屏幕尺寸
@@ -248,34 +249,38 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         if (isLeft && !isLeftOk) {
             if (identityStarLeftTime == 0) {
                 identityStarLeftTime = System.currentTimeMillis();
+                post(() -> {
+                    mBinding.layoutIdentityNotice.setVisibility(View.VISIBLE);
+                });
             }
         } else {
             if (identityStartRightTime == 0) {
                 identityStartRightTime = System.currentTimeMillis();
+                post(() -> {
+                    mBinding.layoutIdentityNoticeRight.setVisibility(View.VISIBLE);
+                });
             }
         }
 
         if (isLeft && !isLeftOk) {
             isFistDelay = true; // 识别左边的的时候重置一下
             if (((System.currentTimeMillis() - identityStarLeftTime) > VISITOR_TIME)) {
-
                 if (visitorAble) {
                     createVisitor();
                 } else {
-
-                    if (mBinding.progressView.getVisibility() == View.VISIBLE) {
+                    if (mBinding.layoutIdentityNotice.getVisibility() == View.VISIBLE) {
                         SpeechWrapper.INSTANCE.speech2(getContext().getString(R.string.rec_face_fail_retry), () -> getHandler().postDelayed(() -> {
-
-                            if (identityListener != null) {
-                                identityListener.onIdentityTimeFail();
-//                                identityListener = null;
-                            }
+                            identityStarLeftTime = 0;
+//                            if (identityListener != null) {
+//                                identityListener.onIdentityTimeFail();
+////                                identityListener = null;
+//                            }
 
                         }, 1000));
                     }
 
                     post(() -> {
-                        mBinding.progressView.setVisibility(View.GONE);
+                        mBinding.layoutIdentityNotice.setVisibility(View.GONE);
                     });
                 }
 
@@ -302,16 +307,17 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                 if (visitorAble) {
                     createVisitor();
                 } else {
-                    if (mBinding.progressViewRight.getVisibility() == View.VISIBLE) {
+                    if (mBinding.layoutIdentityNoticeRight.getVisibility() == View.VISIBLE) {
                         SpeechWrapper.INSTANCE.speech2(getContext().getString(R.string.rec_face_fail_retry), () -> getHandler().postDelayed(() -> {
-                            if (identityListener != null) {
-                                identityListener.onIdentityTimeFail();
-//                                identityListener = null;
-                            }
+//                            if (identityListener != null) {
+//                                identityListener.onIdentityTimeFail();
+////                                identityListener = null;
+//                            }
+                            identityStartRightTime = 0;
                         }, 1000));
                     }
                     post(() -> {
-                        mBinding.progressViewRight.setVisibility(View.GONE);
+                        mBinding.layoutIdentityNoticeRight.setVisibility(View.GONE);
                     });
                 }
 
