@@ -5,6 +5,7 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.FrameLayout
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.viewbinding.ViewBinding
@@ -172,7 +173,8 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
     }
 
     fun hideCamera() {
-        mBaseBinding.cameraView.visibility = View.GONE
+        mBaseBinding.cameraView.layoutParams =
+            ConstraintLayout.LayoutParams(1, 1)
     }
 
     private fun initOverlay() {
