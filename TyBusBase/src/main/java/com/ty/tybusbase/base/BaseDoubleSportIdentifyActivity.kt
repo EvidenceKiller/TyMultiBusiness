@@ -171,6 +171,10 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
         mBaseBinding.cameraView.addProcessor(processorDouble)
     }
 
+    fun hideCamera() {
+        mBaseBinding.cameraView.visibility = View.GONE
+    }
+
     private fun initOverlay() {
         val isDebug: Boolean =
             MMKVUtil.decodeBoolean(
