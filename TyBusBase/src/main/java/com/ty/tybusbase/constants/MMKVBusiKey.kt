@@ -58,6 +58,8 @@ object MMKVBusiKey {
      * 身份识别
      */
     const val IDENTITY_TYPE = "IDENTITY_TYPE_N"
+
+    const val NFC_READER_TYPE = "nfc_reader_type"
     /**
      * 相机打开方式选择
      * 1：camera方式；2：cameraX方式

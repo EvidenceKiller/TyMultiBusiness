@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:id="@+id/viewCenterLine"
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true" />
+
+
+
+    <View
+        android:id="@+id/view_mark_left"
+        android:layout_width="@dimen/dp_960"
+        android:layout_height="match_parent"
+        android:background="@color/black_53"
+        android:layout_toLeftOf="@id/viewCenterLine"
+        android:visibility="gone" />
+
+
+    <RelativeLayout
+        android:id="@+id/layout_left"
+        android:layout_width="@dimen/dp_960"
+        android:layout_height="match_parent"
+        android:layout_toLeftOf="@id/viewCenterLine">
+
+        <TextView
+            android:id="@+id/tv_notice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_black_bg"
+            android:padding="@dimen/dp_28"
+            android:text="@string/wait_right_identify_first"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_56"
+            android:textStyle="bold"
+            android:visibility="gone" />
+
+        <RelativeLayout
+            android:id="@+id/layout_identity_notice"
+            android:layout_width="@dimen/dp_360"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/rect_black_bg">
+
+            <TextView
+                android:id="@+id/tv_state_notice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_30"
+                android:layout_marginBottom="@dimen/dp_30"
+                android:layout_marginRight="@dimen/dp_20"
+                android:gravity="center_horizontal"
+                android:text="@string/prompt_card_or_hand_up"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_40"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/iv_state"
+                android:layout_width="@dimen/dp_110"
+                android:layout_height="@dimen/dp_110"
+                android:layout_below="@+id/tv_state_notice"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_50"
+                android:scaleType="fitXY"
+                android:src="@mipmap/hand_up_icon" />
+
+            <com.ty.tybusbase.view.ArcCircleProgressView
+                android:id="@+id/progress_view"
+                android:layout_width="@dimen/dp_130"
+                android:layout_height="@dimen/dp_130"
+                android:layout_below="@+id/tv_state_notice"
+                android:layout_centerHorizontal="true"/>
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/iv_area_notice_left"
+            android:layout_width="@dimen/dp_432"
+            android:layout_height="@dimen/dp_183"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/dp_30"
+            android:scaleType="fitXY"
+            android:src="@mipmap/bg_foot_area" />
+
+    </RelativeLayout>
+
+
+    <View
+        android:id="@+id/view_mark_right"
+        android:layout_width="@dimen/dp_960"
+        android:layout_toRightOf="@id/viewCenterLine"
+        android:layout_height="match_parent"
+        android:background="@color/black_53" />
+
+    <RelativeLayout
+        android:id="@+id/layout_right"
+        android:layout_width="@dimen/dp_960"
+        android:layout_height="match_parent"
+        android:layout_toRightOf="@id/viewCenterLine">
+
+
+
+        <TextView
+            android:id="@+id/tv_notice_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/circle_black_bg"
+            android:padding="@dimen/dp_28"
+            android:text="@string/wait_left_identify_first"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_56"
+            android:textStyle="bold" />
+
+        <RelativeLayout
+            android:id="@+id/layout_identity_notice_right"
+            android:layout_width="@dimen/dp_360"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/rect_black_bg"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_state_notice_right"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_30"
+                android:layout_marginBottom="@dimen/dp_30"
+                android:layout_marginRight="@dimen/dp_20"
+                android:gravity="center_horizontal"
+                android:text="@string/prompt_stand_rect_hand_up"
+                android:textColor="@color/white"
+                android:textSize="@dimen/sp_40"
+                android:textStyle="bold" />
+
+            <ImageView
+                android:id="@+id/iv_state_right"
+                android:layout_width="@dimen/dp_110"
+                android:layout_height="@dimen/dp_110"
+                android:layout_below="@+id/tv_state_notice_right"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/dp_50"
+                android:layout_marginTop="@dimen/dp_10"
+                android:scaleType="fitXY"
+                android:src="@mipmap/hand_up_icon" />
+
+            <com.ty.tybusbase.view.ArcCircleProgressView
+                android:id="@+id/progress_view_right"
+                android:layout_width="@dimen/dp_130"
+                android:layout_height="@dimen/dp_130"
+                android:layout_below="@+id/tv_state_notice_right"
+                android:layout_centerHorizontal="true" />
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/iv_area_notice_right"
+            android:layout_width="@dimen/dp_432"
+            android:layout_height="@dimen/dp_183"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/dp_30"
+            android:scaleType="fitXY"
+            android:src="@mipmap/bg_foot_area"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+</merge>
