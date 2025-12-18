@@ -91,6 +91,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
     private float scW;
     private float scH;
     private boolean areaIn;
+    private boolean rightAreaIn;
     private boolean isFirst;
 
     private static final int VISITOR_TIME = 1 * 1000;
@@ -186,10 +187,12 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 
     }
 
-    public void identify(AdlPoseSkeleton skeleton, byte[] data, int w, int h, boolean isLeftIdentity) {
+
+    public synchronized void identify(AdlPoseSkeleton skeleton, byte[] data, int w, int h, boolean isLeftIdentity) {
         if (identityOk && !needAreaCheck) {
             return;
         }
+        if (!isLeftOk && !isLeftIdentity) return;
 
         if (isLeftIdentity) {
             currentLeftSkeleton = skeleton;
@@ -232,7 +235,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 
         // 脚是否在区域内
         boolean footIn = judgeBodyIn(skeleton, scW, scH);
-        changeAreaState(footIn);
+        changeAreaState(footIn, isLeftIdentity);
         if (!footIn) {
             return;
         }
@@ -337,7 +340,6 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         } else {
             if (isLeftOk) {
                 if (data == null) return;
-
 //                if (isFistDelay) {//只有第一次才需要延迟
                 getHandler().postDelayed(() -> {
 //                    LogUtils.e("延迟两秒识别右边");
@@ -452,7 +454,6 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 
             @Override
             public void onFindFail(@Nullable TyFaceInfo<?> tyFaceInfo) {
-
             }
         });
     }
@@ -640,7 +641,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         return new AdlPoseKeyPoint((p.x + (float) (1920 / 2)) / sx, p.y / sy, p.score);
     }
 
-    private void changeAreaState(boolean isIn) {
+    private void changeAreaState(boolean isIn, boolean isLeft) {
         if (isLeft && isIn != areaIn) {
             areaIn = isIn;
             if (isIn) {
@@ -652,8 +653,10 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                     mBinding.ivAreaNoticeLeft.setImageResource(R.mipmap.bg_foot_area);
                 });
             }
-        } else if (isIn != areaIn) {
-            areaIn = isIn;
+        }
+
+        if (!isLeft && isIn != rightAreaIn) {
+            rightAreaIn = isIn;
             if (isIn) {
                 getHandler().post(() -> {
                     mBinding.ivAreaNoticeRight.setImageResource(R.mipmap.rect_area);
@@ -681,21 +684,20 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         ToastUtil.getInstance(mBinding.getRoot().getContext(), mBinding.getRoot().getContext().getString(R.string.rec_face_fail));
     }
 
-    public void identity(StudentEntity user) {
-
+    public synchronized void identity(StudentEntity user) {
         AccountInfo identifyResult = null;
         if (!isLeftOk && isLeft) {
+            isLeftOk = true;
+            isFistDelay = true;
             getHandler().post(() -> {
                 mBinding.progressView.setProgress(100);
             });
-            isLeftOk = true;
             identifyResult = leftAccountInfo;
-            isFistDelay = true;
         } else if (!isLeft && !isRightOk) {
+            isRightOk = true;
             getHandler().post(() -> {
                 mBinding.progressViewRight.setProgress(100);
             });
-            isRightOk = true;
             identifyResult = rightAccountInfo;
         } else {
             return;
