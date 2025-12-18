@@ -169,17 +169,17 @@ class StFaceDetectorImp : FaceDetectorInterface {
                         )
 
                     if (addFace(replace, user.accountId, stVerifyResult)) {
-                        Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库ok")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库ok")
                     } else {
-                        Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库失败")
                     }
                 } catch (e: Exception) {
                     failCount++
-                    Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败 $e")
+                    Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库失败 $e")
                 }
             } else {
                 failCount++
-                Log.d(StContact.LOG_TAG,"${user.accountName} 特征入库失败,特征空")
+                Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库失败,特征空")
             }
         }
         LogUtil.d("商汤老师特征入库完成**成功:${secCount}***失败：${failCount}")
@@ -230,7 +230,9 @@ class StFaceDetectorImp : FaceDetectorInterface {
             LogUtil.d("ERROR : 人脸裁剪区域错误")
             return null
         }
-
+        if (isIsDetecting) return null
+        isIsDetecting = true
+        LogUtil.d("商汤开始检测人脸")
         //裁剪区矫正,rect太小会导致人脸识别程序崩溃
         if (rectF.width() < 40) {
             val centerX = rectF.centerX()
@@ -242,8 +244,6 @@ class StFaceDetectorImp : FaceDetectorInterface {
             rectF.top = max(centerY - 20, 0f)
             rectF.bottom = min(centerY + 20, height.toFloat())
         }
-        if (isIsDetecting) return null
-        isIsDetecting = true
         val startDetectFace = System.currentTimeMillis()
         var bytes = yuv
         var jfLivingModel: TyLivingModel? = null
@@ -276,7 +276,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
         } finally {
             isIsDetecting = false
             val endDetect = System.currentTimeMillis()
-            Log.d(StContact.LOG_TAG, "人脸识别耗时:" + (endDetect - startDetectFace))
+            LogUtil.d("商汤结束人脸检测，人脸识别耗时:" + (endDetect - startDetectFace))
         }
         return jfLivingModel
     }
