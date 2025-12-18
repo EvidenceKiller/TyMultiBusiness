@@ -68,15 +68,11 @@ class FaceDetectorHelper private constructor() {
 
     private val defaultFrameInterval = 4  //默认检测间隔
 
-    private val defaultMinScoreThreshold = 0.5f //默认最小信任分数阈值
-
-    private val defaultMinMatchTimes = 2 //默认最小匹配次数
-
-    private val defaultMaxCountTimes = 4 //默认最大连续帧数
-
     private var frameInterval = defaultFrameInterval //几帧检测一帧
 
     private var defaultFaceFeatureThreshold = 0.4f //默认人脸阈值
+
+    private var savePic = true
 
     /**
      * 初始化
@@ -211,7 +207,7 @@ class FaceDetectorHelper private constructor() {
         userId: String?,
         score: Float
     ) {
-//        if (BusiBaseConfig.getDebugEnable().not()) return
+        if (savePic.not()) return
         if (yuv == null || rectF == null || userId == null) return
         if (executor == null) {
             executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory())
@@ -268,10 +264,25 @@ class FaceDetectorHelper private constructor() {
         )
     }
 
+
+    /**
+     * 是否需要保存图片
+     */
+    fun setSavePic(save: Boolean) {
+        savePic = save
+    }
+
+    /**
+     * 设置默认人脸特征阈值
+     * 用于reset使用
+     */
     fun setDefaultFaceFeatureThreshold(th: Float) {
         defaultFaceFeatureThreshold = th
     }
 
+    /**
+     * 设置人脸特征阈值
+     */
     fun setFaceFeatureThreshold(score: Float) {
         faceDetector?.setFaceFeatureThreshold(score)
     }
