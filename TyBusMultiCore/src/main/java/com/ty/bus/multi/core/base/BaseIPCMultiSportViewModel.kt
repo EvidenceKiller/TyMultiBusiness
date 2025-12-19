@@ -66,6 +66,7 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.SportRecordEntity
 import com.adl.sport.general.RegionFilter
 import com.ty.bus.multi.core.config.MultiCoreConfig
@@ -764,7 +765,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             override fun onOpenFail() {
             }
         })
-
         timeOutHelper.start()
     }
 
@@ -791,7 +791,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 //比赛结束
                 sportCountDownLD.postValue("0:00")
                 sportFinish()
-
             }
 
         }
@@ -807,12 +806,14 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private fun startRecord() {
         getVideoPath(sportInfo!!.sportSkuId)
         createTime = System.currentTimeMillis()
-        cameraDispatcher.addFrameProcessor(sportEngine)
-        //延时一丢丢，等分辨率切换过来，sportEngine的宽高是切换后的，才开始录像
         viewModelScope.launch(Dispatchers.IO) {
-            SystemClock.sleep(500)
             val size = getCameraSize()
-            sportEngine.startRecorder(videoFile, size.first * size.second * 2)
+            videoRecorder.onStart(videoFile, size.first, size.second)
+            cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
+                override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
+                    videoRecorder.inputNv21(p0)
+                }
+            })
         }
     }
 
@@ -835,30 +836,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         toDone()
         SoundPlayUtils.play(24)
         //停止录像，上传录像成绩
-        sportEngine.changeToNone()
-        sportEngine.stopRecorder {
-            handleResult(skipPersonArray)
-        }
-        //处理上传视频
-        viewModelScope.launch(Dispatchers.IO) {
-            for (index in 0 until skipPersonArray.size()) {
-                //有一人大于5个就上传成绩
-                if (skipPersonArray.valueAt(index).count >= 5) {
-                    videoFile?.let {
-                        //todo 上传运动视频
-//                        startUpload(
-//                            it,
-//                            sportInfo.sportAi,
-//                            sportInfo.sportName,
-//                            createTime,
-//                            0,
-//                            null
-//                        )
-                    }
-                    break
-                }
-            }
-        }
+        videoRecorder.onStop()
+        handleResult(skipPersonArray)
+
     }
 
     /**
@@ -993,8 +973,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         cameraDispatcher.quit()
         uiHandler.removeCallbacksAndMessages(null)
         focalHandler.removeCallbacksAndMessages(null)
-        sportEngine.stopRecorder(null)
-        sportEngine.onStop()
+        videoRecorder.onStop()
+        videoRecorder.onRelease()
         asyncPlayer.stop()
         config.unloadModel()
         multiSportProcessor.onRelease()
