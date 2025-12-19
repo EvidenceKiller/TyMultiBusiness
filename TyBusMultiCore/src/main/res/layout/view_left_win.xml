@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_left_win"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_70">
+
+
+    <View
+        android:id="@+id/rl_bg"
+        android:layout_width="@dimen/dp_1065"
+        android:layout_height="@dimen/dp_453"
+        android:layout_marginTop="@dimen/dp_352"
+        android:background="@mipmap/bg_lose2right"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_head_rl"
+        android:layout_width="@dimen/dp_195"
+        android:layout_height="@dimen/dp_195"
+        android:layout_marginLeft="@dimen/dp_498"
+        android:layout_marginTop="@dimen/dp_83"
+        android:src="@mipmap/ic_head_default"
+        app:border_color="@color/white"
+        app:layout_constraintStart_toStartOf="@id/rl_bg"
+        app:layout_constraintTop_toTopOf="@+id/rl_bg" />
+
+    <TextView
+        android:id="@+id/tv_name_rl"
+        android:layout_width="@dimen/dp_254"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_263"
+        android:background="@drawable/bg_round_gradient_gray"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_52"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_rl"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_rl"
+        app:layout_constraintTop_toTopOf="@+id/rl_bg" />
+
+    <TextView
+        android:id="@+id/tv_score_rl"
+        android:layout_width="@dimen/dp_300"
+        android:layout_height="@dimen/dp_99"
+        android:layout_marginLeft="@dimen/dp_450"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_76"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/rl_bg"
+        app:layout_constraintStart_toStartOf="@id/rl_bg" />
+
+
+    <View
+        android:id="@+id/l_w_bg"
+        android:layout_width="@dimen/dp_1070"
+        android:layout_height="@dimen/dp_534"
+        android:layout_marginTop="@dimen/dp_207"
+        android:background="@mipmap/bg_win2left"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_head_lw"
+        android:layout_width="@dimen/dp_195"
+        android:layout_height="@dimen/dp_195"
+        android:layout_marginLeft="@dimen/dp_440"
+        android:layout_marginBottom="@dimen/dp_221"
+        android:src="@mipmap/ic_head_default"
+        app:border_color="@color/white"
+        app:layout_constraintBottom_toBottomOf="@+id/l_w_bg"
+        app:layout_constraintStart_toStartOf="@+id/l_w_bg" />
+
+    <TextView
+        android:id="@+id/tv_name_lw"
+        android:layout_width="@dimen/dp_254"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_174"
+        android:background="@drawable/bg_round_gradient_blue"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_52"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/l_w_bg"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_lw"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_lw" />
+
+    <TextView
+        android:id="@+id/tv_score_lw"
+        android:layout_width="@dimen/dp_362"
+        android:layout_height="@dimen/dp_101"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_76"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/l_w_bg"
+        app:layout_constraintEnd_toEndOf="@+id/l_w_bg"
+        app:layout_constraintStart_toStartOf="@+id/l_w_bg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,7 +12,6 @@ class SportDetectResult {
     /**
      * 当值大于0时采用意义
      */
-    @SportConstant.SingleSportLevel
     var singleSportLevel = 0
 
     /**

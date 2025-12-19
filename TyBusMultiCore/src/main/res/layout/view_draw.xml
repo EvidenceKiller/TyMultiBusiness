@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/layout_draw"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_70">
+
+    <View
+        android:id="@+id/r_bg"
+        android:layout_width="@dimen/dp_1045"
+        android:layout_height="@dimen/dp_506"
+        android:layout_marginTop="@dimen/dp_302"
+        android:background="@mipmap/int_pic_draw_right"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_head_r"
+        android:layout_width="@dimen/dp_195"
+        android:layout_height="@dimen/dp_195"
+        android:layout_marginLeft="@dimen/dp_596"
+        android:layout_marginTop="@dimen/dp_103"
+        android:src="@mipmap/ic_head_default"
+        app:border_color="@color/white"
+        app:layout_constraintStart_toStartOf="@+id/r_bg"
+        app:layout_constraintTop_toTopOf="@id/r_bg" />
+
+    <TextView
+        android:id="@+id/tv_name_r"
+        android:layout_width="@dimen/dp_254"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_273"
+        android:background="@drawable/bg_round_gradient_gray"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_52"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_r"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_r"
+        app:layout_constraintTop_toTopOf="@id/r_bg" />
+
+    <TextView
+        android:id="@+id/tv_score_r"
+        android:layout_width="@dimen/dp_293"
+        android:layout_height="@dimen/dp_102"
+        android:layout_marginLeft="@dimen/dp_540"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_76"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/r_bg"
+        app:layout_constraintStart_toStartOf="@+id/r_bg" />
+
+    <View
+        android:id="@+id/l_bg"
+        android:layout_width="@dimen/dp_1045"
+        android:layout_height="@dimen/dp_506"
+        android:layout_marginTop="@dimen/dp_302"
+        android:background="@mipmap/int_pic_draw_left"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_head_l"
+        android:layout_width="@dimen/dp_195"
+        android:layout_height="@dimen/dp_195"
+        android:layout_marginLeft="@dimen/dp_292"
+        android:layout_marginTop="@dimen/dp_103"
+        android:src="@mipmap/ic_head_default"
+        app:border_color="@color/white"
+        app:layout_constraintStart_toStartOf="@id/l_bg"
+        app:layout_constraintTop_toTopOf="@id/l_bg" />
+
+    <TextView
+        android:id="@+id/tv_name_l"
+        android:layout_width="@dimen/dp_254"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_273"
+        android:background="@drawable/bg_round_gradient_gray"
+        android:gravity="center"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_52"
+        android:textStyle="bold"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_l"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_l"
+        app:layout_constraintTop_toTopOf="@id/l_bg" />
+
+    <TextView
+        android:id="@+id/tv_score_l"
+        android:layout_width="@dimen/dp_362"
+        android:layout_height="@dimen/dp_102"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="@dimen/dp_202"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:gravity="center"
+        android:text="0"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_76"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/l_bg"
+        app:layout_constraintStart_toStartOf="@id/l_bg" />
+
+    <ImageView
+        android:layout_width="@dimen/dp_540"
+        android:layout_height="@dimen/dp_390"
+        android:layout_marginLeft="@dimen/dp_690"
+        android:layout_marginTop="@dimen/dp_375"
+        android:background="@mipmap/int_pic_draw_default"
+        android:visibility="visible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
