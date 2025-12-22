@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.adl.service.outer.AdlService;
 import com.bumptech.glide.Glide;
 import com.ty.bus.multi.R;
 import com.ty.bus.multi.databinding.ViewDoubleSportResultBinding;
@@ -76,8 +77,8 @@ public class DoubleSportResultView extends ConstraintLayout {
             tvNameRl.setText(rightResult.userName == null ? "" : rightResult.userName);
             tvScoreLw.setText(String.valueOf(leftResult.getSportAchievement()));
             tvScoreRl.setText(String.valueOf(rightResult.getSportAchievement()));
-            Glide.with(getContext()).load(leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLw);
-            Glide.with(getContext()).load(rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRl);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLw);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -96,8 +97,8 @@ public class DoubleSportResultView extends ConstraintLayout {
             tvNameLl.setText(leftResult.userName == null ? "" : leftResult.userName);
             tvScoreRw.setText(String.valueOf(rightResult.getSportAchievement()));
             tvScoreLl.setText(String.valueOf(leftResult.getSportAchievement()));
-            Glide.with(getContext()).load(rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRw);
-            Glide.with(getContext()).load(leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLl);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRw);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLl);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -116,8 +117,8 @@ public class DoubleSportResultView extends ConstraintLayout {
             tvNameL.setText(leftResult.userName == null ? "" : leftResult.userName);
             tvScoreR.setText(String.valueOf(rightResult.getSportAchievement()));
             tvScoreL.setText(String.valueOf(leftResult.getSportAchievement()));
-            Glide.with(getContext()).load(rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadR);
-            Glide.with(getContext()).load(leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadL);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadR);
+            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadL);
         } catch (Exception e) {
             e.printStackTrace();
         }
