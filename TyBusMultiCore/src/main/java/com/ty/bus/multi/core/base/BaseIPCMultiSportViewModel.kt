@@ -904,13 +904,23 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     is GroupSkippingLRemixParser -> {
                         val groupSkippingManRemixList =
                             (multiSportParser as GroupSkippingLRemixParser).groupSkippingManLRemixList
-                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                        val pre =
+                            groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                        if (pre == null) {
+                            LogUtil.d("${multiResult.number}道无报告,运动人数:${skipPersonArray.size},报告总数: ${groupSkippingManRemixList.size}")
+                        }
+                        pre
                     }
 
                     is GroupSkippingRemixParser -> {
                         val groupSkippingManRemixList =
                             (multiSportParser as GroupSkippingRemixParser).groupSkippingManRemixList
-                        groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                        val pre =
+                            groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
+                        if (pre == null) {
+                            LogUtil.d("${multiResult.number}道无报告,运动人数:${skipPersonArray.size},报告总数: ${groupSkippingManRemixList.size}")
+                        }
+                        pre
                     }
 
                     else -> null
