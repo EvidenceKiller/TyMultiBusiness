@@ -204,7 +204,7 @@ class FaceDetectorHelper private constructor() {
     /**
      * 调试使用
      */
-    fun savePic(
+    private fun savePic(
         yuv: ByteArray?,
         width: Int,
         height: Int,
