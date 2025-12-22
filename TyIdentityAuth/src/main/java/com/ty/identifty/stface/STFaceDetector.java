@@ -295,27 +295,23 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
             if (quality < 0.55f) {
                 // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
                 if (Math.abs(qualityInfo.getPitch()) > 45) {
-                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 水平角(Yaw) :  大于45度，直接丢弃
                 if (Math.abs(qualityInfo.getYaw()) > 45) {
                     //d(" 警告： 水平角异常，直接丢弃 !");
-                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
                 if (Math.abs(qualityInfo.getOcclusionRatio()) > 0.35f) {
                     //d(" 警告： 遮挡比例异常，直接丢弃 !");
-                    saveBitmap(yuv, width, height, fileName);
                     return false;
                 }
 
                 // 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
                 if (Math.abs(qualityInfo.getQuality()) < 0.2f) {
-                    saveBitmap(yuv, width, height, fileName);
                     //d(" 警告： 综合质量异常，直接丢弃 !");
                     return false;
                 }
