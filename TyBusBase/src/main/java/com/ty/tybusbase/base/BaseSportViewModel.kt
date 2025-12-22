@@ -42,6 +42,7 @@ import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 import androidx.core.net.toUri
 import com.adl.auth.core.AdlAuthFactory
+import com.adl.base.common.AdlVideoAsyncRecorder
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.utils.BusiCoreEngine
 import com.ty.tybusbase.utils.VideoUtil
@@ -60,6 +61,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     private val playerHandler: AdlHandlerThread = AdlHandlerThread("#Player")
 
     val sportEngine: SportEngineSingle by lazy { SportEngineSingle.createEngine(0) }
+
+    val videoRecorder by lazy { AdlVideoAsyncRecorder() }
 
     //存储上传的资源信息，处理重复资源上传问题
     val uploadResMap = ConcurrentHashMap<String, String?>()
@@ -523,7 +526,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     fun getVideoPath(sAi: String? = sportInfo?.sportSkuId): File {
         if (videoFile == null) {
             val userDir = AdlFileHelper.createUserDir(
-                accountInfoLD.value?.studentEntity?.accountId ?: BusiBaseConstantsValue.VISITOR_USER_ID,
+                accountInfoLD.value?.studentEntity?.accountId
+                    ?: BusiBaseConstantsValue.VISITOR_USER_ID,
                 sAi
             )
             val timestamp = System.currentTimeMillis()
