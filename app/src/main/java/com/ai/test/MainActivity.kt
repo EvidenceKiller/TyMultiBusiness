@@ -199,5 +199,19 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.btnPicIdentify.setOnClickListener {
             startActivity(Intent(this, PicFaceTestActivity::class.java))
         }
+
+        mBinding.btnDSkip.setOnClickListener {
+            UIMultiNavigation.goDoubleSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "双人跳绳"
+                    endValue = "20000"
+                    endType = SportConstant.END_TYPE_TIME
+                    testCount = "2"
+                    sceneId = SceneConstants.FREE
+                }
+            })
+        }
     }
 }

@@ -9,6 +9,7 @@ import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
+import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
@@ -81,6 +82,14 @@ object UIMultiNavigation {
      */
     fun goForwardFlexionSixSetting(context: Context) {
         context.startActivity(Intent(context, ForwardFlexionSixSettingActivity::class.java))
+    }
+
+    /**
+     * 跳转到双人运动
+     */
+    fun goDoubleSport(context: Context, config: UINavConfig?) {
+        val intent = Intent(context, DoubleSportActivity::class.java)
+        startActivity(context, intent, config)
     }
 
     /**

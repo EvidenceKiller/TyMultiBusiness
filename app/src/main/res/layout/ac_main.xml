@@ -51,12 +51,13 @@
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:contentDescription="双人运动">
                 <Button
-                    android:id="@+id/bnt_1"
+                    android:id="@+id/btn_d_skip"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="5人仰卧起坐"
+                    android:text="双人跳绳"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
             </LinearLayout>
