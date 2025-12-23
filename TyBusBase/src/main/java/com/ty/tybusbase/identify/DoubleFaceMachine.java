@@ -144,8 +144,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         mBinding = ViewDoubleFaceIdentifyBinding.inflate(LayoutInflater.from(context), this);
 
         //1.获取是否开启游客模式，如果未开启游客模式会倒计时推出
-//        visitorAble = MMKVUtil.INSTANCE.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
-        visitorAble = false;
+        visitorAble = MMKVUtil.INSTANCE.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
         //2.获取身份识别的方式
         identityType = MMKVUtil.INSTANCE.decodeInt(IDENTITY_TYPE, IDENTITY_TYPE_FACE);
         //3.获取屏幕尺寸
