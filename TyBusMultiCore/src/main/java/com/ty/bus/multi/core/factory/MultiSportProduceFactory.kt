@@ -24,11 +24,19 @@ object MultiSportProduceFactory {
             }
 
             SportConstant.SPORT_OPEN_CLOSE_JUMP -> {
-                FiveOpenCloseJumpFactory()
+                if (testCount == "5") {
+                    FiveOpenCloseJumpFactory()
+                } else {
+                    TenOpenCloseJumpFactory()
+                }
             }
 
             SportConstant.SPORT_SQUATS -> {
-                FiveSportSquatsFactory()
+                if (testCount == "5") {
+                    FiveSportSquatsFactory()
+                } else {
+                    TenSkipRopeFactory()
+                }
             }
 
             else -> FiveSportSquatsFactory()

@@ -233,7 +233,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         if (lite) {
             config.liteBodyCheck = lite
         }
-
         config.checkExercisePrescription = isOpenReport()
         multiSportProcessor.setConfig(config)
         multiSportProcessor.setBodyFilter(getBodyFilter())
