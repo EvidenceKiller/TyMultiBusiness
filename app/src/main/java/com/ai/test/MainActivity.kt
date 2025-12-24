@@ -84,6 +84,47 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     .build()
             )
         }
+
+        mBinding.btnTenOpenClose.setOnClickListener {
+            goTenSportRope(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_JUMPING_JACK_SKIP_ROPE
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "40000"
+                        sportSkuName = "十人开合跳"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, TenSportConfig.builder()
+                    .setCountdownText("开始倒计时")
+                    .setResultPageText("测试结束")
+                    .setSportStartedText("开始咯，开始咯")
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(false)
+                    .build()
+            )
+        }
+
+        mBinding.btnTenSquat.setOnClickListener {
+            goTenSportRope(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_SQUATS
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "40000"
+                        sportSkuName = "十人下蹲"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, TenSportConfig.builder()
+                    .setCountdownText("开始倒计时")
+                    .setResultPageText("测试结束")
+                    .setSportStartedText("开始咯，开始咯")
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(false)
+                    .build()
+            )
+        }
+
         mBinding.bnt8.setOnClickListener {
             UIMultiNavigation.goThreeSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
