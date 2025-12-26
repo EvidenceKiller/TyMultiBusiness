@@ -89,7 +89,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             goTenSportRope(
                 this, UINavConfig().apply {
                     sportInfo = SceneSportInfoEntity().apply {
-                        sportItemCode = SportConstant.SPORT_JUMPING_JACK_SKIP_ROPE
+                        sportItemCode = SportConstant.SPORT_OPEN_CLOSE_JUMP
                         sportSkuId = sportItemCode + "0001"
                         endValue = "40000"
                         sportSkuName = "十人开合跳"

@@ -35,7 +35,7 @@ object MultiSportProduceFactory {
                 if (testCount == "5") {
                     FiveSportSquatsFactory()
                 } else {
-                    TenSkipRopeFactory()
+                    TenSportSquatsFactory()
                 }
             }
 
