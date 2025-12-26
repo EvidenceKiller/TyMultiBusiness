@@ -7,15 +7,13 @@
 
     <com.ty.tybusbase.camera.BSCameraPreview
         android:id="@+id/camera_view"
-        android:layout_width="@dimen/dp_1920"
-        android:layout_height="@dimen/dp_1080"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintRight_toRightOf="parent" />
+        android:layout_width="1920px"
+        android:layout_height="1080px"/>
 
     <com.ty.forwardflexion.processor.ForwardFlexionSportOverlay
         android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="1920px"
+        android:layout_height="1080px" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_view_container"

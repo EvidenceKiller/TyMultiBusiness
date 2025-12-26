@@ -429,7 +429,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (person == null) return@forEach
             val name = person.accountInfo.studentEntity?.accountName ?: ""
             person.count = max(person.count, it.value)
-//            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
+            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
             resultStatusList[it.key - 1] = true
         }
         val list = resultStatusList.filter { it }

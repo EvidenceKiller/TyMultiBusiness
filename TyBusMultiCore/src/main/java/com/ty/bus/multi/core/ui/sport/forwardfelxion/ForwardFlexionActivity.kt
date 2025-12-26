@@ -36,6 +36,7 @@ import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.DeviceUtil
+import com.ty.tybusbase.utils.DisplayUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -182,6 +183,7 @@ open class ForwardFlexionActivity :
         )
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
+                previewInfo.frameTimestamp = System.currentTimeMillis()
                 previewInfo?.let {
                     if (preFrameTime != 0L && checkTimeOk.not()) {
                         if (it.frameTimestamp - preFrameTime > 1000_000) {
@@ -244,13 +246,12 @@ open class ForwardFlexionActivity :
         MultiCoreConfig
         val param = MultiCoreConfig.getForwardFlexionParam()
         // 运动配置
-        // 运动配置
         sportConfig = SportConfig.builder()
             .debug(isDebug)
             .record(true)
             .videoFps(30)
-            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .screenWidth(1920)
+            .screenHeight(1080)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(), 1))
@@ -274,9 +275,9 @@ open class ForwardFlexionActivity :
 
             override fun onInform(code: InformCode?, error: String?) {
                 LogUtil.d("$code:$error")
-//                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-//                    viewModel.toStatusIdentifyFace()
-//                }
+                //                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+                //                    viewModel.toStatusIdentifyFace()
+                //                }
             }
 
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
@@ -324,6 +325,7 @@ open class ForwardFlexionActivity :
         })
         forwardFlexionProcessor.onInit()
         loadModel()
+
     }
 
     override fun onStatusIdentify() {
@@ -354,7 +356,7 @@ open class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
-                        if (DeviceUtil.isTsRk3588()){
+                        if (DeviceUtil.isTsRk3588()) {
                             runOnUiThread {
                                 showLoadingDialog(getString(R.string.model_loding))
                             }
