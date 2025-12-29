@@ -18,6 +18,7 @@ import com.adl.processor.SportProcessorStatus
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
@@ -77,6 +78,8 @@ open class ForwardFlexionActivity :
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.ffSportConfig =
+            intent.getSerializableExtra("sport_config") as? ForwardFlexionConfig
         viewModel.initData()
         SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
@@ -415,7 +418,7 @@ open class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT
         )
-        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
+        if (viewModel.ffSportConfig?.isSupportNextGroup == true){
             resultView.showNextBtn()
         }
         resultView.setSportResult(viewModel.sportPersonArray)
