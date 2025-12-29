@@ -5,17 +5,11 @@ import java.io.Serializable
 class ForwardFlexionConfig private constructor(
     val isVoiceBroadcastSupported: Boolean,
     val isSupportNextGroup: Boolean,
-    val countdownText: String,
-    val sportStartText: String,
-    val resultPageText: String
 ) : Serializable {
 
     class Builder {
         private var isVoiceBroadcastSupported: Boolean = false
         private var isSupportNextGroup: Boolean = false
-        private var countdownText: String = ""
-        private var gameStartText: String = ""
-        private var resultPageText: String = ""
 
         /**
          * 是否支持语音播报
@@ -33,37 +27,10 @@ class ForwardFlexionConfig private constructor(
             return this
         }
 
-        /**
-         * 人脸识别后倒计时文案,前缀
-         */
-        fun setCountdownText(text: String): Builder {
-            this.countdownText = text
-            return this
-        }
-
-        /**
-         * 人脸识别后开始比赛文案
-         */
-        fun setSportStartedText(text: String): Builder {
-            this.gameStartText = text
-            return this
-        }
-
-        /**
-         * 成绩页文案
-         */
-        fun setResultPageText(text: String): Builder {
-            this.resultPageText = text
-            return this
-        }
-
         fun build(): ForwardFlexionConfig {
             return ForwardFlexionConfig(
                 isVoiceBroadcastSupported,
-                isSupportNextGroup,
-                countdownText,
-                gameStartText,
-                resultPageText
+                isSupportNextGroup
             )
         }
     }

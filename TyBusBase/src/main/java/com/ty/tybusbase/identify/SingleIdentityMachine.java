@@ -691,6 +691,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         accountInfo = new AccountInfo();
         StudentEntity user = new StudentEntity();
         user.setUserId(BusiBaseConstantsValue.VISITOR_USER_ID);
+        user.setAccountId(BusiBaseConstantsValue.VISITOR_USER_ID);
         user.setUserFaceImgUrl("");
         user.setAccountName(getString(R.string.visitor));
         accountInfo.setStudentEntity(user);

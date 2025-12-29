@@ -38,8 +38,9 @@ object UIMultiNavigation {
      * 坐位体前屈
      */
     @JvmStatic
-    fun goForwardFlexion(context: Context, config: UINavConfig?) {
+    fun goForwardFlexion(context: Context, config: UINavConfig?,ffConfig: ForwardFlexionConfig? = null) {
         val intent = Intent(context, ForwardFlexionActivity::class.java)
+        intent.putExtra("sport_config", ffConfig)
         startActivity(context, intent, config)
     }
 

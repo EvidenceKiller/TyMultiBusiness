@@ -15,6 +15,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.forwardflexion.callback.FFlexionSportCb
@@ -38,6 +39,8 @@ import kotlin.math.max
 
 class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewModel(application) {
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
+
+    var ffSportConfig: ForwardFlexionConfig? = null
 
     private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
@@ -429,7 +432,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             if (person == null) return@forEach
             val name = person.accountInfo.studentEntity?.accountName ?: ""
             person.count = max(person.count, it.value)
-//            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
+            SpeechWrapper.speech("${name}，${getResultSpeech(it.value)}")
             resultStatusList[it.key - 1] = true
         }
         val list = resultStatusList.filter { it }

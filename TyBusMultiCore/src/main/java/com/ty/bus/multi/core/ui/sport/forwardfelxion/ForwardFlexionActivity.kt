@@ -18,6 +18,7 @@ import com.adl.processor.SportProcessorStatus
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
@@ -36,6 +37,7 @@ import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.DeviceUtil
+import com.ty.tybusbase.utils.DisplayUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -76,6 +78,8 @@ open class ForwardFlexionActivity :
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.ffSportConfig =
+            intent.getSerializableExtra("sport_config") as? ForwardFlexionConfig
         viewModel.initData()
         SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
@@ -182,6 +186,7 @@ open class ForwardFlexionActivity :
         )
         mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
+                previewInfo.frameTimestamp = System.currentTimeMillis()
                 previewInfo?.let {
                     if (preFrameTime != 0L && checkTimeOk.not()) {
                         if (it.frameTimestamp - preFrameTime > 1000_000) {
@@ -202,7 +207,7 @@ open class ForwardFlexionActivity :
                         previewInfo.width,
                         previewInfo.height,
                         previewInfo.frameTimestamp,
-                        1
+                        0
                     )
                 }
             }
@@ -244,13 +249,12 @@ open class ForwardFlexionActivity :
         MultiCoreConfig
         val param = MultiCoreConfig.getForwardFlexionParam()
         // 运动配置
-        // 运动配置
         sportConfig = SportConfig.builder()
             .debug(isDebug)
             .record(true)
             .videoFps(30)
-            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .screenWidth(1920)
+            .screenHeight(1080)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
             .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule(), 1))
@@ -274,9 +278,9 @@ open class ForwardFlexionActivity :
 
             override fun onInform(code: InformCode?, error: String?) {
                 LogUtil.d("$code:$error")
-//                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-//                    viewModel.toStatusIdentifyFace()
-//                }
+                //                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+                //                    viewModel.toStatusIdentifyFace()
+                //                }
             }
 
             override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
@@ -324,6 +328,7 @@ open class ForwardFlexionActivity :
         })
         forwardFlexionProcessor.onInit()
         loadModel()
+
     }
 
     override fun onStatusIdentify() {
@@ -354,7 +359,7 @@ open class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
-                        if (DeviceUtil.isTsRk3588()){
+                        if (DeviceUtil.isTsRk3588()) {
                             runOnUiThread {
                                 showLoadingDialog(getString(R.string.model_loding))
                             }
@@ -413,7 +418,7 @@ open class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT
         )
-        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST) {
+        if (viewModel.ffSportConfig?.isSupportNextGroup == true){
             resultView.showNextBtn()
         }
         resultView.setSportResult(viewModel.sportPersonArray)

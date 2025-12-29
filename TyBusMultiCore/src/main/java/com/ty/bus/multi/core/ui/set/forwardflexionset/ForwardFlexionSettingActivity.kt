@@ -25,6 +25,7 @@ import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.utils.DisplayUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -136,16 +137,17 @@ class ForwardFlexionSettingActivity :
 
     private fun startMat() {
         // 运动配置
+
         sportConfig = SportConfig.builder()
             .debug(true)
             .record(false)
             .videoFps(30)
-            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .screenWidth(mBinding.cameraView.width)
+            .screenHeight(mBinding.cameraView.height)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
             .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125,1))
-            .valueBool(booleanArrayOf(false,false,false))
+            .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125, 1))
+            .valueBool(booleanArrayOf(false, false, false))
             .build()
         forwardFlexionProcessor.setConfig(sportConfig)
         forwardFlexionProcessor.open(mBinding.overlay)
@@ -184,45 +186,47 @@ class ForwardFlexionSettingActivity :
     }
 
     private fun initProcessor() {
-        sportConfig = SportConfig.builder()
-            .debug(true)
-            .record(false)
-            .videoFps(30)
-            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125,1))
-            .valueBool(booleanArrayOf(false,false,false))
-            .build()
-        forwardFlexionProcessor.setConfig(sportConfig)
-        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
-            override fun onResult(result: FFlexionSportResult) {
-            }
-
-            override fun onInform(code: InformCode?, error: String?) {
-                LogUtil.d("$code:$error")
-                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-                    ToastUtil.getInstance(
-                        this@ForwardFlexionSettingActivity,
-                        if (code == InformCode.LANDMARKFINSIH) getString(R.string.forward_flexion_auto_mat_success) else getString(
-                            R.string.forward_flexion_auto_mat_fail
-                        )
-                    ).show()
-                    forwardFlexionProcessor.onReset()
-                    forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
+        mBinding.cameraView.post {
+            sportConfig = SportConfig.builder()
+                .debug(true)
+                .record(false)
+                .videoFps(30)
+                .screenWidth(mBinding.cameraView.width)
+                .screenHeight(mBinding.cameraView.height)
+                .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
+                .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+                .valueInt(intArrayOf(testPeopleCount, 60, 20, 110, 125, 1))
+                .valueBool(booleanArrayOf(false, false, false))
+                .build()
+            forwardFlexionProcessor.setConfig(sportConfig)
+            forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
+                override fun onResult(result: FFlexionSportResult) {
                 }
-            }
 
-            override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
-            }
+                override fun onInform(code: InformCode?, error: String?) {
+                    LogUtil.d("$code:$error")
+                    if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
+                        ToastUtil.getInstance(
+                            this@ForwardFlexionSettingActivity,
+                            if (code == InformCode.LANDMARKFINSIH) getString(R.string.forward_flexion_auto_mat_success) else getString(
+                                R.string.forward_flexion_auto_mat_fail
+                            )
+                        ).show()
+                        forwardFlexionProcessor.onReset()
+                        forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
+                    }
+                }
 
-            override fun onBonePoints(p0: Map<Int?, FFlexionSportCb.FFlexionBody?>?) {
+                override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
+                }
 
-            }
-        })
-        forwardFlexionProcessor.onInit()
-        loadModel()
+                override fun onBonePoints(p0: Map<Int?, FFlexionSportCb.FFlexionBody?>?) {
+
+                }
+            })
+            forwardFlexionProcessor.onInit()
+            loadModel()
+        }
     }
 
     private fun loadModel() {
