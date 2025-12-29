@@ -58,14 +58,9 @@ class NfcReaderA : AbstractNfcReader() {
             callContactLess!!.fw_beep(devNum, 10)
             callContactLess!!.fw_halt(devNum)
             callContactLess!!.a_hex(hexCard, strCard, 4)
-            for (i in 0 until 4) {
-                rvHexCard[i] = hexCard[3 - i]
-            }
             val cardNum =
-                ((rvHexCard[0]).code.toLong() shl 24) + ((rvHexCard[1]).code.toLong() shl 16) + ((rvHexCard[2]).code.toLong() shl 8) + (rvHexCard[3]).code.toLong()
+                ((hexCard[3]).code.toLong() shl 24) + ((hexCard[2]).code.toLong() shl 16) + ((hexCard[1]).code.toLong() shl 8) + (hexCard[0]).code.toLong()
             callContactLess!!.hex_a(rvStrCard, rvHexCard, 8)
-            Log.d(TAG, "hex: $rvHexCard")
-            Log.d(TAG, "hex: $rvStrCard")
             Log.d(TAG, "cardNum: $cardNum")
             mReadCallback?.readCardBack(cardNum.toString())
         }
