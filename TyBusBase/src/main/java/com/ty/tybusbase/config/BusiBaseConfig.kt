@@ -40,22 +40,39 @@ object BusiBaseConfig {
     /**
      * 0:前置，1：后置，
      */
-    fun setCameraId(id: Int){
+    fun setCameraId(id: Int) {
         MMKVUtil.encode(MMKVBusiKey.CAMERA_CHOOSE, id)
     }
 
-    fun getCameraId(): Int{
+    fun getCameraId(): Int {
         return MMKVUtil.decodeInt(MMKVBusiKey.CAMERA_CHOOSE, BusiBaseConstantsValue.CAMERA_BACK)
+    }
+
+    /**
+     * 设置摄像头类型
+     */
+    fun setCameraType(cameraType: Int) {
+        MMKVUtil.encode(MMKVBusiKey.CAMERA_TYPE_CHOOSE, cameraType)
+    }
+
+    /**
+     * 获取摄像头类型
+     */
+    fun getCameraType(): Int {
+        return MMKVUtil.decodeInt(
+            MMKVBusiKey.CAMERA_TYPE_CHOOSE,
+            BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
+        )
     }
 
     /**
      * 设置摄像头镜像
      */
-    fun setCameraMirror(mirror: Boolean){
+    fun setCameraMirror(mirror: Boolean) {
         MMKVUtil.encode(MMKVBusiKey.SKELETON_MIRROR, mirror)
     }
 
-    fun getCameraMirror(): Boolean{
+    fun getCameraMirror(): Boolean {
         return MMKVUtil.decodeBoolean(
             MMKVBusiKey.SKELETON_MIRROR,
             BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
