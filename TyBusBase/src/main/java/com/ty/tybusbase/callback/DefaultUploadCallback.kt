@@ -10,6 +10,7 @@ import com.ty.tybusbase.helper.ResUploadHelper.syncUploadRes
 import com.ty.tybusbase.utils.ApplicationUtil
 import com.ty.tybusbase.utils.BusiCoreEngine
 import com.ty.tybusbase.utils.ResultCallback
+import org.beetl.core.util.TextUtils
 import java.io.File
 import java.util.Calendar
 
@@ -27,8 +28,9 @@ class DefaultUploadCallback : ResultCallback {
          * /{端标识（1001、1002）}/image/{业务标识（体测、体锻等）}/{项目编码}/{年}/{月}/{日}/{视频文件}
          *
          */
-        if (sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+        if (TextUtils.isEmpty(sportRecordEntity.accountId) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
             AdlLogger.d("游客模式，不进行上传")
+            AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
             return
         }
         //先存原始数据到数据库
