@@ -180,7 +180,7 @@ class ForwardFlexionSettingActivity :
                     previewInfo.width,
                     previewInfo.height,
                     previewInfo.frameTimestamp,
-                    1
+                    0
                 )
             }
         })
