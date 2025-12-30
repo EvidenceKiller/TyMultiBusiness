@@ -253,6 +253,7 @@ open class ForwardFlexionActivity :
             .debug(isDebug)
             .record(true)
             .videoFps(30)
+            .videoDevice(1)
             .screenWidth(1920)
             .screenHeight(1080)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
