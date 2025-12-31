@@ -67,6 +67,7 @@ class NfcReaderB : AbstractNfcReader() {
             val cardNum =
                 ((rvHexCard[0].code and 0xff).toLong() shl 24) + ((rvHexCard[1].code and 0xff).toLong() shl 16) + ((rvHexCard[2].code and 0xff).toLong() shl 8) + (rvHexCard[3].code and 0xff).toLong()
             callComPro!!.hex_asc(rvHexCard, rvStrCard, 4)
+            Log.d(TAG, "卡号:$cardNum")
             mReadCallback?.readCardBack(cardNum.toString())
         }
     }
