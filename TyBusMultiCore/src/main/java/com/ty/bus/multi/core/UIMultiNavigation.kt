@@ -24,7 +24,7 @@ import com.ty.tybusbase.config.UINavConfig
  */
 object UIMultiNavigation {
     @JvmStatic
-    fun goTenSportRope(
+    fun goTenSport(
         context: Context,
         config: UINavConfig?,
         sportConfig: TenSportConfig? = null

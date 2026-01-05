@@ -17,7 +17,7 @@ import com.ai.ui.picfacetest.PicFaceTestActivity
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
-import com.ty.bus.multi.core.UIMultiNavigation.goTenSportRope
+import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
@@ -66,7 +66,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.bnt11.setOnClickListener {
-            goTenSportRope(
+            goTenSport(
                 this, UINavConfig().apply {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
@@ -86,7 +86,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnTenOpenClose.setOnClickListener {
-            goTenSportRope(
+            goTenSport(
                 this, UINavConfig().apply {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportItemCode = SportConstant.SPORT_OPEN_CLOSE_JUMP
@@ -106,7 +106,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnTenSquat.setOnClickListener {
-            goTenSportRope(
+            goTenSport(
                 this, UINavConfig().apply {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportItemCode = SportConstant.SPORT_SQUATS
