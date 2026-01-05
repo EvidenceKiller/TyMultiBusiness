@@ -12,16 +12,10 @@ class NfcReaderB : AbstractNfcReader() {
     private val TAG = "NFCB"
     private var devNum = -1
     private val pModVer: CharArray = CharArray(512)
-    private val rvHexCard: CharArray = CharArray(128) //Card SN in HEX type(Reverse)
-    private val rvStrCard: CharArray = CharArray(128) //Card SN in HEX string type (Reverse)
     private val pSnrM1: ByteArray = ByteArray(255)
-    private val pByteHex: ByteArray = ByteArray(255)
-    private val rv_hexCard: ByteArray = ByteArray(128) //Card SN in HEX type(Reverse)
-    private val rv_hexCardStr: ByteArray = ByteArray(128)
     private val snrSize: ByteArray = ByteArray(2)
     private val tag: IntArray = IntArray(2)
     private val sak: ByteArray = ByteArray(2)
-    private var pCharHex: CharArray = CharArray(255)
     private val pCharSingle: CharArray = CharArray(255)
     override fun init(context: Context) {
     }
@@ -64,20 +58,6 @@ class NfcReaderB : AbstractNfcReader() {
             mReadCallback?.readCardBack(cardNum.toString())
         }
     }
-
-    fun bytesToChars(pChars: ByteArray): CharArray {
-        val length = pChars.size
-        val out = CharArray(length)
-
-        var i: Int = 0
-        while (i < length) {
-            out[i] = Char(pChars[i].toUShort())
-            i++
-        }
-
-        return out
-    }
-
     override fun stopRead() {
         super.stopRead()
         comproCall.lc_exit(devNum);
