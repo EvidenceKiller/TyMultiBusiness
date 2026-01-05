@@ -253,6 +253,7 @@ open class ForwardFlexionActivity :
             .debug(isDebug)
             .record(true)
             .videoFps(30)
+            .videoDevice(1)
             .screenWidth(1920)
             .screenHeight(1080)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
@@ -359,7 +360,7 @@ open class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
-                        if (DeviceUtil.isTsRk3588()) {
+                        if (DeviceUtil.isTsRk3588() || DeviceUtil.isTsRk35882()) {
                             runOnUiThread {
                                 showLoadingDialog(getString(R.string.model_loding))
                             }

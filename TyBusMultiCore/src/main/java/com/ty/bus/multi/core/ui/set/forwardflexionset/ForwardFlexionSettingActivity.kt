@@ -142,6 +142,7 @@ class ForwardFlexionSettingActivity :
             .debug(true)
             .record(false)
             .videoFps(30)
+            .videoDevice(1)
             .screenWidth(mBinding.cameraView.width)
             .screenHeight(mBinding.cameraView.height)
             .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
@@ -179,7 +180,7 @@ class ForwardFlexionSettingActivity :
                     previewInfo.width,
                     previewInfo.height,
                     previewInfo.frameTimestamp,
-                    1
+                    0
                 )
             }
         })
@@ -191,6 +192,7 @@ class ForwardFlexionSettingActivity :
                 .debug(true)
                 .record(false)
                 .videoFps(30)
+                .videoDevice(1)
                 .screenWidth(mBinding.cameraView.width)
                 .screenHeight(mBinding.cameraView.height)
                 .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)

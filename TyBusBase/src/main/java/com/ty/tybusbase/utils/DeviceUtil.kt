@@ -29,24 +29,38 @@ object DeviceUtil {
 
     var EQUIPMENT_MODEL_FOUR = "rk3588"
 
+    var EQUIPMENT_MODEL_TS2 = "A10R-RK3588"
+
+    var EQUIPMENT_MODEL_RK3399 = "rk3399-Android10"
+
+    var EQUIPMENT_MODEL_Xm6Pro = "23046RP50C"
+
+    var EQUIPMENT_MODEL_Xm7Pro = "24091RPADC"
+
+    var EQUIPMENT_MODEL_HONOR = "ROD2-W09" //荣耀平板
+
+
     fun canDownLoad(): Boolean {
         return getModel() == EQUIPMENT_MODEL_ONE
                 || getModel() == EQUIPMENT_MODEL_TWO
                 || getModel() == EQUIPMENT_MODEL_THREE
                 || getModel() == EQUIPMENT_MODEL_FOUR
+                || getModel() == EQUIPMENT_MODEL_TS2
     }
 
-    fun isKunL2(): Boolean {
-        return getModel() == EQUIPMENT_MODEL_THREE
-    }
+    fun isKunL2(): Boolean = getModel() == EQUIPMENT_MODEL_THREE
 
-    fun isKunL1(): Boolean {
-        return getModel() == EQUIPMENT_MODEL_ONE || getModel() == EQUIPMENT_MODEL_TWO
-    }
+    fun isKunL1(): Boolean = getModel() == EQUIPMENT_MODEL_ONE || getModel() == EQUIPMENT_MODEL_TWO
 
-    fun isTsRk3588(): Boolean {
-        return getModel() == EQUIPMENT_MODEL_FOUR
-    }
+    fun isTsRk3588(): Boolean = getModel() == EQUIPMENT_MODEL_FOUR
+
+    fun isTsRk35882(): Boolean = getModel() == EQUIPMENT_MODEL_TS2
+
+    fun isXm6Pro(): Boolean = getModel() == EQUIPMENT_MODEL_Xm6Pro
+
+    fun isXm7Pro(): Boolean = getModel() == EQUIPMENT_MODEL_Xm7Pro
+
+    fun isHonor(): Boolean = getModel() == EQUIPMENT_MODEL_HONOR
 
     /**
      * 获取版本号名称
@@ -162,17 +176,16 @@ object DeviceUtil {
     }
 
     private fun getRootCommand(): String {
-        return if (getModel() == EQUIPMENT_MODEL_ONE || getModel() == EQUIPMENT_MODEL_THREE) {
-            val fileUbiot = File("/system/xbin/ubiot")
-            if (fileUbiot.exists()) {
+        return when (getModel()) {
+            EQUIPMENT_MODEL_ONE, EQUIPMENT_MODEL_THREE -> {
                 "ubiot"
-            } else {
-                 ""
             }
-        } else if (getModel() == EQUIPMENT_MODEL_TWO || getModel() == EQUIPMENT_MODEL_FOUR) {
-            "su"
-        }else{
-            ""
+
+            EQUIPMENT_MODEL_TWO, EQUIPMENT_MODEL_FOUR, EQUIPMENT_MODEL_TS2, EQUIPMENT_MODEL_RK3399 -> {
+                "su"
+            }
+
+            else -> "su"
         }
     }
 

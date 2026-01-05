@@ -23,17 +23,11 @@ class NfcReaderB : AbstractNfcReader() {
     private val sak: ByteArray = ByteArray(2)
     private var pCharHex: CharArray = CharArray(255)
     private val pCharSingle: CharArray = CharArray(255)
-    private var mComproCall: comproCall? = null
     override fun init(context: Context) {
-        mComproCall = comproCall()
     }
 
     override fun startRead(callback: ReadCallback) {
         super.startRead(callback)
-        if (mComproCall == null) {
-            Log.d(TAG, "请先初始化设备")
-            return
-        }
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
         }, 0, interval, TimeUnit.MILLISECONDS)
