@@ -27,7 +27,11 @@ import com.adl.service.outer.AdlService;
 import com.adl.service.outer.UserCaller;
 import com.adl.sport.general.EuHelper;
 import com.ty.identifty.base.TyFaceInfo;
+import com.ty.nfc.reader.base.NfcType;
+import com.ty.nfc.reader.base.ReadCallback;
+import com.ty.nfc.reader.manager.NfcReaderManager;
 import com.ty.tybusbase.R;
+import com.ty.tybusbase.config.BusiBaseConfig;
 import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;
 import com.ty.tybusbase.databinding.LayoutSingleFaceBinding;
@@ -53,7 +57,7 @@ import kotlin.Unit;
 /**
  * @author pc
  */
-public class SingleIdentityMachine extends RelativeLayout implements IdentifyMachine {
+public class SingleIdentityMachine extends RelativeLayout implements IdentifyMachine, ReadCallback {
     LayoutSingleFaceBinding mBinding;
     /**
      * 检测区域
@@ -72,6 +76,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     private IdentifyMachineListener identityListener;
 
     private AccountInfo accountInfo;
+
+    private NfcReaderManager nfcReaderManager;
 
     /**
      * 身份识别成功
@@ -277,6 +283,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     @Override
     public void openMachine(IdentifyMachineListener listener) {
         identity_type = MMKVUtil.INSTANCE.decodeInt(MMKVBusiKey.IDENTITY_TYPE, BusiBaseConstantsValue.IDENTITY_TYPE_FACE);
+        identity_type = BusiBaseConfig.INSTANCE.getIdentityType();
         //这里做初始化
         this.identityListener = listener;
         isFirstDetect = true;
@@ -521,9 +528,16 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
      * 刷卡
      */
     private void selectCard() {
-//        UsbReader usbReader = UsbReader.getUsbReader();
-//        usbReader.init();
-//        usbReader.startRead(this);
+        if (nfcReaderManager == null) {
+            nfcReaderManager = new NfcReaderManager();
+        }
+        int readerType = BusiBaseConfig.INSTANCE.getNfcReaderType();
+        NfcType type = NfcType.NFC_A;
+        if (readerType == BusiBaseConstantsValue.NFC_READER_TYPE_B) {
+            type = NfcType.NFC_B;
+        }
+        nfcReaderManager.init(getContext(), type);
+        nfcReaderManager.startRead(this);
     }
 
     /**
@@ -838,6 +852,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
                 return;
             }
         }
+        SpeechWrapper.INSTANCE.speech(mBinding.getRoot().getContext().getString(R.string.rec_face_fail));
+        ToastUtil.getInstance(mBinding.getRoot().getContext(), mBinding.getRoot().getContext().getString(R.string.rec_face_fail)).show();
         cardOk = false;
     }
 
@@ -848,7 +864,10 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         identityStartTime = 0;
         identityListener = null;
         accountInfo = null;
-//        UsbReader.getUsbReader().stop();
+        if (nfcReaderManager != null) {
+            nfcReaderManager.stopRead();
+            nfcReaderManager.release();
+        }
         FaceDetectorHelper.Companion.getInstance().reset();
         cancelTimeOutTask();
         if (mHandler != null) {
@@ -862,13 +881,14 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 //        }
     }
 
-//    @Override
-//    public void readCardBack(String cardStr) {
-//        if (!TextUtils.isEmpty(cardStr) && !cardOk && !identityOk) {
-//            cardOk = true;
-//            getAccountInfoWithCard(cardStr);
-//        }
-//    }
+    @Override
+    public void readCardBack(String cardStr) {
+        LogUtil.INSTANCE.d("usbReader-->读卡结果：" + cardStr, false);
+        if (!TextUtils.isEmpty(cardStr) && !cardOk && !identityOk) {
+            cardOk = true;
+            getAccountInfoWithCard(cardStr);
+        }
+    }
 
     public Rect getSportRect() {
         return sportRect;

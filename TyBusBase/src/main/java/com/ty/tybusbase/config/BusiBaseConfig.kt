@@ -79,4 +79,38 @@ object BusiBaseConfig {
         )
     }
 
+    /**
+     * 更新识别类型
+     */
+    fun updateIdentityType(type: Int) {
+        MMKVUtil.encode(MMKVBusiKey.IDENTITY_TYPE, type)
+    }
+
+    /**
+     * 获取识别类型
+     */
+    fun getIdentityType(): Int {
+        return MMKVUtil.decodeInt(
+            MMKVBusiKey.IDENTITY_TYPE,
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE
+        )
+    }
+
+    /**
+     * 更新NFC读卡器类型
+     */
+    fun updateNfcReaderType(type: Int) {
+        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, type)
+    }
+
+    /**
+     * 获取NFC读卡器类型
+     */
+    fun getNfcReaderType(): Int {
+        return MMKVUtil.decodeInt(
+            MMKVBusiKey.NFC_READER_TYPE,
+            BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE
+        )
+    }
+
 }

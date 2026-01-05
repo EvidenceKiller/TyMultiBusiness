@@ -33,6 +33,7 @@ import com.ty.nfc.reader.base.NfcType;
 import com.ty.nfc.reader.base.ReadCallback;
 import com.ty.nfc.reader.manager.NfcReaderManager;
 import com.ty.tybusbase.R;
+import com.ty.tybusbase.config.BusiBaseConfig;
 import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;
 import com.ty.tybusbase.databinding.ViewDoubleFaceIdentifyBinding;
@@ -146,7 +147,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         //1.获取是否开启游客模式，如果未开启游客模式会倒计时推出
         visitorAble = MMKVUtil.INSTANCE.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
         //2.获取身份识别的方式
-        identityType = MMKVUtil.INSTANCE.decodeInt(IDENTITY_TYPE, IDENTITY_TYPE_FACE);
+        identityType = BusiBaseConfig.INSTANCE.getIdentityType();
         //3.获取屏幕尺寸
         size = ScreenAdapterUtils.getSize(context);
         //4.检测区域
@@ -432,7 +433,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         if (nfcReaderManager == null) {
             nfcReaderManager = new NfcReaderManager();
         }
-        int readerType = MMKVUtil.INSTANCE.decodeInt(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE);
+        int readerType = BusiBaseConfig.INSTANCE.getNfcReaderType();
         NfcType type = NfcType.NFC_A;
         if (readerType == BusiBaseConstantsValue.NFC_READER_TYPE_B) {
             type = NfcType.NFC_B;
@@ -686,7 +687,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
             }
         }
         SpeechWrapper.INSTANCE.speech(mBinding.getRoot().getContext().getString(R.string.rec_face_fail));
-        ToastUtil.getInstance(mBinding.getRoot().getContext(), mBinding.getRoot().getContext().getString(R.string.rec_face_fail));
+        ToastUtil.getInstance(mBinding.getRoot().getContext(), mBinding.getRoot().getContext().getString(R.string.rec_face_fail)).show();
     }
 
     public synchronized void identity(StudentEntity user) {
