@@ -71,7 +71,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
                         sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                        endValue = "40000"
+                        endValue = "20000"
                         sportSkuName = "十人"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
@@ -81,6 +81,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     .setSportStartedText("开始咯，开始咯")
                     .setVoiceBroadcastSupported(true)
                     .setSupportNextGroup(true)
+                    .setSupportReport(true)
                     .build()
             )
         }
@@ -91,7 +92,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportItemCode = SportConstant.SPORT_OPEN_CLOSE_JUMP
                         sportSkuId = sportItemCode + "0001"
-                        endValue = "40000"
+                        endValue = "20000"
                         sportSkuName = "十人开合跳"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
@@ -111,7 +112,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportInfo = SceneSportInfoEntity().apply {
                         sportItemCode = SportConstant.SPORT_SQUATS
                         sportSkuId = sportItemCode + "0001"
-                        endValue = "40000"
+                        endValue = "20000"
                         sportSkuName = "十人下蹲"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }

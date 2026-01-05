@@ -10,7 +10,6 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
-import android.provider.Settings
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.MutableLiveData
@@ -22,7 +21,6 @@ import com.adl.lib.AdlCamera
 import com.adl.lib.AdlCameraConfig
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraListener
-import com.adl.lib.camera.hk.NsCameraHKRecorder
 import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.mount.core.TsTaskBodyFilter
 import com.adl.mount.sport.TsSportChannel
@@ -36,7 +34,6 @@ import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
 import com.adl.sport.general.groupsquat.GroupSquatParser
 import com.adl.sport.general.multi.MultiSportCallback
 import com.adl.sport.general.multi.MultiSportConfig
-import com.adl.sport.general.multi.MultiSportFilter
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
 import com.ty.tybusbase.expand.getString
@@ -233,7 +230,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         if (lite) {
             config.liteBodyCheck = lite
         }
-        config.checkExercisePrescription = isOpenReport()
+        config.checkExercisePrescription = isSupportReport()
         multiSportProcessor.setConfig(config)
         multiSportProcessor.setBodyFilter(getBodyFilter())
         multiSportProcessor.setSmooth(false)
@@ -1084,7 +1081,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     }
 
-    open fun isOpenReport(): Boolean {
+    open fun isSupportReport(): Boolean {
         return true
     }
 }

@@ -260,7 +260,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     private fun addResultView(resultList: MutableList<MultiSportResult>) {
         //创建结果页，并添加到页面中
         srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
-
+        srrvResult.setSupportReport(viewModel.isSupportReport())
         if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
             srrvResult.setReportOnclickListener {
                 viewReport(viewModel.getIndicatorsResultDto(it))

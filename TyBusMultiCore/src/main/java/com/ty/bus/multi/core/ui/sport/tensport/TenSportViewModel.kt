@@ -3,14 +3,11 @@ package com.ty.bus.multi.core.ui.sport.tensport
 import android.app.Application
 import android.graphics.Rect
 import android.net.Uri
-import com.adl.mount.core.TsTaskBodyDefaultFilter
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseIPCMultiSportViewModel
 import com.ty.tybusbase.utils.ApplicationUtil
 import androidx.core.net.toUri
-import com.adl.base.log.AdlLogger
 import com.adl.mount.sport.TsSportChannel
-import com.adl.sport.general.RegionFilter
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.tybusbase.utils.LogUtil
 import kotlin.math.abs
@@ -137,7 +134,7 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
         multiIdentityEngine.addIdentityCount(8, 4)
     }
 
-    override fun isOpenReport(): Boolean {
-        return tenSportConfig?.isOpenReport != false
+    override fun isSupportReport(): Boolean {
+        return tenSportConfig?.isSupportReport != false
     }
 }

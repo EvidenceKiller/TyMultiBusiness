@@ -8,7 +8,7 @@ class TenSportConfig private constructor(
     val countdownText: String,
     val sportStartText: String,
     val resultPageText: String,
-    val isOpenReport: Boolean,
+    val isSupportReport: Boolean,
 ) : Serializable {
 
     class Builder {
@@ -61,7 +61,7 @@ class TenSportConfig private constructor(
         /**
          * 是否开启报告
          */
-        fun setOpenReport(open: Boolean): Builder {
+        fun setSupportReport(open: Boolean): Builder {
             this.isOpenReport = open
             return this
         }
