@@ -787,7 +787,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                         uiAll();
                         break;
                 }
-            }, 2000);
+            }, 200);
 
         } else if (isLeftOk && isRightOk && !identityOk && identityListener != null) {
             identityOk = true;
@@ -813,7 +813,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
                     if (null != identityListener) {
                         identityListener.onIdentityOk(leftAccountInfo, rightAccountInfo);
                     }
-                }, 2000);
+                }, 200);
             }
         }
     }
