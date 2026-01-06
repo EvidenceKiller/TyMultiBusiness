@@ -33,6 +33,7 @@ class NfcReaderA : AbstractNfcReader() {
         }, 0, interval, TimeUnit.MILLISECONDS)
     }
 
+    @Synchronized
     private fun performReaderARead() {
         if (devNum == -1) {
             devNum = callContactLess!!.fw_init_ex(2, null, 0)
@@ -66,6 +67,7 @@ class NfcReaderA : AbstractNfcReader() {
         }
     }
 
+    @Synchronized
     override fun stopRead() {
         super.stopRead()
         Log.d(TAG, "停止读卡")

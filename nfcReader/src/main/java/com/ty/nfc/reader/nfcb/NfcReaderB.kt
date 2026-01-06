@@ -22,11 +22,13 @@ class NfcReaderB : AbstractNfcReader() {
 
     override fun startRead(callback: ReadCallback) {
         super.startRead(callback)
+        Log.d(TAG, "NFCB startRead")
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
         }, 0, interval, TimeUnit.MILLISECONDS)
     }
 
+    @Synchronized
     private fun performReaderARead() {
         if (devNum == -1) {
             devNum = comproCall.lc_init_ex(2, null, 0).toInt()
@@ -44,6 +46,7 @@ class NfcReaderB : AbstractNfcReader() {
                 return
             }
         }
+        Log.d(TAG, "NFCB 读卡")
         comproCall.lc_rfReset(devNum, 10) //RF Reset
         //获取卡号 UID
         val result = comproCall.lc_card(devNum, 1.toByte(), pSnrM1, snrSize, tag, sak);
@@ -58,8 +61,11 @@ class NfcReaderB : AbstractNfcReader() {
             mReadCallback?.readCardBack(cardNum.toString())
         }
     }
+
+    @Synchronized
     override fun stopRead() {
         super.stopRead()
+        Log.d(TAG, "停止读卡")
         comproCall.lc_exit(devNum);
         devNum = -1
     }
