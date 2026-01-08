@@ -5,6 +5,7 @@ import android.content.Intent
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
+import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
@@ -91,6 +92,13 @@ object UIMultiNavigation {
     fun goDoubleSport(context: Context, config: UINavConfig?) {
         val intent = Intent(context, DoubleSportActivity::class.java)
         startActivity(context, intent, config)
+    }
+
+    /**
+     * 跳转到BMI设置页面
+     */
+    fun goBmiSetting(context: Context){
+        context.startActivity(Intent(context, BmiSettingActivity::class.java))
     }
 
     /**

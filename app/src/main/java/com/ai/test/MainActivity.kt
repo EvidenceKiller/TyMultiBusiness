@@ -255,5 +255,11 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 }
             })
         }
+
+        mBinding.btnBmiSetting.setOnClickListener {
+            UIMultiNavigation.goBmiSetting(this)
+        }
+
+
     }
 }

@@ -30,5 +30,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>

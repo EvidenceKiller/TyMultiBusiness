@@ -59,7 +59,7 @@ android {
 
         debug {
             buildConfigField "boolean", "LOG_DEBUG", "true"
-
+            minifyEnabled false
             if (properties.containsKey('store.filePath'))
                 signingConfig signingConfigs.release
         }

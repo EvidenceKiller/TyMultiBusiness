@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:cardBackgroundColor="#292929"
+    app:cardCornerRadius="@dimen/dp_20"
+    app:cardElevation="0dp"
+    app:cardUseCompatPadding="false">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/dp_60">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:paddingTop="@dimen/dp_24"
+                android:paddingBottom="@dimen/dp_24"
+                android:text="选择蓝牙设备"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_32" />
+
+            <ImageView
+                android:id="@+id/iv_close"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_gravity="end|center_vertical"
+                android:layout_marginEnd="@dimen/dp_30"
+                android:src="@mipmap/close_normal" />
+
+        </FrameLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_1"
+            android:background="@color/white_20" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#30FF5836"
+                android:paddingStart="@dimen/dp_80"
+                android:paddingEnd="@dimen/dp_80">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="2"
+                    android:text="名称" />
+
+                <TextView
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="3"
+                    android:text="MAC地址" />
+
+
+            </LinearLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:overScrollMode="never" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dp_60">
+
+            <TextView
+                android:id="@+id/tv_cancel"
+                android:layout_width="@dimen/dp_180"
+                android:layout_height="@dimen/dp_64"
+                android:gravity="center"
+                android:text="取消"
+                android:textColor="#FF5836"
+                android:textSize="@dimen/dp_24" />
+
+            <TextView
+                android:id="@+id/tv_confirm"
+                android:layout_width="@dimen/dp_180"
+                android:layout_height="@dimen/dp_64"
+                android:layout_marginStart="@dimen/dp_40"
+                android:gravity="center"
+                android:text="确定"
+                android:textColor="@color/white"
+                android:textSize="@dimen/dp_24" />
+        </LinearLayout>
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

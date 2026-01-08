@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.constants.MultiCoreConstant.MULTI_THEME_STYLE_LARGE_SCREEN
 import com.ty.bus.multi.core.constants.MultiCoreConstant.MULTI_THEME_STYLE_SMALL_SCREEN
+import com.ty.bus.multi.core.entity.BmiParam
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
 import com.ty.bus.multi.core.entity.IpcCameraInfo
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -76,16 +77,40 @@ object MultiCoreConfig {
         )
     }
 
-        /**
-         * 更新多人运动风格
-         */
-        fun setMultiSportThemeFixedStyle() {
-            MMKVUtil.encode(MultiCoreConstant.MULTI_THEME_STYLE, MULTI_THEME_STYLE_SMALL_SCREEN)
-        }
+    /**
+     * 更新多人运动风格
+     */
+    fun setMultiSportThemeFixedStyle() {
+        MMKVUtil.encode(MultiCoreConstant.MULTI_THEME_STYLE, MULTI_THEME_STYLE_SMALL_SCREEN)
+    }
 
-        /**
-         * 获取多人运动风格
-         */
-        fun isMultiSportThemeLargeScreenStyle(): Boolean =
-            MMKVUtil.decodeInt(MultiCoreConstant.MULTI_THEME_STYLE, MULTI_THEME_STYLE_LARGE_SCREEN) == MULTI_THEME_STYLE_LARGE_SCREEN
+    /**
+     * 获取多人运动风格
+     */
+    fun isMultiSportThemeLargeScreenStyle(): Boolean =
+        MMKVUtil.decodeInt(
+            MultiCoreConstant.MULTI_THEME_STYLE,
+            MULTI_THEME_STYLE_LARGE_SCREEN
+        ) == MULTI_THEME_STYLE_LARGE_SCREEN
+
+    /**
+     * 更新BMI蓝牙参数
+     */
+    fun updateBmiBluetoothParam(param: BmiParam) {
+        val gson = Gson()
+        MMKVUtil.encode(MultiCoreConstant.BMI_SET_PARAM, gson.toJson(param))
+    }
+
+    /**
+     * 获取BMI蓝牙参数
+     */
+    fun getBmiBluetoothParam(): BmiParam {
+        val gson = Gson()
+        val str = MMKVUtil.decodeString(MultiCoreConstant.BMI_SET_PARAM)
+        return if (str.isNullOrEmpty()) BmiParam() else gson.fromJson<BmiParam>(
+            str,
+            BmiParam::class.java
+        )
+    }
+
 }

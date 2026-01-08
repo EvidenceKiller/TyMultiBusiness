@@ -24,4 +24,6 @@ object MultiCoreConstant {
 
     const val MULTI_THEME_STYLE_LARGE_SCREEN = 0 //多人运动风格-大屏幕
     const val MULTI_THEME_STYLE_SMALL_SCREEN = 1 //多人运动风格-小屏幕
+
+    const val BMI_SET_PARAM = "bmi_set_param"  //bmi设置项
 }
