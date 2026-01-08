@@ -270,11 +270,28 @@
                     android:text="BMI设置"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
                 <Button
                     android:id="@+id/btn_bmi_sport"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="BMI运动"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_lung_setting"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="肺活量设置"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_lung_sport"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="肺活量运动"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
             </LinearLayout>

@@ -7,6 +7,7 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant.MULTI_THEME_STYLE_SMALL
 import com.ty.bus.multi.core.entity.BmiParam
 import com.ty.bus.multi.core.entity.ForwardFlexionParam
 import com.ty.bus.multi.core.entity.IpcCameraInfo
+import com.ty.bus.multi.core.entity.LungParam
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
@@ -94,22 +95,42 @@ object MultiCoreConfig {
         ) == MULTI_THEME_STYLE_LARGE_SCREEN
 
     /**
-     * 更新BMI蓝牙参数
+     * 更新BMI测试参数
      */
-    fun updateBmiBluetoothParam(param: BmiParam) {
+    fun updateBmiTestParam(param: BmiParam) {
         val gson = Gson()
         MMKVUtil.encode(MultiCoreConstant.BMI_SET_PARAM, gson.toJson(param))
     }
 
     /**
-     * 获取BMI蓝牙参数
+     * 获取BMI测试参数
      */
-    fun getBmiBluetoothParam(): BmiParam {
+    fun getBmiTestParam(): BmiParam {
         val gson = Gson()
         val str = MMKVUtil.decodeString(MultiCoreConstant.BMI_SET_PARAM)
         return if (str.isNullOrEmpty()) BmiParam() else gson.fromJson<BmiParam>(
             str,
             BmiParam::class.java
+        )
+    }
+
+    /**
+     * 更新肺活量测试参数
+     */
+    fun updateLungTestParam(param: LungParam) {
+        val gson = Gson()
+        MMKVUtil.encode(MultiCoreConstant.LUNG_SET_PARAM, gson.toJson(param))
+    }
+
+    /**
+     * 获取肺活量测试参数
+     */
+    fun getLungTestParam(): LungParam {
+        val gson = Gson()
+        val str = MMKVUtil.decodeString(MultiCoreConstant.LUNG_SET_PARAM)
+        return if (str.isNullOrEmpty()) LungParam() else gson.fromJson<LungParam>(
+            str,
+            LungParam::class.java
         )
     }
 

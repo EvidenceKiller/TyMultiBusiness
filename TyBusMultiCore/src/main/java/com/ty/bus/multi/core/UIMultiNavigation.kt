@@ -10,6 +10,7 @@ import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
+import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
@@ -99,6 +100,14 @@ object UIMultiNavigation {
      */
     fun goBmiSetting(context: Context){
         context.startActivity(Intent(context, BmiSettingActivity::class.java))
+    }
+
+
+    /**
+     * 跳转到BMI设置页面
+     */
+    fun goLungSetting(context: Context){
+        context.startActivity(Intent(context, LungSettingActivity::class.java))
     }
 
     /**

@@ -260,6 +260,18 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             UIMultiNavigation.goBmiSetting(this)
         }
 
+        mBinding.btnBmiSport.setOnClickListener {
+
+        }
+
+        mBinding.btnLungSetting.setOnClickListener {
+            UIMultiNavigation.goLungSetting(this)
+        }
+
+        mBinding.btnLungSport.setOnClickListener {
+
+        }
+
 
     }
 }

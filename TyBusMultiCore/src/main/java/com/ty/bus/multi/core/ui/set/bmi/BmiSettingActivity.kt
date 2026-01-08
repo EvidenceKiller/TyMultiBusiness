@@ -15,7 +15,7 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
     }
 
     override fun initData() {
-        bmiParam = MultiCoreConfig.getBmiBluetoothParam()
+        bmiParam = MultiCoreConfig.getBmiTestParam()
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -63,7 +63,7 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
 
     override fun onDestroy() {
         super.onDestroy()
-        MultiCoreConfig.updateBmiBluetoothParam(bmiParam)
+        MultiCoreConfig.updateBmiTestParam(bmiParam)
     }
 
 }
