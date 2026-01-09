@@ -6,11 +6,14 @@ import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.state.BluetoothSportCardState
+import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ViewBluetoothSportCardBinding
 import com.ty.tybusbase.config.BusiBaseConfig.getIdentityType
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
@@ -113,15 +116,13 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     private fun enterSporting() {
-        mBinding.civHeader.visible()
-        mBinding.tvName.visible()
+        mBinding.groupAccountInfo.visible()
         mBinding.rlResultContent.visible()
 
     }
 
     private fun exitSporting() {
-        mBinding.civHeader.gone()
-        mBinding.tvName.gone()
+        mBinding.groupAccountInfo.gone()
         mBinding.rlResultContent.gone()
     }
 
@@ -165,15 +166,13 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     private fun enterPrepared() {
-        mBinding.civHeader.visible()
-        mBinding.tvName.visible()
+        mBinding.groupAccountInfo.visible()
         mBinding.groupPrepared.visible()
 
     }
 
     private fun exitPrepared() {
-        mBinding.civHeader.gone()
-        mBinding.tvName.gone()
+        mBinding.groupAccountInfo.gone()
         mBinding.groupPrepared.gone()
 
     }
@@ -195,4 +194,20 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvBlueConnectState.gone()
     }
 
+    fun setAccountInfo(accountInfo: AccountInfo) {
+        Glide.with(this)
+            .load(accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
+        mBinding.tvName.text = accountInfo.studentEntity?.accountName
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    fun addResult(result: String) {
+
+    }
+
+    fun reset() {
+        changeState(BluetoothSportCardState.IDLE)
+    }
 }

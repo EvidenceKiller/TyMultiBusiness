@@ -26,7 +26,8 @@
         app:layout_constraintEnd_toStartOf="@+id/blue_sport_card2"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/blue_sport_card2" />
+        app:layout_constraintTop_toTopOf="@+id/blue_sport_card2"
+        app:pk_index="1" />
 
     <com.ty.bus.multi.core.view.bluetooth.BluetoothSportCardView
         android:id="@+id/blue_sport_card2"
@@ -36,7 +37,8 @@
         android:layout_marginTop="@dimen/dp_200"
         app:layout_constraintEnd_toStartOf="@+id/blue_sport_card3"
         app:layout_constraintStart_toEndOf="@+id/blue_sport_card1"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:pk_index="2" />
 
     <com.ty.bus.multi.core.view.bluetooth.BluetoothSportCardView
         android:id="@+id/blue_sport_card3"
@@ -44,7 +46,8 @@
         android:layout_height="@dimen/dp_660"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/blue_sport_card2"
-        app:layout_constraintTop_toTopOf="@+id/blue_sport_card2" />
+        app:layout_constraintTop_toTopOf="@+id/blue_sport_card2"
+        app:pk_index="3" />
 
     <TextView
         android:id="@+id/tv_start_test"

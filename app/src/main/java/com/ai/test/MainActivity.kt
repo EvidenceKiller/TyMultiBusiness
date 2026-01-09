@@ -263,12 +263,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.btnBmiSport.setOnClickListener {
             UIMultiNavigation.goBmiSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
-                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    sportItemCode = SportConstant.BODY_HEIGHT_WEIGHT
                     sportSkuId = sportItemCode + "0001"
-                    sportSkuName = "双人跳绳"
-                    endValue = "20000"
-                    endType = SportConstant.END_TYPE_TIME
-                    testCount = "2"
+                    sportSkuName = "BMI"
+                    testCount = "3"
                     sceneId = SceneConstants.FREE
                 }
             })
@@ -279,7 +277,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnLungSport.setOnClickListener {
-
+            UIMultiNavigation.goBmiSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.LUNG_CAPACITY
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "肺活量"
+                    testCount = "3"
+                    sceneId = SceneConstants.FREE
+                }
+            })
         }
 
 

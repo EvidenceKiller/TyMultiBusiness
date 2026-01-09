@@ -23,7 +23,7 @@
         android:layout_width="@dimen/dp_32"
         android:layout_height="@dimen/dp_32"
         android:layout_marginStart="@dimen/dp_16"
-        android:background="@mipmap/ic_blueteeth_connect"
+        android:background="@mipmap/ic_blueteeth_disconnect"
         app:layout_constraintBottom_toBottomOf="@+id/tv_index"
         app:layout_constraintStart_toEndOf="@+id/tv_index"
         app:layout_constraintTop_toTopOf="@+id/tv_index" />
@@ -33,7 +33,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_6"
-        android:textColor="@color/white"
+        android:text="@string/disconnected"
+        android:textColor="#F62227"
         android:textSize="@dimen/sp_32"
         app:layout_constraintBottom_toBottomOf="@+id/iv_blue_icon"
         app:layout_constraintStart_toEndOf="@+id/iv_blue_icon"
@@ -67,14 +68,12 @@
         android:layout_width="@dimen/dp_207"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_32"
-        android:layout_marginTop="@dimen/dp_42"
         android:gravity="center_horizontal"
         android:lineHeight="@dimen/dp_58"
         android:text="@string/bluetooth_disconnect_tips"
         android:textColor="@color/white_60"
         android:textSize="@dimen/sp_40"
         android:textStyle="italic"
-        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/gl_1" />
@@ -160,9 +159,9 @@
         android:maxLines="1"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="@+id/civ_header"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/civ_header"
-        app:layout_constraintBottom_toBottomOf="@+id/civ_header"
         tools:text="张文方式电风扇" />
 
     <com.ty.tybusbase.view.CircleImageView
@@ -174,6 +173,13 @@
         app:layout_constraintBottom_toBottomOf="@+id/tv_index"
         app:layout_constraintEnd_toStartOf="@+id/tv_name"
         app:layout_constraintTop_toTopOf="@+id/tv_index" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_account_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_name,civ_header" />
 
     <ImageView
         android:id="@+id/iv_prepared_bg"
@@ -209,6 +215,7 @@
         android:id="@+id/rl_result_content"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/civ_header" />
 
