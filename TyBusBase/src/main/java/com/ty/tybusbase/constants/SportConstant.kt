@@ -211,6 +211,12 @@ object SportConstant {
     //纵跳摸高
     const val SPORT_SQUAT_JUMP_HIGH: String = "250101"
 
+    //  肺活量
+    const val LUNG_CAPACITY: String = "000401"
+
+    // 身高/体重
+    const val BODY_HEIGHT_WEIGHT: String = "000301"
+
     /**
      * @hide
      */
