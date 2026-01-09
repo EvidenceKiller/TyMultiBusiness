@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionSportCardView
 import com.ty.bus.multi.databinding.ViewBluetoothSportSportBinding
 import com.ty.tybusbase.entity.AccountInfo
@@ -52,6 +53,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         cardMap.put(1, mBinding.blueSportCard1)
         cardMap.put(2, mBinding.blueSportCard2)
         cardMap.put(3, mBinding.blueSportCard3)
+    }
+
+    fun changeState(index: Int, state: BluetoothSportCardState) {
+        cardMap[index]?.changeState(state)
     }
 
     fun addResult(index: Int, result: String) {

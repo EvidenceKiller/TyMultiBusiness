@@ -18,6 +18,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.ty.bus.multi.core.view.bluetooth.BluetoothSportSportView
+        android:id="@+id/blue_sport_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
