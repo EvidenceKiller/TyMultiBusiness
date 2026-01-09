@@ -130,10 +130,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private var preViewWidth = facePreviewWidth
     private var preViewHeight = facePreviewHeight
 
-    //组织测试相关ID
-    var ptPlanId: String? = null
-    var ptStandardId: String? = null
-
     //记录每个位置状态
     private val currentPersonState =
         mutableListOf<GroupSportsBaseChannelStatus>() //记录每个位置进入的时间，用来处理是否可以人脸识别

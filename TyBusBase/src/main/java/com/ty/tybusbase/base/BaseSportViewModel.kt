@@ -55,6 +55,9 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     val remindLD = MutableLiveData<Int>()
     var sportInfo: SceneSportInfoEntity? = null
     var sceneId: String? = null
+    var matchId: String? = null
+    var ptPlanId: String? = null
+    var ptStandardId: String? = null
 
     protected var uiHandler: Handler = AdlHandlerThread.getUIHandler()
 

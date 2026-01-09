@@ -20,7 +20,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 open class BaseMultiSportViewModel(application: Application) : BaseSportViewModel(application) {
-    var matchId: String? = null
     val bestRankLD = MutableLiveData<BestRankTopEntity>()
     val timeOutLD = MutableLiveData<Boolean>()
     var measureUnit: String = getString(R.string.ge)

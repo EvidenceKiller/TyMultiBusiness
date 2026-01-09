@@ -66,9 +66,6 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
 
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
 
-    var ptPlanId: String? = null
-    var ptStandardId: String? = null
-
     val sportPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
     var sportManCount = 0 //测试人数

@@ -47,9 +47,6 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
     //记录开始和结束时间
     var tsConfig: ThreeSportConfig? = null
 
-    //组织测试相关ID
-    var ptPlanId: String? = null
-    var ptStandardId: String? = null
     var startTime: Long = 0
     var endTime: Long = 0
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
