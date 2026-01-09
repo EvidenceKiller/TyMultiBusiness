@@ -1,6 +1,7 @@
 package com.ty.tybusbase.expand
 
 import android.graphics.Bitmap
+import android.view.View
 import androidx.annotation.StringRes
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.utils.ApplicationUtil
@@ -97,4 +98,16 @@ fun bgr2Bitmap(bytes: ByteArray, width: Int, height: Int): Bitmap {
 
     stitchBmp.copyPixelsFromBuffer(ByteBuffer.wrap(rgba))
     return stitchBmp
+}
+
+fun View.visible() {
+    this.visibility = View.VISIBLE
+}
+
+fun View.invisible() {
+    this.visibility = View.INVISIBLE
+}
+
+fun View.gone() {
+    this.visibility = View.GONE
 }

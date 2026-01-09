@@ -282,7 +282,6 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
 
     @Override
     public void openMachine(IdentifyMachineListener listener) {
-        identity_type = MMKVUtil.INSTANCE.decodeInt(MMKVBusiKey.IDENTITY_TYPE, BusiBaseConstantsValue.IDENTITY_TYPE_FACE);
         identity_type = BusiBaseConfig.INSTANCE.getIdentityType();
         //这里做初始化
         this.identityListener = listener;

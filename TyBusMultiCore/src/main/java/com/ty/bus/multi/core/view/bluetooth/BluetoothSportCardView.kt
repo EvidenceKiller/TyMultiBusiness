@@ -1,0 +1,198 @@
+package com.ty.bus.multi.core.view.bluetooth
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.graphics.Color
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.ty.bus.multi.R
+import com.ty.bus.multi.core.state.BluetoothSportCardState
+import com.ty.bus.multi.databinding.ViewBluetoothSportCardBinding
+import com.ty.tybusbase.config.BusiBaseConfig.getIdentityType
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.utils.LogUtil
+
+@SuppressLint("Recycle", "CustomViewStyleable")
+class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
+    ConstraintLayout(context, attrs, defStyleAttr) {
+    constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
+    constructor(context: Context) : this(context, null)
+
+    private var mBinding = ViewBluetoothSportCardBinding.inflate(
+        LayoutInflater.from(context),
+        this,
+        true
+    )
+
+    private var preState = BluetoothSportCardState.IDLE
+
+    var isSupportAdd = false //是否支持手动添加
+
+    init {
+        val attributes =
+            context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
+        val index = attributes.getInt(R.styleable.MoreSportCardSportView_pk_index, 1)
+        mBinding.tvIndex.text = index.toString()
+        initView()
+    }
+
+    private fun initView() {
+    }
+
+
+    /**
+     * 切换状态
+     */
+    fun changeState(state: BluetoothSportCardState) {
+        if (preState == state) {
+            LogUtil.d("ForwardFlexionSportCardView状态未改变")
+            return
+        }
+        LogUtil.d("ForwardFlexionSportCardView ${mBinding.tvIndex.text} 状态切换: $preState -> $state")
+        //退出上一状态
+        when (preState) {
+            BluetoothSportCardState.IDLE -> {
+                exitIdle()
+            }
+
+            BluetoothSportCardState.PREPARED -> {
+                exitPrepared()
+            }
+
+            BluetoothSportCardState.CONNECTED -> {
+                exitConnected()
+            }
+
+            BluetoothSportCardState.SPORTING -> {
+                exitSporting()
+            }
+
+            BluetoothSportCardState.SPORTING_NO_USER -> {
+                exitSportingNoUser()
+            }
+        }
+
+        //进入新状态处理
+        when (state) {
+            BluetoothSportCardState.IDLE -> {
+                enterIdle()
+            }
+
+            BluetoothSportCardState.PREPARED -> {
+                enterPrepared()
+            }
+
+            BluetoothSportCardState.CONNECTED -> {
+                enterConnected()
+            }
+
+            BluetoothSportCardState.SPORTING -> {
+                enterSporting()
+            }
+
+            BluetoothSportCardState.SPORTING_NO_USER -> {
+                enterSportingNoUser()
+            }
+        }
+
+        preState = state
+    }
+
+    private fun enterSportingNoUser() {
+        mBinding.groupSportNoUser.visible()
+        mBinding.tvIdleState.visible()
+    }
+
+    private fun exitSportingNoUser() {
+        mBinding.groupSportNoUser.gone()
+        mBinding.tvIdleState.gone()
+    }
+
+    private fun enterSporting() {
+        mBinding.civHeader.visible()
+        mBinding.tvName.visible()
+        mBinding.rlResultContent.visible()
+
+    }
+
+    private fun exitSporting() {
+        mBinding.civHeader.gone()
+        mBinding.tvName.gone()
+        mBinding.rlResultContent.gone()
+    }
+
+    private fun enterConnected() {
+        mBinding.ivBlueIcon.visible()
+        mBinding.tvBlueConnectState.visible()
+        mBinding.ivBlueIcon.setBackgroundResource(R.mipmap.ic_blueteeth_connect)
+        mBinding.tvBlueConnectState.text = getString(R.string.connected)
+        mBinding.tvBlueConnectState.setTextColor(Color.parseColor("#06B522"))
+        mBinding.llFaceCardIdentify.visible()
+        mBinding.tvIdleState.visible()
+        //判断识别类型设置文案
+        val identityType = getIdentityType()
+        when (identityType) {
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE -> {
+                mBinding.tvIdentifyType.text = getString(R.string.identify_face)
+            }
+
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE and BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
+                mBinding.tvIdentifyType.text = getString(R.string.identify_face_nfc)
+            }
+
+            BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
+                mBinding.tvIdentifyType.text = getString(R.string.identify_nfc)
+            }
+        }
+
+        //支持手动添加，改变人脸卡片Item的高度和提示文案
+        if (isSupportAdd) {
+            val par = mBinding.llFaceCardIdentify.layoutParams
+            par.height = context.resources.getDimension(R.dimen.dp_120).toInt()
+        }
+    }
+
+    private fun exitConnected() {
+        mBinding.ivBlueIcon.gone()
+        mBinding.tvBlueConnectState.gone()
+        mBinding.llFaceCardIdentify.gone()
+        mBinding.llClickAdd.gone()
+        mBinding.tvIdleState.gone()
+    }
+
+    private fun enterPrepared() {
+        mBinding.civHeader.visible()
+        mBinding.tvName.visible()
+        mBinding.groupPrepared.visible()
+
+    }
+
+    private fun exitPrepared() {
+        mBinding.civHeader.gone()
+        mBinding.tvName.gone()
+        mBinding.groupPrepared.gone()
+
+    }
+
+    private fun enterIdle() {
+        mBinding.ivBlueIcon.visible()
+        mBinding.tvBlueConnectState.visible()
+        mBinding.ivBlueIcon.setBackgroundResource(R.mipmap.ic_blueteeth_disconnect)
+        mBinding.tvBlueConnectState.text = getString(R.string.disconnected)
+        mBinding.tvBlueConnectState.setTextColor(Color.parseColor("#F62227"))
+        mBinding.tvIdleState.visible()
+        mBinding.tvDisconnectTip.visible()
+    }
+
+    private fun exitIdle() {
+        mBinding.tvIdleState.gone()
+        mBinding.tvDisconnectTip.gone()
+        mBinding.ivBlueIcon.gone()
+        mBinding.tvBlueConnectState.gone()
+    }
+
+}

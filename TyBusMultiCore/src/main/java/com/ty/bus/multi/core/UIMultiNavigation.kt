@@ -11,6 +11,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
+import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
@@ -40,7 +41,11 @@ object UIMultiNavigation {
      * 坐位体前屈
      */
     @JvmStatic
-    fun goForwardFlexion(context: Context, config: UINavConfig?,ffConfig: ForwardFlexionConfig? = null) {
+    fun goForwardFlexion(
+        context: Context,
+        config: UINavConfig?,
+        ffConfig: ForwardFlexionConfig? = null
+    ) {
         val intent = Intent(context, ForwardFlexionActivity::class.java)
         intent.putExtra("sport_config", ffConfig)
         startActivity(context, intent, config)
@@ -98,15 +103,26 @@ object UIMultiNavigation {
     /**
      * 跳转到BMI设置页面
      */
-    fun goBmiSetting(context: Context){
+    fun goBmiSetting(context: Context) {
         context.startActivity(Intent(context, BmiSettingActivity::class.java))
+    }
+
+    /**
+     * 跳转到BMI运动
+     */
+    fun goBmiSport(
+        context: Context,
+        config: UINavConfig?
+    ) {
+        val intent = Intent(context, BluetoothSportActivity::class.java)
+        startActivity(context, intent, config)
     }
 
 
     /**
      * 跳转到BMI设置页面
      */
-    fun goLungSetting(context: Context){
+    fun goLungSetting(context: Context) {
         context.startActivity(Intent(context, LungSettingActivity::class.java))
     }
 
