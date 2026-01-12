@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="MoreSportCardSportView">
-        <attr name="pk_index" format="integer"/>
+        <attr name="pk_index" format="integer" />
     </declare-styleable>
+
+    <declare-styleable name="IdentifyRectDragView">
+        <attr name="img_res" format="reference" />
+    </declare-styleable>
+
 </resources>

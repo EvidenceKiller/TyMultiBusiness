@@ -26,6 +26,16 @@
         app:layout_constraintStart_toStartOf="@+id/tv_title"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <com.ty.bus.multi.core.view.common.IdentifyRectDragView
+        android:id="@+id/identify_darg_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:img_res="@mipmap/ic_face_can"
+        app:layout_constraintBottom_toBottomOf="@+id/camera_view"
+        app:layout_constraintEnd_toEndOf="@+id/camera_view"
+        app:layout_constraintStart_toStartOf="@+id/camera_view"
+        app:layout_constraintTop_toTopOf="@+id/camera_view" />
+
     <TextView
         android:id="@+id/tv_identify_tip"
         android:layout_width="wrap_content"

@@ -1,15 +1,12 @@
 package com.ty.bus.multi.core.dialog.identify
 
 import android.content.DialogInterface
-import android.graphics.Rect
-import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.StudentEntity
-import com.adl.service.outer.AdlService
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.DialogIdentifyBinding
@@ -23,7 +20,6 @@ import com.ty.tybusbase.expand.invisible
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.MultiIdentityEngine
-import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 
@@ -151,12 +147,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         if (identifyFlag.not()) return
         //裁剪图片
         identifyEngine.identify(
-            Rect(
-                0,
-                0,
-                cameraPreviewInfo.width,
-                cameraPreviewInfo.height
-            ),
+            mBinding.identifyDargView.getRect(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH, BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT),
             yuv,
             cameraPreviewInfo.width,
             cameraPreviewInfo.height,
@@ -180,7 +171,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             }
 
             override fun onIdentityTimeFail() {
-                LogUtil.d("单词识别超时,未识别到人脸")
+                LogUtil.d("单次识别超时,未识别到人脸")
             }
 
         })

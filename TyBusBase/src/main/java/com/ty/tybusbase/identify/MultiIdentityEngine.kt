@@ -112,9 +112,13 @@ class MultiIdentityEngine {
     }
 
     private val executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory())
-    fun identify(rectF: Rect, data: ByteArray?, w: Int, h: Int, number: Int = 0) {
+    fun identify(rectF: Rect?, data: ByteArray?, w: Int, h: Int, number: Int = 0) {
         //已识别完成，不往下走了
         if (isOK) return
+        if (rectF == null) {
+            LogUtil.d("裁剪框为空，人脸识别失败")
+            return
+        }
         if (identityStartTime == 0L) {
             identityStartTime = System.currentTimeMillis()
         }

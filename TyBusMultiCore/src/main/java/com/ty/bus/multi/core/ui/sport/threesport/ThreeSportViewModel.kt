@@ -16,7 +16,6 @@ import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.entity.MultiSportResult
-import com.ty.sport.common.basic.bean.Point
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
@@ -39,7 +38,6 @@ import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
 import com.adl.service.entity.SportRecordEntity
-import com.ty.bus.multi.core.base.BaseIPCMultiSportViewModel
 import com.ty.bus.multi.core.config.ThreeSportConfig
 
 class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
