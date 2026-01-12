@@ -48,6 +48,7 @@
     <string name="prepared">已准备</string>
     <string name="connected">已连接</string>
     <string name="disconnected">断开</string>
+    <string name="tj">添加</string>
 
     <string name="identify_face">人脸识别</string>
     <string name="identify_face_nfc">人脸/刷卡识别</string>

@@ -1,13 +1,17 @@
 package com.ty.bus.multi.core.view.bluetooth
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.fragment.app.FragmentActivity
+import com.adl.service.entity.StudentEntity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.dialog.identify.IdentifyDialog
 import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ViewBluetoothSportCardBinding
@@ -35,15 +39,31 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
 
     var isSupportAdd = false //是否支持手动添加
 
+    private var clickListener: BluetoothSportCardClickListener? = null
+    private var cardIndex: Int = 0
+
     init {
         val attributes =
             context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
         val index = attributes.getInt(R.styleable.MoreSportCardSportView_pk_index, 1)
         mBinding.tvIndex.text = index.toString()
+        cardIndex = index
         initView()
     }
 
     private fun initView() {
+        mBinding.llFaceCardIdentify.setOnClickListener {
+            clickListener?.onIdentifyClick(cardIndex)
+        }
+        mBinding.llClickAdd.setOnClickListener {
+            if (isSupportAdd) {
+                clickListener?.onAddClick(cardIndex)
+            }
+        }
+    }
+
+    fun setSportCardClickListener(listener: BluetoothSportCardClickListener) {
+        clickListener = listener
     }
 
 
@@ -194,12 +214,12 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvBlueConnectState.gone()
     }
 
-    fun setAccountInfo(accountInfo: AccountInfo) {
+    fun setAccountInfo(studentEntity: StudentEntity) {
         Glide.with(this)
-            .load(accountInfo.studentEntity?.userFaceImgUrl)
+            .load(studentEntity.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
-        mBinding.tvName.text = accountInfo.studentEntity?.accountName
+        mBinding.tvName.text = studentEntity.accountName
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -209,5 +229,10 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
 
     fun reset() {
         changeState(BluetoothSportCardState.IDLE)
+    }
+
+    interface BluetoothSportCardClickListener {
+        fun onIdentifyClick(index: Int)
+        fun onAddClick(index: Int)
     }
 }
