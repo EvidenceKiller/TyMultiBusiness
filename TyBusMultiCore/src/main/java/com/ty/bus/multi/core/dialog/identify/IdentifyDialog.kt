@@ -19,7 +19,7 @@ import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.invisible
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.identify.IdentifyMachineListener
-import com.ty.tybusbase.identify.MultiIdentityEngine
+import com.ty.tybusbase.identify.MultiIFrameCountIdentityEngine
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 
@@ -30,11 +30,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     private var identifiedMap: HashMap<Int, StudentEntity>? = null
 
     private val identifyEngine by lazy {
-        MultiIdentityEngine().apply {
-            addIdentityCount(1, 4)
-            addIdentityCount(2, 4)
-            addIdentityCount(3, 4)
-        }
+        MultiIFrameCountIdentityEngine()
     }
 
     private val onceCacheProcessor by lazy {
@@ -147,7 +143,10 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         if (identifyFlag.not()) return
         //裁剪图片
         identifyEngine.identify(
-            mBinding.identifyDargView.getRect(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH, BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT),
+            mBinding.identifyDargView.getRect(
+                BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH,
+                BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT
+            ),
             yuv,
             cameraPreviewInfo.width,
             cameraPreviewInfo.height,

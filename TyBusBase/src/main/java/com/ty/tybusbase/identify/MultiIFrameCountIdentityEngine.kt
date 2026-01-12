@@ -1,0 +1,228 @@
+package com.ty.tybusbase.identify
+
+import android.graphics.Bitmap
+import android.graphics.Rect
+import android.graphics.RectF
+import com.adl.service.entity.StudentEntity
+import com.adl.service.outer.AdlService
+import com.adl.service.outer.UserCaller
+import com.ty.identifty.base.TyFaceInfo
+import com.ty.tybusbase.R
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.face.FaceDetectorHelper
+import com.ty.tybusbase.face.OnFaceCallback
+import com.ty.tybusbase.utils.LogUtil
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.util.concurrent.Executors
+
+
+class MultiIFrameCountIdentityEngine {
+
+    private var identityListener: IdentifyMachineListener? = null
+
+    /**
+     * 开始识别时间
+     */
+    private var identityStartTime: Long = 0
+
+    /**
+     * 游客模式
+     */
+    var visitorAble = true
+
+    private val VISITOR_TIME = 2 * 1000
+
+    private val VISITOR_RETRY_COUNT = 1
+
+    private val identifyMap by lazy { HashMap<Int, Int>() }
+
+    private val identifyCountMap by lazy { HashMap<Int, Int>() } //每个位置可设置识别次数
+
+    private var isOK = false
+    fun identified(user: StudentEntity) {
+        identityFinish(AccountInfo().apply {
+            studentEntity =
+                user.apply { userFaceImgUrl = AdlService.getService().facePrefix + userFaceImgUrl }
+        })
+
+    }
+
+    private fun identityFinish(accountInfo: AccountInfo) {
+        isOK = true
+        identityListener?.onIdentityOk(accountInfo)
+    }
+
+    fun openMachine(listener: IdentifyMachineListener? = null) {
+        this.identityListener = listener
+        initFaceDetect()
+    }
+
+    private fun initFaceDetect() {
+        FaceDetectorHelper.getInstance()
+            .setFaceFeatureThreshold(BusiBaseConstantsValue.DEFAULT_MULTI_FACE_THRESHOLD)
+        FaceDetectorHelper.getInstance().setFrameInterval(2)
+        FaceDetectorHelper.getInstance().setFaceCallback(object : OnFaceCallback {
+            override fun onFindStudent(user: StudentEntity?) {
+                user?.let {
+                    identified(it)
+                }
+            }
+
+            override fun onFindFail(info: TyFaceInfo<*>?) {
+
+            }
+
+        })
+    }
+
+    /**
+     * 添加每个位置可识别次数后，才为游客
+     */
+    fun addIdentityCount(number: Int, count: Int) {
+        identifyCountMap[number] = count
+    }
+
+    /**
+     * 设置可识别次数的map
+     */
+    fun setIdentityCountMap(map: HashMap<Int, Int>) {
+        identifyCountMap.clear()
+        identifyCountMap.putAll(map)
+    }
+
+    /**
+     * 查询用户基本信息
+     */
+    fun getAccountInfoWithAccount(accountId: String?) {
+        val studentEntity = UserCaller.instance().queryStudentByAccountId(accountId)
+        studentEntity?.let { identified(it) }
+    }
+
+    private val executor = Executors.newFixedThreadPool(2, Executors.defaultThreadFactory())
+    fun identify(rectF: Rect?, data: ByteArray?, w: Int, h: Int, number: Int = 0) {
+        //已识别完成，不往下走了
+        if (isOK) return
+        if (rectF == null) {
+            LogUtil.d("裁剪框为空，人脸识别失败")
+            return
+        }
+        if (identityStartTime == 0L) {
+            identityStartTime = System.currentTimeMillis()
+        }
+        val faceRecTime: Long = System.currentTimeMillis() - identityStartTime
+
+
+        //当没有正在识别人脸和达到超时要求就判断为游客
+        if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
+            val identifyCount = identifyMap.getOrDefault(number, 0) + 1
+            identifyMap[number] = identifyCount
+            val visitorRetryCount = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
+            if (visitorAble && identifyCount >= visitorRetryCount) {
+                createVisitor()
+            } else {
+                finishWithFail()
+            }
+            return
+        }
+        //        bodyInfo = body;
+        if (!FaceDetectorHelper.getInstance().isDetecting()) {
+            if (data == null) return
+            val rect = RectF(
+                rectF.left.toFloat(),
+                rectF.top.toFloat(),
+                rectF.right.toFloat(),
+                rectF.bottom.toFloat()
+            )
+            FaceDetectorHelper.getInstance().detectFace(
+                System.currentTimeMillis().toString(),
+                data,
+                w,
+                h,
+                rect
+            )
+//            executor.execute {
+//                val bitmap = AdlYUVUtil.yuvToBitmap(data, w, h)
+//                if (bitmap != null) {
+//                    val createBitmap = Bitmap.createBitmap(
+//                        bitmap,
+//                        rect.left.toInt(),
+//                        rect.top.toInt(),
+//                        rect.width().toInt(),
+//                        rect.height().toInt()
+//                    )
+//                    saveBitmap(createBitmap, "${System.currentTimeMillis()}-${number}.jpg")
+//                }
+//
+//            }
+        }
+    }
+
+    private val bitmapDic = "/sdcard/zy.sport.cache/pic"
+    fun saveBitmap(bm: Bitmap, name: String): Boolean {
+        try {
+            val fileDic = File(bitmapDic)
+            if (!fileDic.exists()) {
+                fileDic.mkdirs()
+            }
+            val out = FileOutputStream(File(fileDic, name))
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, out)
+            out.flush()
+            out.close()
+            return true
+        } catch (e: FileNotFoundException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+        }
+        return false
+    }
+
+    private fun finishWithFail() {
+//        if (identityListener != null && !identityOk) {
+//            identityOk = true
+//            if (acProgressView.getVisibility() == View.VISIBLE) {
+//                SpeechWrapper.speech2(
+//                    getContext().getString(R.string.rec_face_fail)
+//                ) { acProgressView.post(Runnable { reset() }) }
+//            }
+//            acProgressView.post(Runnable { acProgressView.setVisibility(View.GONE) })
+//        }
+        isOK = true
+        identityListener?.onIdentityTimeFail()
+    }
+
+    private fun createVisitor() {
+        val accountInfo = AccountInfo().apply {
+            studentEntity = StudentEntity().apply {
+                accountId = BusiBaseConstantsValue.VISITOR_USER_ID
+                accountName = getString(R.string.visitor)
+            }
+        }
+        identityFinish(accountInfo)
+        isOK = true
+    }
+
+    fun closeMachine() {
+        identifyCountMap.clear()
+        identityListener = null
+        FaceDetectorHelper.getInstance().reset()
+    }
+
+    /**
+     * 是否正在识别
+     */
+    fun isIdentifying() = FaceDetectorHelper.getInstance().isDetecting()
+
+    fun reset() {
+        isOK = false
+        identityStartTime = 0
+    }
+
+    fun clearCountMap() {
+        identifyMap.clear()
+    }
+}
