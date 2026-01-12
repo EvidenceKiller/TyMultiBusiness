@@ -143,11 +143,11 @@
         android:id="@+id/iv_delete"
         android:layout_width="@dimen/dp_40"
         android:layout_height="@dimen/dp_40"
-        android:layout_marginTop="@dimen/dp_60"
         android:layout_marginEnd="@dimen/dp_32"
         android:background="@mipmap/ic_delete"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_index"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/tv_index" />
 
     <TextView
         android:id="@+id/tv_name"

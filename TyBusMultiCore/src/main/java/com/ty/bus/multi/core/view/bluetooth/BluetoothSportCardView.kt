@@ -55,6 +55,7 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 clickListener?.onAddClick(cardIndex)
             }
         }
+        mBinding.ivDelete.setOnClickListener { clickListener?.onDeleteClick(cardIndex) }
     }
 
     fun setSportCardClickListener(listener: BluetoothSportCardClickListener) {
@@ -229,5 +230,6 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
     interface BluetoothSportCardClickListener {
         fun onIdentifyClick(index: Int)
         fun onAddClick(index: Int)
+        fun onDeleteClick(index: Int)
     }
 }

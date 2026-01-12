@@ -15,6 +15,7 @@ import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.bus.multi.core.view.bluetooth.BluetoothSportCardView.BluetoothSportCardClickListener
 import com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionSportCardView
 import com.ty.bus.multi.databinding.ViewBluetoothSportSportBinding
+import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
@@ -66,6 +67,17 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
 
         override fun onAddClick(index: Int) {
         }
+
+        override fun onDeleteClick(index: Int) {
+            CommonTipDialog()
+                .setCallback {
+                    identifiedMap.remove(index)
+                    updateStartBtn()
+                    changeState(index, BluetoothSportCardState.CONNECTED)
+                }.setContent(getString(R.string.busi_multi_delete_user))
+                .show((context as FragmentActivity).supportFragmentManager, "tip")
+
+        }
     }
 
     init {
@@ -89,6 +101,17 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         stuMap.forEach { (index, value) ->
             setAccountInfo(index, value)
             changeState(index, BluetoothSportCardState.PREPARED)
+        }
+        updateStartBtn()
+    }
+
+    private fun updateStartBtn() {
+        if (identifiedMap.isNotEmpty()) {
+            mBinding.tvStartTest.isEnabled = true
+            mBinding.tvStartTest.setBackgroundResource(R.drawable.bg_round_r50_gradient_red)
+        } else {
+            mBinding.tvStartTest.isEnabled = false
+            mBinding.tvStartTest.setBackgroundResource(R.drawable.bg_c4_r73_shape)
         }
     }
 
