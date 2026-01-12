@@ -3,11 +3,9 @@ package com.ty.bus.multi.core.dialog
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.DialogInterface
-import android.graphics.Color
-import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.adl.base.common.AdlToast
-import com.ty.bus.multi.core.bluetooth.BluetoothDiscover
+import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.DialogChooseBluetoothBinding
 import com.ty.bus.multi.databinding.ItemChooseBluetoothBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
@@ -23,12 +21,12 @@ class BleBluetoothChooseDialog : BaseDialogFragment<DialogChooseBluetoothBinding
     private val mHelper by lazy { MultiDeviceHelper(context) }
     private val deviceList: MutableList<BluetoothDevice> = mutableListOf()
     private var filterDeviceList: MutableList<String>? = null
+    private var choosePosition = -1
     override fun initViewObservable() {
 
     }
 
     override fun initData() {
-
     }
 
     override fun initView() {
@@ -36,8 +34,21 @@ class BleBluetoothChooseDialog : BaseDialogFragment<DialogChooseBluetoothBinding
             dismiss()
         }
         mBinding.ivClose.setOnClickListener { dismiss() }
+
+        mBinding.tvConfirm.setOnClickListener {
+            if (choosePosition == -1) {
+                AdlToast.show("请选择设备")
+                return@setOnClickListener
+            }
+            onItemChoose(deviceList[choosePosition])
+        }
         initRv()
         scanBluetooth()
+    }
+
+    private fun enableConfirmBtn() {
+        mBinding.tvConfirm.isEnabled = true
+        mBinding.tvConfirm.setBackgroundResource(R.drawable.bg_round_r50_gradient_red)
     }
 
     fun addFilterDevice(device: String?): BleBluetoothChooseDialog {
@@ -61,7 +72,18 @@ class BleBluetoothChooseDialog : BaseDialogFragment<DialogChooseBluetoothBinding
                     holder.vb.apply {
                         tvDeviceName.text = item.name
                         tvMacAddress.text = item.address
-                        root.setOnClickListener { onItemCLick(item) }
+                        if (choosePosition == holder.layoutPosition) {
+                            holder.vb.ivOperation.setBackgroundResource(R.mipmap.ic_rb_pre)
+                        } else {
+                            holder.vb.ivOperation.setBackgroundResource(R.mipmap.ic_rb_normal)
+                        }
+                        root.setOnClickListener {
+                            val prePosition = choosePosition
+                            choosePosition = holder.layoutPosition
+                            notifyItemChanged(prePosition)
+                            notifyItemChanged(choosePosition)
+                            enableConfirmBtn()
+                        }
                     }
                 }
             }
@@ -87,14 +109,9 @@ class BleBluetoothChooseDialog : BaseDialogFragment<DialogChooseBluetoothBinding
             }
         })
 
-//        val targetDevice = BluetoothDiscover.getInstance().targetDevice
-//        if (targetDevice != null) {
-//            deviceList.add(targetDevice)
-//            mBinding.recyclerView.adapter?.notifyDataSetChanged()
-//        }
     }
 
-    fun onItemCLick(device: BluetoothDevice) {
+    fun onItemChoose(device: BluetoothDevice) {
         onBlueChooseListener?.invoke(device.address)
         dismiss()
     }
