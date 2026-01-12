@@ -54,6 +54,7 @@
     <string name="connected">已连接</string>
     <string name="disconnected">断开</string>
     <string name="tj">添加</string>
+    <string name="tj_ing">添加中...</string>
 
     <string name="identify_face">人脸识别</string>
     <string name="identify_face_nfc">人脸/刷卡识别</string>

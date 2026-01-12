@@ -76,21 +76,65 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             identifyEngine.reset()
             currentIndex = 1
             identifyFlag = true
+            dispatchIdentifyingView(1)
         }
 
         mBinding.llAdd2.setOnClickListener {
             identifyEngine.reset()
             currentIndex = 2
             identifyFlag = true
+            dispatchIdentifyingView(2)
         }
 
         mBinding.llAdd3.setOnClickListener {
             identifyEngine.reset()
             currentIndex = 3
             identifyFlag = true
+            dispatchIdentifyingView(3)
         }
         initCamera()
         initFaceDetect()
+    }
+
+    private fun dispatchIdentifyingView(index: Int) {
+        when (index) {
+            1 -> {
+                mBinding.ivAdd1Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
+                mBinding.tvAdd1Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+            }
+
+            2 -> {
+                mBinding.ivAdd2Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
+                mBinding.tvAdd2Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+            }
+
+            3 -> {
+                mBinding.ivAdd3Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
+                mBinding.tvAdd3Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+            }
+        }
+    }
+
+    /**
+     * 重置正在识别的View
+     */
+    private fun resetIdentifyingView(index: Int) {
+        when (index) {
+            1 -> {
+                mBinding.ivAdd1Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
+                mBinding.tvAdd1Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+            }
+
+            2 -> {
+                mBinding.ivAdd2Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
+                mBinding.tvAdd2Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+            }
+
+            3 -> {
+                mBinding.ivAdd3Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
+                mBinding.tvAdd3Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+            }
+        }
     }
 
     /**
@@ -167,10 +211,16 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
             override fun onIdentityOk(accountInfo: AccountInfo?) {
                 handleIdentifyOk(accountInfo)
+                mBinding.root.post {
+                    resetIdentifyingView(currentIndex)
+                }
             }
 
             override fun onIdentityTimeFail() {
                 LogUtil.d("单次识别超时,未识别到人脸")
+                mBinding.root.post {
+                    resetIdentifyingView(currentIndex)
+                }
             }
 
         })

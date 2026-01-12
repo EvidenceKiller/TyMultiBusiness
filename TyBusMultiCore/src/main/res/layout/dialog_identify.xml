@@ -108,11 +108,13 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/iv_add1_icon"
             android:layout_width="@dimen/dp_32"
             android:layout_height="@dimen/dp_32"
             android:background="@mipmap/sports_ic_adduser" />
 
         <TextView
+            android:id="@+id/tv_add1_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_12"
@@ -212,11 +214,13 @@
         app:layout_constraintTop_toBottomOf="@+id/ll_add1">
 
         <ImageView
+            android:id="@+id/iv_add2_icon"
             android:layout_width="@dimen/dp_32"
             android:layout_height="@dimen/dp_32"
             android:background="@mipmap/sports_ic_adduser" />
 
         <TextView
+            android:id="@+id/tv_add2_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_12"
@@ -317,11 +321,13 @@
         app:layout_constraintTop_toBottomOf="@+id/ll_add2">
 
         <ImageView
+            android:id="@+id/iv_add3_icon"
             android:layout_width="@dimen/dp_32"
             android:layout_height="@dimen/dp_32"
             android:background="@mipmap/sports_ic_adduser" />
 
         <TextView
+            android:id="@+id/tv_add3_tip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_12"
