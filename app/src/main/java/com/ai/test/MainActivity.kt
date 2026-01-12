@@ -25,8 +25,12 @@ import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.UINavConfig
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.MMKVUtil.decodeInt
 
 
 class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
@@ -49,7 +53,11 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
         AdlTextSpeaker.init(this)
 
-
+        MMKVUtil.encode(
+            MMKVBusiKey.IDENTITY_TYPE,
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE or BusiBaseConstantsValue.IDENTITY_TYPE_CARD
+        )
+        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
     }
 
     override fun initView(savedInstanceState: Bundle?) {

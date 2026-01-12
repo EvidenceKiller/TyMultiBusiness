@@ -1,15 +1,22 @@
 package com.ty.bus.multi.core.dialog.identify
 
 import android.content.DialogInterface
+import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
+import androidx.lifecycle.lifecycleScope
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.StudentEntity
+import com.adl.service.outer.AdlService
+import com.adl.service.outer.UserCaller
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.DialogIdentifyBinding
+import com.ty.nfc.reader.base.NfcType
+import com.ty.nfc.reader.base.ReadCallback
+import com.ty.nfc.reader.manager.NfcReaderManager
 import com.ty.tybusbase.base.BaseDialogFragment
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -18,10 +25,16 @@ import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.invisible
 import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.helper.SpeechWrapper.speech
 import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.MultiIFrameCountIdentityEngine
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.MMKVUtil.decodeInt
+import com.ty.tybusbase.utils.ToastUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
 
 class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewModel>() {
 
@@ -31,6 +44,10 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     private val identifyEngine by lazy {
         MultiIFrameCountIdentityEngine()
+    }
+
+    private val nfcReaderManager by lazy {
+        NfcReaderManager()
     }
 
     private val onceCacheProcessor by lazy {
@@ -59,6 +76,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     override fun initView() {
         super.initView()
         mBinding.tvCancel.setOnClickListener {
+            identifiedMap?.clear()
             dismiss()
         }
 
@@ -94,6 +112,76 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         }
         initCamera()
         initFaceDetect()
+        initCard()
+    }
+
+    private fun initCard() {
+        val identityType = decodeInt(
+            MMKVBusiKey.IDENTITY_TYPE,
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE
+        );
+        if ((identityType and BusiBaseConstantsValue.IDENTITY_TYPE_CARD) != BusiBaseConstantsValue.IDENTITY_TYPE_CARD) {
+            //不支持刷卡
+            LogUtil.d("当前未开启刷卡功能")
+            return
+        }
+        val readerType =
+            decodeInt(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
+        var type: NfcType = NfcType.NFC_A
+        if (readerType == BusiBaseConstantsValue.NFC_READER_TYPE_B) {
+            type = NfcType.NFC_B
+        }
+        nfcReaderManager.init(requireContext(), type)
+        nfcReaderManager.startRead(object : ReadCallback {
+            override fun readCardBack(cardStr: String?) {
+                onCardReadBack(cardStr)
+            }
+        })
+    }
+
+    //读到卡
+    private fun onCardReadBack(cardStr: String?) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val studentList = UserCaller.instance().queryStudentByCarNum(cardStr)
+            for (baseForFace in studentList) {
+                val cardNumList = baseForFace.cardNums
+                if (cardNumList == null || cardNumList.isEmpty()) continue
+                if (cardNumList.contains(cardStr)) {
+                    if (isContainStudent(baseForFace)) {
+                        //已经添加过此人
+                        ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
+                        return@launch
+                    }
+                    mBinding.root.post {
+                        dispatchCardStudent(baseForFace.apply {
+                            userFaceImgUrl =
+                                AdlService.getService().facePrefix + baseForFace.userFaceImgUrl
+                        })
+                    }
+                    return@launch
+                }
+            }
+            speech(mBinding.getRoot().context.getString(R.string.rec_face_fail))
+            ToastUtil.getInstance(
+                mBinding.getRoot().context,
+                mBinding.getRoot().context.getString(R.string.rec_face_fail)
+            ).show()
+        }
+    }
+
+    /**
+     * 刷到卡后分发学生，以此填充，1~3
+     */
+    private fun dispatchCardStudent(value: StudentEntity) {
+        val index = if (mBinding.groupAdded1.visibility != View.VISIBLE) {
+            1
+        } else if (mBinding.groupAdded2.visibility != View.VISIBLE) {
+            2
+        } else {
+            3
+        }
+        identifiedMap?.put(index, value)
+        dispatchStudent(index, value)
     }
 
     private fun dispatchIdentifyingView(index: Int) {
@@ -101,16 +189,19 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             1 -> {
                 mBinding.ivAdd1Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
                 mBinding.tvAdd1Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+                mBinding.llAdd1.setBackgroundResource(R.drawable.bg_border_r5_white_shape)
             }
 
             2 -> {
                 mBinding.ivAdd2Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
                 mBinding.tvAdd2Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+                mBinding.llAdd2.setBackgroundResource(R.drawable.bg_border_r5_white_shape)
             }
 
             3 -> {
                 mBinding.ivAdd3Icon.setBackgroundResource(R.mipmap.ic_user_add_loading)
                 mBinding.tvAdd3Tip.text = com.ty.tybusbase.expand.getString(R.string.tj_ing)
+                mBinding.llAdd3.setBackgroundResource(R.drawable.bg_border_r5_white_shape)
             }
         }
     }
@@ -123,18 +214,33 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             1 -> {
                 mBinding.ivAdd1Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
                 mBinding.tvAdd1Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+                mBinding.llAdd1.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_shape)
             }
 
             2 -> {
                 mBinding.ivAdd2Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
                 mBinding.tvAdd2Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+                mBinding.llAdd2.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_shape)
             }
 
             3 -> {
                 mBinding.ivAdd3Icon.setBackgroundResource(R.mipmap.sports_ic_adduser)
                 mBinding.tvAdd3Tip.text = com.ty.tybusbase.expand.getString(R.string.tj)
+                mBinding.llAdd3.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_shape)
             }
         }
+    }
+
+    fun isContainStudent(stu: StudentEntity): Boolean {
+        if (identifiedMap == null) {
+            return false
+        }
+        for ((_, value1) in identifiedMap!!) {
+            if (value1.accountId == stu.accountId) {
+                return true
+            }
+        }
+        return false
     }
 
     /**
@@ -228,8 +334,13 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     private fun handleIdentifyOk(info: AccountInfo?) {
         identifyFlag = false
-        info?.studentEntity?.let {
-            identifiedMap?.put(currentIndex, it)
+        info?.studentEntity?.let { stu ->
+            if (isContainStudent(stu)) {
+                //已经添加过此人
+                ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
+                return
+            }
+            identifiedMap?.put(currentIndex, stu)
             mBinding.root.post {
                 dispatchStudent(currentIndex, info.studentEntity)
             }
@@ -237,7 +348,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     }
 
     private fun initCamera() {
-        mBinding.cameraView.setRotate(MMKVUtil.decodeInt(MMKVBusiKey.SKELETON_ROTATE, 0))
+        mBinding.cameraView.setRotate(decodeInt(MMKVBusiKey.SKELETON_ROTATE, 0))
         mBinding.cameraView.setMirror(
             MMKVUtil.decodeBoolean(
                 MMKVBusiKey.SKELETON_MIRROR,
@@ -253,6 +364,8 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         mBinding.cameraView.onPause()
         mBinding.cameraView.onRelease()
         identifyEngine.closeMachine()
+        nfcReaderManager.stopRead()
+        nfcReaderManager.release()
     }
 
     private fun handleIdentifyView(

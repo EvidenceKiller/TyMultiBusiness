@@ -1,23 +1,18 @@
 package com.ty.bus.multi.core.view.bluetooth
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.fragment.app.FragmentActivity
 import com.adl.service.entity.StudentEntity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
-import com.ty.bus.multi.core.dialog.identify.IdentifyDialog
 import com.ty.bus.multi.core.state.BluetoothSportCardState
-import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ViewBluetoothSportCardBinding
 import com.ty.tybusbase.config.BusiBaseConfig.getIdentityType
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
-import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
@@ -161,7 +156,7 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 mBinding.tvIdentifyType.text = getString(R.string.identify_face)
             }
 
-            BusiBaseConstantsValue.IDENTITY_TYPE_FACE and BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE or BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
                 mBinding.tvIdentifyType.text = getString(R.string.identify_face_nfc)
             }
 
