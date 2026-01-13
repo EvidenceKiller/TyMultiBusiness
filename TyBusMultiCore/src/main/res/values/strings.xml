@@ -62,4 +62,5 @@
     <string name="start_test">开始测试</string>
 
     <string name="busi_multi_delete_user">是否删除当前用户</string>
+    <string name="busi_multi_click_add_bluetooth">点击添加蓝牙</string>
 </resources>
