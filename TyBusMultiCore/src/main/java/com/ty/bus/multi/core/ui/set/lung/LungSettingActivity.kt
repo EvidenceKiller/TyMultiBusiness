@@ -48,42 +48,20 @@ class LungSettingActivity : BaseActivity<ActivityLungSettingBinding, BaseViewMod
         }
 
 
-        if (!TextUtils.isEmpty(lungParam.blueAddress1)) {
-            dispatchBluetoothAddress(1, lungParam.blueAddress1)
-        }
-        if (!TextUtils.isEmpty(lungParam.blueAddress2)) {
-            dispatchBluetoothAddress(2, lungParam.blueAddress2)
-        }
-        if (!TextUtils.isEmpty(lungParam.blueAddress3)) {
-            dispatchBluetoothAddress(3, lungParam.blueAddress3)
+        lungParam.getBluetoothList().forEach {
+            dispatchBluetoothAddress(it.index, it.blueAddress)
         }
 
         mBinding.llBack.setOnClickListener { finish() }
 
         mBinding.tvBle1.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(1, it)
-            }.addFilterDevice(lungParam.blueAddress1)
-                .addFilterDevice(lungParam.blueAddress2)
-                .addFilterDevice(lungParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(1)
         }
         mBinding.tvBle2.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(2, it)
-            }.addFilterDevice(lungParam.blueAddress1)
-                .addFilterDevice(lungParam.blueAddress2)
-                .addFilterDevice(lungParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(2)
         }
         mBinding.tvBle3.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(3, it)
-            }
-                .addFilterDevice(lungParam.blueAddress1)
-                .addFilterDevice(lungParam.blueAddress2)
-                .addFilterDevice(lungParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(3)
         }
 
         mBinding.tvBleDisconnect1.setOnClickListener {
@@ -98,6 +76,18 @@ class LungSettingActivity : BaseActivity<ActivityLungSettingBinding, BaseViewMod
 
     }
 
+    private fun addBluetoothAddress(index: Int) {
+        val dialog = BleBluetoothChooseDialog().setOnBlueChooseListener {
+            dispatchBluetoothAddress(index, it)
+        }
+        lungParam.getBluetoothList().forEach {
+            if (it.blueAddress.isNullOrEmpty().not()) {
+                dialog.addFilterDevice(it.blueAddress)
+            }
+        }
+        dialog.show(supportFragmentManager, "choose bluetooth")
+    }
+
     private fun dispatchBluetoothAddress(index: Int, address: String?) {
         when (index) {
             1 -> {
@@ -105,12 +95,14 @@ class LungSettingActivity : BaseActivity<ActivityLungSettingBinding, BaseViewMod
                     mBinding.tvBle1.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle1.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect1.gone()
+                    lungParam.removeBluetoothInfo(1)
                 } else {
                     mBinding.tvBle1.text = address
                     mBinding.tvBle1.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect1.visible()
+                    lungParam.addBluetoothInfo(1, address)
                 }
-                lungParam.blueAddress1 = address
+
             }
 
             2 -> {
@@ -118,12 +110,13 @@ class LungSettingActivity : BaseActivity<ActivityLungSettingBinding, BaseViewMod
                     mBinding.tvBle2.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle2.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect2.gone()
+                    lungParam.removeBluetoothInfo(2)
                 } else {
                     mBinding.tvBle2.text = address
                     mBinding.tvBle2.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect2.visible()
+                    lungParam.addBluetoothInfo(2, address)
                 }
-                lungParam.blueAddress2 = address
             }
 
             3 -> {
@@ -131,13 +124,15 @@ class LungSettingActivity : BaseActivity<ActivityLungSettingBinding, BaseViewMod
                     mBinding.tvBle3.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle3.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect3.gone()
+                    lungParam.removeBluetoothInfo(3)
                 } else {
                     mBinding.tvBle3.text = address
                     mBinding.tvBle3.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect3.visible()
+                    lungParam.addBluetoothInfo(3, address)
                 }
-                lungParam.blueAddress3 = address
             }
+
         }
     }
 

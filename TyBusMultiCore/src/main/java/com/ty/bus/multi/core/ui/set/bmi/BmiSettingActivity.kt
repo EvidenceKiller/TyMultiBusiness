@@ -1,7 +1,6 @@
 package com.ty.bus.multi.core.ui.set.bmi
 
 import android.os.Bundle
-import android.text.TextUtils
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.dialog.BleBluetoothChooseDialog
@@ -22,42 +21,19 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        if (!TextUtils.isEmpty(bmiParam.blueAddress1)) {
-            dispatchBluetoothAddress(1, bmiParam.blueAddress1)
+        bmiParam.getBluetoothList().forEach {
+            dispatchBluetoothAddress(it.index, it.blueAddress)
         }
-        if (!TextUtils.isEmpty(bmiParam.blueAddress2)) {
-            dispatchBluetoothAddress(2, bmiParam.blueAddress2)
-        }
-        if (!TextUtils.isEmpty(bmiParam.blueAddress3)) {
-            dispatchBluetoothAddress(3, bmiParam.blueAddress3)
-        }
-
         mBinding.llBack.setOnClickListener { finish() }
 
         mBinding.tvBle1.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(1, it)
-            }.addFilterDevice(bmiParam.blueAddress1)
-                .addFilterDevice(bmiParam.blueAddress2)
-                .addFilterDevice(bmiParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(1)
         }
         mBinding.tvBle2.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(2, it)
-            }.addFilterDevice(bmiParam.blueAddress1)
-                .addFilterDevice(bmiParam.blueAddress2)
-                .addFilterDevice(bmiParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(2)
         }
         mBinding.tvBle3.setOnClickListener {
-            BleBluetoothChooseDialog().setOnBlueChooseListener {
-                dispatchBluetoothAddress(3, it)
-            }
-                .addFilterDevice(bmiParam.blueAddress1)
-                .addFilterDevice(bmiParam.blueAddress2)
-                .addFilterDevice(bmiParam.blueAddress3)
-                .show(supportFragmentManager, "choose bluetooth")
+            addBluetoothAddress(3)
         }
 
         mBinding.tvBleDisconnect1.setOnClickListener {
@@ -71,6 +47,18 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
         }
     }
 
+    private fun addBluetoothAddress(index: Int) {
+        val dialog = BleBluetoothChooseDialog().setOnBlueChooseListener {
+            dispatchBluetoothAddress(index, it)
+        }
+        bmiParam.getBluetoothList().forEach {
+            if (it.blueAddress.isNullOrEmpty().not()) {
+                dialog.addFilterDevice(it.blueAddress)
+            }
+        }
+        dialog.show(supportFragmentManager, "choose bluetooth")
+    }
+
     private fun dispatchBluetoothAddress(index: Int, address: String?) {
         when (index) {
             1 -> {
@@ -78,12 +66,14 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
                     mBinding.tvBle1.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle1.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect1.gone()
+                    bmiParam.removeBluetoothInfo(1)
                 } else {
                     mBinding.tvBle1.text = address
                     mBinding.tvBle1.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect1.visible()
+                    bmiParam.addBluetoothInfo(1, address)
                 }
-                bmiParam.blueAddress1 = address
+
             }
 
             2 -> {
@@ -91,12 +81,13 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
                     mBinding.tvBle2.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle2.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect2.gone()
+                    bmiParam.removeBluetoothInfo(2)
                 } else {
                     mBinding.tvBle2.text = address
                     mBinding.tvBle2.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect2.visible()
+                    bmiParam.addBluetoothInfo(2, address)
                 }
-                bmiParam.blueAddress2 = address
             }
 
             3 -> {
@@ -104,12 +95,13 @@ class BmiSettingActivity : BaseActivity<ActivityBmiSettingBinding, BaseViewModel
                     mBinding.tvBle3.text = getString(R.string.busi_multi_click_add_bluetooth)
                     mBinding.tvBle3.setTextColor(resources.getColor(R.color.white_60))
                     mBinding.tvBleDisconnect3.gone()
+                    bmiParam.removeBluetoothInfo(3)
                 } else {
                     mBinding.tvBle3.text = address
                     mBinding.tvBle3.setTextColor(resources.getColor(android.R.color.white))
                     mBinding.tvBleDisconnect3.visible()
+                    bmiParam.addBluetoothInfo(3, address)
                 }
-                bmiParam.blueAddress3 = address
             }
 
         }
