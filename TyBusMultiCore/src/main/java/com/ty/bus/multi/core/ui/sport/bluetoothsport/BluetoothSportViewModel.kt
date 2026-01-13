@@ -3,11 +3,11 @@ package com.ty.bus.multi.core.ui.sport.bluetoothsport
 import android.app.Application
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.viewModelScope
-import com.adl.base.common.AdlToast
 import com.ty.bus.multi.core.factory.bluetoothsport.AbstractBluetoothSportFactory
 import com.ty.bus.multi.core.factory.bluetoothsport.BluetoothSportProduceFactory
 import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.tybusbase.base.BaseSportViewModel
+import com.ty.tybusbase.utils.LogUtil
 import com.zy.callback.DeviceResultCallback
 import com.zy.callback.OnDeviceConnectChangedListener
 import com.zy.callback.OnScanCallback
@@ -21,6 +21,11 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     var sportCardState =
         MutableSharedFlow<Pair<Int, BluetoothSportCardState>>()
+
+    //成绩回调
+    var sportResultState =
+        MutableSharedFlow<Pair<Int, String>>()
+
     lateinit var factory: AbstractBluetoothSportFactory
 
     private val mHelper by lazy { MultiDeviceHelper(getApplication()) }
@@ -45,7 +50,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
             mHelper.setDeviceResultCallback(object : DeviceResultCallback {
                 override fun onConfigComplete(address: String?) {
-
+                    val blueInfo =
+                        factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
+                    LogUtil.d("${blueInfo?.index}号位发送蓝牙配置成功, 开始测试")
+                    mHelper.startSingleTest(address)
                 }
 
                 override fun onResult(
@@ -53,6 +61,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                     isEnd: Boolean,
                     vararg score: String?
                 ) {
+
+                    handleBlueResult(address, isEnd, score)
                 }
 
                 override fun onStart(address: String?, isSuccess: Boolean) {
@@ -62,7 +72,16 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                 }
 
             })
+        }
+    }
 
+    private fun handleBlueResult(address: String?, isEnd: Boolean, score: Array<out String?>) {
+        LogUtil.d("收到蓝牙数据: $address, $isEnd, ${score.joinToString(",")}")
+        if (isEnd) {
+            val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
+            if (blueInfo != null) {
+                emitSportResultState(blueInfo.index, score.joinToString(","))
+            }
         }
     }
 
@@ -70,8 +89,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 处理蓝牙连接成功
      */
     private fun handleConnectSuccess(address: String?) {
+        LogUtil.d("蓝牙连接失败: $address")
         val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
         if (blueInfo != null) {
+            blueInfo.isConnected = true
             emitSportCardState(blueInfo.index, BluetoothSportCardState.CONNECTED)
         }
     }
@@ -80,8 +101,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 处理蓝牙断开
      */
     private fun handleConnectFailure(address: String?) {
+        LogUtil.d("蓝牙连接失败: $address")
         val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
         if (blueInfo != null) {
+            blueInfo.isConnected = false
             emitSportCardState(blueInfo.index, BluetoothSportCardState.DISCONNECTED)
         }
     }
@@ -127,9 +150,31 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         })
     }
 
+    fun startSport() {
+        factory.getBluetoothInfoList().forEach {
+            if (it.isConnected) {
+                emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
+            } else {
+                emitSportCardState(it.index, BluetoothSportCardState.IDLE)
+            }
+        }
+        mHelper.config()
+    }
+
     private fun emitSportCardState(index: Int, state: BluetoothSportCardState) {
         viewModelScope.launch(Dispatchers.IO) {
             sportCardState.emit(Pair(index, state))
         }
+    }
+
+    private fun emitSportResultState(index: Int, score: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            sportResultState.emit(Pair(index, score))
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mHelper.release()
     }
 }

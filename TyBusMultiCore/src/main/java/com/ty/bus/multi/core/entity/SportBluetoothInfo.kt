@@ -4,5 +4,6 @@ import java.io.Serializable
 
 data class SportBluetoothInfo(
     var index: Int = 0,
-    var blueAddress: String? = null
+    var blueAddress: String? = null,
+    var isConnected: Boolean = false,
 ) : Serializable

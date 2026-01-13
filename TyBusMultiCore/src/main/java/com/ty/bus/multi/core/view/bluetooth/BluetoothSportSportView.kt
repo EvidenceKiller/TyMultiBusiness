@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.view.bluetooth
 
+import android.app.Activity
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
@@ -98,6 +99,22 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.blueSportCard1.setSportCardClickListener(cardClickListener)
         mBinding.blueSportCard2.setSportCardClickListener(cardClickListener)
         mBinding.blueSportCard3.setSportCardClickListener(cardClickListener)
+        mBinding.tvStartTest.setOnClickListener {
+            listener?.onStartClick()
+        }
+        mBinding.tvRetest.setOnClickListener {
+            listener?.onRetestClick()
+        }
+        mBinding.tvNext.setOnClickListener {
+            listener?.onNextClick()
+        }
+        mBinding.tvEndTest.setOnClickListener {
+            listener?.onEndTestClick()
+        }
+        mBinding.tvFinish.setOnClickListener {
+            (context as Activity).finish()
+        }
+
     }
 
     fun changeState(index: Int, state: BluetoothSportCardState) {

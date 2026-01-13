@@ -3,6 +3,7 @@ package com.ty.bus.multi.core.ui.sport.bluetoothsport
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.adl.service.entity.SceneSportInfoEntity
+import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.databinding.ActivityBluetoothSportBinding
 import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.utils.ToastUtil
@@ -14,6 +15,12 @@ class BluetoothSportActivity :
         lifecycleScope.launch {
             viewModel.sportCardState.collect { (index, state) ->
                 mBinding.blueSportView.changeState(index, state)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.sportResultState.collect { (index, result) ->
+                mBinding.blueSportView.addResult(index, result)
             }
         }
 
@@ -40,7 +47,22 @@ class BluetoothSportActivity :
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         mBinding.tvSportName.text = viewModel.sportInfo?.sportSkuName
+        mBinding.blueSportView.listener = object : ResultViewBtnClickListener {
+            override fun onRetestClick() {
 
+            }
+
+            override fun onNextClick() {
+            }
+
+            override fun onEndTestClick() {
+                showExitDialog()
+            }
+
+            override fun onStartClick() {
+                viewModel.startSport()
+            }
+        }
 
     }
 }
