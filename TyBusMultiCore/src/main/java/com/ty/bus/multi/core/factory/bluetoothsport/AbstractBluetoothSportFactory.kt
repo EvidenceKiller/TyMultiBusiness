@@ -1,8 +1,8 @@
 package com.ty.bus.multi.core.factory.bluetoothsport
 
-import com.ty.bus.multi.core.entity.BluetoothAddressParam
+import com.ty.bus.multi.core.entity.SportBluetoothInfo
 
 abstract class AbstractBluetoothSportFactory {
-    abstract fun getAddress(): BluetoothAddressParam
+    abstract fun getBluetoothInfoList(): MutableList<SportBluetoothInfo>
     open fun getTestCount(): Int = 1
 }

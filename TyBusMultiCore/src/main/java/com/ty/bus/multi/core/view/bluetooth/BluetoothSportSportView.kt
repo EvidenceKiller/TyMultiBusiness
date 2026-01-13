@@ -42,6 +42,9 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
 
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
+    //保存蓝牙连接状态
+    private var blueConnectList = HashMap<Int, Boolean>()
+
     private val runnable by lazy {
         object : Runnable {
             override fun run() {
@@ -59,6 +62,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     private val cardClickListener = object : BluetoothSportCardClickListener {
         override fun onIdentifyClick(index: Int) {
             IdentifyDialog().setIdentifiedMap(identifiedMap)
+                .setBlueConnectList(blueConnectList)
                 .setIdentifyResultListener {
                     handleIdentifyResult(it)
                 }
@@ -84,6 +88,9 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         cardMap.put(1, mBinding.blueSportCard1)
         cardMap.put(2, mBinding.blueSportCard2)
         cardMap.put(3, mBinding.blueSportCard3)
+        blueConnectList.put(1, false)
+        blueConnectList.put(2, false)
+        blueConnectList.put(3, false)
         initView()
     }
 
@@ -94,6 +101,12 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     fun changeState(index: Int, state: BluetoothSportCardState) {
+        if (state == BluetoothSportCardState.CONNECTED) {
+            blueConnectList.put(index, true)
+        }
+        if (state == BluetoothSportCardState.DISCONNECTED) {
+            blueConnectList.put(index, false)
+        }
         cardMap[index]?.changeState(state)
     }
 

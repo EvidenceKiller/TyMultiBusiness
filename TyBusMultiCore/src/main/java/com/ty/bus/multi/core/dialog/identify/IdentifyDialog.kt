@@ -42,6 +42,9 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     private var identifiedMap: HashMap<Int, StudentEntity>? = null
 
+    //连接状态
+    private var blueConnectList = HashMap<Int, Boolean>()
+
     private val identifyEngine by lazy {
         MultiIFrameCountIdentityEngine()
     }
@@ -110,9 +113,49 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             identifyFlag = true
             dispatchIdentifyingView(3)
         }
+        handleClickEnable()
         initCamera()
         initFaceDetect()
         initCard()
+    }
+
+    /**
+     * 处理未连接的位置不能识别人员逻辑
+     */
+    private fun handleClickEnable() {
+        blueConnectList.forEach { (index, value) ->
+            when (index) {
+                1 -> {
+                    if (!value) {
+                        mBinding.llAdd1.isClickable = false
+                        mBinding.ivAdd1Icon.setBackgroundResource(R.mipmap.ic_blueteeth_disabled)
+                        mBinding.llAdd1.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_20_shape)
+                        mBinding.tvAdd1Tip.text = getString(R.string.busi_multi_device_not_connect)
+                        mBinding.tvAdd1Tip.setTextColor(resources.getColor(R.color.white_40))
+                    }
+                }
+
+                2 -> {
+                    if (!value) {
+                        mBinding.llAdd2.isClickable = false
+                        mBinding.ivAdd2Icon.setBackgroundResource(R.mipmap.ic_blueteeth_disabled)
+                        mBinding.llAdd2.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_20_shape)
+                        mBinding.tvAdd2Tip.text = getString(R.string.busi_multi_device_not_connect)
+                        mBinding.tvAdd2Tip.setTextColor(resources.getColor(R.color.white_40))
+                    }
+                }
+
+                3 -> {
+                    if (!value) {
+                        mBinding.llAdd3.isClickable = false
+                        mBinding.ivAdd3Icon.setBackgroundResource(R.mipmap.ic_blueteeth_disabled)
+                        mBinding.llAdd3.setBackgroundResource(R.drawable.bg_border_dashed_r5_white_20_shape)
+                        mBinding.tvAdd3Tip.text = getString(R.string.busi_multi_device_not_connect)
+                        mBinding.tvAdd3Tip.setTextColor(resources.getColor(R.color.white_40))
+                    }
+                }
+            }
+        }
     }
 
     private fun initCard() {
@@ -173,13 +216,28 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
      * 刷到卡后分发学生，以此填充，1~3
      */
     private fun dispatchCardStudent(value: StudentEntity) {
-        val index = if (mBinding.groupAdded1.visibility != View.VISIBLE) {
-            1
-        } else if (mBinding.groupAdded2.visibility != View.VISIBLE) {
-            2
-        } else {
-            3
-        }
+        val index =
+            if (mBinding.groupAdded1.visibility != View.VISIBLE && blueConnectList.getOrDefault(
+                    1,
+                    false
+                )
+            ) {
+                1
+            } else if (mBinding.groupAdded2.visibility != View.VISIBLE && blueConnectList.getOrDefault(
+                    2,
+                    false
+                )
+            ) {
+                2
+            } else if (mBinding.groupAdded3.visibility != View.VISIBLE && blueConnectList.getOrDefault(
+                    3,
+                    false
+                )
+            ) {
+                3
+            } else {
+                return
+            }
         identifiedMap?.put(index, value)
         dispatchStudent(index, value)
     }
@@ -395,6 +453,11 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     fun setIdentifiedMap(identifiedMap: HashMap<Int, StudentEntity>): IdentifyDialog {
         this.identifiedMap = identifiedMap
+        return this
+    }
+
+    fun setBlueConnectList(blue: HashMap<Int, Boolean>): IdentifyDialog {
+        this.blueConnectList = blue
         return this
     }
 

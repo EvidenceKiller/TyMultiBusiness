@@ -16,6 +16,11 @@ class BluetoothSportActivity :
                 mBinding.blueSportView.changeState(index, state)
             }
         }
+
+        /**
+         * 处理蓝牙连接逻辑
+         */
+        viewModel.handleBluetoothConnect()
     }
 
     override fun initData() {

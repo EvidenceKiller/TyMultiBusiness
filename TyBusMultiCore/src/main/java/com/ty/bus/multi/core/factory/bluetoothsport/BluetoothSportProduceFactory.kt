@@ -6,7 +6,7 @@ object BluetoothSportProduceFactory {
     fun getFactory(itemCode: String?): AbstractBluetoothSportFactory {
         return when (itemCode) {
             SportConstant.LUNG_CAPACITY -> {
-                BmiBluetoothSportFactory()
+                LungBluetoothSportFactory()
             }
 
             SportConstant.BODY_HEIGHT_WEIGHT -> {
