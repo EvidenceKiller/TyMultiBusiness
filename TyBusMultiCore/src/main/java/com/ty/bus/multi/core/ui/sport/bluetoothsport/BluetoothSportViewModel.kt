@@ -3,9 +3,11 @@ package com.ty.bus.multi.core.ui.sport.bluetoothsport
 import android.app.Application
 import android.bluetooth.BluetoothDevice
 import androidx.lifecycle.viewModelScope
+import com.ty.bus.multi.core.entity.SportBluetoothInfo
 import com.ty.bus.multi.core.factory.bluetoothsport.AbstractBluetoothSportFactory
 import com.ty.bus.multi.core.factory.bluetoothsport.BluetoothSportProduceFactory
 import com.ty.bus.multi.core.state.BluetoothSportCardState
+import com.ty.bus.multi.core.view.bluetooth.LungBluetoothResultView
 import com.ty.tybusbase.base.BaseSportViewModel
 import com.ty.tybusbase.utils.LogUtil
 import com.zy.callback.DeviceResultCallback
@@ -34,6 +36,9 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     fun initData() {
         factory = BluetoothSportProduceFactory.getFactory(sportInfo?.sportItemCode)
+        val clazz = factory.getResultView()
+        LogUtil.d("初始化蓝牙数据: ${clazz.simpleName}")
+        LogUtil.d("初始化蓝牙数据2222: ${clazz.superclass.name}")
         if (factory.getBluetoothInfoList().isNotEmpty()) {
             mHelper.setConnectChangedListener(object : OnDeviceConnectChangedListener {
                 override fun onConnectSuccess(address: String?) {
@@ -113,6 +118,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 处理蓝牙连接
      */
     fun handleBluetoothConnect() {
+//        emitSportCardState(1, BluetoothSportCardState.CONNECTED)
         factory.getBluetoothInfoList().forEach {
             emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
         }
@@ -152,6 +158,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     fun startSport() {
         factory.getBluetoothInfoList().forEach {
+//                emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             if (it.isConnected) {
                 emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             } else {

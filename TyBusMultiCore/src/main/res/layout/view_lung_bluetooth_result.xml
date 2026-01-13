@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="#1E64BD">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_top"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_112"
+        android:layout_marginHorizontal="@dimen/dp_28"
+        android:layout_marginTop="@dimen/dp_24"
+        android:background="@drawable/bg_white_20_r16_shape"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_top_icon"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_marginLeft="@dimen/dp_36"
+            android:background="@mipmap/ic_exe_cpt_5jp_top1"
+            app:layout_constraintBottom_toTopOf="@+id/tv_top"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+
+        <TextView
+            android:id="@+id/tv_top"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/busi_base_best"
+            android:textColor="#FDD401"
+            android:textSize="@dimen/sp_20"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/iv_top_icon"
+            app:layout_constraintStart_toStartOf="@+id/iv_top_icon"
+            app:layout_constraintTop_toBottomOf="@+id/iv_top_icon" />
+
+        <TextView
+            android:id="@+id/tv_result_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_36"
+            android:layout_marginBottom="@dimen/dp_24"
+            android:text="ml"
+            android:textColor="#FDD401"
+            android:textSize="@dimen/sp_40"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/tv_best_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:text="-"
+            android:textColor="#FDD401"
+            android:textSize="@dimen/sp_72"
+            app:layout_constraintEnd_toStartOf="@+id/tv_result_unit"
+            app:layout_constraintTop_toTopOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_result"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/dp_28"
+        android:layout_marginTop="@dimen/dp_44"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cl_top" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -61,6 +61,8 @@ class BluetoothSportActivity :
 
             override fun onStartClick() {
                 viewModel.startSport()
+                //添加结果页面
+                mBinding.blueSportView.addResultView(viewModel.factory.getResultView())
             }
         }
 

@@ -37,6 +37,9 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
     private var clickListener: BluetoothSportCardClickListener? = null
     private var cardIndex: Int = 0
 
+    //成绩显示View
+    private var resultView: AbstractBluetoothResultView? = null
+
     init {
         val attributes =
             context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
@@ -222,7 +225,15 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
 
     @SuppressLint("NotifyDataSetChanged")
     fun addResult(result: String) {
+        resultView?.addResult(result)
+    }
 
+    /**
+     * 添加结果View
+     */
+    fun addResultView(resultView: AbstractBluetoothResultView) {
+        this.resultView = resultView
+        mBinding.rlResultContent.addView(resultView)
     }
 
     fun reset() {

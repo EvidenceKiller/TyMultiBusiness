@@ -153,6 +153,18 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         cardMap[index]?.setAccountInfo(studentEntity)
     }
 
+    fun addResultView(clazz: Class<out AbstractBluetoothResultView>) {
+        cardMap.forEach {
+            try {
+                val instance = clazz.getDeclaredConstructor(Context::class.java)
+                val resultView = instance.newInstance(context)
+                it.value.addResultView(resultView)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
     fun sportFinish() {
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         mBinding.tvRetest.visibility = VISIBLE
