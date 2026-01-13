@@ -24,6 +24,7 @@
         android:layout_height="@dimen/dp_32"
         android:layout_marginStart="@dimen/dp_16"
         android:background="@mipmap/ic_blueteeth_disconnect"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/tv_index"
         app:layout_constraintStart_toEndOf="@+id/tv_index"
         app:layout_constraintTop_toTopOf="@+id/tv_index" />
@@ -36,6 +37,7 @@
         android:text="@string/disconnected"
         android:textColor="#F62227"
         android:textSize="@dimen/sp_32"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/iv_blue_icon"
         app:layout_constraintStart_toEndOf="@+id/iv_blue_icon"
         app:layout_constraintTop_toTopOf="@+id/iv_blue_icon"
@@ -74,6 +76,7 @@
         android:textColor="@color/white_60"
         android:textSize="@dimen/sp_40"
         android:textStyle="italic"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/gl_1" />
@@ -241,18 +244,17 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_16"
         android:text="@string/idle_state"
-        android:textColor="@color/white"
-        android:textSize="@dimen/sp_64"
+        android:textColor="@color/white_30"
+        android:textSize="@dimen/sp_48"
         app:layout_constraintEnd_toEndOf="@+id/iv_sport_no_user"
         app:layout_constraintStart_toStartOf="@+id/iv_sport_no_user"
         app:layout_constraintTop_toBottomOf="@+id/iv_sport_no_user"
         app:layout_goneMarginTop="@dimen/dp_20" />
 
     <androidx.constraintlayout.widget.Group
-        android:id="@+id/group_sport_no_user"
+        android:id="@+id/group_card_idle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         app:constraint_referenced_ids="iv_sport_no_user,tv_idle_tip" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

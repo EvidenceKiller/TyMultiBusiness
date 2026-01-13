@@ -16,7 +16,6 @@ class BluetoothSportActivity :
                 mBinding.blueSportView.changeState(index, state)
             }
         }
-
     }
 
     override fun initData() {

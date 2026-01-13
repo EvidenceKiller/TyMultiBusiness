@@ -82,6 +82,10 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 exitPrepared()
             }
 
+            BluetoothSportCardState.DISCONNECTED -> {
+                exitDisconnected()
+            }
+
             BluetoothSportCardState.CONNECTED -> {
                 exitConnected()
             }
@@ -90,9 +94,6 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 exitSporting()
             }
 
-            BluetoothSportCardState.SPORTING_NO_USER -> {
-                exitSportingNoUser()
-            }
         }
 
         //进入新状态处理
@@ -105,6 +106,10 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 enterPrepared()
             }
 
+            BluetoothSportCardState.DISCONNECTED -> {
+                enterDisconnected()
+            }
+
             BluetoothSportCardState.CONNECTED -> {
                 enterConnected()
             }
@@ -112,23 +117,27 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
             BluetoothSportCardState.SPORTING -> {
                 enterSporting()
             }
-
-            BluetoothSportCardState.SPORTING_NO_USER -> {
-                enterSportingNoUser()
-            }
         }
 
         preState = state
     }
 
-    private fun enterSportingNoUser() {
-        mBinding.groupSportNoUser.visible()
+    private fun enterDisconnected() {
+        mBinding.ivBlueIcon.visible()
+        mBinding.tvBlueConnectState.visible()
+        mBinding.ivBlueIcon.setBackgroundResource(R.mipmap.ic_blueteeth_disconnect)
+        mBinding.tvBlueConnectState.text = getString(R.string.disconnected)
+        mBinding.tvBlueConnectState.setTextColor(Color.parseColor("#F62227"))
         mBinding.tvIdleState.visible()
+        mBinding.tvDisconnectTip.visible()
+
     }
 
-    private fun exitSportingNoUser() {
-        mBinding.groupSportNoUser.gone()
+    private fun exitDisconnected() {
         mBinding.tvIdleState.gone()
+        mBinding.tvDisconnectTip.gone()
+        mBinding.ivBlueIcon.gone()
+        mBinding.tvBlueConnectState.gone()
     }
 
     private fun enterSporting() {
@@ -194,20 +203,13 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     private fun enterIdle() {
-        mBinding.ivBlueIcon.visible()
-        mBinding.tvBlueConnectState.visible()
-        mBinding.ivBlueIcon.setBackgroundResource(R.mipmap.ic_blueteeth_disconnect)
-        mBinding.tvBlueConnectState.text = getString(R.string.disconnected)
-        mBinding.tvBlueConnectState.setTextColor(Color.parseColor("#F62227"))
         mBinding.tvIdleState.visible()
-        mBinding.tvDisconnectTip.visible()
+        mBinding.groupCardIdle.visible()
     }
 
     private fun exitIdle() {
         mBinding.tvIdleState.gone()
-        mBinding.tvDisconnectTip.gone()
-        mBinding.ivBlueIcon.gone()
-        mBinding.tvBlueConnectState.gone()
+        mBinding.groupCardIdle.gone()
     }
 
     fun setAccountInfo(studentEntity: StudentEntity) {
