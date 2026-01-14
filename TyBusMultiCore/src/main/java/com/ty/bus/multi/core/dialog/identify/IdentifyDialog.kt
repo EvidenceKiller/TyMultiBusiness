@@ -18,6 +18,7 @@ import com.ty.nfc.reader.base.NfcType
 import com.ty.nfc.reader.base.ReadCallback
 import com.ty.nfc.reader.manager.NfcReaderManager
 import com.ty.tybusbase.base.BaseDialogFragment
+import com.ty.tybusbase.config.BusiBaseConfig.getIdentityType
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.entity.AccountInfo
@@ -113,10 +114,37 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             identifyFlag = true
             dispatchIdentifyingView(3)
         }
+        initTip()
         handleClickEnable()
         initCamera()
         initFaceDetect()
         initCard()
+    }
+
+    private fun initTip() {
+        val identityType = getIdentityType()
+        when (identityType) {
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE -> {
+                mBinding.tvTitle.text =
+                    com.ty.tybusbase.expand.getString(R.string.identify_face)
+                mBinding.tvIdentifyTip.text =
+                    com.ty.tybusbase.expand.getString(R.string.busi_multi_dialog_identify_tip_face)
+            }
+
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE or BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
+                mBinding.tvTitle.text =
+                    com.ty.tybusbase.expand.getString(R.string.identify_face_nfc)
+                mBinding.tvIdentifyTip.text =
+                    com.ty.tybusbase.expand.getString(R.string.busi_multi_dialog_identify_tip_face_nfc)
+            }
+
+            BusiBaseConstantsValue.IDENTITY_TYPE_CARD -> {
+                mBinding.tvTitle.text =
+                    com.ty.tybusbase.expand.getString(R.string.identify_nfc)
+                mBinding.tvIdentifyTip.text =
+                    com.ty.tybusbase.expand.getString(R.string.busi_multi_dialog_identify_tip_nfc)
+            }
+        }
     }
 
     /**
