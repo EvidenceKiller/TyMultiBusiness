@@ -2,6 +2,7 @@ package com.ty.bus.multi.core
 
 import android.content.Context
 import android.content.Intent
+import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
@@ -110,11 +111,13 @@ object UIMultiNavigation {
     /**
      * 跳转到BMI运动
      */
-    fun goBmiSport(
+    fun goBluetoothSport(
         context: Context,
-        config: UINavConfig?
+        config: UINavConfig?,
+        sportConfig: BluetoothSportConfig?
     ) {
         val intent = Intent(context, BluetoothSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
         startActivity(context, intent, config)
     }
 

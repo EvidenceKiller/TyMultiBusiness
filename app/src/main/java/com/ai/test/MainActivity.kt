@@ -18,6 +18,7 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
+import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
@@ -30,7 +31,6 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.utils.MMKVUtil
-import com.ty.tybusbase.utils.MMKVUtil.decodeInt
 
 
 class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
@@ -269,15 +269,21 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnBmiSport.setOnClickListener {
-            UIMultiNavigation.goBmiSport(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportItemCode = SportConstant.BODY_HEIGHT_WEIGHT
-                    sportSkuId = sportItemCode + "0001"
-                    sportSkuName = "BMI"
-                    testCount = "3"
-                    sceneId = SceneConstants.FREE
-                }
-            })
+            UIMultiNavigation.goBluetoothSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.BODY_HEIGHT_WEIGHT
+                        sportSkuId = sportItemCode + "0001"
+                        sportSkuName = "BMI"
+                        testCount = "3"
+                        sceneId = SceneConstants.FREE
+                    }
+                }, BluetoothSportConfig.builder()
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(true)
+                    .setSupportChoose(true)
+                    .build()
+            )
         }
 
         mBinding.btnLungSetting.setOnClickListener {
@@ -285,15 +291,21 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnLungSport.setOnClickListener {
-            UIMultiNavigation.goBmiSport(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportItemCode = SportConstant.LUNG_CAPACITY
-                    sportSkuId = sportItemCode + "0001"
-                    sportSkuName = "肺活量"
-                    testCount = "3"
-                    sceneId = SceneConstants.FREE
-                }
-            })
+            UIMultiNavigation.goBluetoothSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.LUNG_CAPACITY
+                        sportSkuId = sportItemCode + "0001"
+                        sportSkuName = "肺活量"
+                        testCount = "3"
+                        sceneId = SceneConstants.FREE
+                    }
+                }, BluetoothSportConfig.builder()
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(true)
+                    .setSupportChoose(false)
+                    .build()
+            )
         }
 
 

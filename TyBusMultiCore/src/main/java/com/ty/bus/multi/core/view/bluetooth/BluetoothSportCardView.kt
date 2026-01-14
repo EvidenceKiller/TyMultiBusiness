@@ -180,6 +180,7 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
 
         //支持手动添加，改变人脸卡片Item的高度和提示文案
         if (isSupportAdd) {
+            mBinding.llClickAdd.visible()
             val par = mBinding.llFaceCardIdentify.layoutParams
             par.height = context.resources.getDimension(R.dimen.dp_120).toInt()
         }

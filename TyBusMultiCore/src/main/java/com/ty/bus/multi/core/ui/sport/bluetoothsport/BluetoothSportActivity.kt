@@ -5,12 +5,12 @@ import androidx.lifecycle.lifecycleScope
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.view.bluetooth.BluetoothSportSportView.UserChangeListener
 import com.ty.bus.multi.databinding.ActivityBluetoothSportBinding
 import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class BluetoothSportActivity :
@@ -50,6 +50,8 @@ class BluetoothSportActivity :
         viewModel.accountInfoLD.value = intent.getParcelableExtra("account_info")
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.bluetoothSportConfig =
+            intent.getSerializableExtra("sport_config") as? BluetoothSportConfig
         if (viewModel.sportInfo == null) {
             ToastUtil.getInstance(this, "运动详情为空").show()
             finish()
@@ -93,6 +95,8 @@ class BluetoothSportActivity :
             }
 
         })
+
+        mBinding.blueSportView.setBluetoothSportConfig(viewModel.bluetoothSportConfig)
 
     }
 }

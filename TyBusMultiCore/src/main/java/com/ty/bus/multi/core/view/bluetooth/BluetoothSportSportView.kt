@@ -11,6 +11,7 @@ import androidx.fragment.app.FragmentActivity
 import com.adl.service.entity.StudentEntity
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.dialog.identify.IdentifyDialog
 import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.bus.multi.core.view.bluetooth.BluetoothSportCardView.BluetoothSportCardClickListener
@@ -33,6 +34,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         this,
         true
     )
+
+    //蓝牙运动相关配置
+    private var bluetoothSportConfig: BluetoothSportConfig? = null
+
     private var cardMap = HashMap<Int, BluetoothSportCardView>()
 
     private val identifiedMap by lazy { HashMap<Int, StudentEntity>() }
@@ -127,6 +132,15 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         this.userChangeListener = listener
     }
 
+    fun setBluetoothSportConfig(config: BluetoothSportConfig?) {
+        this.bluetoothSportConfig = config
+        if (bluetoothSportConfig?.isSupportChoose == true) {
+            cardMap.forEach { (_, value) ->
+                value.isSupportAdd = true
+            }
+        }
+    }
+
     fun changeState(index: Int, state: BluetoothSportCardState) {
         if (state == BluetoothSportCardState.CONNECTED) {
             blueConnectList.put(index, true)
@@ -180,12 +194,16 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.tvFinish.visible()
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         mBinding.tvRetest.visible()
-        mBinding.tvNext.visible()
-        mBinding.llSpeech.visible()
         mBinding.tvEndTest.gone()
         mBinding.tvStartTest.gone()
-        updateNextText(NEXT_COUNT_DOWN_TIME)
-        mHandler.postDelayed(runnable, 1000)
+        if (bluetoothSportConfig?.isSupportNextGroup == true) {
+            mBinding.tvNext.visible()
+            updateNextText(NEXT_COUNT_DOWN_TIME)
+            mHandler.postDelayed(runnable, 1000)
+        }
+        if (bluetoothSportConfig?.isVoiceBroadcastSupported == true) {
+            mBinding.llSpeech.visible()
+        }
     }
 
     private fun updateNextText(count: Int) {

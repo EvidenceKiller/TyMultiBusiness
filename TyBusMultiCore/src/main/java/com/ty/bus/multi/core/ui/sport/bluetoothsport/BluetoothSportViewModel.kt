@@ -1,30 +1,26 @@
 package com.ty.bus.multi.core.ui.sport.bluetoothsport
 
 import android.app.Application
-import android.bluetooth.BluetoothDevice
 import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.viewModelScope
 import com.adl.service.entity.SportRecordEntity
 import com.adl.service.entity.StudentEntity
+import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.entity.BluetoothSportResultInfo
 import com.ty.bus.multi.core.factory.bluetoothsport.AbstractBluetoothSportFactory
 import com.ty.bus.multi.core.factory.bluetoothsport.BluetoothSportProduceFactory
 import com.ty.bus.multi.core.state.BluetoothSportCardState
-import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixViewModel
 import com.ty.tybusbase.base.BaseSportViewModel
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.utils.LogUtil
 import com.zy.callback.DeviceResultCallback
 import com.zy.callback.OnDeviceConnectChangedListener
-import com.zy.callback.OnScanCallback
 import com.zy.clazz.MultiDeviceHelper
-import com.zy.entity.DeviceType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class BluetoothSportViewModel(application: Application) : BaseSportViewModel(application) {
@@ -38,6 +34,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     //测试结束
     val testFinishFlow = MutableSharedFlow<Boolean>()
+
+    var bluetoothSportConfig: BluetoothSportConfig? = null
 
     //人员信息
     private val sportPersonArray by lazy { SparseArray<BluetoothSportResultInfo>() } //存储已识别的位置和人员信息
