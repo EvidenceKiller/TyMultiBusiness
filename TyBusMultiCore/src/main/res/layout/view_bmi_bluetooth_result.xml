@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:background="#1E64BD">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_height"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_112"
+        android:layout_marginHorizontal="@dimen/dp_28"
+        android:layout_marginBottom="@dimen/dp_24"
+        android:background="@drawable/bg_lung_result_item_shape"
+        app:layout_constraintBottom_toTopOf="@+id/cl_weight">
+
+        <TextView
+            android:id="@+id/tv_height"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_56"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_height_unit"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="19.58" />
+
+        <TextView
+            android:id="@+id/tv_height_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_6"
+            android:text="cm"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_32"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_height"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_height" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_weight"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_112"
+        android:layout_marginHorizontal="@dimen/dp_28"
+        android:layout_marginBottom="@dimen/dp_24"
+        android:background="@drawable/bg_lung_result_item_shape"
+        app:layout_constraintBottom_toTopOf="@+id/cl_bmi">
+
+        <TextView
+            android:id="@+id/tv_weight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_56"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_weight_unit"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="19.58" />
+
+        <TextView
+            android:id="@+id/tv_weight_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_6"
+            android:text="kg"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_32"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_weight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_weight" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_bmi"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_112"
+        android:layout_marginHorizontal="@dimen/dp_28"
+        android:layout_marginBottom="@dimen/dp_56"
+        android:background="@drawable/bg_lung_result_item_shape"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/tv_bmi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_56"
+            android:text="-"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/tv_bmi_unit"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="19.58" />
+
+        <TextView
+            android:id="@+id/tv_bmi_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_6"
+            android:text="kg/m"
+            android:textColor="@color/white_80"
+            android:textSize="@dimen/sp_32"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_bmi"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_bmi" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_12"
+            android:text="2"
+            android:textColor="@color/white_80"
+            android:textSize="@dimen/sp_20"
+            app:layout_constraintBottom_toBottomOf="@id/tv_bmi_unit"
+            app:layout_constraintStart_toEndOf="@+id/tv_bmi_unit" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,11 +1,11 @@
 package com.ty.bus.multi.core.factory.bluetoothsport
 
-import android.content.Context
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.entity.LungParam
 import com.ty.bus.multi.core.entity.SportBluetoothInfo
 import com.ty.bus.multi.core.view.bluetooth.AbstractBluetoothResultView
 import com.ty.bus.multi.core.view.bluetooth.LungBluetoothResultView
+import com.zy.entity.DeviceType
 
 class LungBluetoothSportFactory : AbstractBluetoothSportFactory() {
     private var lungParam: LungParam? = null
@@ -25,6 +25,10 @@ class LungBluetoothSportFactory : AbstractBluetoothSportFactory() {
 
     override fun getResultView(): Class<out AbstractBluetoothResultView> {
         return LungBluetoothResultView::class.java
+    }
+
+    override fun getDeviceType(): DeviceType {
+        return DeviceType.VITAL_CAPACITY
     }
 
 }

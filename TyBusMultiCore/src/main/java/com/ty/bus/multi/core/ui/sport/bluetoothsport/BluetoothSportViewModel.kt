@@ -6,12 +6,16 @@ import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.viewModelScope
+import com.adl.service.entity.SportRecordEntity
 import com.adl.service.entity.StudentEntity
 import com.ty.bus.multi.core.entity.BluetoothSportResultInfo
 import com.ty.bus.multi.core.factory.bluetoothsport.AbstractBluetoothSportFactory
 import com.ty.bus.multi.core.factory.bluetoothsport.BluetoothSportProduceFactory
 import com.ty.bus.multi.core.state.BluetoothSportCardState
+import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixViewModel
 import com.ty.tybusbase.base.BaseSportViewModel
+import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.utils.LogUtil
 import com.zy.callback.DeviceResultCallback
 import com.zy.callback.OnDeviceConnectChangedListener
@@ -155,6 +159,36 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 上传成绩
      */
     private fun uploadResult(sportResultInfo: BluetoothSportResultInfo) {
+        endSportTime = System.currentTimeMillis()
+        val value = sportPersonArray.get(sportResultInfo.number)
+        var sportResult = SportResult()
+        sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+        sportResult.maxComboCount = 0
+        sportResult.perfectCount = 0
+        sportResult.goodCount = 0
+        sportResult.comeOnCount = 0
+        sportResult.perfectScore = 0
+        sportResult.goodScore = 0
+        sportResult.comeOnScore = 0
+        sportResult.userId = value.studentEntity.accountId
+        sportResult.startTime = startSportTime
+        sportResult.endTime = endSportTime
+        sportResult.sportResult = factory.getUploadResult(value.score)
+//                sportResult.sportViolationStatus = 1
+//                sportResult.sportViolationNumber = "1"
+        var recordPlan: SportRecordEntity.RecordPlan? = null
+        if (sceneId == SceneConstants.ORGANIZE_TEST) {
+            recordPlan = SportRecordEntity.RecordPlan().apply {
+                ptPlanId = this@BluetoothSportViewModel.ptPlanId
+                ptStandardId = this@BluetoothSportViewModel.ptStandardId
+            }
+        }
+        uploadSportResult(
+            sceneId ?: SceneConstants.INDEPENDENT_TEST,
+            sportResult,
+            sportResult.userId,
+            recordPlan = recordPlan
+        )
 
     }
 
@@ -187,15 +221,15 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      */
     fun handleBluetoothConnect() {
         factory.getBluetoothInfoList().forEach {
-//            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
-            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
+            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
+//            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
         }
 //        mHelper.scanBleDevice(object : OnScanCallback {
 //            override fun onFinish() {
 //                val filterAddress =
 //                    factory.getBluetoothInfoList()
 //                        .filter { tempAddressList.contains(it.blueAddress) }
-//                        .map { android.util.Pair(DeviceType.VITAL_CAPACITY, it.blueAddress!!) }
+//                        .map { android.util.Pair(factory.getDeviceType(), it.blueAddress!!) }
 //                        .toMutableList()
 //                if (filterAddress.isNotEmpty()) {
 //                    tempAddressList.clear()
@@ -222,6 +256,14 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 //                }
 //            }
 //        })
+
+        mHelper.connect(
+            factory.getBluetoothInfoList().map {
+                android.util.Pair(
+                    factory.getDeviceType(),
+                    it.blueAddress!!
+                )
+            })
     }
 
     fun startSport() {
@@ -234,6 +276,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
             }
         }
         mHelper.config()
+        startSportTime = System.currentTimeMillis()
 //        mockResult()
     }
 
@@ -241,7 +284,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         viewModelScope.launch(Dispatchers.IO) {
             SystemClock.sleep(1000)
             factory.getBluetoothInfoList().forEach {
-                handleBlueResult(it.blueAddress, true, arrayOf("152${currentTestTimes}"))
+                handleBlueResult(it.blueAddress, true, arrayOf("66.8", "178.8"))
             }
         }
     }
