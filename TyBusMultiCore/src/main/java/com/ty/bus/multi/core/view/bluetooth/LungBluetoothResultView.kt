@@ -34,7 +34,7 @@ class LungBluetoothResultView(context: Context) :
                     item: String
                 ) {
                     holder.vb.apply {
-                        tvIndex.text = "${holder.layoutPosition + 1}"
+                        tvIndex.text = "${scoreList.size - holder.layoutPosition}"
                         tvScore.text = item
                         if (holder.layoutPosition == 0) {
                             root.setBackgroundResource(R.drawable.bg_lung_result_item_layer_list)

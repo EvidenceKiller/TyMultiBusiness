@@ -294,7 +294,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             return false
         }
         for ((_, value1) in identifiedMap!!) {
-            if (value1.accountId == stu.accountId) {
+            if (value1.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && value1.accountId == stu.accountId) {
                 return true
             }
         }

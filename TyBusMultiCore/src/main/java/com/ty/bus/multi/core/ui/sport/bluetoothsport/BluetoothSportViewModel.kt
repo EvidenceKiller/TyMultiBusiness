@@ -2,6 +2,7 @@ package com.ty.bus.multi.core.ui.sport.bluetoothsport
 
 import android.app.Application
 import android.bluetooth.BluetoothDevice
+import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.viewModelScope
@@ -185,46 +186,47 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 处理蓝牙连接
      */
     fun handleBluetoothConnect() {
-//        emitSportCardState(1, BluetoothSportCardState.CONNECTED)
         factory.getBluetoothInfoList().forEach {
-            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
+//            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
+            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
         }
-        mHelper.scanBleDevice(object : OnScanCallback {
-            override fun onFinish() {
-                val filterAddress =
-                    factory.getBluetoothInfoList()
-                        .filter { tempAddressList.contains(it.blueAddress) }
-                        .map { android.util.Pair(DeviceType.VITAL_CAPACITY, it.blueAddress!!) }
-                        .toMutableList()
-                if (filterAddress.isNotEmpty()) {
-                    tempAddressList.clear()
-                    mHelper.connect(filterAddress)
-                }
-            }
-
-            override fun onScanning(device: BluetoothDevice?, rssi: Int) {
-                device?.let {
-                    tempAddressList.add(device.address)
-                    if (factory.getBluetoothInfoList()
-                            .all { tempAddressList.contains(it.blueAddress) }
-                    ) {
-                        mHelper.stopScan()
-                        tempAddressList.clear()
-                        mHelper.connect(
-                            factory.getBluetoothInfoList().map {
-                                android.util.Pair(
-                                    DeviceType.VITAL_CAPACITY,
-                                    it.blueAddress!!
-                                )
-                            })
-                    }
-                }
-            }
-        })
+//        mHelper.scanBleDevice(object : OnScanCallback {
+//            override fun onFinish() {
+//                val filterAddress =
+//                    factory.getBluetoothInfoList()
+//                        .filter { tempAddressList.contains(it.blueAddress) }
+//                        .map { android.util.Pair(DeviceType.VITAL_CAPACITY, it.blueAddress!!) }
+//                        .toMutableList()
+//                if (filterAddress.isNotEmpty()) {
+//                    tempAddressList.clear()
+//                    mHelper.connect(filterAddress)
+//                }
+//            }
+//
+//            override fun onScanning(device: BluetoothDevice?, rssi: Int) {
+//                device?.let {
+//                    tempAddressList.add(device.address)
+//                    if (factory.getBluetoothInfoList()
+//                            .all { tempAddressList.contains(it.blueAddress) }
+//                    ) {
+//                        mHelper.stopScan()
+//                        tempAddressList.clear()
+//                        mHelper.connect(
+//                            factory.getBluetoothInfoList().map {
+//                                android.util.Pair(
+//                                    DeviceType.VITAL_CAPACITY,
+//                                    it.blueAddress!!
+//                                )
+//                            })
+//                    }
+//                }
+//            }
+//        })
     }
 
     fun startSport() {
         factory.getBluetoothInfoList().forEach {
+//            emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             if (it.isConnected) {
                 emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             } else {
@@ -232,6 +234,16 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
             }
         }
         mHelper.config()
+//        mockResult()
+    }
+
+    private fun mockResult() {
+        viewModelScope.launch(Dispatchers.IO) {
+            SystemClock.sleep(1000)
+            factory.getBluetoothInfoList().forEach {
+                handleBlueResult(it.blueAddress, true, arrayOf("152${currentTestTimes}"))
+            }
+        }
     }
 
     private fun emitSportCardState(index: Int, state: BluetoothSportCardState) {
@@ -271,6 +283,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
     fun next() {
         //如果已连上，则开始选人，未连上，则连接蓝牙
         factory.getBluetoothInfoList().forEach {
+//            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
             if (it.isConnected) {
                 emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
             } else {

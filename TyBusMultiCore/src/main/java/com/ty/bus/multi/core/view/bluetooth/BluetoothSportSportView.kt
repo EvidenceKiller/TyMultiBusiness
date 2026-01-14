@@ -105,14 +105,14 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.blueSportCard2.setSportCardClickListener(cardClickListener)
         mBinding.blueSportCard3.setSportCardClickListener(cardClickListener)
         mBinding.tvStartTest.setOnClickListener {
+            mBinding.tvEndTest.visible()
             listener?.onStartClick()
         }
         mBinding.tvRetest.setOnClickListener {
             retest()
         }
         mBinding.tvNext.setOnClickListener {
-            mHandler.removeCallbacksAndMessages(null)
-            listener?.onNextClick()
+            next()
         }
         mBinding.tvEndTest.setOnClickListener {
             listener?.onEndTestClick()
@@ -182,7 +182,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.tvRetest.visible()
         mBinding.tvNext.visible()
         mBinding.llSpeech.visible()
-        mBinding.tvEndTest.visible()
+        mBinding.tvEndTest.gone()
         mBinding.tvStartTest.gone()
         updateNextText(NEXT_COUNT_DOWN_TIME)
         mHandler.postDelayed(runnable, 1000)
