@@ -13,6 +13,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.dialog.identify.IdentifyDialog
+import com.ty.bus.multi.core.dialog.planstudentchoose.BluetoothSportPlanStudentChooseDialog
 import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.bus.multi.core.view.bluetooth.BluetoothSportCardView.BluetoothSportCardClickListener
 import com.ty.bus.multi.core.view.sixforwardflexion.ForwardFlexionSportCardView
@@ -80,6 +81,12 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         }
 
         override fun onAddClick(index: Int) {
+            BluetoothSportPlanStudentChooseDialog().setBlueConnectList(blueConnectList)
+                .setIdentifiedMap(identifiedMap)
+                .setIdentifyResultListener {
+
+                }.show((context as FragmentActivity).supportFragmentManager, "choose")
+
         }
 
         override fun onDeleteClick(index: Int) {
