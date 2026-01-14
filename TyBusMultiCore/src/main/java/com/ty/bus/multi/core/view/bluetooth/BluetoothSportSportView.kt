@@ -20,6 +20,8 @@ import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
 
 class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -37,11 +39,13 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
 
     var listener: ResultViewBtnClickListener? = null
 
-    private val NEXT_COUNT_DOWN_TIME = 5 //倒计时时间
+    private val NEXT_COUNT_DOWN_TIME = 10 //倒计时时间
 
     private var nextCountDownTime = NEXT_COUNT_DOWN_TIME //倒计时时间
 
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
+
+    private var userChangeListener: UserChangeListener? = null
 
     //保存蓝牙连接状态
     private var blueConnectList = HashMap<Int, Boolean>()
@@ -76,6 +80,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         override fun onDeleteClick(index: Int) {
             CommonTipDialog()
                 .setCallback {
+                    userChangeListener?.onUserDelete(index)
                     identifiedMap.remove(index)
                     updateStartBtn()
                     changeState(index, BluetoothSportCardState.CONNECTED)
@@ -103,9 +108,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             listener?.onStartClick()
         }
         mBinding.tvRetest.setOnClickListener {
-            listener?.onRetestClick()
+            retest()
         }
         mBinding.tvNext.setOnClickListener {
+            mHandler.removeCallbacksAndMessages(null)
             listener?.onNextClick()
         }
         mBinding.tvEndTest.setOnClickListener {
@@ -115,6 +121,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             (context as Activity).finish()
         }
 
+    }
+
+    fun setUserChangeListener(listener: UserChangeListener) {
+        this.userChangeListener = listener
     }
 
     fun changeState(index: Int, state: BluetoothSportCardState) {
@@ -130,6 +140,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     private fun handleIdentifyResult(stuMap: HashMap<Int, StudentEntity>) {
         stuMap.forEach { (index, value) ->
             setAccountInfo(index, value)
+            userChangeListener?.onUserChange(index, value)
             changeState(index, BluetoothSportCardState.PREPARED)
         }
         updateStartBtn()
@@ -166,9 +177,13 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     fun sportFinish() {
+        mBinding.tvFinish.visible()
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
-        mBinding.tvRetest.visibility = VISIBLE
-        mBinding.tvNext.visibility = VISIBLE
+        mBinding.tvRetest.visible()
+        mBinding.tvNext.visible()
+        mBinding.llSpeech.visible()
+        mBinding.tvEndTest.visible()
+        mBinding.tvStartTest.gone()
         updateNextText(NEXT_COUNT_DOWN_TIME)
         mHandler.postDelayed(runnable, 1000)
     }
@@ -178,13 +193,32 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     /**
+     * 重测一次
+     */
+    private fun retest() {
+        mBinding.tvRetest.gone()
+        mBinding.tvNext.gone()
+        mBinding.tvEndTest.visible()
+        mBinding.tvFinish.gone()
+        mBinding.llSpeech.gone()
+        listener?.onRetestClick()
+        mHandler.removeCallbacks(runnable)
+    }
+
+    /**
      * 重置，恢复初始状态（下一组）
      */
     fun next() {
+        identifiedMap.clear()
+        mBinding.tvStartTest.visible()
+        updateStartBtn()
+
         mHandler.removeCallbacks(runnable)
         listener?.onNextClick()
-        mBinding.tvRetest.visibility = GONE
-        mBinding.tvNext.visibility = GONE
+        mBinding.tvRetest.gone()
+        mBinding.tvNext.gone()
+        mBinding.llSpeech.gone()
+        mBinding.tvFinish.gone()
         cardMap.forEach { (_, value) ->
             value.reset()
         }
@@ -193,5 +227,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         mHandler.removeCallbacks(runnable)
+    }
+
+    interface UserChangeListener {
+        fun onUserChange(index: Int, studentEntity: StudentEntity)
+        fun onUserDelete(index: Int)
     }
 }

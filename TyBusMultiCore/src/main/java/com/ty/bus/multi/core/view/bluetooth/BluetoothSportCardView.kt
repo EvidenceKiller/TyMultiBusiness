@@ -233,6 +233,7 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     fun addResultView(resultView: AbstractBluetoothResultView) {
         this.resultView = resultView
+        mBinding.rlResultContent.removeAllViews()
         mBinding.rlResultContent.addView(resultView)
     }
 

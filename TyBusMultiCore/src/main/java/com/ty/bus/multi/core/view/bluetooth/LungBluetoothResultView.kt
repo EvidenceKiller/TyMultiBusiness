@@ -53,6 +53,7 @@ class LungBluetoothResultView(context: Context) :
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun addResult(result: String) {
         val value0 = scoreList[0]
         if (value0 == "-") {
@@ -60,7 +61,7 @@ class LungBluetoothResultView(context: Context) :
         } else {
             scoreList.add(0, result)
         }
-        (mBinding.rvResult.adapter as BaseBindingAdapter<*, *>).notifyItemChanged(0)
+        (mBinding.rvResult.adapter as BaseBindingAdapter<*, *>).notifyDataSetChanged()
         bestScore = result.toInt().coerceAtLeast(bestScore)
         mBinding.tvBestResult.text = bestScore.toString()
     }

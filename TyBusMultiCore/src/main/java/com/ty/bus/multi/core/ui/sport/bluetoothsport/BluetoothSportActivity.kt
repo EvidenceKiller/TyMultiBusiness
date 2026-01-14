@@ -3,10 +3,14 @@ package com.ty.bus.multi.core.ui.sport.bluetoothsport
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.adl.service.entity.SceneSportInfoEntity
+import com.adl.service.entity.StudentEntity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.view.bluetooth.BluetoothSportSportView.UserChangeListener
 import com.ty.bus.multi.databinding.ActivityBluetoothSportBinding
 import com.ty.tybusbase.base.BaseExitActivity
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class BluetoothSportActivity :
@@ -21,6 +25,15 @@ class BluetoothSportActivity :
         lifecycleScope.launch {
             viewModel.sportResultState.collect { (index, result) ->
                 mBinding.blueSportView.addResult(index, result)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.testFinishFlow.collect {
+                if (it) {
+                    LogUtil.d("结束测试")
+                    mBinding.blueSportView.sportFinish()
+                }
             }
         }
 
@@ -49,10 +62,11 @@ class BluetoothSportActivity :
         mBinding.tvSportName.text = viewModel.sportInfo?.sportSkuName
         mBinding.blueSportView.listener = object : ResultViewBtnClickListener {
             override fun onRetestClick() {
-
+                viewModel.retest()
             }
 
             override fun onNextClick() {
+                viewModel.next()
             }
 
             override fun onEndTestClick() {
@@ -65,6 +79,20 @@ class BluetoothSportActivity :
                 mBinding.blueSportView.addResultView(viewModel.factory.getResultView())
             }
         }
+
+        mBinding.blueSportView.setUserChangeListener(object : UserChangeListener {
+            override fun onUserChange(
+                index: Int,
+                studentEntity: StudentEntity
+            ) {
+                viewModel.addUser(index, studentEntity)
+            }
+
+            override fun onUserDelete(index: Int) {
+                viewModel.removeUser(index)
+            }
+
+        })
 
     }
 }
