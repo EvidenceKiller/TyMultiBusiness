@@ -56,8 +56,6 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         factory = BluetoothSportProduceFactory.getFactory(sportInfo?.sportItemCode)
         testCount = factory.getTestCount()
         val clazz = factory.getResultView()
-        LogUtil.d("初始化蓝牙数据: ${clazz.simpleName}")
-        LogUtil.d("初始化蓝牙数据2222: ${clazz.superclass.name}")
         if (factory.getBluetoothInfoList().isNotEmpty()) {
             mHelper.setConnectChangedListener(object : OnDeviceConnectChangedListener {
                 override fun onConnectSuccess(address: String?) {
@@ -219,8 +217,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      */
     fun handleBluetoothConnect() {
         factory.getBluetoothInfoList().forEach {
-//            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
-            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
+            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
+//            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
         }
 //        mHelper.scanBleDevice(object : OnScanCallback {
 //            override fun onFinish() {
