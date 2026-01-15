@@ -219,8 +219,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      */
     fun handleBluetoothConnect() {
         factory.getBluetoothInfoList().forEach {
-            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
-//            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
+//            emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
+            emitSportCardState(it.index, BluetoothSportCardState.CONNECTED)
         }
 //        mHelper.scanBleDevice(object : OnScanCallback {
 //            override fun onFinish() {

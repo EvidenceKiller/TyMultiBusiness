@@ -56,7 +56,7 @@ dependencies {
     api(name: 'AdlPoseCore-2025-05-28', ext: 'aar')
     api(name: 'AdlCamera-2025-12-01', ext: 'aar')
     api(name: 'AdlBase-2025-12-09', ext: 'aar')
-    api(name: 'AdlWebSerivce-2025-11-03', ext: 'aar')
+    api(name: 'NzWebSerivce-2026-01-15', ext: 'aar')
     api(name: 'AdlAuthCore-v2-2025-09-30', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
     api(name: 'AdlSportGeneral-2025-12-16', ext: 'aar')
