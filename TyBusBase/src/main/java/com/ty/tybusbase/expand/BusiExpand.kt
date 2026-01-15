@@ -1,10 +1,16 @@
 package com.ty.tybusbase.expand
 
 import android.graphics.Bitmap
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
+import android.widget.EditText
 import androidx.annotation.StringRes
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.utils.ApplicationUtil
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
 import java.nio.ByteBuffer
 
@@ -110,4 +116,19 @@ fun View.invisible() {
 
 fun View.gone() {
     this.visibility = View.GONE
+}
+
+fun EditText.textChanges(): Flow<String> = callbackFlow {
+    val textWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            s?.toString()?.let { trySend(it) }
+        }
+
+        override fun afterTextChanged(s: Editable?) {}
+    }
+
+    addTextChangedListener(textWatcher)
+    awaitClose { removeTextChangedListener(textWatcher) }
 }

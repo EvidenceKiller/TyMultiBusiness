@@ -92,12 +92,12 @@
         android:id="@+id/rv_student"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/iv_right_bg"
         android:layout_marginHorizontal="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_32"
         android:layout_marginBottom="@dimen/dp_24"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/iv_right_bg"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/cv_grade"
         tools:itemCount="3"
         tools:listitem="@layout/bm_item_choose_student" />
@@ -167,7 +167,8 @@
                 android:layout_height="@dimen/dp_24"
                 android:layout_marginLeft="@dimen/dp_10"
                 android:layout_marginEnd="@dimen/dp_24"
-                android:background="@mipmap/close_click" />
+                android:background="@mipmap/close_click"
+                android:visibility="gone" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>

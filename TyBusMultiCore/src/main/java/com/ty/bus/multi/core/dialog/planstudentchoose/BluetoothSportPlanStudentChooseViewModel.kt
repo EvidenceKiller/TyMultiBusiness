@@ -8,14 +8,36 @@ import com.adl.service.web.SportPlanService
 import com.ty.bus.multi.core.entity.PlanGradeInfo
 import com.ty.tybusbase.base.BaseLiveData
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.utils.LogUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 class BluetoothSportPlanStudentChooseViewModel(application: Application) :
     BaseViewModel(application) {
     val gradeListLD = BaseLiveData<MutableList<PlanGradeInfo>>()
     val studentListLD = BaseLiveData<MutableList<StudentEntity>>()
+    val searchStudentListLD = BaseLiveData<MutableList<StudentEntity>>()
     val cacheStudentMap = HashMap<String, MutableList<StudentEntity>>()
+
+    val searchTextFlow = flowOf("")
+        .debounce(300)
+        .distinctUntilChanged()
+        .flatMapLatest { query ->
+            flow {
+                emit(query)
+            }
+        }
+
     fun querySportPlanClass(planId: String?) {
         if (planId.isNullOrEmpty()) {
             gradeListLD.postValue(mutableListOf<PlanGradeInfo>())
@@ -51,6 +73,17 @@ class BluetoothSportPlanStudentChooseViewModel(application: Application) :
             )
             cacheStudentMap.put(classId, studentList)
             studentListLD.postValue(studentList)
+        }
+    }
+
+    fun searchStudent(textFlow: Flow<String>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            textFlow.collect {
+                LogUtil.d("searchStudent: 开始搜索 $it")
+                val studentList = AdlService.getService().studentDao.queryStudentByKeyWord(it)
+                LogUtil.d("searchStudent: 搜索结果 ${studentList.size}")
+                searchStudentListLD.postValue(studentList)
+            }
         }
     }
 }

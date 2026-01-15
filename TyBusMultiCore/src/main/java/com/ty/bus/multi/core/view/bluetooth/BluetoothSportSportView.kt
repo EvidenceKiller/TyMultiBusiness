@@ -84,7 +84,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             BluetoothSportPlanStudentChooseDialog().setBlueConnectList(blueConnectList)
                 .setIdentifiedMap(identifiedMap)
                 .setIdentifyResultListener {
-
+                    handleIdentifyResult(it)
                 }.show((context as FragmentActivity).supportFragmentManager, "choose")
 
         }
