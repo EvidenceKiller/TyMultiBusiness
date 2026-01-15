@@ -82,8 +82,11 @@ class BluetoothSportPlanStudentChooseDialog :
 
     private val mCustomTabEntities by lazy { ArrayList<CustomTabEntity>() }
 
+    private var isGrade = true
+
     //学生列表
     private val studentList = mutableListOf<StudentEntity>()
+    private val searchStudentList = mutableListOf<StudentEntity>()
 
     //    private var planId: String? = null
     private var planId: String? = "a1a2370a7c3d4961b026483c64033c19"
@@ -105,12 +108,12 @@ class BluetoothSportPlanStudentChooseDialog :
         }
 
         viewModel.searchStudentListLD.observe(this) {
-            studentList.clear()
+            searchStudentList.clear()
             if (it.isNullOrEmpty()) {
                 mBinding.groupNoData.visible()
             } else {
                 mBinding.groupNoData.gone()
-                studentList.addAll(it)
+                searchStudentList.addAll(it)
             }
             mBinding.rvSearchStudent.adapter?.notifyDataSetChanged()
         }
@@ -190,6 +193,7 @@ class BluetoothSportPlanStudentChooseDialog :
             mBinding.groupClass.gone()
             mBinding.rvGrade.visible()
             mBinding.groupNoData.gone()
+            isGrade = true
         }
 
         handleClickEnable()
@@ -203,7 +207,7 @@ class BluetoothSportPlanStudentChooseDialog :
     private fun initSearchEt() {
         viewModel.searchStudent(
             mBinding.etSearch.textChanges()
-                .debounce(1000)
+                .debounce(500)
                 .distinctUntilChanged()
                 .filter {
                     withContext(Dispatchers.Main) {
@@ -245,9 +249,18 @@ class BluetoothSportPlanStudentChooseDialog :
         mBinding.tab.setOnTabSelectListener(object : SlidingTabLayout.OnTabSelectListener {
             override fun onTabSelect(position: Int) {
                 if (position == 0) {
+                    if (isGrade) {
+                        mBinding.rvGrade.visible()
+                        mBinding.groupClass.gone()
+                    } else {
+                        mBinding.rvGrade.gone()
+                        mBinding.groupClass.visible()
+                    }
                     mBinding.groupSearchStudent.gone()
                 } else {
                     mBinding.groupSearchStudent.visible()
+                    mBinding.rvGrade.gone()
+                    mBinding.groupClass.gone()
                 }
             }
 
@@ -256,52 +269,16 @@ class BluetoothSportPlanStudentChooseDialog :
             }
         })
     }
-
-    private val studentAdapter =
-        object : BaseBindingAdapter<BmItemChooseStudentBinding, StudentEntity>(studentList) {
-            override fun convert(
-                holder: VBViewHolder<BmItemChooseStudentBinding>,
-                item: StudentEntity
-            ) {
-                holder.vb.apply {
-                    val isSelected = isContainStudent(item)
-                    if (isSelected == true) {
-                        holder.vb.ivChoose.setBackgroundResource(R.mipmap.ic_rb_pre)
-                        holder.vb.root.setBackgroundResource(R.drawable.bm_item_choose_student_select_bg)
-                    } else {
-                        holder.vb.ivChoose.setBackgroundResource(R.mipmap.ic_rb_normal)
-                        holder.vb.root.setBackgroundResource(R.drawable.bg_662572ff_r8_shape)
-                    }
-                    tvName.text = item.accountName
-                    tvClassName.text = item.className
-                    Glide.with(requireContext())
-                        .load(AdlService.getService().facePrefix + item.userFaceImgUrl)
-                        .placeholder(R.mipmap.ic_head_default)
-                        .error(R.mipmap.ic_head_default).into(civHeader)
-                    if (isSelected.not()) {
-                        root.setOnClickListener {
-                            val connectSize = blueConnectList.filter { it.value }.size
-                            if (identifiedMap?.size == connectSize) {
-                                return@setOnClickListener
-                            }
-                            onStudentSelected(item)
-                            notifyItemChanged(holder.layoutPosition)
-                        }
-                    }
-                }
-            }
-        }
-
     private fun initStudentRv() {
         mBinding.rvStudent.layoutManager = GridLayoutManager(requireContext(), 3)
         mBinding.rvStudent.addItemDecoration(GridSpaceDecoration(24, 24))
-        mBinding.rvStudent.adapter = studentAdapter
+        mBinding.rvStudent.adapter = StudentAdapter(studentList)
     }
 
     private fun initSearchStudentRv() {
         mBinding.rvSearchStudent.layoutManager = GridLayoutManager(requireContext(), 3)
         mBinding.rvSearchStudent.addItemDecoration(GridSpaceDecoration(24, 24))
-        mBinding.rvSearchStudent.adapter = studentAdapter
+        mBinding.rvSearchStudent.adapter = StudentAdapter(searchStudentList)
     }
 
     private fun onStudentSelected(studentEntity: StudentEntity) {
@@ -311,6 +288,7 @@ class BluetoothSportPlanStudentChooseDialog :
 
     @SuppressLint("SetTextI18n")
     private fun onClassClick(classInfoEntity: ClassInfoEntity) {
+        isGrade = false
         studentList.clear()
         viewModel.queryStudentByClassID(classInfoEntity.classId)
         mBinding.rvGrade.gone()
@@ -519,7 +497,7 @@ class BluetoothSportPlanStudentChooseDialog :
             mBinding.rvStudent.adapter?.notifyDataSetChanged()
         }
         Glide.with(requireContext())
-            .load(AdlService.getService().facePrefix + studentEntity.userFaceImgUrl)
+            .load(studentEntity.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default)
             .into(ivHeader)
@@ -542,4 +520,44 @@ class BluetoothSportPlanStudentChooseDialog :
         return this
     }
 
+    inner class StudentAdapter(data: MutableList<StudentEntity>?) : BaseBindingAdapter<BmItemChooseStudentBinding, StudentEntity>(data) {
+        override fun convert(
+            holder: VBViewHolder<BmItemChooseStudentBinding>,
+            item: StudentEntity
+        ) {
+            holder.vb.apply {
+                val isSelected = isContainStudent(item)
+                if (isSelected == true) {
+                    holder.vb.ivChoose.setBackgroundResource(R.mipmap.ic_rb_pre)
+                    holder.vb.root.setBackgroundResource(R.drawable.bm_item_choose_student_select_bg)
+                } else {
+                    holder.vb.ivChoose.setBackgroundResource(R.mipmap.ic_rb_normal)
+                    holder.vb.root.setBackgroundResource(R.drawable.bg_662572ff_r8_shape)
+                }
+                tvName.text = item.accountName
+                tvClassName.text = "${item.gradeName}${item.className}"
+                if (item.userFaceImgUrl.isNullOrEmpty().not() && item.userFaceImgUrl.startsWith(
+                        AdlService.getService().facePrefix
+                    ).not()
+                ) {
+                    item.userFaceImgUrl =
+                        AdlService.getService().facePrefix + item.userFaceImgUrl
+                }
+                Glide.with(requireContext())
+                    .load(item.userFaceImgUrl)
+                    .placeholder(R.mipmap.ic_head_default)
+                    .error(R.mipmap.ic_head_default).into(civHeader)
+                if (isSelected.not()) {
+                    root.setOnClickListener {
+                        val connectSize = blueConnectList.filter { it.value }.size
+                        if (identifiedMap?.size == connectSize) {
+                            return@setOnClickListener
+                        }
+                        onStudentSelected(item)
+                        notifyItemChanged(holder.layoutPosition)
+                    }
+                }
+            }
+        }
+    }
 }
