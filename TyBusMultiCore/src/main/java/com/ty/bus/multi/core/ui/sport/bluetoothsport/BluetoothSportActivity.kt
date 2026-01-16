@@ -70,6 +70,7 @@ class BluetoothSportActivity :
             }
 
             override fun onNextClick() {
+                showBackBtn()
                 viewModel.next()
             }
 
