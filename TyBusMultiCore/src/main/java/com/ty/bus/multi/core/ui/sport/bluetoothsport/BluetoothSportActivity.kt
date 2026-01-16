@@ -50,6 +50,7 @@ class BluetoothSportActivity :
         viewModel.matchId = intent.getStringExtra("match_id")
         viewModel.sceneId = intent.getStringExtra("scene_id")
         viewModel.accountInfoLD.value = intent.getParcelableExtra("account_info")
+//        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id") ?: "a1a2370a7c3d4961b026483c64033c19"
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.bluetoothSportConfig =
@@ -101,10 +102,9 @@ class BluetoothSportActivity :
             override fun onUserDelete(index: Int) {
                 viewModel.removeUser(index)
             }
-
         })
 
         mBinding.blueSportView.setBluetoothSportConfig(viewModel.bluetoothSportConfig)
-
+        mBinding.blueSportView.planId = viewModel.ptPlanId
     }
 }

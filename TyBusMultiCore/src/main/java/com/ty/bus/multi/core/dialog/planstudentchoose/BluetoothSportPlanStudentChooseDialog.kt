@@ -38,6 +38,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.CustomTabEntity
+import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.invisible
@@ -148,6 +149,11 @@ class BluetoothSportPlanStudentChooseDialog :
                     }
                 }
             }
+    }
+
+    fun setPlanId(planId: String?): BluetoothSportPlanStudentChooseDialog {
+        this.planId = planId
+        return this
     }
 
     override fun initData() {
@@ -269,6 +275,7 @@ class BluetoothSportPlanStudentChooseDialog :
             }
         })
     }
+
     private fun initStudentRv() {
         mBinding.rvStudent.layoutManager = GridLayoutManager(requireContext(), 3)
         mBinding.rvStudent.addItemDecoration(GridSpaceDecoration(24, 24))
@@ -281,9 +288,21 @@ class BluetoothSportPlanStudentChooseDialog :
         mBinding.rvSearchStudent.adapter = StudentAdapter(searchStudentList)
     }
 
-    private fun onStudentSelected(studentEntity: StudentEntity) {
-        dispatchStudent(currentIndex, studentEntity)
-        currentIndex = -1
+    private fun onStudentSelected(studentEntity: StudentEntity, freshUi: Action) {
+        viewModel.checkStudent(studentEntity.accountId, planId) {
+            if (it) {
+                dispatchStudent(currentIndex, studentEntity)
+                currentIndex = -1
+                freshUi.invoke()
+            } else {
+                toastWithoutPlan()
+            }
+        }
+    }
+
+    private fun toastWithoutPlan() {
+        ToastUtil.getInstance(mBinding.root.context, getString(R.string.busi_base_without_plan))
+            .show()
     }
 
     @SuppressLint("SetTextI18n")
@@ -520,7 +539,8 @@ class BluetoothSportPlanStudentChooseDialog :
         return this
     }
 
-    inner class StudentAdapter(data: MutableList<StudentEntity>?) : BaseBindingAdapter<BmItemChooseStudentBinding, StudentEntity>(data) {
+    inner class StudentAdapter(data: MutableList<StudentEntity>?) :
+        BaseBindingAdapter<BmItemChooseStudentBinding, StudentEntity>(data) {
         override fun convert(
             holder: VBViewHolder<BmItemChooseStudentBinding>,
             item: StudentEntity
@@ -553,8 +573,9 @@ class BluetoothSportPlanStudentChooseDialog :
                         if (identifiedMap?.size == connectSize) {
                             return@setOnClickListener
                         }
-                        onStudentSelected(item)
-                        notifyItemChanged(holder.layoutPosition)
+                        onStudentSelected(item) {
+                            notifyItemChanged(holder.layoutPosition)
+                        }
                     }
                 }
             }

@@ -46,6 +46,8 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     //连接状态
     private var blueConnectList = HashMap<Int, Boolean>()
 
+    private var planId: String? = null
+
     private val identifyEngine by lazy {
         MultiIFrameCountIdentityEngine()
     }
@@ -70,7 +72,6 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     private var identifyFlag = false
 
     override fun initViewObservable() {
-
     }
 
     override fun initData() {
@@ -223,11 +224,15 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
                         ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
                         return@launch
                     }
-                    mBinding.root.post {
-                        dispatchCardStudent(baseForFace.apply {
-                            userFaceImgUrl =
-                                AdlService.getService().facePrefix + baseForFace.userFaceImgUrl
-                        })
+                    viewModel.checkStudent(baseForFace.accountId, planId) {
+                        if (it) {
+                            dispatchCardStudent(baseForFace.apply {
+                                userFaceImgUrl =
+                                    AdlService.getService().facePrefix + baseForFace.userFaceImgUrl
+                            })
+                        } else {
+                            toastWithoutPlan()
+                        }
                     }
                     return@launch
                 }
@@ -426,11 +431,23 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
                 ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
                 return
             }
-            identifiedMap?.put(currentIndex, stu)
-            mBinding.root.post {
-                dispatchStudent(currentIndex, info.studentEntity)
+            viewModel.checkStudent(stu.accountId, planId) {
+                if (it) {
+                    identifiedMap?.put(currentIndex, stu)
+                    mBinding.root.post {
+                        dispatchStudent(currentIndex, info.studentEntity)
+                    }
+                } else {
+                    toastWithoutPlan()
+                }
             }
+
         }
+    }
+
+    private fun toastWithoutPlan() {
+        ToastUtil.getInstance(mBinding.root.context, getString(R.string.busi_base_without_plan))
+            .show()
     }
 
     private fun initCamera() {
@@ -486,6 +503,11 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     fun setBlueConnectList(blue: HashMap<Int, Boolean>): IdentifyDialog {
         this.blueConnectList = blue
+        return this
+    }
+
+    fun setPlanId(planId: String?): IdentifyDialog {
+        this.planId = planId
         return this
     }
 

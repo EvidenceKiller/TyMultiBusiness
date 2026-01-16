@@ -53,6 +53,8 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
 
     private var userChangeListener: UserChangeListener? = null
 
+    var planId: String? = null
+
     //保存蓝牙连接状态
     private var blueConnectList = HashMap<Int, Boolean>()
 
@@ -74,6 +76,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         override fun onIdentifyClick(index: Int) {
             IdentifyDialog().setIdentifiedMap(identifiedMap)
                 .setBlueConnectList(blueConnectList)
+                .setPlanId(planId)
                 .setIdentifyResultListener {
                     handleIdentifyResult(it)
                 }
@@ -83,6 +86,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         override fun onAddClick(index: Int) {
             BluetoothSportPlanStudentChooseDialog().setBlueConnectList(blueConnectList)
                 .setIdentifiedMap(identifiedMap)
+                .setPlanId(planId)
                 .setIdentifyResultListener {
                     handleIdentifyResult(it)
                 }.show((context as FragmentActivity).supportFragmentManager, "choose")
