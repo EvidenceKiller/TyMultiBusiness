@@ -101,16 +101,19 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         }
     }
 
+    @Synchronized
     private fun handleBlueResult(address: String?, isEnd: Boolean, score: Array<out String?>) {
         LogUtil.d("收到蓝牙数据: $address, $isEnd, ${score.joinToString(",")}")
         if (isEnd) {
             val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
             if (blueInfo != null) {
                 val resultInfo = sportPersonArray[blueInfo.index]
-                if (resultInfo.score.isEmpty()) {
-                    resultInfo.score = score.joinToString(",")
-                    uploadResult(resultInfo)
-                    emitSportResultState(blueInfo.index, resultInfo.score)
+                if (resultInfo != null) {
+                    if (resultInfo.score.isEmpty()) {
+                        resultInfo.score = score.joinToString(",")
+                        uploadResult(resultInfo)
+                        emitSportResultState(blueInfo.index, resultInfo.score)
+                    }
                 }
             }
             //判断是否本次测试结束，所有测试人员都已经完成测试表示本次测试完成
@@ -285,7 +288,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         sportState = MultiSportState.SPORTING
         factory.getBluetoothInfoList().forEach {
 //            emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
-            if (it.isConnected) {
+            if (it.isConnected && sportPersonArray[it.index] != null) {
                 emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             } else {
                 emitSportCardState(it.index, BluetoothSportCardState.IDLE)
@@ -362,6 +365,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
     fun retest() {
         testCount = 1
         currentTestTimes = 0
+        resetResult()
         startSport()
     }
 }
