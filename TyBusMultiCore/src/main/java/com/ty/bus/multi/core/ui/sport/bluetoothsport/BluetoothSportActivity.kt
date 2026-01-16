@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
+import com.ty.bus.multi.R
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.view.bluetooth.BluetoothSportSportView.UserChangeListener
 import com.ty.bus.multi.databinding.ActivityBluetoothSportBinding
 import com.ty.tybusbase.base.BaseExitActivity
+import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.launch
@@ -72,11 +74,16 @@ class BluetoothSportActivity :
             }
 
             override fun onEndTestClick() {
-                showExitDialog()
+                CommonTipDialog().setContent(getString(R.string.busi_multi_if_end_test))
+                    .setCallback {
+                        viewModel.toStatusSportEnd()
+                    }
+                    .show(supportFragmentManager, "ent tip")
             }
 
             override fun onStartClick() {
                 viewModel.startSport()
+                hideBackBtn()
                 //添加结果页面
                 mBinding.blueSportView.addResultView(viewModel.factory.getResultView())
             }

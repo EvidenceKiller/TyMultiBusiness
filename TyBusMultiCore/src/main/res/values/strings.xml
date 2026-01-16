@@ -74,4 +74,6 @@
     <string name="busi_multi_search_no_student">暂无结果\n请直接搜索 学生姓名、姓名首字母 查找</string>
     <string name="busi_multi_search_by_grade">按班级查找</string>
     <string name="busi_multi_search_by_name">按姓名搜索</string>
+
+    <string name="busi_multi_if_end_test">是否结束当前测试?</string>
 </resources>
