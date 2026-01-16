@@ -60,7 +60,7 @@ dependencies {
     api(name: 'AdlAuthCore-v2-2025-09-30', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
     api(name: 'AdlSportGeneral-2025-12-16', ext: 'aar')
-    api(name: 'FxyLib-release', ext: 'aar')
+    api(name: 'NzBluetooth-2026-01-16', ext: 'aar')
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 
