@@ -26,5 +26,15 @@ class BmiBluetoothResultView(context: Context) :
         mBinding.tvBmi.text = BmiUtil.computeBMI(height.div(100), weight)
     }
 
+    override fun getSpeechResult(): String {
+        val height = mBinding.tvHeight.text.toString()
+        val weight = mBinding.tvWeight.text.toString()
+        return if (height != "-") {
+            height.replace(".", "点") + "厘米，${weight.replace(".", "点")}公斤"
+        } else {
+            ""
+        }
+    }
+
 
 }

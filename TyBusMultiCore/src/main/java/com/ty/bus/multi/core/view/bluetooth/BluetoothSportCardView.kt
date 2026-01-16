@@ -16,6 +16,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.LogUtil
 
 @SuppressLint("Recycle", "CustomViewStyleable")
@@ -236,6 +237,14 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
         this.resultView = resultView
         mBinding.rlResultContent.removeAllViews()
         mBinding.rlResultContent.addView(resultView)
+    }
+
+    fun speechResult() {
+        val resultStr = resultView?.getSpeechResult() ?: ""
+        if (resultStr.isNotEmpty()) {
+            val speechStr = "${cardIndex}号，${mBinding.tvName.text},${resultStr}"
+            SpeechWrapper.speech(speechStr)
+        }
     }
 
     fun reset() {

@@ -9,5 +9,5 @@ abstract class AbstractBluetoothResultView(context: Context, attrs: AttributeSet
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
     abstract fun addResult(result: String)
-
+    abstract fun getSpeechResult():String
 }

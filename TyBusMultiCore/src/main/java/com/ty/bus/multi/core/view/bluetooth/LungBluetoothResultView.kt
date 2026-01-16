@@ -66,5 +66,14 @@ class LungBluetoothResultView(context: Context) :
         mBinding.tvBestResult.text = bestScore.toString()
     }
 
+    override fun getSpeechResult(): String {
+        val result = mBinding.tvBestResult.text.toString()
+        return if (result != "-") {
+            mBinding.tvBestResult.text.toString() + mBinding.tvResultUnit.text.toString()
+        } else {
+            ""
+        }
+    }
+
 
 }

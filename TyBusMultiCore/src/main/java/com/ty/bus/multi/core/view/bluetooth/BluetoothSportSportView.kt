@@ -133,6 +133,16 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             (context as Activity).finish()
         }
 
+        mBinding.llSpeech.setOnClickListener {
+            speechResult()
+        }
+
+    }
+
+    private fun speechResult() {
+        cardMap.forEach { (_, value) ->
+            value.speechResult()
+        }
     }
 
     fun setUserChangeListener(listener: UserChangeListener) {
