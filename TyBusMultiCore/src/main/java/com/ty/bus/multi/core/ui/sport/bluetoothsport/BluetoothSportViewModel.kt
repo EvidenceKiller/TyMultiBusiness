@@ -81,7 +81,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                         factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
                     LogUtil.d("${blueInfo?.index}号位发送蓝牙配置成功, 开始测试")
                     mHelper.startSingleTest(address)
-                    sportState = MultiSportState.SPORTING
+                    //延迟1秒，等待设备清楚上一次成绩；出现肺活量下一次开始，但是查询到的还是上一次的成绩
+                    uiHandler.postDelayed({
+                        sportState = MultiSportState.SPORTING
+                    }, 1000)
                 }
 
                 override fun onResult(
