@@ -11,6 +11,7 @@ import com.ty.bus.multi.core.view.bluetooth.BluetoothSportSportView.UserChangeLi
 import com.ty.bus.multi.databinding.ActivityBluetoothSportBinding
 import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.dialog.CommonTipDialog
+import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.launch
@@ -106,5 +107,10 @@ class BluetoothSportActivity :
 
         mBinding.blueSportView.setBluetoothSportConfig(viewModel.bluetoothSportConfig)
         mBinding.blueSportView.planId = viewModel.ptPlanId
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        SpeechWrapper.stop()
     }
 }
