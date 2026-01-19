@@ -141,6 +141,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             speechResult()
         }
 
+        updateStartBtn()
     }
 
     private fun speechResult() {
