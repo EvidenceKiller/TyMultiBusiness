@@ -74,4 +74,11 @@ class NfcReaderA : AbstractNfcReader() {
         callContactLess?.fw_exit(devNum);
         devNum = -1
     }
+
+    @Synchronized
+    override fun release() {
+        Log.d(TAG, "释放资源")
+        super.release()
+        callContactLess = null
+    }
 }
