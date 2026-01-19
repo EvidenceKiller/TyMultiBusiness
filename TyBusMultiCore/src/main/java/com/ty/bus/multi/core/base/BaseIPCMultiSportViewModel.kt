@@ -324,7 +324,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private fun setResolution(camera: AdlCamera, re: Byte, frameRate: Byte = 17) {
         val hkSource = camera as NsCameraHKSource
         val deviceItem = hkSource.deviceItem
-        if (deviceItem.m_lUserID == -1) return
+        if (deviceItem == null || deviceItem.m_lUserID == -1) return
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, frameRate)
     }
 
