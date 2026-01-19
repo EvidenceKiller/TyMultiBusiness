@@ -221,7 +221,10 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
                 if (cardNumList.contains(cardStr)) {
                     if (isContainStudent(baseForFace)) {
                         //已经添加过此人
-                        ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
+                        ToastUtil.getInstance(
+                            mBinding.root.context,
+                            getString(R.string.busi_multi_already_add)
+                        ).show()
                         return@launch
                     }
                     viewModel.checkStudent(baseForFace.accountId, planId) {
@@ -428,7 +431,10 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         info?.studentEntity?.let { stu ->
             if (isContainStudent(stu)) {
                 //已经添加过此人
-                ToastUtil.getInstance(mBinding.root.context, "已添加过次用户").show()
+                ToastUtil.getInstance(
+                    mBinding.root.context,
+                    getString(R.string.busi_multi_already_add)
+                ).show()
                 return
             }
             viewModel.checkStudent(stu.accountId, planId) {

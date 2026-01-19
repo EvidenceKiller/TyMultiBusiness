@@ -70,4 +70,5 @@
     <string name="busi_multi_search_by_name">按姓名搜索</string>
 
     <string name="busi_multi_if_end_test">是否结束当前测试?</string>
+    <string name="busi_multi_already_add">已添加过此用户</string>
 </resources>
