@@ -81,6 +81,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                         factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
                     LogUtil.d("${blueInfo?.index}号位发送蓝牙配置成功, 开始测试")
                     mHelper.startSingleTest(address)
+                    sportState = MultiSportState.SPORTING
                 }
 
                 override fun onResult(
@@ -103,8 +104,12 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     @Synchronized
     private fun handleBlueResult(address: String?, isEnd: Boolean, score: Array<out String?>) {
-        LogUtil.d("收到蓝牙数据: $address, $isEnd, ${score.joinToString(",")}")
+        //不是运动状态，则不处理
+        if (sportState != MultiSportState.SPORTING) {
+            return
+        }
         if (isEnd) {
+            LogUtil.d("收到蓝牙成绩: $address,${score.joinToString(",")}")
             val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
             if (blueInfo != null) {
                 val resultInfo = sportPersonArray[blueInfo.index]
@@ -120,7 +125,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
             val isEnd = isTestEnd()
             if (isEnd) {
                 //先结束成绩查询
-                mHelper.stopQueryResult()
+                mHelper.stopTest()
+                sportState = MultiSportState.IDLE
                 currentTestTimes++
                 LogUtil.d("本次测试结束,当前测试次数：${currentTestTimes}--总测试次数：${testCount}")
                 //重置本次成绩
@@ -134,7 +140,6 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                     startSport()
                 }
             }
-
         }
     }
 
@@ -285,7 +290,6 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
     }
 
     fun startSport() {
-        sportState = MultiSportState.SPORTING
         factory.getBluetoothInfoList().forEach {
 //            emitSportCardState(it.index, BluetoothSportCardState.SPORTING)
             if (it.isConnected && sportPersonArray[it.index] != null) {
