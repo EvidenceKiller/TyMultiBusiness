@@ -24,6 +24,7 @@ import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.helper.SpeechWrapper
 
 class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -122,6 +123,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
         mBinding.blueSportCard3.setSportCardClickListener(cardClickListener)
         mBinding.tvStartTest.setOnClickListener {
             mBinding.tvEndTest.visible()
+            SpeechWrapper.speech(getString(R.string.busi_multi_start_test))
             listener?.onStartClick()
         }
         mBinding.tvRetest.setOnClickListener {
