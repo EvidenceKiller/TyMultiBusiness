@@ -56,7 +56,7 @@
         android:layout_marginBottom="@dimen/dp_40"
         android:background="@drawable/bg_c4_r73_shape"
         android:gravity="center"
-        android:text="@string/start_test"
+        android:text="@string/busi_multi_start_test"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
         app:layout_constraintBottom_toBottomOf="parent"

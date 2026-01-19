@@ -64,7 +64,7 @@
     <string name="busi_multi_dialog_identify_tip_face_nfc">请在人脸框内识别人脸或刷卡</string>
 
 
-    <string name="start_test">开始测试</string>
+    <string name="busi_multi_start_test">开始测试</string>
 
     <string name="busi_multi_delete_user">是否删除当前用户</string>
     <string name="busi_multi_click_add_bluetooth">点击添加蓝牙</string>
