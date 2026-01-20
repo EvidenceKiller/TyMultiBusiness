@@ -128,9 +128,11 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
             listener?.onStartClick()
         }
         mBinding.tvRetest.setOnClickListener {
+            SpeechWrapper.stop()
             retest()
         }
         mBinding.tvNext.setOnClickListener {
+            SpeechWrapper.stop()
             next()
         }
         mBinding.tvEndTest.setOnClickListener {
