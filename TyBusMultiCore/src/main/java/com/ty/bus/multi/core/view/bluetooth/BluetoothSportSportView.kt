@@ -25,6 +25,7 @@ import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.SpeechWrapper
+import com.ty.tybusbase.utils.LogUtil
 
 class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -147,8 +148,14 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     private fun speechResult() {
+        mHandler.removeCallbacks(runnable)
+        val sb = StringBuilder()
         cardMap.forEach { (_, value) ->
-            value.speechResult()
+            val sp = value.getSpeechResult()
+            sb.append(sp)
+        }
+        SpeechWrapper.speech2(sb.toString()) {
+            mHandler.post(runnable)
         }
     }
 

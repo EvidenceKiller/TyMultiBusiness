@@ -247,6 +247,14 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
         }
     }
 
+    fun getSpeechResult():String {
+        var resultStr = resultView?.getSpeechResult() ?: ""
+        if (resultStr.isNotEmpty()) {
+            resultStr = "${cardIndex}号，${mBinding.tvName.text},${resultStr}"
+        }
+        return resultStr
+    }
+
     fun reset() {
         changeState(BluetoothSportCardState.IDLE)
     }
