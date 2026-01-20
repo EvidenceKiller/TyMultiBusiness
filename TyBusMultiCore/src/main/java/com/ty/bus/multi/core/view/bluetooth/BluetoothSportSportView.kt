@@ -175,6 +175,10 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     fun changeState(index: Int, state: BluetoothSportCardState) {
         if (state == BluetoothSportCardState.CONNECTED) {
             blueConnectList.put(index, true)
+            if (identifiedMap.get(index) != null){
+                cardMap[index]?.changeState(BluetoothSportCardState.PREPARED)
+                return
+            }
         }
         if (state == BluetoothSportCardState.DISCONNECTED) {
             blueConnectList.put(index, false)
