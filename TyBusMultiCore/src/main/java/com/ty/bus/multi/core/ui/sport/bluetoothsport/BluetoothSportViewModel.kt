@@ -77,6 +77,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
             mHelper.setDeviceResultCallback(object : DeviceResultCallback {
                 override fun onConfigComplete(address: String?) {
+                    //可能手动结束后开始指令才回来
+                    if (sportState != MultiSportState.PREPARING) {
+                        return
+                    }
                     val blueInfo =
                         factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
                     LogUtil.d("${blueInfo?.index}号位发送蓝牙配置成功, 开始测试")
@@ -219,7 +223,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         val blueInfo = factory.getBluetoothInfoList().firstOrNull { it.blueAddress == address }
         if (blueInfo != null) {
             blueInfo.isConnected = true
-            if (sportState == MultiSportState.SPORTING) {
+            if (sportState == MultiSportState.SPORTING || sportState == MultiSportState.PREPARING) {
                 emitSportCardState(blueInfo.index, BluetoothSportCardState.SPORTING)
             } else {
                 emitSportCardState(blueInfo.index, BluetoothSportCardState.CONNECTED)
@@ -301,6 +305,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                 emitSportCardState(it.index, BluetoothSportCardState.IDLE)
             }
         }
+        sportState = MultiSportState.PREPARING
         mHelper.config()
         startSportTime = System.currentTimeMillis()
 //        mockResult()
