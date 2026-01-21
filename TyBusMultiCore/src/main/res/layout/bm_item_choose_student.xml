@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="@drawable/bg_662572ff_r8_shape"
     android:layout_width="@dimen/dp_336"
     android:layout_height="@dimen/dp_112">
@@ -44,6 +45,9 @@
         android:layout_marginTop="@dimen/dp_4"
         android:textColor="@color/white_60"
         android:textSize="@dimen/sp_20"
+        android:singleLine="true"
+        android:maxEms="8"
+        android:ellipsize="end"
         app:layout_constraintLeft_toLeftOf="@+id/tv_name"
         app:layout_constraintTop_toBottomOf="@+id/tv_name" />
 
