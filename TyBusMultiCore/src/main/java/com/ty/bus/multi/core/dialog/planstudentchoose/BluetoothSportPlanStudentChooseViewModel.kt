@@ -108,7 +108,7 @@ class BluetoothSportPlanStudentChooseViewModel(application: Application) :
                     //掉接口判断学生是否在计划内
                     val result = SportPlanService.checkStudent(planId, accountId)
                     withContext(Dispatchers.Main) {
-                        callback.invoke(result)
+                        callback.invoke(result?:false)
                     }
                 }
             }
