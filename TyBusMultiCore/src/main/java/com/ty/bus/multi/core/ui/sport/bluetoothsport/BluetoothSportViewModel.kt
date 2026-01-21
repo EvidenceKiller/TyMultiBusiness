@@ -359,6 +359,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
                 emitSportCardState(it.index, BluetoothSportCardState.DISCONNECTED)
             }
         }
+        sportState = MultiSportState.IDLE
         //重置次数
         testCount = factory.getTestCount()
         currentTestTimes = 0
@@ -370,6 +371,7 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
      * 重新测试一次
      */
     fun retest() {
+        sportState = MultiSportState.IDLE
         testCount = 1
         currentTestTimes = 0
         resetResult()
