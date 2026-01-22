@@ -42,6 +42,7 @@ import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.invisible
+import com.ty.tybusbase.expand.onDebouncedClick
 import com.ty.tybusbase.expand.textChanges
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.GridSpaceDecoration
@@ -568,10 +569,10 @@ class BluetoothSportPlanStudentChooseDialog :
                     .placeholder(R.mipmap.ic_head_default)
                     .error(R.mipmap.ic_head_default).into(civHeader)
                 if (isSelected.not()) {
-                    root.setOnClickListener {
+                    root.onDebouncedClick {
                         val connectSize = blueConnectList.filter { it.value }.size
                         if (identifiedMap?.size == connectSize) {
-                            return@setOnClickListener
+                            return@onDebouncedClick
                         }
                         onStudentSelected(item) {
                             notifyItemChanged(holder.layoutPosition)

@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.ty.identifty.base.TyFaceInfo
+import com.ty.tybusbase.R
 import com.ty.tybusbase.utils.ApplicationUtil
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -131,4 +132,18 @@ fun EditText.textChanges(): Flow<String> = callbackFlow {
 
     addTextChangedListener(textWatcher)
     awaitClose { removeTextChangedListener(textWatcher) }
+}
+
+var View.lastClickTime: Long
+    get() = getTag(R.id.last_click_time) as? Long ?: 0
+    set(value) = setTag(R.id.last_click_time, value)
+
+fun View.onDebouncedClick(delay: Long = 500, action: (View) -> Unit) {
+    setOnClickListener {
+        val now = System.currentTimeMillis()
+        if (now - lastClickTime >= delay) {
+            lastClickTime = now
+            action(it)
+        }
+    }
 }
