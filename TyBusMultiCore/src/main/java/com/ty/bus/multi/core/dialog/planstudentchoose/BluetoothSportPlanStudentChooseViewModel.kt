@@ -56,7 +56,7 @@ class BluetoothSportPlanStudentChooseViewModel(application: Application) :
                             if (it.value.isNullOrEmpty()) 0 else it.value[0].gradeNum,
                             it.value.toMutableList()
                         )
-                    }.sortedBy { it.gradeNum }.toMutableList()
+                    }.toMutableList()
                 gradeListLD.postValue(gradeList)
             } else {
                 gradeListLD.postValue(mutableListOf<PlanGradeInfo>())
