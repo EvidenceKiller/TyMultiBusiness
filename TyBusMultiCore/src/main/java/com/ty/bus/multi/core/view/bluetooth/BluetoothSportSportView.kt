@@ -177,7 +177,7 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     fun changeState(index: Int, state: BluetoothSportCardState) {
         if (state == BluetoothSportCardState.CONNECTED) {
             blueConnectList.put(index, true)
-            if (identifiedMap.get(index) != null){
+            if (identifiedMap.get(index) != null) {
                 cardMap[index]?.changeState(BluetoothSportCardState.PREPARED)
                 return
             }
@@ -189,11 +189,20 @@ class BluetoothSportSportView(context: Context, attrs: AttributeSet?, defStyleAt
     }
 
     private fun handleIdentifyResult(stuMap: HashMap<Int, StudentEntity>) {
+
         stuMap.forEach { (index, value) ->
             setAccountInfo(index, value)
             userChangeListener?.onUserChange(index, value)
             changeState(index, BluetoothSportCardState.PREPARED)
         }
+        identifiedMap.forEach { (index, _) ->
+            //删除
+            if (stuMap.getOrDefault(index, null) == null) {
+                cardMap[index]?.changeState(BluetoothSportCardState.CONNECTED)
+            }
+        }
+        identifiedMap.clear()
+        identifiedMap.putAll(stuMap)
         updateStartBtn()
     }
 
