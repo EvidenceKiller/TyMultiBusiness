@@ -75,7 +75,7 @@ class BluetoothSportPlanStudentChooseDialog :
 
     private var identifyResultListener: Action1<HashMap<Int, StudentEntity>>? = null
 
-    private var identifiedMap: HashMap<Int, StudentEntity>? = null
+    private var identifiedMap: HashMap<Int, StudentEntity> = HashMap()
 
     //连接状态
     private var blueConnectList = HashMap<Int, Boolean>()
@@ -164,17 +164,17 @@ class BluetoothSportPlanStudentChooseDialog :
     override fun initView() {
         super.initView()
         mBinding.tvCancel.setOnClickListener {
-            identifiedMap?.clear()
+            identifiedMap.clear()
             dismiss()
         }
 
         mBinding.tvConfirm.setOnClickListener {
             dismiss()
-            identifyResultListener?.invoke(identifiedMap ?: HashMap())
+            identifyResultListener?.invoke(identifiedMap)
         }
 
         //如果添加了已识别的人，处理显示已识别的人
-        identifiedMap?.forEach { (index, value) ->
+        identifiedMap.forEach { (index, value) ->
             dispatchStudent(index, value)
         }
 
@@ -403,10 +403,7 @@ class BluetoothSportPlanStudentChooseDialog :
     }
 
     fun isContainStudent(stu: StudentEntity): Boolean {
-        if (identifiedMap == null) {
-            return false
-        }
-        for ((_, value1) in identifiedMap!!) {
+        for ((_, value1) in identifiedMap) {
             if (value1.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && value1.accountId == stu.accountId) {
                 return true
             }
@@ -425,7 +422,7 @@ class BluetoothSportPlanStudentChooseDialog :
             autoDispatchCardStudent(value)
             return
         }
-        identifiedMap?.put(index, value)
+        identifiedMap.put(index, value)
         when (index) {
             1 -> {
                 handleIdentifyView(
@@ -491,7 +488,7 @@ class BluetoothSportPlanStudentChooseDialog :
             } else {
                 return
             }
-        identifiedMap?.put(index, value)
+        identifiedMap.put(index, value)
         dispatchStudent(index, value)
     }
 
@@ -511,7 +508,7 @@ class BluetoothSportPlanStudentChooseDialog :
         addGroup.invisible()
         identifyGroup.visible()
         deleteView.setOnClickListener {
-            identifiedMap?.remove(index)
+            identifiedMap.remove(index)
             addGroup.visible()
             identifyGroup.gone()
             mBinding.rvStudent.adapter?.notifyDataSetChanged()
@@ -526,7 +523,7 @@ class BluetoothSportPlanStudentChooseDialog :
 
 
     fun setIdentifiedMap(identifiedMap: HashMap<Int, StudentEntity>): BluetoothSportPlanStudentChooseDialog {
-        this.identifiedMap = identifiedMap
+        this.identifiedMap.putAll(identifiedMap)
         return this
     }
 
