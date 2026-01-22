@@ -41,7 +41,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
     private var identifyResultListener: Action1<HashMap<Int, StudentEntity>>? = null
 
-    private var identifiedMap: HashMap<Int, StudentEntity>? = null
+    private var identifiedMap: HashMap<Int, StudentEntity> = HashMap()
 
     //连接状态
     private var blueConnectList = HashMap<Int, Boolean>()
@@ -326,10 +326,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
     }
 
     fun isContainStudent(stu: StudentEntity): Boolean {
-        if (identifiedMap == null) {
-            return false
-        }
-        for ((_, value1) in identifiedMap!!) {
+        for ((_, value1) in identifiedMap) {
             if (value1.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && value1.accountId == stu.accountId) {
                 return true
             }
@@ -439,7 +436,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
             }
             viewModel.checkStudent(stu.accountId, planId) {
                 if (it) {
-                    identifiedMap?.put(currentIndex, stu)
+                    identifiedMap.put(currentIndex, stu)
                     mBinding.root.post {
                         dispatchStudent(currentIndex, info.studentEntity)
                     }
@@ -489,7 +486,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
         addGroup.invisible()
         identifyGroup.visible()
         deleteView.setOnClickListener {
-            identifiedMap?.remove(index)
+            identifiedMap.remove(index)
             addGroup.visible()
             identifyGroup.gone()
         }
@@ -503,7 +500,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
 
 
     fun setIdentifiedMap(identifiedMap: HashMap<Int, StudentEntity>): IdentifyDialog {
-        this.identifiedMap = identifiedMap
+        this.identifiedMap.putAll(identifiedMap)
         return this
     }
 
