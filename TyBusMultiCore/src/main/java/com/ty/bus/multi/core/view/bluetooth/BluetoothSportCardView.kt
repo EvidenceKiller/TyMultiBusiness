@@ -72,10 +72,10 @@ class BluetoothSportCardView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     fun changeState(state: BluetoothSportCardState) {
         if (preState == state) {
-            LogUtil.d("ForwardFlexionSportCardView状态未改变")
+            LogUtil.d("BluetoothSportCardView 状态未改变")
             return
         }
-        LogUtil.d("ForwardFlexionSportCardView ${mBinding.tvIndex.text} 状态切换: $preState -> $state")
+        LogUtil.d("BluetoothSportCardView ${mBinding.tvIndex.text} 状态切换: $preState -> $state")
         //退出上一状态
         when (preState) {
             BluetoothSportCardState.IDLE -> {
