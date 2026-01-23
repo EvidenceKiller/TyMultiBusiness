@@ -6,6 +6,7 @@ import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
 import androidx.lifecycle.viewModelScope
+import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.SportRecordEntity
 import com.adl.service.entity.StudentEntity
 import com.ty.bus.multi.core.base.MultiSportState
@@ -16,6 +17,7 @@ import com.ty.bus.multi.core.factory.bluetoothsport.BluetoothSportProduceFactory
 import com.ty.bus.multi.core.state.BluetoothSportCardState
 import com.ty.tybusbase.base.BaseSportViewModel
 import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.utils.LogUtil
 import com.zy.callback.DeviceResultCallback
@@ -25,6 +27,7 @@ import com.zy.clazz.MultiDeviceHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 
 class BluetoothSportViewModel(application: Application) : BaseSportViewModel(application) {
 
@@ -32,6 +35,8 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
 
     var sportCardState =
         MutableSharedFlow<Pair<Int, BluetoothSportCardState>>()
+
+    private val viewModelHashMap by lazy { HashMap<String, BaseSportViewModel>() }
 
     //成绩回调
     var sportResultState =
@@ -197,8 +202,6 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         sportResult.startTime = startSportTime
         sportResult.endTime = endSportTime
         sportResult.sportResult = factory.getUploadResult(value.score)
-//                sportResult.sportViolationStatus = 1
-//                sportResult.sportViolationNumber = "1"
         var recordPlan: SportRecordEntity.RecordPlan? = null
         if (sceneId == SceneConstants.ORGANIZE_TEST) {
             recordPlan = SportRecordEntity.RecordPlan().apply {
@@ -207,6 +210,72 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
             }
         }
         uploadSportResult(
+            sceneId ?: SceneConstants.INDEPENDENT_TEST,
+            sportResult,
+            sportResult.userId,
+            recordPlan = recordPlan
+        )
+        uploadExternalSport(value.studentEntity.accountId, sportResultInfo.score)
+    }
+
+    /**
+     * 如果是BIM运动需要上传身高，体重
+     */
+    private fun uploadExternalSport(accountId: String, score: String) {
+        if (sportInfo?.sportItemCode != SportConstant.BODY_HEIGHT_WEIGHT) {
+            return
+        }
+        val split = score.split(",")
+        val heB = BigDecimal(split[0].toDouble())
+        val weight = heB.times(BigDecimal(1000_000)).toLong().toString()
+        val height = split[1].toFloat().times(10).toString()
+        viewModelScope.launch(Dispatchers.IO) {
+            val hSportInfo =
+                bluetoothSportConfig?.externalSportList?.firstOrNull { it.sportItemCode == SportConstant.SPORT_HEIGHT }
+            SystemClock.sleep(1000)
+            uploadExternalResult(height, accountId, hSportInfo)
+            val wSportInfo =
+                bluetoothSportConfig?.externalSportList?.firstOrNull { it.sportItemCode == SportConstant.SPORT_WEIGHT }
+            SystemClock.sleep(1000)
+            uploadExternalResult(weight, accountId, wSportInfo)
+        }
+    }
+
+    private fun uploadExternalResult(
+        result: String,
+        accountId: String,
+        sportInfo: SceneSportInfoEntity?
+    ) {
+        if (sportInfo == null) {
+            return
+        }
+        var viewModel = viewModelHashMap.getOrDefault(sportInfo.sportItemCode, null)
+        if (viewModel == null) {
+            viewModel = BaseSportViewModel(getApplication())
+            viewModel.sportInfo = sportInfo
+            viewModelHashMap[sportInfo.sportItemCode] = viewModel
+        }
+        var sportResult = SportResult()
+        sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+        sportResult.maxComboCount = 0
+        sportResult.perfectCount = 0
+        sportResult.goodCount = 0
+        sportResult.comeOnCount = 0
+        sportResult.perfectScore = 0
+        sportResult.goodScore = 0
+        sportResult.comeOnScore = 0
+        sportResult.userId = accountId
+        sportResult.startTime = startSportTime
+        sportResult.endTime = endSportTime
+        sportResult.sportResult = result
+        var recordPlan: SportRecordEntity.RecordPlan? = null
+        if (sceneId == SceneConstants.ORGANIZE_TEST) {
+            recordPlan = SportRecordEntity.RecordPlan().apply {
+                ptPlanId = this@BluetoothSportViewModel.ptPlanId
+                ptStandardId = this@BluetoothSportViewModel.ptStandardId
+            }
+        }
+        viewModel.uploadSportResult(
             sceneId ?: SceneConstants.INDEPENDENT_TEST,
             sportResult,
             sportResult.userId,
@@ -349,6 +418,10 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
     override fun onDestroy() {
         super.onDestroy()
         mHelper.release()
+        viewModelHashMap.forEach {
+            it.value.onDestroy()
+        }
+        viewModelHashMap.clear()
     }
 
     /**
@@ -382,4 +455,5 @@ class BluetoothSportViewModel(application: Application) : BaseSportViewModel(app
         resetResult()
         startSport()
     }
+
 }

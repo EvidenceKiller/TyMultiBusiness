@@ -214,8 +214,14 @@ object SportConstant {
     //  肺活量
     const val LUNG_CAPACITY: String = "000401"
 
-    // 身高/体重
+    // BMI
     const val BODY_HEIGHT_WEIGHT: String = "000301"
+
+    //身高
+    const val SPORT_HEIGHT: String = "000101"
+
+    //体重
+    const val SPORT_WEIGHT: String = "000201"
 
     /**
      * @hide
