@@ -18,6 +18,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.IndicatorInterrupt
 import com.ty.tybusbase.entity.IndicatorXY
 import com.ty.tybusbase.entity.WristRate
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.NumberUtil
 import com.ty.tybusbase.utils.VideoUtil
 import com.zy.logic.Point
@@ -52,10 +53,10 @@ object IndicatorsHelper {
                 time += 3
                 list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
             }
-            val sportTime = (endSportTime - startSportTime) / 1000
+            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toInt()
             //补齐时间线
-            while (time < sportTime - 3) {
-                time += 3
+            while (time < sportTime) {
+                time = (time + 3).coerceAtMost(sportTime)
                 list.add(IndicatorXY(time.toFloat(), 0f))
             }
             this.indicatorsValue = list
