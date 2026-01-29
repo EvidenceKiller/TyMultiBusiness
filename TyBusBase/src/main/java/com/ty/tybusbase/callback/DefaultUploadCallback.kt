@@ -114,13 +114,14 @@ class DefaultUploadCallback : ResultCallback {
         sportRecordEntity.sportVideos?.forEach {
             //视频需要上传
             if (it.videoUrl != null && it.videoUrl.isNotEmpty() && File(it.videoUrl).exists()) {
-                val videoPath =
+                val videoPrefix =
                     "${authFactory.appCode}/video/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
                         calendar.get(
                             Calendar.YEAR
                         )
-                    }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}/${System.currentTimeMillis()}.mp4"
-                var url = syncUploadRes(it.videoUrl, videoPath)
+                    }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}"
+                val videoName = "${System.currentTimeMillis()}.mp4"
+                var url = syncUploadRes(it.videoUrl, videoPrefix, videoName)
                 if (url.isNullOrEmpty()) {
                     uploadOk = false
                 } else {
@@ -129,13 +130,14 @@ class DefaultUploadCallback : ResultCallback {
             }
             //封面需要上传
             if (it.videoCover != null && it.videoCover.isNotEmpty() && File(it.videoCover).exists()) {
-                val videoCover =
+                val coverPrefix =
                     "${authFactory.appCode}/image/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
                         calendar.get(
                             Calendar.YEAR
                         )
-                    }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}/${System.currentTimeMillis()}.png"
-                val coverUrl = syncUploadRes(it.videoCover, videoCover)
+                    }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}"
+                val coverName = "${System.currentTimeMillis()}.png"
+                val coverUrl = syncUploadRes(it.videoCover, coverPrefix, coverName)
                 if (coverUrl.isNullOrEmpty()) {
                     uploadOk = false
                 } else {
