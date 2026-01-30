@@ -37,8 +37,10 @@ import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -170,7 +172,7 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
         //取消超时任务
         timeOutHelper.cancel()
         mHandler.removeCallbacksAndMessages(null)
-        uiHandler.post {
+        viewModelScope.launch {
             sportState = MultiSportState.PREPARING
             //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
             if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
@@ -190,6 +192,23 @@ class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewM
                 if (rmKey != -1) {
                     sportPersonArray.remove(rmKey)
                 }
+            }
+
+            val checkResult = withContext(Dispatchers.IO) {
+                checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
+            }
+            if (!checkResult) {
+                //重置识别道次
+                currentIdentifyNumber = -1
+                ToastUtil.getInstance(
+                    getApplication(),
+                    getString(
+                        R.string.busi_base_name_without_plan,
+                        accountInfo.studentEntity!!.accountName
+                    )
+                )
+                    .show()
+                return@launch
             }
             //存已识别的人信息
             sportPersonArray.put(
