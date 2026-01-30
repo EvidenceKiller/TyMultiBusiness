@@ -39,6 +39,8 @@ import kotlin.math.min
 import androidx.core.util.size
 import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.core.config.ThreeSportConfig
+import com.ty.tybusbase.utils.ToastUtil
+import kotlinx.coroutines.withContext
 
 class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
@@ -186,7 +188,7 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
 
         //取消超时任务
         timeOutHelper.cancel()
-        uiHandler.post {
+        viewModelScope.launch(Dispatchers.Main) {
             sportState = MultiSportState.PREPARING
             //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
             if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
@@ -207,15 +209,32 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
                     sportPersonArray.remove(rmKey)
                 }
             }
-            //存已识别的人信息
-            sportPersonArray.put(
-                currentIdentifyNumber,
-                MultiSportResult(accountInfo, currentIdentifyNumber)
-            )
-            identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
-            changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFIED)
-
-            LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
+            //如果是组织测试，需判断该人是否在组织计划中
+            val checkResult = withContext(Dispatchers.IO) {
+                checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
+            }
+            if (checkResult) {
+                //存已识别的人信息
+                sportPersonArray.put(
+                    currentIdentifyNumber,
+                    MultiSportResult(accountInfo, currentIdentifyNumber)
+                )
+                identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
+                changeMultiIdentityCardState(
+                    currentIdentifyNumber,
+                    MultiSportCardViewState.IDENTIFIED
+                )
+                LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
+            } else {
+                ToastUtil.getInstance(
+                    getApplication(),
+                    getString(
+                        R.string.busi_base_name_without_plan,
+                        accountInfo.studentEntity!!.accountName
+                    )
+                )
+                    .show()
+            }
             //重置识别道次
             currentIdentifyNumber = -1
         }

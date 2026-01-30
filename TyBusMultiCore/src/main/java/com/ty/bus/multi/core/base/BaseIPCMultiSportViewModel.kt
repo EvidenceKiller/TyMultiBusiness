@@ -70,7 +70,9 @@ import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.utils.LogUtil
+import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 open class BaseIPCMultiSportViewModel(application: Application) :
@@ -420,9 +422,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             )
         )
         val identifyNumber = currentIdentifyNumber
-        uiHandler.post {
-            //处理结果加锁，post到主线程执行时，子线程可能会改变currentIdentifyNumber的值，或其他状态
-            synchronized(this) {
+        synchronized(this) {
+            viewModelScope.launch(Dispatchers.Main) {
+                //处理结果加锁，post到主线程执行时，子线程可能会改变currentIdentifyNumber的值，或其他状态
                 skipRoseState = MultiSportState.PREPARING
                 //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
                 if (!accountInfo.studentEntity!!.accountId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
@@ -439,39 +441,57 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         }
                     }
                 }
-                //存已识别的人信息
-                skipPersonArray.put(
-                    identifyNumber,
-                    MultiSportResult(accountInfo, identifyNumber)
-                )
-                AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $identifyNumber")
-                identifiedLD.value = Pair(identifyNumber, accountInfo)
-                //给accountInfo赋值，用来获取存储视频的地址
-                if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
-                    accountInfoLD.postValue(accountInfo)
-                }
-                LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
-                changeMultiIdentityCardState(
-                    identifyNumber,
-                    MultiSportCardViewState.PREPARED
-                )
 
-                resetIdentifyNumber()
-                //处理竞技倒计时
-                //如果已识别五人，则直接开始
-                if (skipPersonArray.size == skipManCount) {
-                    readyGo()
-                    return@post
+                //如果是组织测试，校验学生是否在计划中
+                val checkResult = withContext(Dispatchers.IO) {
+                    checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
                 }
-                //重新复位倒计时时间
-                countDownTime = getDefaultCountDownTime()
-                countDownNoticeLD.value =
-                    "${getString(R.string.race_start_countdown)}：${countDownTime}"
-                startCountDownTimer.start()
-                playCutDown()
+                if (checkResult) {
+                    //存已识别的人信息
+                    skipPersonArray.put(
+                        identifyNumber,
+                        MultiSportResult(accountInfo, identifyNumber)
+                    )
+                    AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $identifyNumber")
+                    identifiedLD.value = Pair(identifyNumber, accountInfo)
+                    //给accountInfo赋值，用来获取存储视频的地址
+                    if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
+                        accountInfoLD.postValue(accountInfo)
+                    }
+                    LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
+                    changeMultiIdentityCardState(
+                        identifyNumber,
+                        MultiSportCardViewState.PREPARED
+                    )
+
+                    resetIdentifyNumber()
+                    //处理竞技倒计时
+                    //如果已识别五人，则直接开始
+                    if (skipPersonArray.size == skipManCount) {
+                        readyGo()
+                        return@launch
+                    }
+                    //重新复位倒计时时间
+                    countDownTime = getDefaultCountDownTime()
+                    countDownNoticeLD.value =
+                        "${getString(R.string.race_start_countdown)}：${countDownTime}"
+                    startCountDownTimer.start()
+                    playCutDown()
+                    //识别到人，取消超时机制
+                    timeOutHelper.cancel()
+                } else {
+                    resetIdentifyNumber()
+                    ToastUtil.getInstance(
+                        getApplication(),
+                        getString(
+                            R.string.busi_base_name_without_plan,
+                            accountInfo.studentEntity!!.accountName
+                        )
+                    )
+                        .show()
+                }
             }
-            //识别到人，取消超时机制
-            timeOutHelper.cancel()
+
         }
     }
 

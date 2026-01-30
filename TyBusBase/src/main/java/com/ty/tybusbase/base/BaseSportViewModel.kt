@@ -43,9 +43,12 @@ import java.util.concurrent.ConcurrentHashMap
 import androidx.core.net.toUri
 import com.adl.auth.core.AdlAuthFactory
 import com.adl.base.common.AdlVideoAsyncRecorder
+import com.adl.service.web.SportPlanService
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.utils.BusiCoreEngine
 import com.ty.tybusbase.utils.VideoUtil
+import kotlinx.coroutines.withContext
 
 open class BaseSportViewModel(application: Application) : BaseViewModel(application) {
     var sportListLiveData: BaseLiveData<MutableList<SceneSportEntity>> = BaseLiveData()
@@ -162,6 +165,48 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
 
     fun getEndValue(): Long {
         return sportInfo?.endValue?.toLong() ?: 0
+    }
+
+    /**
+     * 检查学生是否在计划内
+     */
+    fun checkStudent(accountId: String, planId: String?, callback: Action1<Boolean>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            if (planId == null) {
+                withContext(Dispatchers.Main) {
+                    callback.invoke(true)
+                }
+            } else {
+                if (accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+                    withContext(Dispatchers.Main) {
+                        callback.invoke(false)
+                    }
+                } else {
+                    //掉接口判断学生是否在计划内
+                    val result = SportPlanService.checkStudent(planId, accountId)
+                    withContext(Dispatchers.Main) {
+                        callback.invoke(result ?: false)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 检查学生是否在计划内
+     */
+    fun checkStudent(accountId: String, planId: String?): Boolean {
+        return if (planId == null) {
+            true
+        } else {
+            if (accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+                false
+            } else {
+                //掉接口判断学生是否在计划内
+                val result = SportPlanService.checkStudent(planId, accountId)
+                result ?: false
+            }
+        }
     }
 
     /**
