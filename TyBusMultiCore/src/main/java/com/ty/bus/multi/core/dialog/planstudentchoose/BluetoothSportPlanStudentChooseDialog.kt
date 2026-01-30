@@ -2,41 +2,26 @@ package com.ty.bus.multi.core.dialog.planstudentchoose
 
 import android.annotation.SuppressLint
 import android.content.DialogInterface
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.View
-import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.Group
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.adl.lib.AdlCameraFrameProcessor
-import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.ClassInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
-import com.adl.service.outer.UserCaller
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
-import com.ty.bus.multi.core.dialog.identify.IdentifyViewModel
 import com.ty.bus.multi.core.entity.PlanGradeInfo
 import com.ty.bus.multi.databinding.BmItemChooseStudentBinding
 import com.ty.bus.multi.databinding.BmItemClassNameBinding
 import com.ty.bus.multi.databinding.BmItemGradeInfoBinding
 import com.ty.bus.multi.databinding.DialogBluetoothSportPlanStudentChooseBinding
-import com.ty.bus.multi.databinding.DialogIdentifyBinding
-import com.ty.nfc.reader.base.NfcType
-import com.ty.nfc.reader.base.ReadCallback
-import com.ty.nfc.reader.manager.NfcReaderManager
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.BaseDialogFragment
 import com.ty.tybusbase.base.VBViewHolder
-import com.ty.tybusbase.config.BusiBaseConfig.getIdentityType
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
-import com.ty.tybusbase.constants.MMKVBusiKey
-import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.CustomTabEntity
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.Action1
@@ -46,27 +31,16 @@ import com.ty.tybusbase.expand.onDebouncedClick
 import com.ty.tybusbase.expand.textChanges
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.GridSpaceDecoration
-import com.ty.tybusbase.helper.SpeechWrapper.speech
-import com.ty.tybusbase.identify.IdentifyMachineListener
-import com.ty.tybusbase.identify.MultiIFrameCountIdentityEngine
-import com.ty.tybusbase.utils.LogUtil
-import com.ty.tybusbase.utils.MMKVUtil
-import com.ty.tybusbase.utils.MMKVUtil.decodeInt
 import com.ty.tybusbase.utils.ToastUtil
 import com.ty.tybusbase.view.SlidingTabLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
@@ -296,13 +270,16 @@ class BluetoothSportPlanStudentChooseDialog :
                 currentIndex = -1
                 freshUi.invoke()
             } else {
-                toastWithoutPlan()
+                toastWithoutPlan(studentEntity.accountName)
             }
         }
     }
 
-    private fun toastWithoutPlan() {
-        ToastUtil.getInstance(mBinding.root.context, getString(R.string.busi_base_without_plan))
+    private fun toastWithoutPlan(accountName: String) {
+        ToastUtil.getInstance(
+            mBinding.root.context,
+            getString(R.string.busi_base_name_without_plan, accountName)
+        )
             .show()
     }
 

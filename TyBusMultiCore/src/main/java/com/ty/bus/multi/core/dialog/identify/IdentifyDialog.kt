@@ -234,7 +234,7 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
                                     AdlService.getService().facePrefix + baseForFace.userFaceImgUrl
                             })
                         } else {
-                            toastWithoutPlan()
+                            toastWithoutPlan(baseForFace.accountName)
                         }
                     }
                     return@launch
@@ -441,15 +441,15 @@ class IdentifyDialog : BaseDialogFragment<DialogIdentifyBinding, IdentifyViewMod
                         dispatchStudent(currentIndex, info.studentEntity)
                     }
                 } else {
-                    toastWithoutPlan()
+                    toastWithoutPlan(stu.accountName)
                 }
             }
 
         }
     }
 
-    private fun toastWithoutPlan() {
-        ToastUtil.getInstance(mBinding.root.context, getString(R.string.busi_base_without_plan))
+    private fun toastWithoutPlan(accountName: String) {
+        ToastUtil.getInstance(mBinding.root.context, getString(R.string.busi_base_name_without_plan, accountName))
             .show()
     }
 

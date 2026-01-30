@@ -106,5 +106,5 @@
   <string name="keep_it_up">加油</string>
   <string name="busi_base_best">最佳</string>
 
-  <string name="busi_base_without_plan">你不在本次组织测试计划内</string>
+  <string name="busi_base_name_without_plan">%s不在本次组织测试计划内</string>
 </resources>
