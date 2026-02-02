@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 import com.adl.service.web.SportPlanService
-import com.ty.bus.multi.core.entity.PlanGradeInfo
+import com.ty.tybusbase.entity.PlanGradeInfo
 import com.ty.tybusbase.base.BaseLiveData
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.constants.BusiBaseConstantsValue

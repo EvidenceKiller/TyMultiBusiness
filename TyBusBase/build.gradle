@@ -65,5 +65,10 @@ dependencies {
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 
+    api 'com.amazonaws:aws-android-sdk-s3:2.77.0'
+    api 'com.amazonaws:aws-android-sdk-core:2.77.0'
+
+    // 其他依赖(必须)
+    api 'com.jakewharton.timber:timber:4.7.1'
 //    debugImplementation 'com.squareup.leakcanary:leakcanary-android:2.5'
 }

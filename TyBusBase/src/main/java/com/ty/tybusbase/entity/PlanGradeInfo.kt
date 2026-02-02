@@ -1,4 +1,4 @@
-package com.ty.bus.multi.core.entity
+package com.ty.tybusbase.entity
 
 import com.adl.service.entity.ClassInfoEntity
 

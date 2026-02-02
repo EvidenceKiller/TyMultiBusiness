@@ -13,7 +13,7 @@ import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
-import com.ty.bus.multi.core.entity.PlanGradeInfo
+import com.ty.tybusbase.entity.PlanGradeInfo
 import com.ty.bus.multi.databinding.BmItemChooseStudentBinding
 import com.ty.bus.multi.databinding.BmItemClassNameBinding
 import com.ty.bus.multi.databinding.BmItemGradeInfoBinding

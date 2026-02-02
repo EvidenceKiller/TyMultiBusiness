@@ -98,9 +98,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_right_bg"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/cv_grade"
-        tools:itemCount="3"
-        tools:listitem="@layout/bm_item_choose_student" />
+        app:layout_constraintTop_toBottomOf="@+id/cv_grade" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_class"
@@ -175,9 +173,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/iv_right_bg"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/input_card"
-        tools:itemCount="3"
-        tools:listitem="@layout/bm_item_choose_student" />
+        app:layout_constraintTop_toBottomOf="@+id/input_card" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_search_student"

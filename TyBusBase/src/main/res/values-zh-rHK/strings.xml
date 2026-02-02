@@ -105,4 +105,8 @@
   <string name="busi_base_best">最佳</string>
 
   <string name="busi_base_name_without_plan">%s不在本次组织测试计划内</string>
+  <string name="busi_base_search_no_student">暂无结果\n请直接搜索 学生姓名、姓名首字母 查找</string>
+  <string name="busi_base_input_name_search">请输入学生姓名/首字母搜索</string>
+  <string name="busi_base_search_by_grade">按班级查找</string>
+  <string name="busi_base_search_by_name">按姓名搜索</string>
 </resources>

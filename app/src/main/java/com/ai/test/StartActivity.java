@@ -59,14 +59,25 @@ public class StartActivity extends BaseActivity {
         MMKVUtil.INSTANCE.encode(MMKVBusiKey.MODEL_DEBUG, true);
         MMKVUtil.INSTANCE.encode(MMKVBusiKey.SKELETON_ABLE, true);
 
+//        AdlService.getService()
+//                .setSdcard("zy.sport.cache")
+//                .setDebug(true)
+//                .setPlatform(IDefine.PlatformK12)
+//                .setQiNiuHost(httpBusHost)
+//                .setQiNiuBucket("adl-publicres")
+//                .setHost(httpBusHost)
+//                .setFacePrefix("https://f.nezhasport.com/")
+//                .build();
         AdlService.getService()
                 .setSdcard("zy.sport.cache")
                 .setDebug(true)
-                .setPlatform(IDefine.PlatformK12)
+                .setPlatform(IDefine.PlatformK12) //设置平台
                 .setQiNiuHost(httpBusHost)
-                .setQiNiuBucket("adl-publicres")
-                .setHost(httpBusHost)
-                .setFacePrefix("https://f.nezhasport.com/")
+                .setQiNiuBucket("adl-publicres") //设置七牛云bucket （原，如使用OSS上传，可不设置该值）
+                .setOssConfigHost("http://172.16.0.206:8082/gateway/api/busi/oss/v1/config") //设置oss配置地址
+                .setOssTokenHost("http://172.16.0.206:8082/gateway/api/busi/oss/v1/token") //设置oss token地址
+                .setHost(httpBusHost) //设置业务地址
+//            .setFacePrefix("https://f.nezhasport.com/")//设置人脸头像的前缀地址
                 .build();
 
         AdlAuthFactory authFactory = AdlAuthFactory.create(getApplicationContext());
