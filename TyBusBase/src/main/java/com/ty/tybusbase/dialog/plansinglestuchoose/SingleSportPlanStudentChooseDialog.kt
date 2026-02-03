@@ -136,11 +136,12 @@ class SingleSportPlanStudentChooseDialog :
         mBinding.tvConfirm.setOnClickListener {
             if (chooseStudent != null) {
                 viewModel.checkStudent(chooseStudent!!.accountId, planId) {
-                    if (it.not()) {
+                    if (it) {
                         chooseListener?.invoke(chooseStudent!!)
                     } else {
-                        dismiss()
+                        toastWithoutPlan(chooseStudent!!.accountName)
                     }
+                    dismiss()
                 }
             } else {
                 ToastUtil.getInstance(requireContext(), "请选择学生").show()
