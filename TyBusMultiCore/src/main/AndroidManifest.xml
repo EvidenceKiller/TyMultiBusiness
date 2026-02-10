@@ -39,5 +39,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>

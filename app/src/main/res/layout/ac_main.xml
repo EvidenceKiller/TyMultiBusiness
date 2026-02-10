@@ -62,12 +62,9 @@
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
             </LinearLayout>
-
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
+                android:layout_height="wrap_content">
                 <Button
                     android:id="@+id/bnt_8"
                     android:layout_width="wrap_content"
@@ -83,6 +80,23 @@
                     android:text="3人俯卧撑"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_three_set"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="3人运动设置"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+
 
                 <Button
                     android:id="@+id/bnt_10"

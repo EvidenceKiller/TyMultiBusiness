@@ -78,4 +78,5 @@
     <string name="busi_multi_if_end_test">是否结束当前测试?</string>
 
     <string name="busi_multi_already_add">已添加过此用户</string>
+    <string name="busi_multi_prompt_align_mat_to_edge">请将垫子与框体下边缘对齐</string>
 </resources>

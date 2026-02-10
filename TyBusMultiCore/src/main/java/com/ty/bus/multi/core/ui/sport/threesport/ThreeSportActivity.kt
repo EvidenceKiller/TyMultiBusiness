@@ -317,6 +317,9 @@ class ThreeSportActivity :
             RoleConfigMulti::class.java
         )
         uiConfig.number = viewModel.sportManCount
+        if (uiConfig.targetRegion == null){
+            uiConfig.targetRegion = BusiBaseConstantsValue.THREE_SPORT_CONFIG_DEFAULT_REGION
+        }
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.enableTouch(false)
     }

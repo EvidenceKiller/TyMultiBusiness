@@ -160,6 +160,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             }, ThreeSportConfig.builder().setSupportNextGroup(false).setHideTopOne(true).build())
         }
 
+        mBinding.btnThreeSet.setOnClickListener {
+            UIMultiNavigation.goThreeSportSetting(this)
+        }
+
         mBinding.btn10RegionSet.setOnClickListener {
             UIMultiNavigation.goMultiRegionSetting(
                 this,

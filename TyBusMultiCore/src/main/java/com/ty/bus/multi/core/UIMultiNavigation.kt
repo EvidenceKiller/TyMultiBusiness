@@ -12,6 +12,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
+import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
@@ -74,6 +75,10 @@ object UIMultiNavigation {
         val intent = Intent(context, ThreeSportActivity::class.java)
         intent.putExtra("sport_config", tsConfig)
         startActivity(context, intent, config)
+    }
+
+    fun goThreeSportSetting(context: Context) {
+        context.startActivity(Intent(context, ThreeSportSettingActivity::class.java))
     }
 
     fun goMultiRegionSetting(context: Context, number: Int) {
