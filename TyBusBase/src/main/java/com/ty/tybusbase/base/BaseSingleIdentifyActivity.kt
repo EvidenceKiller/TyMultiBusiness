@@ -175,7 +175,7 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
         }
         processorSingle.open(overlayVessel)
         processorSingle.onInit()
-        mBaseBinding.overlay.setListener {
+        overlayVessel.setListener {
             tsConfig.sportRegion = getRegion()
             sportInit()
         }
