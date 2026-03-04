@@ -315,6 +315,9 @@ class SingleSportPlanStudentChooseDialog :
                     .error(R.mipmap.ic_head_default).into(civHeader)
                 if (isSelected.not()) {
                     root.onDebouncedClick {
+                        chooseStudent?.let {
+                            notifyItemChanged(data.indexOf(it))
+                        }
                         onStudentSelected(data[holder.layoutPosition])
                         notifyItemChanged(holder.layoutPosition)
                     }
