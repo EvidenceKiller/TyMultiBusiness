@@ -445,6 +445,8 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
                         }
                     }
                 }
+
+                else -> {}
             }
 
         }

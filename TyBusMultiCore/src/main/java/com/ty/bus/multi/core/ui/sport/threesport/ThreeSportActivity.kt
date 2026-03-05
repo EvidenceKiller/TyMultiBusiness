@@ -46,6 +46,8 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 import androidx.core.view.isNotEmpty
+import com.adl.sport.general.multi.MultiSportCallbackImpl
+import com.adl.sport.general.multi.MultiSportResult
 import com.ty.tybusbase.utils.DeviceUtil
 
 class ThreeSportActivity :
@@ -386,9 +388,9 @@ class ThreeSportActivity :
         multiSportProcessor.open(mBinding.overlay)
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         multiSportProcessor.setParser(parser)
-        multiSportProcessor.setCallback(object : MultiSportCallback<Any?> {
-            override fun onResult(o: Any?) {
-                var listMan: MutableList<GroupSportBaseMan>? = when {
+        multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
+            override fun onResult(result: MultiSportResult) {
+               /* var listMan: MutableList<GroupSportBaseMan>? = when {
                     o is GroupPushUpParser -> {
                         o.groupPushUpManList as? MutableList<GroupSportBaseMan>
                     }
@@ -398,12 +400,12 @@ class ThreeSportActivity :
                     }
 
                     else -> mutableListOf()
-                }
-                viewModel.handleProcessorCallback(listMan)
+                }*/
+                viewModel.handleProcessorCallback(result.groupManList)
 
             }
 
-            override fun onError(code: Int, error: String) {}
+            override fun onError(index: Int, code: Int, error: String) {}
         })
         multiSportProcessor.onInit()
     }

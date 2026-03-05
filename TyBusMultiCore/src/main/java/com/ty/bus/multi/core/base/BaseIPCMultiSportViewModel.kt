@@ -66,6 +66,9 @@ import androidx.core.util.size
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.SportRecordEntity
 import com.adl.sport.general.RegionFilter
+import com.adl.sport.general.groupskippingremix.GroupSkippingManLRemix
+import com.adl.sport.general.groupskippingremix.GroupSkippingManRemix
+import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
@@ -226,7 +229,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         config.loadModel(null)
         val lite = MultiCoreConfig.getMultiSportPerformance()
         if (lite) {
-            config.liteBodyCheck = lite
+            config.liteBodyDetect = lite
         }
         config.checkExercisePrescription = isSupportReport()
         multiSportProcessor.setConfig(config)
@@ -234,9 +237,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         multiSportProcessor.setSmooth(false)
         multiSportParser = factory.getParser()
         multiSportProcessor.setParser(multiSportParser)
-        multiSportProcessor.setCallback(object : MultiSportCallback<Any?> {
-            override fun onResult(o: Any?) {
-                var listMan: MutableList<GroupSportBaseMan> = when {
+        multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
+            override fun onResult(result: com.adl.sport.general.multi.MultiSportResult) {
+                /*var listMan: MutableList<GroupSportBaseMan> = when {
                     o is GroupSkippingRemixParser -> {
                         o.groupSkippingManRemixList as MutableList<GroupSportBaseMan>
                     }
@@ -254,11 +257,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     }
 
                     else -> mutableListOf()
-                }
-                processCallback(listMan)
+                }*/
+                processCallback(result.groupManList)
             }
 
-            override fun onError(code: Int, error: String?) {}
+            override fun onError(index: Int, code: Int, error: String?) {}
         })
         bsSkipRoseMultiProcessor.addFrameProcessor(multiSportProcessor)
     }
@@ -915,7 +918,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 when (multiSportParser) {
                     is GroupSkippingLRemixParser -> {
                         val groupSkippingManRemixList =
-                            (multiSportParser as GroupSkippingLRemixParser).groupSkippingManLRemixList
+                            (multiSportParser as GroupSkippingLRemixParser).sportResult.groupManList as MutableList<GroupSkippingManLRemix>
                         val pre =
                             groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
                         if (pre == null) {
@@ -926,7 +929,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
                     is GroupSkippingRemixParser -> {
                         val groupSkippingManRemixList =
-                            (multiSportParser as GroupSkippingRemixParser).groupSkippingManRemixList
+                            (multiSportParser as GroupSkippingRemixParser).sportResult.groupManList as MutableList<GroupSkippingManRemix>
                         val pre =
                             groupSkippingManRemixList.firstOrNull { it.positionNum == multiResult.number }?.euRopeSkipExercisePrescription
                         if (pre == null) {

@@ -31,6 +31,7 @@ import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
 import com.adl.sport.general.groupsquat.GroupSquatParser
 import com.adl.sport.general.multi.MultiSportCallback
+import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.adl.sport.general.multi.MultiSportConfig
 import com.adl.sport.general.multi.MultiSportFilter
 import com.adl.sport.general.multi.MultiSportParser
@@ -219,7 +220,7 @@ open class BaseVideoFaceViewModel(application: Application) :
         config.loadModel(null)
         val lite = MultiCoreConfig.getMultiSportPerformance()
         if (lite) {
-            config.liteBodyCheck = lite
+            config.liteBodyDetect = lite
         }
 
         multiSportProcessor.setConfig(config)
@@ -227,31 +228,31 @@ open class BaseVideoFaceViewModel(application: Application) :
         multiSportProcessor.setSmooth(false)
         multiSportParser = factory.getParser()
         multiSportProcessor.setParser(multiSportParser)
-        multiSportProcessor.setCallback(object : MultiSportCallback<Any?> {
-            override fun onResult(o: Any?) {
-                var listMan: MutableList<GroupSportBaseMan> = when {
-                    o is GroupSkippingRemixParser -> {
-                        o.groupSkippingManRemixList as MutableList<GroupSportBaseMan>
-                    }
+        multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
+            override fun onResult(result: com.adl.sport.general.multi.MultiSportResult) {
+                /* var listMan: MutableList<GroupSportBaseMan> = when {
+                     o is GroupSkippingRemixParser -> {
+                         o.groupSkippingManRemixList as MutableList<GroupSportBaseMan>
+                     }
 
-                    o is GroupJumpingJackParser -> {
-                        o.jumpingJackManList as MutableList<GroupSportBaseMan>
-                    }
+                     o is GroupJumpingJackParser -> {
+                         o.jumpingJackManList as MutableList<GroupSportBaseMan>
+                     }
 
-                    o is GroupSquatParser -> {
-                        o.groupSquatManList as MutableList<GroupSportBaseMan>
-                    }
+                     o is GroupSquatParser -> {
+                         o.groupSquatManList as MutableList<GroupSportBaseMan>
+                     }
 
-                    o is GroupSkippingLRemixParser -> {
-                        o.groupSkippingManLRemixList as MutableList<GroupSportBaseMan>
-                    }
+                     o is GroupSkippingLRemixParser -> {
+                         o.groupSkippingManLRemixList as MutableList<GroupSportBaseMan>
+                     }
 
-                    else -> mutableListOf()
-                }
-                processCallback(listMan)
+                     else -> mutableListOf()
+                 }*/
+                processCallback(result.groupManList)
             }
 
-            override fun onError(code: Int, error: String?) {}
+            override fun onError(index: Int, code: Int, error: String?) {}
         })
         bsSkipRoseMultiProcessor.addFrameProcessor(multiSportProcessor)
     }
