@@ -301,7 +301,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                     leftRegion!!.centerY().toFloat()
                 )
             }
-            tsConfig.leftTracker.setBodyFilter(createLeftBodyFilter())
+            tsConfig.leftTracker.setBodyMultiFilter(createLeftBodyFilter())
             tsConfig.leftTracker.setEnableSmooth(openSmooth())
 
             tsConfig.rightTracker = SingleTracker().apply {
@@ -310,7 +310,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                     rightRegion!!.centerY().toFloat()
                 )
             }
-            tsConfig.rightTracker.setBodyFilter(createRightBodyFilter())
+            tsConfig.rightTracker.setBodyMultiFilter(createRightBodyFilter())
             tsConfig.rightTracker.setEnableSmooth(openSmooth())
 
         }

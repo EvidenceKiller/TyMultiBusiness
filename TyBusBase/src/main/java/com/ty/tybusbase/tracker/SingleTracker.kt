@@ -27,7 +27,7 @@ open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTrack
     val pList = mutableListOf<PointF>()
     override fun onTracker(list: MutableList<AdlObject>?, region: TsSportRegion?): AdlObject? {
         val newList = if (bodyFilter != null) {
-            bodyFilter.onFilter(list, region, score)
+            bodyMultiFilter.onFilter(list, region, score)
         } else {
             TsUtil.multiBodyFilter(list, region, score)
         }

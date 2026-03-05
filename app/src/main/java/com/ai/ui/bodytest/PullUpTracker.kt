@@ -34,7 +34,7 @@ class PullUpTracker() : SingleTracker(null) {
 
     override fun onTracker(list: MutableList<AdlObject>?, region: TsSportRegion?): AdlObject? {
         var newList = if (bodyFilter != null) {
-            bodyFilter.onFilter(list, region, score)
+            bodyMultiFilter.onFilter(list, region, score)
         } else {
             TsUtil.multiBodyFilter(list, region, score)
         }
