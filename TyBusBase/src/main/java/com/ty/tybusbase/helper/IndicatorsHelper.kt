@@ -12,11 +12,9 @@ import com.adl.sport.general.EuExerciseFileGroup
 import com.adl.sport.general.pullup.PullUpPrescription
 import com.adl.sport.general.ropeskip.EuRopeSkipExercisePrescription
 import com.adl.sport.general.situp.SitUpPrescription
-import com.aipower.modulecommon.entity.sport.IndicatorSportStartTimeInvalid
-import com.aipower.modulecommon.entity.sport.IndicatorSportTimeInvalid
+import com.ty.tybusbase.entity.IndicatorSportStartTimeInvalid
+import com.ty.tybusbase.entity.IndicatorSportTimeInvalid
 import com.alibaba.fastjson.JSON
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.IndicatorInterrupt
