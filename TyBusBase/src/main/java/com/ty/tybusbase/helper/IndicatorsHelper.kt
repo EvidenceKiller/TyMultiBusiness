@@ -12,13 +12,16 @@ import com.adl.sport.general.EuExerciseFileGroup
 import com.adl.sport.general.pullup.PullUpPrescription
 import com.adl.sport.general.ropeskip.EuRopeSkipExercisePrescription
 import com.adl.sport.general.situp.SitUpPrescription
+import com.aipower.modulecommon.entity.sport.IndicatorSportStartTimeInvalid
+import com.aipower.modulecommon.entity.sport.IndicatorSportTimeInvalid
 import com.alibaba.fastjson.JSON
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.IndicatorInterrupt
 import com.ty.tybusbase.entity.IndicatorXY
 import com.ty.tybusbase.entity.WristRate
-import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.NumberUtil
 import com.ty.tybusbase.utils.VideoUtil
 import com.zy.logic.Point
@@ -44,6 +47,20 @@ object IndicatorsHelper {
             }
             this.indicatorsValue = list
         })
+        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_VALID_COUNT
+            this.indicatorsName = "有效个数"
+            this.indicatorsValue = pres.totalCount
+        })
+        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_VIOLATION_COUNT
+            this.indicatorsName = "违规个数"
+            val list = mutableListOf<Float>()
+            pres.scoreTimeList?.forEach {
+                list.add(NumberUtil.formatHalfUp((it - startSportTime) / 1000f).toFloat())
+            }
+            this.indicatorsValue = (list.size - pres.totalCount).coerceAtLeast(0)
+        })
         indicatorsList.add(SportIndicatorsEntity<List<IndicatorXY<Float>>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SKIP_SPEED_TIME_DISTRIBUTION
             this.indicatorsName = "速度时间分布"
@@ -53,10 +70,11 @@ object IndicatorsHelper {
                 time += 3
                 list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
             }
-            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toInt()
+
+            val sportTime = (endSportTime - startSportTime) / 1000
             //补齐时间线
             while (time < sportTime) {
-                time = (time + 3).coerceAtMost(sportTime)
+                time += 3
                 list.add(IndicatorXY(time.toFloat(), 0f))
             }
             this.indicatorsValue = list
@@ -228,10 +246,18 @@ object IndicatorsHelper {
         val indicatorsList = mutableListOf<SportIndicatorsEntity<*, *>>()
 
         // 运动单个时间分布
-        indicatorsList.add(SportIndicatorsEntity<List<Long>, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<IndicatorSportTimeInvalid>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.PULL_UP_SINGLE_TIME_DISTRIBUTION
             this.indicatorsName = "运动单个时间分布"
-            this.indicatorsValue = pres.elapsedTimeList
+            val list = mutableListOf<IndicatorSportTimeInvalid>()
+            pres.timeDistribute?.forEach {
+                list.add(
+                    IndicatorSportTimeInvalid(
+                        NumberUtil.format1(it.elapsedTime / 1000f).toFloat(), it.invalidFlag
+                    )
+                )
+            }
+            this.indicatorsValue = list
         })
 
         // 速度时间分布
@@ -255,19 +281,6 @@ object IndicatorsHelper {
                 NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat()
         })
 
-        // 失败次数
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
-            this.indicatorsCode = IndicatorsConstants.PULL_UP_FAIL_COUNT
-            this.indicatorsName = "失败次数"
-            this.indicatorsValue = pres.failArmCount + pres.failChinCount
-        })
-
-        // 失败次数（手臂未伸直）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
-            this.indicatorsCode = IndicatorsConstants.PULL_UP_FAIL_COUNT_ARM_NOT_STRAIGHT
-            this.indicatorsName = "失败次数（手臂未伸直）"
-            this.indicatorsValue = pres.failArmCount
-        })
 
         // 双手握距合格率
         indicatorsList.add(SportIndicatorsEntity<WristRate, String>().apply {
@@ -301,11 +314,19 @@ object IndicatorsHelper {
         })
 
         // 失败次数（下颌未过杆）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.PULL_UP_FAIL_COUNT_CHIN_NOT_OVER_BAR
             this.indicatorsName = "失败次数（下颌未过杆）"
-            this.indicatorsValue = pres.failChinCount
+            this.indicatorsValue = pres.chinFlags?.toList()
         })
+
+        // 失败次数（手臂未伸直）
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.PULL_UP_FAIL_COUNT_ARM_NOT_STRAIGHT
+            this.indicatorsName = "失败次数（手臂未伸直）"
+            this.indicatorsValue = pres.armFlags?.toList()
+        })
+
 
         return indicatorsList
     }
@@ -322,11 +343,23 @@ object IndicatorsHelper {
         if (pres == null) return null
         val indicatorsList = mutableListOf<SportIndicatorsEntity<*, *>>()
 
+        val sportTime = (endSportTime - startSportTime) / 1000
+
         // 运动单个时间分布
-        indicatorsList.add(SportIndicatorsEntity<List<Long>, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<IndicatorSportStartTimeInvalid>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_SINGLE_TIME_DISTRIBUTION
             this.indicatorsName = "运动单个时间分布"
-            this.indicatorsValue = pres.elapsedTimeList
+            val list = mutableListOf<IndicatorSportStartTimeInvalid>()
+            pres.timeDistribute?.forEach {
+                list.add(
+                    IndicatorSportStartTimeInvalid(
+                        NumberUtil.format1(it.startTime / 1000f).toFloat(),
+                        NumberUtil.format1(it.endTime / 1000f).toFloat(),
+                        it.invalidFlag
+                    )
+                )
+            }
+            this.indicatorsValue = list
         })
 
         // 速度时间分布
@@ -337,7 +370,10 @@ object IndicatorsHelper {
             this.indicatorsValue = list
             list.add(IndicatorXY(0, 0))
             pres.points.forEach {
-                list.add(IndicatorXY(it.index * 3, it.countOk))
+                val time = it.index * 3
+                if (time <= sportTime) {
+                    list.add(IndicatorXY(time, it.countOk))
+                }
             }
         })
 
@@ -346,52 +382,43 @@ object IndicatorsHelper {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_TOTAL_TIME
             this.indicatorsName = "总时长"
             this.indicatorsUnit = "s"
-            this.indicatorsValue =
-                NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat()
+            this.indicatorsValue = sportTime.toFloat()
         })
 
-        // 失败次数
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
-            this.indicatorsCode = IndicatorsConstants.SITE_UP_FAIL_COUNT
-            this.indicatorsName = "失败次数"
-            this.indicatorsValue =
-                pres.countErrorWristEar + pres.countErrorKneeAngle + pres.countErrorTouchKnee + pres.countErrorShoulderToGround + pres.countErrorUpliftHip
-        })
-
-        // 失败次数（未双手抱头）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        // 失败次数（双手未护耳）
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_FAIL_COUNT_NOT_HOLDING_HEAD
-            this.indicatorsName = "失败次数（未双手抱头）"
-            this.indicatorsValue = pres.countErrorWristEar
+            this.indicatorsName = "违规次数（双手未护耳）"
+            this.indicatorsValue = pres.handToEarFlags?.toList()
         })
 
         // 失败次数（未屈膝 90°）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_FAIL_COUNT_KNEE_NOT_90_DEGREE
-            this.indicatorsName = "失败次数（未屈膝 90°）"
-            this.indicatorsValue = pres.countErrorKneeAngle
+            this.indicatorsName = "违规次数（未屈膝 90°）"
+            this.indicatorsValue = pres.KneeAngleFlags?.toList()
         })
 
         // 失败次数（双肘未触膝）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_FAIL_COUNT_ELBOW_NOT_TOUCHING_KNEE
-            this.indicatorsName = "失败次数（双肘未触膝）"
-            this.indicatorsValue = pres.countErrorTouchKnee
+            this.indicatorsName = "违规次数（双肘未触膝）"
+            this.indicatorsValue = pres.touchKneeFlags?.toList()
         })
 
         // 失败次数（肩背未触底）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode =
                 IndicatorsConstants.SITE_UP_FAIL_COUNT_SHOULDER_NOT_TOUCHING_GROUND
-            this.indicatorsName = "失败次数（肩背未触底）"
-            this.indicatorsValue = pres.countErrorShoulderToGround
+            this.indicatorsName = "违规次数（肩背未触底）"
+            this.indicatorsValue = pres.shoulderToGroundFlags?.toList()
         })
 
         // 失败次数（垫臀）
-        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+        indicatorsList.add(SportIndicatorsEntity<List<Int>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.SITE_UP_FAIL_COUNT_HIPS_LIFTING
-            this.indicatorsName = "失败次数（垫臀）"
-            this.indicatorsValue = pres.countErrorUpliftHip
+            this.indicatorsName = "违规次数（垫臀）"
+            this.indicatorsValue = pres.upliftHipFlags?.toList()
         })
 
         // 上肢姿势达标率
@@ -494,7 +521,6 @@ object IndicatorsHelper {
                 videoList.add(SportVideo("视频地址", it, videoCover))
             }
             this.sportVideos = videoList
-
             val toJson = JSON.toJSONString(indicatorsList)
             val indicators = JSON.parseArray(toJson, SportIndicators::class.java).toMutableList()
             this.sportIndicatorsList = indicators
@@ -513,8 +539,8 @@ object IndicatorsHelper {
                 NumberUtil.format2((centerY - p.y) / (height / 2f)).toFloat().coerceIn(-1f, 1f)
             )
         } ?: IndicatorXY(
-            NumberUtil.format2(p.x / 1920f).toFloat(),
-            NumberUtil.format2(p.y / 1080f).toFloat()
+            NumberUtil.format2(p.x / 1000.0).toFloat(),
+            NumberUtil.format2(p.y / 1000.0).toFloat()
         )
     }
 }

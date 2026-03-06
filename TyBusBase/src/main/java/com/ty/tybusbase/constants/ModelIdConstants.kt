@@ -12,6 +12,7 @@ object ModelIdConstants {
     const val PUSH_UP_POSE_MODEL_ID = 20024 //俯卧撑骨骼
 
     const val SIT_UP_POSE_MODEL_ID = 20002 //仰卧起坐骨骼
+    const val SIT_UP_BODY_MODEL_ID = 11189 //仰卧起坐框体
 
     const val TEN_SKIP_POSE_MODEL_ID = 20030 //十人跳绳骨骼
 

@@ -46,40 +46,91 @@ object IndicatorsConstants {
     const val SKIP_WRIST_RATE = "02010009" //摇绳手腕对称性合格率
     const val SKIP_JUMP_HIGH_RATE = "02010010" //起跳高度合格率
     const val SKIP_FOOT_SPACE_RATE = "02010011" //双脚间距合格率
+    const val SKIP_VALID_COUNT = "02010012" //有效个数
+    const val SKIP_VIOLATION_COUNT = "02010013" //违规个数
     /**************************跳绳指标参数*******************************/
 
     /**************************引体向上指标参数*******************************/
     const val PULL_UP_CODE = "0401" // 引体向上CODE
-    
+
     // 整体过程性指标
-    const val PULL_UP_SINGLE_TIME_DISTRIBUTION = "04010001" // 运动单个时间分布
     const val PULL_UP_SPEED_TIME_DISTRIBUTION = "04010002" // 速度时间分布
     const val PULL_UP_TOTAL_TIME = "04010003" // 总时长
-    const val PULL_UP_FAIL_COUNT = "04010004" // 失败次数
-    const val PULL_UP_FAIL_COUNT_ARM_NOT_STRAIGHT = "04010005" // 失败次数（手臂未伸直）
     const val PULL_UP_HAND_GRIP_DISTANCE_PASS_RATE = "04010006" // 双手握距合格率
     const val PULL_UP_LEFT_RIGHT_BALANCE_PASS_RATE = "04010007" // 左右均衡合格率
     const val PULL_UP_MOTION_PROCESS_PASS_RATE = "04010008" // 动作行程合格率
-    const val PULL_UP_FAIL_COUNT_CHIN_NOT_OVER_BAR = "04010009" // 失败次数（下颌未过杆）
+    const val PULL_UP_FAIL_COUNT_CHIN_NOT_OVER_BAR = "04010011" // 违规次数（下颌未过杆）
+    const val PULL_UP_FAIL_COUNT_ARM_NOT_STRAIGHT = "04010012" // 违规次数（手臂未伸直）
+    //    运动单个时间分布	04010010	一级指标		List<Object>	[{"time":2.9（秒）,    "invalidFlag": 0/1(1：无效状态 0：有效) }]  //时间数组 秒
+    const val PULL_UP_SINGLE_TIME_DISTRIBUTION = "04010010" // 运动单个时间分布
     /**************************引体向上指标参数*******************************/
 
     /**************************仰卧起坐指标参数*******************************/
     const val SITE_UP_CODE = "0601" // 仰卧起坐CODE
-    
+
     // 整体过程性指标
-    const val SITE_UP_SINGLE_TIME_DISTRIBUTION = "06010001" // 运动单个时间分布
+    const val SITE_UP_SINGLE_TIME_DISTRIBUTION = "06010020" // 运动单个时间分布
     const val SITE_UP_SPEED_TIME_DISTRIBUTION = "06010002" // 速度时间分布
     const val SITE_UP_TOTAL_TIME = "06010003" // 总时长
-    const val SITE_UP_FAIL_COUNT = "06010004" // 失败次数
-    const val SITE_UP_FAIL_COUNT_NOT_HOLDING_HEAD = "06010005" // 失败次数（未双手抱头）
-    const val SITE_UP_FAIL_COUNT_KNEE_NOT_90_DEGREE = "06010006" // 失败次数（未屈膝 90°）
-    const val SITE_UP_FAIL_COUNT_ELBOW_NOT_TOUCHING_KNEE = "06010007" // 失败次数（双肘未触膝）
-    const val SITE_UP_FAIL_COUNT_SHOULDER_NOT_TOUCHING_GROUND = "06010008" // 失败次数（肩背未触底）
-    const val SITE_UP_FAIL_COUNT_HIPS_LIFTING = "06010009" // 失败次数（垫臀）
+    const val SITE_UP_FAIL_COUNT_NOT_HOLDING_HEAD = "06010015" // 违规次数（双手未护耳）
+    const val SITE_UP_FAIL_COUNT_KNEE_NOT_90_DEGREE = "06010016" // 违规次数（未屈膝 90°）
+    const val SITE_UP_FAIL_COUNT_ELBOW_NOT_TOUCHING_KNEE = "06010017" // 违规次数（双肘未触膝）
+    const val SITE_UP_FAIL_COUNT_SHOULDER_NOT_TOUCHING_GROUND = "06010018" // 违规次数（肩背未触底）
+    const val SITE_UP_FAIL_COUNT_HIPS_LIFTING = "06010019" // 违规次数（垫臀）
     const val SITE_UP_UPPER_LIMB_POSTURE_PASS_RATE = "06010010" // 上肢姿势达标率
     const val SITE_UP_CORE_STRENGTH_PASS_RATE = "06010011" // 核心发力达标率
     const val SITE_UP_KNEE_ANGLE_PASS_RATE = "06010012" // 屈膝角度达标率
     const val SITE_UP_HIP_STABILITY_PASS_RATE = "06010013" // 髋部稳定达标率
     const val SITE_UP_SUPINE_POSTURE_PASS_RATE = "06010014" // 仰卧姿势达标率
     /**************************仰卧起坐指标参数*******************************/
+
+    /**************************************实心球**********************************/
+    /**
+     *  整体过程性指标	01	距离成绩	07010001	一级指标
+     * 	整体过程性指标	01	违规类型	07010002	一级指标
+     * 	整体过程性指标	01	得分	07010003	一级指标
+     * 	整体过程性指标	01	等级	07010004	一级指标
+     * 	整体过程性指标	01	成绩违规	07010005	一级指标
+     * 	专项技能指标	02	预摆姿势	07010006	一级指标
+     * 	专项技能指标	02	站姿间距	07010007	一级指标
+     * 	专项技能指标	02	引球手肘	07010008	一级指标
+     * 	专项技能指标	02	引球手臂	07010009	一级指标
+     * 	专项技能指标	02	反弓伸髋	07010010	一级指标
+     * 	专项技能指标	02	反弓屈膝	07010011	一级指标
+     * 	专项技能指标	02	出手姿势	07010012	一级指标
+     * 	专项技能指标	02	出手角度	07010013	一级指标
+     * 	专项技能指标	02	出手时机	07010014	一级指标
+     * 	整体过程性指标	01	运动轨迹	07010015	一级指标
+     * 	整体过程性指标	01	动作分析	07010016	一级指标
+     * 	整体过程性指标	01	偏移情况	07010020	一级指标
+     */
+    const val MEDICINE_BALL_CODE = "0701" //实心球CODE
+    const val MEDICINE_BALL_DISTANCE_SCORE = "07010001" //距离成绩
+    const val MEDICINE_BALL_VIOLATION_TYPE = "07010002" //违规类型
+    const val MEDICINE_BALL_SCORE = "07010003" //得分
+    const val MEDICINE_BALL_LEVEL = "07010004" //等级
+    const val MEDICINE_BALL_VIOLATION = "07010005" //成绩违规
+    const val MEDICINE_BALL_PRE_STANCE_POSITION = "07010006" //预摆姿势
+    const val MEDICINE_BALL_PRE_STANCE_POSITION_S = "0701000601" //预摆姿势
+    const val MEDICINE_BALL_STAND_SPACE = "07010007" //站姿间距
+    const val MEDICINE_BALL_STAND_SPACE_S = "0701000701" //站姿间距
+    const val MEDICINE_BALL_THROW_ELBOW = "07010008" //引球手肘
+    const val MEDICINE_BALL_THROW_ELBOW_S = "0701000801" //引球手肘
+    const val MEDICINE_BALL_THROW_ARM = "07010009" //引球手臂
+    const val MEDICINE_BALL_THROW_ARM_S = "0701000901" //引球手臂
+    const val MEDICINE_BALL_BACK_BEND_KNEE = "07010010" //反弓伸髋
+    const val MEDICINE_BALL_BACK_BEND_KNEE_S = "0701001001" //反弓伸髋
+    const val MEDICINE_BALL_BACK_BEND_HIP = "07010011" //反弓屈膝
+    const val MEDICINE_BALL_BACK_BEND_HIP_S = "0701001101" //反弓屈膝
+    const val MEDICINE_BALL_THROW_POSITION = "07010012" //出手姿势
+    const val MEDICINE_BALL_THROW_POSITION_S = "0701001201" //出手姿势
+    const val MEDICINE_BALL_THROW_ANGLE = "07010013" //出手角度
+    const val MEDICINE_BALL_THROW_ANGLE_S = "0701001301" //出手角度
+    const val MEDICINE_BALL_THROW_TIME = "07010014" //出手时机
+    const val MEDICINE_BALL_THROW_TIME_S = "0701001401" //出手时机
+    const val MEDICINE_BALL_MOVE_TRACK = "07010015" //运动轨迹
+    const val MEDICINE_BALL_MOTION_ANALYSIS = "07010016" //动作分析
+    const val MEDICINE_BALL_OFFSET = "07010020" //偏移情况
+    const val MEDICINE_BALL_OFFSET_S = "0701002001" //偏移情况
+    /**************************************实心球**********************************/
 }
