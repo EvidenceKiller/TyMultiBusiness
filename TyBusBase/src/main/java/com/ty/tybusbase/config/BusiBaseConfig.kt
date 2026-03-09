@@ -66,16 +66,30 @@ object BusiBaseConfig {
     }
 
     /**
+     * 设置骨骼镜像
+     */
+    fun setSkeletonMirror(mirror: Boolean) {
+        MMKVUtil.encode(MMKVBusiKey.SKELETON_MIRROR, mirror)
+    }
+
+    fun getSkeletonMirror(): Boolean {
+        return MMKVUtil.decodeBoolean(
+            MMKVBusiKey.SKELETON_MIRROR,
+            BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
+        )
+    }
+
+    /**
      * 设置摄像头镜像
      */
     fun setCameraMirror(mirror: Boolean) {
-        MMKVUtil.encode(MMKVBusiKey.SKELETON_MIRROR, mirror)
+        MMKVUtil.encode(MMKVBusiKey.CAMERA_MIRROR, mirror)
     }
 
     fun getCameraMirror(): Boolean {
         return MMKVUtil.decodeBoolean(
-            MMKVBusiKey.SKELETON_MIRROR,
-            BusiBaseConstantsValue.DEFAULT_SKELETON_MIRROR
+            MMKVBusiKey.CAMERA_MIRROR,
+            BusiBaseConstantsValue.DEFAULT_CAMERA_MIRROR
         )
     }
 
