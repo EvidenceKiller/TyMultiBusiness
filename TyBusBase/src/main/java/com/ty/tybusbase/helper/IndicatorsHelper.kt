@@ -121,11 +121,25 @@ object IndicatorsHelper {
             this.indicatorsImages = mutableListOf()
             if (pres.jumpingSwingPosture < 85) {
                 pres.jumpingSwingPostureIconWorst?.let {
-                    this.indicatorsImages.add(SportImageEntity(it.absolutePath, "摇绳大臂夹角"))
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "摇绳大臂夹角不合格",
+                            "典型错误",
+                            "0"
+                        )
+                    )
                 }
             } else {
                 pres.jumpingSwingPostureIconBest?.let {
-                    this.indicatorsImages.add(SportImageEntity(it.absolutePath, "摇绳大臂夹角"))
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "摇绳大臂夹角合格",
+                            "运动风采",
+                            "0"
+                        )
+                    )
                 }
             }
         })
@@ -140,7 +154,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳小臂夹角"
+                            "摇绳小臂夹角不合格",
+                            "典型错误",
+                            "0"
                         )
                     )
                 }
@@ -149,7 +165,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳小臂夹角"
+                            "摇绳小臂夹角合格",
+                            "运动风采",
+                            "0"
                         )
                     )
                 }
@@ -171,7 +189,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳手腕对称性"
+                            "摇绳手腕对称性不合格",
+                            "典型错误",
+                            "0"
                         )
                     )
                 }
@@ -180,7 +200,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳手腕对称性"
+                            "摇绳手腕对称性合格",
+                            "运动风采",
+                            "0"
                         )
                     )
                 }
@@ -197,7 +219,9 @@ object IndicatorsHelper {
                 this.indicatorsImages.add(
                     SportImageEntity(
                         it.absolutePath,
-                        "起跳高度"
+                        "起跳高度",
+                        if (pres.jumpingHeight < 85) "典型错误" else "运动风采",
+                        "0"
                     )
                 )
             }
@@ -213,7 +237,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "双脚间距"
+                            "双脚间距不合格",
+                            "典型错误",
+                            "0"
                         )
                     )
                 }
@@ -222,7 +248,9 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "双脚间距"
+                            "双脚间距合格",
+                            "运动风采",
+                            "0"
                         )
                     )
                 }
@@ -477,8 +505,9 @@ object IndicatorsHelper {
                 item.file?.let {
                     indicatorsImages.add(
                         SportImageEntity(
-                            item.desc,
                             it.absolutePath,
+                            item.desc,
+                            item.fileImageDesc,
                             group.index.toString()
                         )
                     )
@@ -491,20 +520,22 @@ object IndicatorsHelper {
     fun createIndicatorsResultDto(
         code: String,
         indicatorsList: MutableList<SportIndicatorsEntity<*, *>>?,
-        accountInfo: AccountInfo?,
         startSportTime: Long,
         endSportTime: Long,
         count: Int,
         videoFile: File?,
-        videoCover: String?
+        videoCover: String?,
+        accountName: String?,
+        accountSex: Int?,
+        accountAvatar: String?
     ): IndicatorsResultDto? {
         if (indicatorsList == null) return null
         val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         return IndicatorsResultDto().apply {
             this.sportTypeCode = code
-            this.userName = accountInfo?.studentEntity?.accountName
-            this.sex = accountInfo?.studentEntity?.userSex?.toInt()
-            this.userAvatar = accountInfo?.studentEntity?.userFaceImgUrl
+            this.userName = accountName
+            this.sex = accountSex ?: 0
+            this.userAvatar = accountAvatar
             this.sportTestTime = format.format(Date(startSportTime))
             this.sportTime = (endSportTime - startSportTime).toString()
             this.sportResult = "$count"

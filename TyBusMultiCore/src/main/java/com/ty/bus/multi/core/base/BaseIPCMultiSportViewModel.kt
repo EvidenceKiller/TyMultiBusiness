@@ -951,12 +951,14 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     IndicatorsHelper.createIndicatorsResultDto(
                         IndicatorsConstants.SKIP_CODE,
                         indicatorsList,
-                        multiSportResult?.accountInfo,
                         startTime,
                         endTime,
                         multiSportResult?.count ?: 0,
                         videoFile,
-                        videoCover
+                        videoCover,
+                        multiSportResult?.accountInfo?.studentEntity?.accountName,
+                        multiSportResult?.accountInfo?.studentEntity?.userSex?.toInt(),
+                        multiSportResult?.accountInfo?.studentEntity?.userFaceImgUrl
                     )?.let {
                         indicatorsMap.put(multiResult.number, it)
                     }
