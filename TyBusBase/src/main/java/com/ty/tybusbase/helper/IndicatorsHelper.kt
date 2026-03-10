@@ -78,7 +78,7 @@ object IndicatorsHelper {
             //有多一个的情况，一般只多一个，如果多了，清除最后一个
             val count = NumberUtil.formatHalfUp(sportTime / 3f).toInt()
             var size = list.size
-            while(size < count){
+            while(size > count){
                 list.removeAt(list.lastIndex)
                 size--
             }
