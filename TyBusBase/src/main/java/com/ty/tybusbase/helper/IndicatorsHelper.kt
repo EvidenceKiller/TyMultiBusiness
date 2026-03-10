@@ -26,6 +26,7 @@ import com.zy.logic.Point
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Date
+import kotlin.math.roundToInt
 
 object IndicatorsHelper {
     fun getSkipIndicatorsList(
@@ -69,14 +70,18 @@ object IndicatorsHelper {
                 list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
             }
 
-            val sportTime = (endSportTime - startSportTime) / 1000
+            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat().roundToInt()
             //补齐时间线
             while (time < sportTime) {
                 time += 3
+                if (time > sportTime) {
+                    time = sportTime.toInt()
+                }
                 list.add(IndicatorXY(time.toFloat(), 0f))
             }
             //有多一个的情况，一般只多一个，如果多了，清除最后一个
-            val count = NumberUtil.formatHalfUp(sportTime / 3f).toInt()
+            val count = NumberUtil.formatHalfUp(sportTime / 3f).toFloat().roundToInt()
+
             var size = list.size
             while(size > count){
                 list.removeAt(list.lastIndex)
