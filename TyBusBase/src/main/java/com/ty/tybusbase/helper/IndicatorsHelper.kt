@@ -75,6 +75,13 @@ object IndicatorsHelper {
                 time += 3
                 list.add(IndicatorXY(time.toFloat(), 0f))
             }
+            //有多一个的情况，一般只多一个，如果多了，清除最后一个
+            val count = NumberUtil.formatHalfUp(sportTime / 3f).toInt()
+            var size = list.size
+            while(size < count){
+                list.removeAt(list.lastIndex)
+                size--
+            }
             this.indicatorsValue = list
         })
         indicatorsList.add(SportIndicatorsEntity<List<IndicatorInterrupt>, String>().apply {
@@ -124,7 +131,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳大臂夹角不合格",
+                            "",
                             "典型错误",
                             "0"
                         )
@@ -135,7 +142,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳大臂夹角合格",
+                            "",
                             "运动风采",
                             "0"
                         )
@@ -154,7 +161,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳小臂夹角不合格",
+                            "",
                             "典型错误",
                             "0"
                         )
@@ -165,7 +172,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳小臂夹角合格",
+                            "",
                             "运动风采",
                             "0"
                         )
@@ -189,7 +196,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳手腕对称性不合格",
+                            "",
                             "典型错误",
                             "0"
                         )
@@ -200,7 +207,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "摇绳手腕对称性合格",
+                            "",
                             "运动风采",
                             "0"
                         )
@@ -219,7 +226,7 @@ object IndicatorsHelper {
                 this.indicatorsImages.add(
                     SportImageEntity(
                         it.absolutePath,
-                        "起跳高度",
+                        "",
                         if (pres.jumpingHeight < 85) "典型错误" else "运动风采",
                         "0"
                     )
@@ -237,7 +244,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "双脚间距不合格",
+                            "",
                             "典型错误",
                             "0"
                         )
@@ -248,7 +255,7 @@ object IndicatorsHelper {
                     this.indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            "双脚间距合格",
+                            "",
                             "运动风采",
                             "0"
                         )
