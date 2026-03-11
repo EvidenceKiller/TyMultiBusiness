@@ -34,4 +34,6 @@ class ThreeSiteUpFactory : AbstractMultiSportFactory() {
     }
 
     override fun getMultiSportType(): MultiSportType = MultiSportType.CRUNCH_3_PERSONS
+
+    override fun enableSmooth(): Boolean = true
 }

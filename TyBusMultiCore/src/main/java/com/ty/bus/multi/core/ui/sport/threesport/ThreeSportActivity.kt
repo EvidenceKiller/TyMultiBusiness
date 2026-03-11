@@ -319,7 +319,7 @@ class ThreeSportActivity :
             RoleConfigMulti::class.java
         )
         uiConfig.number = viewModel.sportManCount
-        if (uiConfig.targetRegion == null){
+        if (uiConfig.targetRegion == null) {
             uiConfig.targetRegion = BusiBaseConstantsValue.THREE_SPORT_CONFIG_DEFAULT_REGION
         }
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
@@ -388,19 +388,20 @@ class ThreeSportActivity :
         multiSportProcessor.open(mBinding.overlay)
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         multiSportProcessor.setParser(parser)
+        multiSportProcessor.setSmooth(factory.enableSmooth())
         multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
             override fun onResult(result: MultiSportResult) {
-               /* var listMan: MutableList<GroupSportBaseMan>? = when {
-                    o is GroupPushUpParser -> {
-                        o.groupPushUpManList as? MutableList<GroupSportBaseMan>
-                    }
+                /* var listMan: MutableList<GroupSportBaseMan>? = when {
+                     o is GroupPushUpParser -> {
+                         o.groupPushUpManList as? MutableList<GroupSportBaseMan>
+                     }
 
-                    o is GroupCrunchParser -> {
-                        o.groupCrunchManList as? MutableList<GroupSportBaseMan>
-                    }
+                     o is GroupCrunchParser -> {
+                         o.groupCrunchManList as? MutableList<GroupSportBaseMan>
+                     }
 
-                    else -> mutableListOf()
-                }*/
+                     else -> mutableListOf()
+                 }*/
                 viewModel.handleProcessorCallback(result.groupManList)
 
             }

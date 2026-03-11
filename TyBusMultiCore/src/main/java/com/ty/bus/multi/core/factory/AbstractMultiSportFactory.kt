@@ -20,4 +20,6 @@ abstract class AbstractMultiSportFactory {
     abstract fun getMultiSportType(): MultiSportType
 
     open fun isSupportPrescription(): Boolean = false
+
+    open fun enableSmooth() = false
 }
