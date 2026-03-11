@@ -518,7 +518,7 @@ object IndicatorsHelper {
                     indicatorsImages.add(
                         SportImageEntity(
                             it.absolutePath,
-                            item.desc,
+                            item.fileName,
                             item.fileImageDesc,
                             group.index.toString()
                         )
