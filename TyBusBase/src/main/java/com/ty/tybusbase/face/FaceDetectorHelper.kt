@@ -335,6 +335,7 @@ class FaceDetectorHelper private constructor() {
     fun isDetecting() = isIsDetecting
 
     fun reset() {
+        isIsDetecting = false
         mFaceCallback = null
         frameInterval = defaultFrameInterval
         faceDetector?.setFaceFeatureThreshold(defaultFaceFeatureThreshold)
@@ -342,6 +343,7 @@ class FaceDetectorHelper private constructor() {
     }
 
     fun release() {
+        isIsDetecting = false
         faceDetector?.release()
         faceHandlerThread?.quitSafely()
         faceHandlerThread = null
