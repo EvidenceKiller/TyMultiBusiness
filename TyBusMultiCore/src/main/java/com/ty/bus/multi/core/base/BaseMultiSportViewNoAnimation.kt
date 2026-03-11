@@ -69,6 +69,7 @@ abstract class BaseMultiSportViewNoAnimation(
             p.second.studentEntity!!.accountName,
             p.second.studentEntity?.userFaceImgUrl
         )
+        cardMap[p.first]?.setAccountInfo(p.second)
     }
 
     fun setAccountInfo(person: SparseArray<MultiSportResult>) {

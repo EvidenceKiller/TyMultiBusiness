@@ -257,10 +257,10 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     override fun setAccountInfo(accountInfo: AccountInfo) {
         this.accountInfo = accountInfo
-        mBinding.tvName.text = accountInfo.studentEntity!!.accountName
-        Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
-            .placeholder(R.mipmap.ic_head_default)
-            .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
+//        mBinding.tvName.text = accountInfo.studentEntity!!.accountName
+//        Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
+//            .placeholder(R.mipmap.ic_head_default)
+//            .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
     }
 
     override fun setPrecastAccountInfo(accountInfo: AccountInfo) {

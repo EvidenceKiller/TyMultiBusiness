@@ -256,10 +256,10 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
      */
     override fun setAccountInfo(accountInfo: AccountInfo) {
         this.accountInfo = accountInfo
-        mBinding.tvName.text = accountInfo.studentEntity?.accountName
-        Glide.with(context.applicationContext).load(accountInfo.studentEntity?.userFaceImgUrl)
-            .placeholder(R.mipmap.ic_head_default)
-            .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
+//        mBinding.tvName.text = accountInfo.studentEntity?.accountName
+//        Glide.with(context.applicationContext).load(accountInfo.studentEntity?.userFaceImgUrl)
+//            .placeholder(R.mipmap.ic_head_default)
+//            .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
     }
 
     override fun setPrecastAccountInfo(accountInfo: AccountInfo) {
@@ -274,7 +274,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         state = MultiSportCardViewState.SPORTING
         mBinding.groupSport.visibility = VISIBLE
         if (::accountInfo.isInitialized) {
-            mBinding.tvNameSport.text = accountInfo.teacherEntity?.accountName
+            mBinding.tvNameSport.text = accountInfo.studentEntity?.accountName
             Glide.with(context.applicationContext).load(accountInfo.studentEntity?.userFaceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
