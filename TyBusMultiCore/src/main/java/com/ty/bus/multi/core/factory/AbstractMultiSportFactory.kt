@@ -22,4 +22,6 @@ abstract class AbstractMultiSportFactory {
     open fun isSupportPrescription(): Boolean = false
 
     open fun enableSmooth() = false
+
+    open fun liteBodyDetect() = true
 }

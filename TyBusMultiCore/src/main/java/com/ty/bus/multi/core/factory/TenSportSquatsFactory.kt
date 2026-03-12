@@ -4,7 +4,7 @@ import com.adl.sport.general.groupsquat.GroupSquatParser
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportType
 
-class TenSportSquatsFactory: AbstractMultiSportFactory() {
+class TenSportSquatsFactory : AbstractMultiSportFactory() {
 
     override fun getBodyModelId(): Int = 1003
 
@@ -13,4 +13,6 @@ class TenSportSquatsFactory: AbstractMultiSportFactory() {
     override fun getParser(): MultiSportParser<*> = GroupSquatParser()
 
     override fun getMultiSportType(): MultiSportType = MultiSportType.SQUAT_10_PERSONS
+
+    override fun liteBodyDetect(): Boolean = false
 }

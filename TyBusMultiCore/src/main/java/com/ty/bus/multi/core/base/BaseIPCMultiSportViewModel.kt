@@ -227,10 +227,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         config.drawSkeleton = true
         config.sportType = factory.getMultiSportType()
         config.loadModel(null)
-        val lite = MultiCoreConfig.getMultiSportPerformance()
-        if (lite) {
-            config.liteBodyDetect = lite
-        }
+        config.liteBodyDetect = factory.liteBodyDetect()
         config.checkExercisePrescription = isSupportReport()
         multiSportProcessor.setConfig(config)
         multiSportProcessor.setBodyFilter(getBodyFilter())
