@@ -29,6 +29,7 @@ import java.util.Date
 import kotlin.math.roundToInt
 
 object IndicatorsHelper {
+    private val hgl = 100  //合格率
     fun getSkipIndicatorsList(
         pres: EuRopeSkipExercisePrescription?,
         startSportTime: Long,
@@ -131,7 +132,7 @@ object IndicatorsHelper {
             this.indicatorsUnit = "%"
             this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingSwingPosture).toFloat()
             this.indicatorsImages = mutableListOf()
-            if (pres.jumpingSwingPosture < 85) {
+            if (pres.jumpingSwingPosture < hgl) {
                 pres.jumpingSwingPostureIconWorst?.let {
                     this.indicatorsImages.add(
                         SportImageEntity(
@@ -161,7 +162,7 @@ object IndicatorsHelper {
             this.indicatorsUnit = "%"
             this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingHLShoulder).toFloat()
             this.indicatorsImages = mutableListOf()
-            if (pres.jumpingHLShoulder < 85) {
+            if (pres.jumpingHLShoulder < hgl) {
                 pres.jumpingHLShoulderIconWorst?.let {
                     this.indicatorsImages.add(
                         SportImageEntity(
@@ -196,7 +197,7 @@ object IndicatorsHelper {
                     if (pres.jumpingHLShoulder < 85) pres.jumpingHLShoulderLevel else "0"
                 )
             this.indicatorsImages = mutableListOf()
-            if (pres.jumpingHLShoulder < 85) {
+            if (pres.jumpingHLShoulder < hgl) {
                 pres.jumpingHLShoulderIconWorst?.let {
                     this.indicatorsImages.add(
                         SportImageEntity(
@@ -232,7 +233,7 @@ object IndicatorsHelper {
                     SportImageEntity(
                         it.absolutePath,
                         "",
-                        if (pres.jumpingHeight < 85) "典型错误" else "运动风采",
+                        if (pres.jumpingHeight < hgl) "典型错误" else "运动风采",
                         "0"
                     )
                 )
@@ -244,7 +245,7 @@ object IndicatorsHelper {
             this.indicatorsUnit = "%"
             this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingAnkleWidth).toFloat()
             this.indicatorsImages = mutableListOf()
-            if (pres.jumpingAnkleWidth < 85) {
+            if (pres.jumpingAnkleWidth < hgl) {
                 pres.jumpingAnkleWidthIconWorst?.let {
                     this.indicatorsImages.add(
                         SportImageEntity(
