@@ -18,6 +18,7 @@ import com.ty.tybusbase.databinding.BuBaseItemGradeInfoBinding
 import com.ty.tybusbase.databinding.DialogSingleSportPlanStudentChooseBinding
 import com.ty.tybusbase.entity.CustomTabEntity
 import com.ty.tybusbase.entity.PlanGradeInfo
+import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.onDebouncedClick
@@ -39,6 +40,8 @@ import kotlinx.coroutines.withContext
 class SingleSportPlanStudentChooseDialog :
     BaseDialogFragment<DialogSingleSportPlanStudentChooseBinding, SingleSportPlanStudentChooseViewModel>() {
     private var chooseListener: Action1<StudentEntity>? = null
+
+    private var dismissListener: Action? = null
 
     private val mCustomTabEntities by lazy { ArrayList<CustomTabEntity>() }
 
@@ -120,6 +123,11 @@ class SingleSportPlanStudentChooseDialog :
 
     fun setChooseListener(listener: Action1<StudentEntity>): SingleSportPlanStudentChooseDialog {
         this.chooseListener = listener
+        return this
+    }
+
+    fun setDismissListener(listener: Action): SingleSportPlanStudentChooseDialog {
+        this.dismissListener = listener
         return this
     }
 
@@ -283,6 +291,7 @@ class SingleSportPlanStudentChooseDialog :
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
+        dismissListener?.invoke()
     }
 
     inner class StudentAdapter(data: MutableList<StudentEntity>?) :
