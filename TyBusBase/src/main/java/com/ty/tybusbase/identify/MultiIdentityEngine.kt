@@ -12,6 +12,7 @@ import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
@@ -45,6 +46,8 @@ class MultiIdentityEngine {
     private val identifyMap by lazy { HashMap<Int, Int>() }
 
     private val identifyCountMap by lazy { HashMap<Int, Int>() } //每个位置可设置识别次数
+
+    private val identifyConfigMap by lazy { HashMap<Int, FaceIdentifyConfig>() } //每个位置单独设置的识别配置
 
     private var isOK = false
     fun identified(user: StudentEntity) {
@@ -124,13 +127,18 @@ class MultiIdentityEngine {
         }
         val faceRecTime: Long = System.currentTimeMillis() - identityStartTime
 
+        //获取每一道的人脸识别配置
+        val faceIdentifyConfig = identifyConfigMap.getOrDefault(number, FaceIdentifyConfig())
+        //设置每一道的人脸识别最低阈值
+        FaceDetectorHelper.getInstance().getDefaultVerifyStrategy()
+            ?.setMinScoreThreshold(faceIdentifyConfig.minScoreThreshold)
 
         //当没有正在识别人脸和达到超时要求就判断为游客
         if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
             val identifyCount = identifyMap.getOrDefault(number, 0) + 1
             identifyMap[number] = identifyCount
-            val visitorRetryCount = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
-            if (visitorAble && identifyCount >= visitorRetryCount) {
+//            var visitorRetryNum = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
+            if (visitorAble && identifyCount >= faceIdentifyConfig.visitorRetryNum) {
                 createVisitor()
             } else {
                 finishWithFail()
