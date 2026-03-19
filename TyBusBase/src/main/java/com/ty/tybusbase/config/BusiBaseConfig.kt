@@ -117,6 +117,8 @@ object BusiBaseConfig {
         MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, type)
     }
 
+    fun getReportVersion(): String = "v1.1"
+
     /**
      * 获取NFC读卡器类型
      */

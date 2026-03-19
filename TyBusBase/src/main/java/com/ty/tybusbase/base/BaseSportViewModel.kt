@@ -412,6 +412,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             sportIndicators = indicatorList
             sportViolationStatus = result.sportViolationStatus
             sportViolationNumber = result.sportViolationNumber
+            reportVersion = result.reportVersion
+            reportCode = result.reportCode
             if (recordPlan != null) {
                 recordPlan.sportViolationStatus = result.sportViolationStatus
                 recordPlan.sportViolationNumber = result.sportViolationNumber

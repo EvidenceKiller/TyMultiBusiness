@@ -114,6 +114,10 @@ public class SportResult {
     //  运动违规次数
     private String sportViolationNumber;
 
+    private String reportVersion;
+
+    private String reportCode;
+
     private File videoFile= null;
     private String videoCover= null;
 
@@ -304,6 +308,22 @@ public class SportResult {
 
     public void setVideoCover(String videoCover) {
         this.videoCover = videoCover;
+    }
+
+    public String getReportCode() {
+        return reportCode;
+    }
+
+    public void setReportCode(String reportCode) {
+        this.reportCode = reportCode;
+    }
+
+    public String getReportVersion() {
+        return reportVersion;
+    }
+
+    public void setReportVersion(String reportVersion) {
+        this.reportVersion = reportVersion;
     }
 
     @Override
