@@ -70,6 +70,7 @@ import com.adl.sport.general.groupskippingremix.GroupSkippingManLRemix
 import com.adl.sport.general.groupskippingremix.GroupSkippingManRemix
 import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.utils.LogUtil
@@ -911,6 +912,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.sportResult = multiResult.count.toString()
                 sportResult.videoCover = videoCover
                 sportResult.videoFile = videoFile
+                sportResult.reportVersion = BusiBaseConfig.getReportVersion()
                 var indicatorsList: MutableList<SportIndicatorsEntity<*, *>>? = null
                 when (multiSportParser) {
                     is GroupSkippingLRemixParser -> {

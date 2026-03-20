@@ -101,8 +101,8 @@ public class SportResult {
     private String sportSkuSubType;
 
     //运动开始和结束时间
-    private Long startTime;
-    private Long endTime;
+    private long startTime = 0;
+    private long endTime = 0;
 
     private String multiPersonId;
 
@@ -114,22 +114,26 @@ public class SportResult {
     //  运动违规次数
     private String sportViolationNumber;
 
+    private String reportVersion;
+
+    private String reportCode;
+
     private File videoFile= null;
     private String videoCover= null;
 
-    public Long getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Long startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public Long getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Long endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
@@ -304,6 +308,22 @@ public class SportResult {
 
     public void setVideoCover(String videoCover) {
         this.videoCover = videoCover;
+    }
+
+    public String getReportCode() {
+        return reportCode;
+    }
+
+    public void setReportCode(String reportCode) {
+        this.reportCode = reportCode;
+    }
+
+    public String getReportVersion() {
+        return reportVersion;
+    }
+
+    public void setReportVersion(String reportVersion) {
+        this.reportVersion = reportVersion;
     }
 
     @Override
