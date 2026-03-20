@@ -101,8 +101,8 @@ public class SportResult {
     private String sportSkuSubType;
 
     //运动开始和结束时间
-    private Long startTime;
-    private Long endTime;
+    private long startTime = 0;
+    private long endTime = 0;
 
     private String multiPersonId;
 
@@ -121,19 +121,19 @@ public class SportResult {
     private File videoFile= null;
     private String videoCover= null;
 
-    public Long getStartTime() {
+    public long getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Long startTime) {
+    public void setStartTime(long startTime) {
         this.startTime = startTime;
     }
 
-    public Long getEndTime() {
+    public long getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Long endTime) {
+    public void setEndTime(long endTime) {
         this.endTime = endTime;
     }
 
