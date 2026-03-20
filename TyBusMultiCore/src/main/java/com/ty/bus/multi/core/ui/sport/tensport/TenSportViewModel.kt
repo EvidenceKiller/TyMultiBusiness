@@ -9,6 +9,7 @@ import com.ty.tybusbase.utils.ApplicationUtil
 import androidx.core.net.toUri
 import com.adl.mount.sport.TsSportChannel
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.utils.LogUtil
 import kotlin.math.abs
 import kotlin.math.max
@@ -128,10 +129,17 @@ class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(a
 
     override fun initFaceIdentify() {
         super.initFaceIdentify()
-        multiIdentityEngine.addIdentityCount(4, 6)
-        multiIdentityEngine.addIdentityCount(9, 6)
-        multiIdentityEngine.addIdentityCount(5, 4)
-        multiIdentityEngine.addIdentityCount(8, 4)
+        //0~9索引对应1~10道
+        multiIdentityEngine.addIdentityConfig(0, FaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(1, FaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(2, FaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(3, FaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(4, FaceIdentifyConfig(6))
+        multiIdentityEngine.addIdentityConfig(5, FaceIdentifyConfig(4))
+        multiIdentityEngine.addIdentityConfig(6, FaceIdentifyConfig(3, 0.6f))
+        multiIdentityEngine.addIdentityConfig(7, FaceIdentifyConfig(3, 0.6f))
+        multiIdentityEngine.addIdentityConfig(8, FaceIdentifyConfig(4))
+        multiIdentityEngine.addIdentityConfig(9, FaceIdentifyConfig(6))
     }
 
     override fun isSupportReport(): Boolean {

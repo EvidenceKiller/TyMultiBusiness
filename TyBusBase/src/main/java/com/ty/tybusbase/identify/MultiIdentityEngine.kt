@@ -45,8 +45,6 @@ class MultiIdentityEngine {
 
     private val identifyMap by lazy { HashMap<Int, Int>() }
 
-    private val identifyCountMap by lazy { HashMap<Int, Int>() } //每个位置可设置识别次数
-
     private val identifyConfigMap by lazy { HashMap<Int, FaceIdentifyConfig>() } //每个位置单独设置的识别配置
 
     private var isOK = false
@@ -86,20 +84,22 @@ class MultiIdentityEngine {
         })
     }
 
+
     /**
-     * 添加每个位置可识别次数后，才为游客
+     * 添加每个位置人脸识别配置
      */
-    fun addIdentityCount(number: Int, count: Int) {
-        identifyCountMap[number] = count
+    fun addIdentityConfig(number: Int, config: FaceIdentifyConfig) {
+        identifyConfigMap[number] = config
     }
 
     /**
-     * 设置可识别次数的map
+     * 设置每个位置人脸识别配置
      */
-    fun setIdentityCountMap(map: HashMap<Int, Int>) {
-        identifyCountMap.clear()
-        identifyCountMap.putAll(map)
+    fun setIdentityConfigMap(map: HashMap<Int, FaceIdentifyConfig>) {
+        identifyConfigMap.clear()
+        identifyConfigMap.putAll(map)
     }
+
 
     /**
      * 查询用户基本信息
@@ -137,7 +137,6 @@ class MultiIdentityEngine {
         if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
             val identifyCount = identifyMap.getOrDefault(number, 0) + 1
             identifyMap[number] = identifyCount
-//            var visitorRetryNum = identifyCountMap.getOrDefault(number, VISITOR_RETRY_COUNT)
             if (visitorAble && identifyCount >= faceIdentifyConfig.visitorRetryNum) {
                 createVisitor()
             } else {
@@ -292,7 +291,8 @@ class MultiIdentityEngine {
     }
 
     fun closeMachine() {
-        identifyCountMap.clear()
+        identifyMap.clear()
+        identifyConfigMap.clear()
         identityListener = null
         FaceDetectorHelper.getInstance().reset()
     }

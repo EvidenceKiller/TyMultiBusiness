@@ -6,6 +6,7 @@ import com.adl.base.log.AdlLogger
 import com.adl.mount.core.TsTaskBodyDefaultFilter
 import com.adl.mount.sport.TsSportChannel
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.tybusbase.entity.FaceIdentifyConfig
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -50,7 +51,7 @@ class TenMultiFaceTestViewModel(application: Application): BaseVideoFaceViewMode
 
     override fun initFaceIdentify() {
         super.initFaceIdentify()
-        multiIdentityEngine.addIdentityCount(4, 6)
-        multiIdentityEngine.addIdentityCount(9, 6)
+        multiIdentityEngine.addIdentityConfig(4, FaceIdentifyConfig(6))
+        multiIdentityEngine.addIdentityConfig(9, FaceIdentifyConfig(6))
     }
 }
