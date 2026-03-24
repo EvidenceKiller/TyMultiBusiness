@@ -285,6 +285,13 @@
                     android:text="框体测试"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+                <Button
+                    android:id="@+id/btn_frame_animation_test"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="多序列帧动画"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <!--       BMI     -->

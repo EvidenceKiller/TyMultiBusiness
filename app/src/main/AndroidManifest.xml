@@ -106,7 +106,8 @@
         <activity android:name="com.ai.ui.doubleface.DoubleFaceTestActivity" />
         <activity android:name="com.ai.ui.multiface.MultiFaceTestActivity"/>
         <activity android:name="com.ai.ui.picfacetest.PicFaceTestActivity"/>
-
+        <activity android:name="com.ai.ui.glframe.OpenGlFrameActivity"
+            android:exported="true"/>
     </application>
 
 </manifest>

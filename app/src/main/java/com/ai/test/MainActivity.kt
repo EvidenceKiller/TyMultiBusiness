@@ -11,6 +11,7 @@ import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
+import com.ai.ui.glframe.OpenGlFrameActivity
 import com.ai.ui.multiface.MultiFaceTestActivity
 import com.ai.ui.nfc.NfcReaderActivity
 import com.ai.ui.picfacetest.PicFaceTestActivity
@@ -170,6 +171,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 this,
                 10
             )
+        }
+
+        mBinding.btnFrameAnimationTest.setOnClickListener { 
+            startActivity(Intent(this, OpenGlFrameActivity::class.java))
         }
 
         mBinding.btnIpcSet.setOnClickListener {
