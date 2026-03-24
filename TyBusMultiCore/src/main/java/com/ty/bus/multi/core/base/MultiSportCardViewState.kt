@@ -1,6 +1,11 @@
 package com.ty.bus.multi.core.base
 
 enum class MultiSportCardViewState {
+
+    /**
+     * idle状态
+      */
+    IDLE,
     /**
      * 无人进入
      */
@@ -70,4 +75,8 @@ enum class MultiSportCardViewState {
      */
     PRECAST_PREPARE,
 
+    /**
+     * 运动结束
+     */
+    FINISH,
 }
