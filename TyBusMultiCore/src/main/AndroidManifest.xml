@@ -42,5 +42,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity"
+            android:exported="true" />
     </application>
 </manifest>

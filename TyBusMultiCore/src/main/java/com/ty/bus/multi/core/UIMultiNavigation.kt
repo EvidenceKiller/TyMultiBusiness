@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
@@ -18,6 +19,7 @@ import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
+import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.config.UINavConfig
 
@@ -96,6 +98,15 @@ object UIMultiNavigation {
      */
     fun goForwardFlexionSixSetting(context: Context) {
         context.startActivity(Intent(context, ForwardFlexionSixSettingActivity::class.java))
+    }
+
+    /**
+     * 跳转6人运动
+     */
+    fun goSixSport(context: Context, config: UINavConfig?, tsConfig: SixSportConfig? = null) {
+        val intent = Intent(context, SixSportActivity::class.java)
+        intent.putExtra("sport_config", tsConfig)
+        startActivity(context, intent, config)
     }
 
     /**

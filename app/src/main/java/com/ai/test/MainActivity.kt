@@ -19,6 +19,7 @@ import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.BluetoothSportConfig
+import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
@@ -310,6 +311,18 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     .setSupportChoose(false)
                     .build()
             )
+        }
+
+        mBinding.btnSixYwqz.setOnClickListener {
+            UIMultiNavigation.goSixSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_SIT_UP
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "6人仰卧起坐"
+                    testCount = "6"
+                    sceneId = SceneConstants.FREE
+                }
+            }, SixSportConfig.builder().build())
         }
 
 
