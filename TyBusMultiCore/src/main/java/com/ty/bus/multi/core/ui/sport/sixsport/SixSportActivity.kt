@@ -1,9 +1,11 @@
 package com.ty.bus.multi.core.ui.sport.sixsport
 
 import android.animation.ObjectAnimator
+import android.graphics.ImageFormat
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.text.TextUtils
 import android.view.View
 import android.view.ViewGroup
@@ -13,9 +15,20 @@ import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.core.view.isNotEmpty
 import androidx.recyclerview.widget.RecyclerView
+import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
+import com.adl.base.element.ElementFpsCounter
+import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.OnRenderScene
+import com.adl.lib.AdlCameraConfig
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraListener
+import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.lib.AdlCameraPreviewView
+import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.mount.core.TsModelInfo
 import com.adl.mount.core.TsModelResPool
 import com.adl.processor.SportProcessorStatus
@@ -28,10 +41,12 @@ import com.adl.sport.general.multi.MultiSportProcessor
 import com.adl.sport.general.multi.MultiSportRegionCheckFilter
 import com.adl.sport.general.multi.MultiSportResult
 import com.bumptech.glide.Glide
+import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
 import com.ty.bus.multi.core.factory.MultiSportProduceFactory
@@ -40,6 +55,7 @@ import com.ty.bus.multi.core.view.threesport.ThreeSportResultView
 import com.ty.bus.multi.databinding.ActivitySixSportBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.DeviceUtil
@@ -47,6 +63,15 @@ import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 
 class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSportViewModel>() {
+
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20251222111346880.mp4"
+    /***************************视频播放调试*************************/
+
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
 
     private val multiSportProcessor by lazy { MultiSportProcessor() }
@@ -56,8 +81,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     private lateinit var parser: MultiSportParser<*>
 
     private val imgMap = hashMapOf<Int, ImageView>()
-
-    private lateinit var srrvResult: ThreeSportResultView
 
     private lateinit var factory: AbstractMultiSportFactory
 
@@ -77,12 +100,25 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     }
     private val checkStatusList = mutableListOf<Boolean>()
 
+    /**********************摄像头相关******************************/
+    private val cameraDispatcher by lazy {
+        DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
+            this.setPosition(
+                0f,
+                0f
+            )
+        })
+    }
+
+    private lateinit var ipcHik: NsCameraHKSource
+    /**********************摄像头相关******************************/
+
     override fun initData() {
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tsConfig =
-            intent.getSerializableExtra("sport_config") as? ThreeSportConfig
+            intent.getSerializableExtra("sport_config") as? SixSportConfig
         for (i in 0 until viewModel.sportManCount) {
             checkStatusList.add(false)
         }
@@ -101,8 +137,185 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         }
         mainHandler.postDelayed(tipRunnable, 1000)
         initOverlay()
-        initPersonStateImageView()
         initProcess()
+        if (viewModel.streamType == 1) {
+            mBinding.layout.visibility = View.GONE
+            mBinding.llBtn.visibility = View.GONE
+            initCamera()
+        } else {
+            initVideoView()
+            initVideo()
+        }
+    }
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray?, width: Int, height: Int, time: Long) {
+                frameTime += 40
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+                multiSportProcessor.onFrame(yuv,info)
+            }
+        })
+    }
+
+
+    private fun initCamera() {
+        cameraDispatcher.setMirror(true)
+        cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
+        cameraDispatcher.addFrameProcessor(multiSportProcessor)
+        val ip =
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_IP,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+            )
+        val account = MMKVUtil.decodeString(
+            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+        )
+        val psw =
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_PSW,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+            )
+        val hikSubConfig = AdlCameraConfig.builder()
+        hikSubConfig.isPreviewEnable = false
+        ipcHik = hikSubConfig
+            .setPreviewFormat(ImageFormat.YV12)
+            .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
+                ip,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
+                account,
+                psw
+            ).setStreamType(0).build() as NsCameraHKSource
+    }
+
+    private fun cameraLogin() {
+        if (viewModel.streamType != 1) return
+        ipcHik.login(object : AdlCameraListener {
+            override fun onOpenSucceed() {
+
+            }
+
+            override fun onLoginSucceed() {
+                changeResolution()
+                SystemClock.sleep(100)
+                runOnUiThread {
+                    hideCameraTips()
+                    startCameraPreview()
+                }
+            }
+
+            override fun onLoginFail() {
+                runOnUiThread {
+                    setCameraTips(getString(R.string.ipc_camera_fail_tip))
+                }
+            }
+
+            override fun onOpenStatus(p0: String?) {
+
+            }
+
+            override fun onError(p0: Exception?) {
+                runOnUiThread {
+                    setCameraTips(getString(R.string.ipc_camera_fail_tip))
+                }
+            }
+
+            override fun onStreamLoss() {
+            }
+
+            override fun onOpenFail() {
+            }
+        })
+    }
+
+    private fun startCameraPreview() {
+        //开启摄像头
+        mBinding.cameraView.startPreview(ipcHik, object :
+            AdlCameraPreviewView.OnViewStatusListener {
+            override fun onAvailable() {
+
+            }
+
+            override fun onCameraOpen() {
+                runOnUiThread {
+                    hideCameraTips()
+                }
+            }
+
+            override fun onDestroyed() {
+
+            }
+
+            override fun onStreamLoss() {
+                runOnUiThread {
+                    setCameraTips(getString(R.string.camera_loss_tips))
+                }
+            }
+
+            override fun onOpenFail() {
+                runOnUiThread {
+                    setCameraTips(getString(R.string.ipc_camera_fail_tip))
+                }
+            }
+        })
+        mBinding.cameraView.addFrameProcessor(cameraDispatcher)
+        mBinding.cameraView.textureView.scaleX = -1f
+    }
+
+    private fun setCameraTips(text: String) {
+        AdlLogger.d(text)
+        mBinding.tvCameraTips.visibility = View.VISIBLE
+        mBinding.tvCameraTips.text = text
+    }
+
+    private fun hideCameraTips() {
+        mBinding.tvCameraTips.visibility = View.GONE
+    }
+
+    /**
+     * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
+     */
+    private fun changeResolution() {
+        val deviceItem = ipcHik.deviceItem
+        if (deviceItem.m_lUserID == -1) return
+//        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27,26,14)
     }
 
     override fun initObserver() {
@@ -226,38 +439,12 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
         val uiConfig = AdlUIConfig.instance().readConfig(
-            BusiBaseConstantsValue.THREE_SPORT_CONFIG_KEY,
+            "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}6",
             RoleConfigMulti::class.java
         )
         uiConfig.number = viewModel.sportManCount
-        if (uiConfig.targetRegion == null) {
-            uiConfig.targetRegion = BusiBaseConstantsValue.THREE_SPORT_CONFIG_DEFAULT_REGION
-        }
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.enableTouch(false)
-    }
-
-    /**
-     * 添加各位置的空闲图片
-     */
-    private fun initPersonStateImageView() {
-        mBinding.overlay.post {
-            val displayRegion = mBinding.overlay.displayRegion
-            val imgWidth = 118
-            val imgHeight = 83
-            displayRegion.forEachIndexed { index, quadrilateral ->
-                val img = ImageView(this)
-                img.setBackgroundResource(R.mipmap.pic_leisure)
-                val params = ConstraintLayout.LayoutParams(imgWidth, imgHeight)
-                params.topToTop = ConstraintLayout.LayoutParams.PARENT_ID
-                params.leftToLeft = ConstraintLayout.LayoutParams.PARENT_ID
-                params.topMargin = quadrilateral.rect.centerY() - imgHeight.div(2)
-                params.leftMargin = quadrilateral.rect.centerX() - imgWidth.div(2)
-                img.layoutParams = params
-                mBinding.root.addView(img)
-                imgMap[index] = img
-            }
-        }
     }
 
     private fun initProcess() {
@@ -367,10 +554,12 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     override fun onResume() {
         super.onResume()
         multiSportProcessor.onReset()
+        cameraLogin()
     }
 
     override fun onPause() {
         super.onPause()
+        mBinding.cameraView.stopPreview()
     }
 
     override fun onDestroy() {
@@ -379,5 +568,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         multiSportProcessor.onRelease()
         parser.resetScore()
         sportConfig.unloadModel()
+        mBinding.cameraView.release()
+        mBinding.overlay.release()
+        cameraDispatcher.quit()
+        videoReader?.release()
     }
 }

@@ -17,6 +17,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
+import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -45,7 +46,9 @@ import kotlin.math.min
 
 class SixSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
     //记录开始和结束时间
-    var tsConfig: ThreeSportConfig? = null
+    var tsConfig: SixSportConfig? = null
+
+    val streamType = 2 //1:摄像头播放，2:视频播放
 
     var startTime: Long = 0
     var endTime: Long = 0
@@ -54,7 +57,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         mutableListOf<GroupSportsBaseChannelStatus>() //记录每个位置进入的时间，用来处理是否可以人脸识别
     private val currentCardState = mutableListOf<MultiSportCardViewState>()
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
-    var sportManCount = 3 //运动人数
+    var sportManCount = 6 //运动人数
     val sportPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
     private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
     val simpleFormat = SimpleDateFormat("m:ss")

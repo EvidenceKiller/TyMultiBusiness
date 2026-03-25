@@ -173,7 +173,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             )
         }
 
-        mBinding.btnFrameAnimationTest.setOnClickListener { 
+        mBinding.btnFrameAnimationTest.setOnClickListener {
             startActivity(Intent(this, OpenGlFrameActivity::class.java))
         }
 
@@ -330,6 +330,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             }, SixSportConfig.builder().build())
         }
 
+        mBinding.btnSixYwqzSet.setOnClickListener {
+            UIMultiNavigation.goMultiRegionSetting(this, 6, 1)
+        }
 
     }
 }

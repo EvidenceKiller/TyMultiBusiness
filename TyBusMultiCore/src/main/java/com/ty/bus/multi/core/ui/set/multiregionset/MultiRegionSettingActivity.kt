@@ -17,6 +17,11 @@ import com.ty.tybusbase.utils.ToastUtil
 
 class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding, BaseViewModel>() {
     private val number by lazy { intent.getIntExtra("test_count", 0) }
+    // 0:1920*1080;
+    // 1:2560*1440;
+    // 2:3840*2160
+    private val resolutionType by lazy { intent.getIntExtra("res_type", 0) }
+
     override fun initObserver() {
 
     }
@@ -84,8 +89,14 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
             MMKVBusiKey.HTTP_CAMERA_PSW,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
         )
+        val pairResolution = when (resolutionType) {
+            0 -> Pair(1920, 1080)
+            1 -> Pair(2560, 1440)
+            2 -> Pair(3840, 2160)
+            else -> Pair(1920, 1080)
+        }
         val camera = AdlCameraConfig.builder()
-            .setPreviewSize(1920,1080)
+            .setPreviewSize(pairResolution.first,pairResolution.second)
             .setCameraType(AdlCameraConfig.CameraType.HK)
             .setConnect(ip, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT, account, psw)
             .setStreamType(0)

@@ -8,7 +8,11 @@ object MultiSportProduceFactory {
         return when (itemCode) {
 
             SportConstant.SPORT_SIT_UP -> {
-                ThreeSiteUpFactory()
+                if (testCount == "6") {
+                    SixSiteUpFactory()
+                } else {
+                    ThreeSiteUpFactory()
+                }
             }
 
             SportConstant.SPORT_PUSH_UP -> {
