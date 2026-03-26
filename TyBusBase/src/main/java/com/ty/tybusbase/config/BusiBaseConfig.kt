@@ -21,7 +21,7 @@ object BusiBaseConfig {
     }
 
     /**
-     * 获取游客模式
+     * 获取DEBUG模式
      */
     fun getDebugEnable(): Boolean {
         return MMKVUtil.decodeBoolean(
