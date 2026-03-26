@@ -27,6 +27,16 @@
         app:layout_constraintStart_toStartOf="@id/rl_bg"
         app:layout_constraintTop_toTopOf="@+id/rl_bg" />
 
+    <ImageView
+        android:id="@+id/iv_header_bg_rl"
+        android:layout_width="@dimen/dp_294"
+        android:layout_height="@dimen/dp_294"
+        android:background="@mipmap/icon_header_bg_vip"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_head_rl"
+        app:layout_constraintEnd_toEndOf="@+id/iv_head_rl"
+        app:layout_constraintStart_toStartOf="@+id/iv_head_rl"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_rl" />
+
     <TextView
         android:id="@+id/tv_name_rl"
         android:layout_width="@dimen/dp_254"
@@ -75,6 +85,16 @@
         app:border_color="@color/white"
         app:layout_constraintBottom_toBottomOf="@+id/l_w_bg"
         app:layout_constraintStart_toStartOf="@+id/l_w_bg" />
+
+    <ImageView
+        android:id="@+id/iv_header_bg_lw"
+        android:layout_width="@dimen/dp_294"
+        android:layout_height="@dimen/dp_294"
+        android:background="@mipmap/icon_header_bg_vip"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_head_lw"
+        app:layout_constraintEnd_toEndOf="@+id/iv_head_lw"
+        app:layout_constraintStart_toStartOf="@+id/iv_head_lw"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_lw" />
 
     <TextView
         android:id="@+id/tv_name_lw"
