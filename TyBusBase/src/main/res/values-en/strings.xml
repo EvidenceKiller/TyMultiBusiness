@@ -111,4 +111,5 @@
   <string name="busi_base_input_name_search">请输入学生姓名/首字母搜索</string>
   <string name="busi_base_search_by_grade">按班级查找</string>
   <string name="busi_base_search_by_name">按姓名搜索</string>
+  <string name="busi_base_energe">能量</string>
 </resources>

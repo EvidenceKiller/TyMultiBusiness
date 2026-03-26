@@ -141,8 +141,8 @@
 
         <ImageView
             android:id="@+id/iv_header_bg"
-            android:layout_width="@dimen/dp_84"
-            android:layout_height="@dimen/dp_84"
+            android:layout_width="@dimen/dp_186"
+            android:layout_height="@dimen/dp_186"
             android:background="@mipmap/icon_header_bg_vip"
             app:layout_constraintBottom_toBottomOf="@+id/iv_header"
             app:layout_constraintEnd_toEndOf="@+id/iv_header"
@@ -196,8 +196,8 @@
             app:layout_constraintTop_toTopOf="@+id/tv_name_sport" />
         <ImageView
             android:id="@+id/iv_header_bg2"
-            android:layout_width="@dimen/dp_84"
-            android:layout_height="@dimen/dp_84"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_60"
             android:background="@mipmap/icon_header_bg_vip"
             app:layout_constraintBottom_toBottomOf="@+id/civ_header"
             app:layout_constraintEnd_toEndOf="@+id/civ_header"

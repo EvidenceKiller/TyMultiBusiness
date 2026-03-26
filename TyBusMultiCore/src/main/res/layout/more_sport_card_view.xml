@@ -140,7 +140,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="civ_header,tv_name_sport,tv_count,tv_unit" />
+        app:constraint_referenced_ids="civ_header,iv_header_bg2,tv_name_sport,tv_count,tv_unit" />
 
     <com.ty.tybusbase.view.CircleImageView
         android:id="@+id/civ_header"
