@@ -46,6 +46,13 @@
                     android:text="5人下蹲"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+                <Button
+                    android:id="@+id/bnt_5_region_set"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5人框体设置"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
 
             </LinearLayout>
 

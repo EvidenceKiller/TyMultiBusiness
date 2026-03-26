@@ -27,6 +27,16 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <ImageView
+        android:id="@+id/iv_header_bg"
+        android:layout_width="@dimen/dp_108"
+        android:layout_height="@dimen/dp_108"
+        android:background="@mipmap/icon_header_bg_vip"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+        app:layout_constraintEnd_toEndOf="@+id/iv_header"
+        app:layout_constraintStart_toStartOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="@+id/iv_header" />
+
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="wrap_content"

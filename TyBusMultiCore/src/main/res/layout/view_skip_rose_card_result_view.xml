@@ -26,6 +26,16 @@
         app:layout_constraintTop_toTopOf="@+id/iv_header_crown" />
 
     <ImageView
+        android:id="@+id/iv_header_bg"
+        android:layout_width="@dimen/dp_108"
+        android:layout_height="@dimen/dp_108"
+        android:background="@mipmap/icon_header_bg_vip"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+        app:layout_constraintEnd_toEndOf="@+id/iv_header"
+        app:layout_constraintStart_toStartOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="@+id/iv_header" />
+
+    <ImageView
         android:id="@+id/iv_header_crown"
         android:layout_width="@dimen/dp_128"
         android:layout_height="@dimen/dp_80"
@@ -82,7 +92,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="tv_name,iv_header,iv_header_crown,tv_count,tv_unit" />
+        app:constraint_referenced_ids="tv_name,iv_header,iv_header_bg,iv_header_crown,tv_count,tv_unit" />
 
     <TextView
         android:id="@+id/tv_nobody"

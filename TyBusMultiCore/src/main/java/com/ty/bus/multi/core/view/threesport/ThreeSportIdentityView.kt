@@ -45,7 +45,8 @@ class ThreeSportIdentityView(context: Context, attrs: AttributeSet?, defStyleAtt
     fun setUserInfo(p: Pair<Int, AccountInfo>) {
         cardMap[p.first]?.setUserInfo(
             p.second.studentEntity!!.accountName,
-            p.second.studentEntity!!.userFaceImgUrl
+            p.second.studentEntity!!.userFaceImgUrl,
+            true
         )
     }
 

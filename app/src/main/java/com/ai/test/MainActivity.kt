@@ -75,6 +75,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             })
         }
 
+        mBinding.bnt5RegionSet.setOnClickListener {
+            UIMultiNavigation.goMultiRegionSetting(this, 5, 0)
+        }
+
         mBinding.bnt11.setOnClickListener {
             goTenSport(
                 this, UINavConfig().apply {

@@ -127,7 +127,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="iv_header,tv_name,tv_prepared" />
+            app:constraint_referenced_ids="iv_header,iv_header_bg,tv_name,tv_prepared" />
 
         <ImageView
             android:id="@+id/iv_header"
@@ -138,6 +138,16 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/iv_header_bg"
+            android:layout_width="@dimen/dp_84"
+            android:layout_height="@dimen/dp_84"
+            android:background="@mipmap/icon_header_bg_vip"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+            app:layout_constraintEnd_toEndOf="@+id/iv_header"
+            app:layout_constraintStart_toStartOf="@+id/iv_header"
+            app:layout_constraintTop_toTopOf="@+id/iv_header" />
 
         <TextView
             android:id="@+id/tv_name"
@@ -174,7 +184,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:constraint_referenced_ids="civ_header,tv_name_sport,tv_count,tv_unit,ll_time" />
+            app:constraint_referenced_ids="civ_header,iv_header_bg2,tv_name_sport,tv_count,tv_unit,ll_time" />
 
         <com.ty.tybusbase.view.CircleImageView
             android:id="@+id/civ_header"
@@ -184,7 +194,15 @@
             app:layout_constraintBottom_toBottomOf="@+id/tv_name_sport"
             app:layout_constraintRight_toLeftOf="@+id/tv_name_sport"
             app:layout_constraintTop_toTopOf="@+id/tv_name_sport" />
-
+        <ImageView
+            android:id="@+id/iv_header_bg2"
+            android:layout_width="@dimen/dp_84"
+            android:layout_height="@dimen/dp_84"
+            android:background="@mipmap/icon_header_bg_vip"
+            app:layout_constraintBottom_toBottomOf="@+id/civ_header"
+            app:layout_constraintEnd_toEndOf="@+id/civ_header"
+            app:layout_constraintStart_toStartOf="@+id/civ_header"
+            app:layout_constraintTop_toTopOf="@+id/civ_header" />
         <TextView
             android:id="@+id/tv_name_sport"
             android:layout_width="wrap_content"

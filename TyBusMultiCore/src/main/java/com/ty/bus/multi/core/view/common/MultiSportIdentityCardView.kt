@@ -90,11 +90,11 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
     /**
      * 设置用户信息
      */
-    fun setUserInfo(name: String, headUrl: String?) {
+    fun setUserInfo(name: String, headUrl: String?,showHeaderBg: Boolean?) {
         Glide.with(context).load(headUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
-
+        mBinding.ivHeaderBg.visibility = if (showHeaderBg == true) VISIBLE else INVISIBLE
         mBinding.tvName.text = name
     }
 
