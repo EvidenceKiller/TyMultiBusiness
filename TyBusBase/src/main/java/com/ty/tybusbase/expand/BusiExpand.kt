@@ -147,3 +147,17 @@ fun View.onDebouncedClick(delay: Long = 500, action: (View) -> Unit) {
         }
     }
 }
+
+/**
+ * 获取文件后缀（扩展名）
+ * @param filePath 文件路径（可以是完整路径或文件名）
+ * @return 后缀字符串，若无后缀则返回空字符串
+ */
+fun String.getFileExtension(): String {
+    // 提取文件名（兼容带路径的情况）
+    val fileName = substringAfterLast('/').substringAfterLast('\\')
+    // 查找最后一个点
+    val lastDotIndex = fileName.lastIndexOf('.')
+    // 如果点不存在，或者点位于第一个字符（隐藏文件），则无后缀
+    return if (lastDotIndex > 0) fileName.substring(lastDotIndex + 1) else ""
+}
