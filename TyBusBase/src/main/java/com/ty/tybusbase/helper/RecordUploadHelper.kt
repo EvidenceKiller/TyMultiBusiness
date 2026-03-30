@@ -26,6 +26,9 @@ object RecordUploadHelper {
     fun getCacheUploadResFileInfo(filePath: String): Pair<String, String>? =
         uploadResFileInfoMap.getOrDefault(filePath, null)?.get()
 
+    /**
+     * 存储资源信息到数据库
+     */
     fun handleUploadResUrl(
         sportRecordEntity: SportRecordEntity,
         filePath: String,
@@ -37,16 +40,12 @@ object RecordUploadHelper {
             sportRecordEntity.sportTypeCode,
             type
         )
-        AdlService.getService().recordResDao.insert(
-            createRecordResEntity(
-                sportRecordEntity.accountId,
-                sportRecordEntity.sportSkuId,
-                filePath,
-                uploadFileInfo.first,
-                uploadFileInfo.second
-            )
+        return handleUploadResUrl(
+            sportRecordEntity,
+            filePath,
+            uploadFileInfo.first,
+            uploadFileInfo.second
         )
-        return "${AdlService.getService().facePrefix}${uploadFileInfo.first}/${uploadFileInfo.second}"
     }
 
     fun handleUploadResUrl(
@@ -81,6 +80,18 @@ object RecordUploadHelper {
         this.uploadFileName = fileName
     }
 
+
+    /**
+     *
+     * 图片路劲：
+     * /{业务类型代码}/sport/indicator/images/{运动性质}/{运动类型}/{记录标识码}_{序列码}.png
+     * 视频封面路径：
+     * /{业务类型代码}/sport/indicator/images/cover/{运动性质}/{运动类型}/{记录标识码}_{序列码}.png
+     * 视频路径格式如下：
+     * /{业务类型代码}/sport/indicator/videos/{运动性质}/{运动类型}/{记录标识码}_{序列码}.mp4
+     * type: 1 = 图片，2 = 视频封面，3 = 视视频
+     *
+     */
     fun createRemoteFileName(
         localFilePath: String,
         sportNatureCodes: String,
@@ -150,62 +161,14 @@ object RecordUploadHelper {
      */
     fun syncUploadRes(
         filePath: String,
-        id: String,
         type: Int,
         sportInfo: SceneSportInfoEntity
-    ): String? {
-        //有缓存直接从缓存里面取
-        uploadResMap.getOrDefault(filePath, null)?.get()?.let {
-            return it
-        }
-        var qnUrl: String? = null
-        val remoteFileName = when (type) {
-            1 -> "${id}_${System.currentTimeMillis()}.png"
-            2 -> "${id}_${System.currentTimeMillis()}.png"
-            3 -> "${id}_${System.currentTimeMillis()}.mp4"
-            else -> "${id}_${System.currentTimeMillis()}.png"
-        }
-
-        val filePrefix = when (type) {
-            1 -> "PTE/sport/indicator/images/${sportInfo.sportNatureCodes}/${sportInfo.sportTypeCode}"
-            2 -> "PTE/sport/indicator/images/cover/${sportInfo.sportNatureCodes}/${sportInfo.sportTypeCode}"
-            3 -> "PTE/sport/indicator/videos/${sportInfo.sportNatureCodes}/${sportInfo.sportTypeCode}"
-            else -> "PTE/sport/indicator/images/${sportInfo.sportNatureCodes}/${sportInfo.sportTypeCode}"
-        }
-        val uploadResult =
-            OssFileUploadService.instance().syncUploadFile(filePath, filePrefix, remoteFileName)
-        if (uploadResult.isSuccess) {
-            qnUrl = uploadResult.fileUrl
-            val logMsg = String.format(
-                "[成功] %s\n  URL: %s\n  耗时: %s",
-                //上传到OSS的文件名
-                uploadResult.fileName,
-                //上传到OSS的url路径
-                uploadResult.fileUrl,
-                //上传耗时
-                uploadResult.formattedUploadTime
-            );
-            //存缓存，防止资源重复上传
-            if (qnUrl.isNullOrEmpty().not()) {
-                uploadResMap[filePath] = SoftReference(qnUrl)
-            }
-            LogUtil.d(logMsg)
-        } else {
-            val logMsg = String.format(
-                "[失败] 错误: %s\n  耗时: %s",
-                uploadResult.getErrorMessage(),
-                uploadResult.getFormattedUploadTime()
-            );
-            LogUtil.d(logMsg)
-        }
-        return qnUrl
-    }
+    ): String? = syncUploadRes(filePath, sportInfo.sportNatureCodes, sportInfo.sportTypeCode, type)
 
     fun syncUploadRes(
         filePath: String,
         sportNatureCodes: String,
         sportTypeCode: String,
-        id: String,
         type: Int,
     ): String? {
         //有缓存直接从缓存里面取
@@ -213,55 +176,15 @@ object RecordUploadHelper {
         if (cacheUrl.isNullOrEmpty().not()) {
             return cacheUrl
         }
-        var qnUrl: String? = null
-        val remoteFileName = when (type) {
-            1 -> "${id}_${System.currentTimeMillis()}.png"
-            2 -> "${id}_${System.currentTimeMillis()}.png"
-            3 -> "${id}_${System.currentTimeMillis()}.mp4"
-            else -> "${id}_${System.currentTimeMillis()}.png"
-        }
-
-        val filePrefix = when (type) {
-            1 -> "PTE/sport/indicator/images/${sportNatureCodes}/${sportTypeCode}"
-            2 -> "PTE/sport/indicator/images/cover/${sportNatureCodes}/${sportTypeCode}"
-            3 -> "PTE/sport/indicator/videos/${sportNatureCodes}/${sportTypeCode}"
-            else -> "PTE/sport/indicator/images/${sportNatureCodes}/${sportTypeCode}"
-        }
-
-        val uploadResult =
-            OssFileUploadService.instance().syncUploadFile(filePath, filePrefix, remoteFileName)
-        if (uploadResult.isSuccess) {
-            qnUrl = uploadResult.fileUrl
-            val logMsg = String.format(
-                "[成功] %s\n  URL: %s\n  耗时: %s",
-                //上传到OSS的文件名
-                uploadResult.fileName,
-                //上传到OSS的url路径
-                uploadResult.fileUrl,
-                //上传耗时
-                uploadResult.formattedUploadTime
-            );
-            //存缓存，防止资源重复上传
-            if (qnUrl.isNullOrEmpty().not()) {
-                uploadResMap[filePath] = SoftReference(qnUrl)
-            }
-            LogUtil.d(logMsg)
-        } else {
-            val logMsg = String.format(
-                "[失败] 错误: %s\n  耗时: %s",
-                uploadResult.getErrorMessage(),
-                uploadResult.getFormattedUploadTime()
-            );
-            LogUtil.d(logMsg)
-        }
-        return qnUrl
+        val fileInfo = createRemoteFileName(filePath, sportNatureCodes, sportTypeCode, type)
+        return syncUploadRes(filePath, fileInfo.first, fileInfo.second)
     }
 
     /**
      * 上传成绩，需要在子线程调用
      */
     fun uploadRecord(sportRecordEntity: SportRecordEntity) {
-        //先处理视频上传
+        //先处理视频本地和远程地址存储，后续再传资源
         /**
          * 七牛云视频文件命名规则：
          * /{端标识（1001、1002）}/video/{业务标识（体测、体锻等）}/{项目编码}/{年}/{月}/{日}/{视频文件}
@@ -322,7 +245,8 @@ object RecordUploadHelper {
         sportRecordEntity.sportVideos?.forEach {
             //视频需要上传
             if (it.videoUrl != null && it.videoUrl.isNotEmpty() && File(it.videoUrl).exists()) {
-                val cacheUploadFileInfo = getCacheUploadResFileInfo(it.videoCover)
+                val cacheUploadFileInfo = getCacheUploadResFileInfo(it.videoUrl)
+                LogUtil.d("上传视频获取缓存的封面信息：${cacheUploadFileInfo?.first}--${cacheUploadFileInfo?.second}")
                 val videoPrefix =
                     cacheUploadFileInfo?.first
                         ?: "${authFactory.appCode}/video/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
@@ -342,6 +266,7 @@ object RecordUploadHelper {
             //封面需要上传
             if (it.videoCover != null && it.videoCover.isNotEmpty() && File(it.videoCover).exists()) {
                 val cacheUploadFileInfo = getCacheUploadResFileInfo(it.videoCover)
+                LogUtil.d("上传视频获取缓存的视频地址：${cacheUploadFileInfo?.first}--${cacheUploadFileInfo?.second}")
                 val coverPrefix = cacheUploadFileInfo?.first
                     ?: "${authFactory.appCode}/image/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
                         calendar.get(
