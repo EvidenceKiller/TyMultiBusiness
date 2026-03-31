@@ -70,7 +70,8 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
+
+    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325144937894.mp4"
 
     /***************************视频播放调试*************************/
@@ -235,6 +236,20 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         } else {
             initVideoView()
             initVideo()
+        }
+        //初始化运动View按钮监听
+        mBinding.sportView.listener = object : ResultViewBtnClickListener {
+            override fun onRetestClick() {
+                retest()
+            }
+
+            override fun onNextClick() {
+                next()
+            }
+
+            override fun onEndTestClick() {
+                showExitDialog()
+            }
         }
     }
 
@@ -418,6 +433,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         multiSportProcessor.changeTo(SportProcessorStatus.Prepare)
         mBinding.groupInTip.visibility = View.GONE
         setTip(factory.getInTip())
+        mBinding.overlay.post {
+            mBinding.sportView.visibility = View.VISIBLE
+            hideBackBtn()
+        }
     }
 
     override fun onStatusIdentifySuccess() {
@@ -461,8 +480,8 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         val skeleton = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, false)
 
         sportConfig.debug = isDebug
-        sportConfig.bodyModelId = factory.getFaceBodyModelId()
-        sportConfig.poseModelId = factory.getFacePoseModelId()
+        sportConfig.bodyModelId = factory.getBodyModelId()
+        sportConfig.poseModelId = factory.getPoseModelId()
         sportConfig.drawAllBody = isDebug
         sportConfig.drawBody = isDebug
         sportConfig.drawSkeleton = skeleton
@@ -494,6 +513,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         multiSportProcessor.setConfig(sportConfig)
         multiSportProcessor.open(mBinding.overlay)
         multiSportProcessor.setBodyFilter(SitUpBodyFilter(0.3f))
+        multiSportProcessor.setEnableDropFrame(false); // 整体丢帧: 全局的丢帧
+        multiSportProcessor.setBodyDropFrame(false); // 默认是打开
+        multiSportProcessor.setBodyInterval(3); // 丢帧间隔
         multiSportProcessor.setParser(parser)
         multiSportProcessor.setSmooth(factory.enableSmooth())
         multiSportProcessor.setHistoryBody(factory.enableHistoryBody())
@@ -514,7 +536,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
 
             }
 
-            override fun onError(index: Int, code: Int, error: String) {}
+            override fun onError(index: Int, code: Int, error: String) {
+                LogUtil.d("onError: $code $error")
+            }
         })
         multiSportProcessor.onInit()
     }
