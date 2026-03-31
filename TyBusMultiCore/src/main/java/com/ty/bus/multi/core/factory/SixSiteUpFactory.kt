@@ -35,4 +35,6 @@ class SixSiteUpFactory : AbstractMultiSportFactory() {
     override fun getMultiSportType(): MultiSportType = MultiSportType.CRUNCH_6_PERSONS
 
     override fun enableSmooth(): Boolean = true
+
+    override fun enableHistoryBody(): Boolean = true
 }

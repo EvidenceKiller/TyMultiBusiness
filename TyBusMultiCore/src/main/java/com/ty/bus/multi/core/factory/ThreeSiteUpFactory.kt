@@ -36,4 +36,8 @@ class ThreeSiteUpFactory : AbstractMultiSportFactory() {
     override fun getMultiSportType(): MultiSportType = MultiSportType.CRUNCH_3_PERSONS
 
     override fun enableSmooth(): Boolean = true
+
+    override fun enableHistoryBody(): Boolean = true
+
+    override fun liteBodyDetect(): Boolean = false
 }

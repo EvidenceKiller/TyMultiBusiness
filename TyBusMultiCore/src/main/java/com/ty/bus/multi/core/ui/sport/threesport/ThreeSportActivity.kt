@@ -360,6 +360,7 @@ class ThreeSportActivity :
         sportConfig.drawBody = isDebug
         sportConfig.drawSkeleton = skeleton
         sportConfig.sportType = factory.getMultiSportType()
+        sportConfig.liteBodyDetect = factory.liteBodyDetect()
         sportConfig.loadModel(object : TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
                 if (DeviceUtil.isTsRk3588()) {
@@ -408,6 +409,7 @@ class ThreeSportActivity :
 
             override fun onError(index: Int, code: Int, error: String) {}
         })
+        multiSportProcessor.setHistoryBody(true)
         multiSportProcessor.onInit()
     }
 

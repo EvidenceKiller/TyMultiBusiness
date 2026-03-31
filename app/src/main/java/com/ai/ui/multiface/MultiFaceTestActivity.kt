@@ -117,6 +117,10 @@ class MultiFaceTestActivity :
                 info.imageId = frameTime.toString()
                 viewModel.bsSkipRoseMultiProcessor.onFrame(yuv, info)
             }
+
+            override fun onComplete() {
+
+            }
         })
     }
 

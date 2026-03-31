@@ -40,6 +40,7 @@ import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
 import com.adl.sport.general.multi.MultiSportRegionCheckFilter
 import com.adl.sport.general.multi.MultiSportResult
+import com.adl.sport.general.situp.SitUpBodyFilter
 import com.bumptech.glide.Glide
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
@@ -69,7 +70,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20251222111346880.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325144937894.mp4"
+
     /***************************视频播放调试*************************/
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
@@ -111,6 +114,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     }
 
     private lateinit var ipcHik: NsCameraHKSource
+
     /**********************摄像头相关******************************/
 
     override fun initData() {
@@ -124,6 +128,92 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         }
         factory = MultiSportProduceFactory.getFactory(viewModel.sportInfo?.sportItemCode)
         viewModel.getBestRankTop()
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+        viewModel.changeSportViewStateLD.observe(this) {
+            mBinding.sportView.changeState(it.first, it.second)
+        }
+
+        viewModel.changeIdentityCardStateLD.observe(this) {
+//            mBinding.sportView.changeState(it, factory.getReadyTip())
+            val imageView = imgMap[it.first]
+            if (it.second == MultiSportCardViewState.NOBODY) {
+                imageView?.visibility = View.VISIBLE
+            } else {
+                imageView?.visibility = View.GONE
+            }
+
+            //已识别，设置已识别的位置给parser
+            if (it.second == MultiSportCardViewState.IDENTIFIED) {
+                setTip(factory.getReadyTip())
+                for (i in checkStatusList.indices) {
+                    checkStatusList[i] = false
+                }
+                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
+                viewModel.sportPersonArray.forEach { _, value ->
+                    val number = value.number
+                    if (number in checkStatusList.indices) {
+                        checkStatusList[number] = true
+                    }
+                }
+                parser.setCheckStatusList(checkStatusList)
+            }
+        }
+
+        viewModel.identifiedLD.observe(this) {
+            mBinding.sportView.setAccountInfo(it.first, it.second)
+        }
+
+        viewModel.countDownFinishLD.observe(this) {
+            val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
+            params.width = 342
+            params.height = 192
+            params.rightMargin = 20
+            params.bottomMargin = 20
+            mBinding.cameraView.layoutParams = params
+            hideTip()
+            //隐藏所有空闲图标
+            imgMap.forEach { (_, u) ->
+                u.visibility = View.GONE
+            }
+            if (mBinding.overlay.multiRegion != null) {
+                mBinding.overlay.multiRegion.setDrawing(false)
+            }
+
+            //切换Pose模型ID
+            sportConfig.poseModelId = factory.getPoseModelId()
+            sportConfig.bodyModelId = factory.getBodyModelId()
+            multiSportProcessor.setConfig(sportConfig)
+            mBinding.readyView.startReady {
+                viewModel.toStatusSportStart()
+            }
+        }
+
+        viewModel.resultLD.observe(this) {
+//            mBinding.threeSportView.updateScore(it)
+        }
+
+        viewModel.changeTimeTextBgLD.observe(this) {
+//            mBinding.sportView.changeTimeTextBg(it)
+        }
+
+        viewModel.sportCountDownLD.observe(this) {
+//            mBinding.sportView.updateTime(it)
+        }
+
+        viewModel.readySpeechLD.observe(this) {
+            SpeechWrapper.speech(factory.getReadyTip())
+        }
+
+        viewModel.timeOutLD.observe(this) {
+            finish()
+        }
+
+        viewModel.toDoneLD.observe(this) {
+        }
+
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -184,11 +274,15 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             }
 
             override fun onFrame(yuv: ByteArray?, width: Int, height: Int, time: Long) {
-                frameTime += 40
+                frameTime += 1000 / 24
                 val info = AdlCameraPreviewInfo(width, height)
                 info.frameTimestamp = frameTime
                 info.imageId = frameTime.toString()
-                multiSportProcessor.onFrame(yuv,info)
+                multiSportProcessor.onFrame(yuv, info)
+            }
+
+            override fun onComplete() {
+
             }
         })
     }
@@ -315,94 +409,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
 //        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64, 26, 14)
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27,26,14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27, 26, 14)
     }
 
-    override fun initObserver() {
-        super.initObserver()
-        viewModel.changeSportViewStateLD.observe(this) {
-            mBinding.sportView.changeState(it.first, it.second)
-        }
-
-        viewModel.changeIdentityCardStateLD.observe(this) {
-//            mBinding.sportView.changeState(it, factory.getReadyTip())
-            val imageView = imgMap[it.first]
-            if (it.second == MultiSportCardViewState.NOBODY) {
-                imageView?.visibility = View.VISIBLE
-            } else {
-                imageView?.visibility = View.GONE
-            }
-
-            //已识别，设置已识别的位置给parser
-            if (it.second == MultiSportCardViewState.IDENTIFIED) {
-                setTip(factory.getReadyTip())
-                for (i in checkStatusList.indices) {
-                    checkStatusList[i] = false
-                }
-                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
-                viewModel.sportPersonArray.forEach { _, value ->
-                    val number = value.number
-                    if (number in checkStatusList.indices) {
-                        checkStatusList[number] = true
-                    }
-                }
-                parser.setCheckStatusList(checkStatusList)
-            }
-        }
-
-        viewModel.identifiedLD.observe(this) {
-            mBinding.sportView.setAccountInfo(it.first, it.second)
-        }
-
-        viewModel.countDownFinishLD.observe(this) {
-            val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
-            params.width = 342
-            params.height = 192
-            params.rightMargin = 20
-            params.bottomMargin = 20
-            mBinding.cameraView.layoutParams = params
-            hideTip()
-            //隐藏所有空闲图标
-            imgMap.forEach { (_, u) ->
-                u.visibility = View.GONE
-            }
-            if (mBinding.overlay.multiRegion != null) {
-                mBinding.overlay.multiRegion.setDrawing(false)
-            }
-
-            //切换Pose模型ID
-            sportConfig.poseModelId = factory.getPoseModelId()
-            sportConfig.bodyModelId = factory.getBodyModelId()
-            multiSportProcessor.setConfig(sportConfig)
-            mBinding.readyView.startReady {
-                viewModel.toStatusSportStart()
-            }
-        }
-
-        viewModel.resultLD.observe(this) {
-//            mBinding.threeSportView.updateScore(it)
-        }
-
-        viewModel.changeTimeTextBgLD.observe(this) {
-//            mBinding.sportView.changeTimeTextBg(it)
-        }
-
-        viewModel.sportCountDownLD.observe(this) {
-//            mBinding.sportView.updateTime(it)
-        }
-
-        viewModel.readySpeechLD.observe(this) {
-            SpeechWrapper.speech(factory.getReadyTip())
-        }
-
-        viewModel.timeOutLD.observe(this) {
-            finish()
-        }
-
-        viewModel.toDoneLD.observe(this) {
-        }
-
-    }
 
     override fun onStatusIdentify() {
         parser.checkChannelStatus = true
@@ -484,9 +493,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
 
         multiSportProcessor.setConfig(sportConfig)
         multiSportProcessor.open(mBinding.overlay)
-        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
+        multiSportProcessor.setBodyFilter(SitUpBodyFilter(0.3f))
         multiSportProcessor.setParser(parser)
         multiSportProcessor.setSmooth(factory.enableSmooth())
+        multiSportProcessor.setHistoryBody(factory.enableHistoryBody())
         multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
             override fun onResult(result: MultiSportResult) {
                 /* var listMan: MutableList<GroupSportBaseMan>? = when {

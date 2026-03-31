@@ -96,6 +96,10 @@ class BodyChooseTestActivity : BaseActivity<ActivityBodyChooseTestBinding, BaseV
                 info.imageId = frameTime.toString()
                 processorSingle.onFrame(yuv, info)
             }
+
+            override fun onComplete() {
+
+            }
         })
     }
 

@@ -213,6 +213,10 @@ class ForwardFlexionSixActivity :
                     0
                 )
             }
+
+            override fun onComplete() {
+
+            }
         })
     }
 
