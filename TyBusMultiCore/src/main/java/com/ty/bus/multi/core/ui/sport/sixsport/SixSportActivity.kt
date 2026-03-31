@@ -127,7 +127,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         for (i in 0 until viewModel.sportManCount) {
             checkStatusList.add(false)
         }
-        factory = MultiSportProduceFactory.getFactory(viewModel.sportInfo?.sportItemCode)
+        factory = MultiSportProduceFactory.getFactory(viewModel.sportInfo?.sportItemCode, viewModel.sportInfo?.testCount)
         viewModel.getBestRankTop()
     }
 
