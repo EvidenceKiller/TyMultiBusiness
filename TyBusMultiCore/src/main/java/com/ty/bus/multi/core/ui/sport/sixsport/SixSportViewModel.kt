@@ -49,7 +49,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     //记录开始和结束时间
     var tsConfig: SixSportConfig? = null
 
-    val streamType = 2 //1:摄像头播放，2:视频播放
+    val streamType = 1 //1:摄像头播放，2:视频播放
 
     var startTime: Long = 0
     var endTime: Long = 0
@@ -228,7 +228,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                         layDownStatusList[value.number] = false
                         changeMultiSportViewCardState(
                             value.number,
-                            MultiSportCardViewState.IDENTIFY_CHANGE
+                            MultiSportCardViewState.IDLE
                         )
                     }
                 }

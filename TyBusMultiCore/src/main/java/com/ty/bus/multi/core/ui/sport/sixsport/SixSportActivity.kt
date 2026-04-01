@@ -14,6 +14,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.core.view.isNotEmpty
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlVideoReader
@@ -62,6 +63,8 @@ import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSportViewModel>() {
 
@@ -85,9 +88,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
 
     private val sportConfig by lazy { MultiSportConfig() }
 
-    private lateinit var parser: MultiSportParser<*>
+    private var needChangeResolution = true //是否需要切换分辨率
 
-    private val imgMap = hashMapOf<Int, ImageView>()
+    private lateinit var parser: MultiSportParser<*>
 
     private lateinit var factory: AbstractMultiSportFactory
 
@@ -166,7 +169,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             if (mBinding.overlay.multiRegion != null) {
                 mBinding.overlay.multiRegion.setDrawing(false)
             }
-
+            if (needChangeResolution) {
+                changeResolutionTo2K()
+            }
             //切换Pose模型ID
             mBinding.readyView.startReady {
                 viewModel.toStatusSportStart()
@@ -336,7 +341,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             }
 
             override fun onLoginSucceed() {
-                changeResolution()
+                changeResolution(64, 17)
                 SystemClock.sleep(100)
                 runOnUiThread {
                     hideCameraTips()
@@ -366,6 +371,40 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             override fun onOpenFail() {
             }
         })
+    }
+
+    private fun changeResolutionTo2K() {
+        needChangeResolution = false
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            /********************切换分辨率********************/
+            ipcHik.pauseProcessor()
+            changeResolution(70, 14)
+            SystemClock.sleep(100)
+            mBinding.cameraView.stopPreview()
+            SystemClock.sleep(100)
+            ipcHik.restartProcessor()
+            startCameraPreview()
+            SystemClock.sleep(200)
+            multiSportProcessor.clearTransform()
+            /********************切换分辨率********************/
+        }
+    }
+
+    private fun changeResolutionTo4K() {
+        needChangeResolution = true
+        viewModel.viewModelScope.launch(Dispatchers.IO) {
+            /********************切换分辨率********************/
+            ipcHik.pauseProcessor()
+            changeResolution(64, 17)
+            SystemClock.sleep(100)
+            mBinding.cameraView.stopPreview()
+            SystemClock.sleep(100)
+            ipcHik.restartProcessor()
+            startCameraPreview()
+            SystemClock.sleep(200)
+            multiSportProcessor.clearTransform()
+            /********************切换分辨率********************/
+        }
     }
 
     private fun startCameraPreview() {
@@ -415,11 +454,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     /**
      * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
      */
-    private fun changeResolution() {
+    private fun changeResolution(re: Byte, frameRate: Byte) {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-//        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64, 26, 14)
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, frameRate)
     }
 
 
@@ -567,7 +605,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         mBinding.overlay.multiRegion.setDrawing(true)
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         timeOutHelper.start()
-
+        changeResolutionTo4K()
         mBinding.readyView.reset()
         viewModel.reset()
         multiSportProcessor.onReset()
