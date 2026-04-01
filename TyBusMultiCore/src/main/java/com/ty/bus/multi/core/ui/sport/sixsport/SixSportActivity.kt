@@ -138,20 +138,20 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         super.initObserver()
         viewModel.changeSportViewStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
-            if (it.second == MultiSportCardViewState.IDENTIFIED) {
-                setTip(factory.getReadyTip())
-                for (i in checkStatusList.indices) {
-                    checkStatusList[i] = false
-                }
-                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
-                viewModel.sportPersonArray.forEach { _, value ->
-                    val number = value.number
-                    if (number in checkStatusList.indices) {
-                        checkStatusList[number] = true
-                    }
-                }
-                parser.setCheckStatusList(checkStatusList)
-            }
+//            if (it.second == MultiSportCardViewState.IDENTIFIED) {
+//                setTip(factory.getReadyTip())
+//                for (i in checkStatusList.indices) {
+//                    checkStatusList[i] = false
+//                }
+//                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
+//                viewModel.sportPersonArray.forEach { _, value ->
+//                    val number = value.number
+//                    if (number in checkStatusList.indices) {
+//                        checkStatusList[number] = true
+//                    }
+//                }
+//                parser.setCheckStatusList(checkStatusList)
+//            }
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -217,6 +217,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         } else {
             initVideoView()
             initVideo()
+        }
+        if (viewModel.tsConfig?.isSupportNextGroup == true){
+            mBinding.sportView.showNextBtn()
         }
         //初始化运动View按钮监听
         mBinding.sportView.listener = object : ResultViewBtnClickListener {
@@ -524,7 +527,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
 
             override fun onBreakRules(index: Int, code: Int, role: String?) {
                 super.onBreakRules(index, code, role)
-
+                LogUtil.d("onBreakRules: $index -- $code -- $role")
+                runOnUiThread {
+                    mBinding.sportView.addErrorMsg(index, code, role)
+                }
             }
 
             override fun onError(index: Int, code: Int, error: String) {

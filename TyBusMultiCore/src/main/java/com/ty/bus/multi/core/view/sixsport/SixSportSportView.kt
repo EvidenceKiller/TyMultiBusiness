@@ -61,12 +61,12 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
     }
 
     private fun initView() {
-        cardMap.put(1, mBinding.ffsSport1)
-        cardMap.put(2, mBinding.ffsSport2)
-        cardMap.put(3, mBinding.ffsSport3)
-        cardMap.put(4, mBinding.ffsSport4)
-        cardMap.put(5, mBinding.ffsSport5)
-        cardMap.put(6, mBinding.ffsSport6)
+        cardMap.put(0, mBinding.ffsSport1)
+        cardMap.put(1, mBinding.ffsSport2)
+        cardMap.put(2, mBinding.ffsSport3)
+        cardMap.put(3, mBinding.ffsSport4)
+        cardMap.put(4, mBinding.ffsSport5)
+        cardMap.put(5, mBinding.ffsSport6)
         mBinding.tvBegin.setOnClickListener {
             sportStarted()
             listener?.onStartClick()
@@ -141,6 +141,10 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
                 cardMap[skipMan.positionNum]?.updateResult(skipMan.score)
             }
         }
+    }
+
+    fun addErrorMsg(index: Int,code: Int, msg: String?){
+        cardMap[index]?.addErrorMsg(code, msg)
     }
 
     fun updateTime(time: String) {

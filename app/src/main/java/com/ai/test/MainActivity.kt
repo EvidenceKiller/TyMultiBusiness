@@ -332,7 +332,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     endValue = "20000"
                     sceneId = SceneConstants.FREE
                 }
-            }, SixSportConfig.builder().build())
+            }, SixSportConfig.builder()
+                .setSupportNextGroup(true)
+                .build())
         }
 
         mBinding.btnSixYwqzSet.setOnClickListener {

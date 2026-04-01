@@ -600,7 +600,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until sportManCount) {
+        for (index in 0 until  sportManCount) {
             val multiResult = sportPersonArray.get(index)
             if (multiResult != null) {
                 changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.SPORTING)
@@ -621,7 +621,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             handleUploadResult(sportPersonArray)
         }
         //切换卡片到结束状态
-        for (index in 0 until sportManCount) {
+        for (index in 0 until  sportManCount) {
             val multiResult = sportPersonArray.get(index)
             if (multiResult != null) {
                 changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.FINISH)

@@ -23,12 +23,12 @@ class SixSiteUpFactory : AbstractMultiSportFactory() {
         val rule = EuSiteRule()
         rule.setEnableAutoEnd(false)
         rule.setEnableHandOk(true) // 双手抱头
-        rule.setEnableKneeAngleOk(false) // 屈膝呈90
+        rule.setEnableKneeAngleOk(true) // 屈膝呈90
         rule.setEnableElbowToKnee(false) // 双肘触膝
-        rule.setEnableUpliftHip(false) // 垫臀
+        rule.setEnableUpliftHip(true) // 垫臀
         rule.setEnableShoulderToGround(false) // 肩膀触地
         rule.setShoulderToGroundAngle(15f) // （2-24）
-        rule.setEarHandOk(0.15f) // 双手护耳严格程度（默认0.6 , 0.9宽松 - 0.1严格）
+        rule.setEarHandOk(0.3f) // 双手护耳严格程度（默认0.6 , 0.9宽松 - 0.1严格）
         return SitUpMultiParser(rule, 6)
     }
 

@@ -7,6 +7,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -40,6 +41,8 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private var scoreList: MutableList<Int> = mutableListOf()
 
     private var preState: MultiSportCardViewState = MultiSportCardViewState.IDLE
+
+    private var errorMap = mutableMapOf<Int, Pair<Int, TextView>>()  //错误信息map
 
     /**
      * 进度条假增
@@ -224,6 +227,11 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private fun exitFinished() {
         mBinding.groupResult.gone()
         mBinding.ivSportArrow.gone()
+        mBinding.tvError1.gone()
+        mBinding.tvError2.gone()
+        mBinding.tvError3.gone()
+        mBinding.viewLine1.gone()
+        mBinding.viewLine2.gone()
     }
 
     fun setAccountInfo(accountInfo: AccountInfo) {
@@ -249,6 +257,37 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
 
     fun updateResult(result: Int) {
         mBinding.tvSportingResult.text = result.toString()
+    }
+
+    /**
+     * 添加错误信息
+     */
+    @SuppressLint("SetTextI18n")
+    fun addErrorMsg(code: Int, msg: String?) {
+        if (preState != MultiSportCardViewState.SPORTING) return
+        var pair = errorMap.getOrDefault(code, null)
+        if (pair == null) {
+            when (errorMap.size) {
+                0 -> {
+                    pair = 1 to mBinding.tvError1
+                    mBinding.tvError1.visible()
+                }
+
+                1 -> {
+                    pair = 1 to mBinding.tvError2
+                    mBinding.tvError2.visible()
+                    mBinding.viewLine1.visible()
+                }
+
+                2 -> {
+                    pair = 1 to mBinding.tvError3
+                    mBinding.tvError3.visible()
+                    mBinding.viewLine2.visible()
+                }
+            }
+            errorMap.put(code, pair!!)
+        }
+        pair.second.text = "${msg}: ${pair.first + 1}次"
     }
 
     private fun initView() {

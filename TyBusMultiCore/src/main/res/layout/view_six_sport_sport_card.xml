@@ -223,8 +223,8 @@
         android:layout_width="@dimen/dp_24"
         android:layout_height="@dimen/dp_24"
         android:layout_marginStart="@dimen/dp_162"
-        android:visibility="gone"
         android:background="@mipmap/ic_this_result"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_result_name"
         app:layout_constraintTop_toTopOf="parent" />
@@ -264,7 +264,7 @@
         android:id="@+id/iv_sporting_mask"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/bg_sit_up_6_result_mask_shape"/>
+        android:background="@drawable/bg_sit_up_6_result_mask_shape" />
 
     <TextView
         android:id="@+id/tv_sporting_index"
@@ -305,9 +305,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_18"
+        android:text="0"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_88"
-        android:text="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_sporting_unit"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -319,11 +319,73 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_10"
         android:text="@string/ge"
-        android:textSize="@dimen/sp_48"
         android:textColor="@color/white_80"
+        android:textSize="@dimen/sp_48"
         app:layout_constraintBottom_toBottomOf="@+id/tv_sporting_result"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_sporting_result" />
+
+    <TextView
+        android:id="@+id/tv_error_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:textColor="#F44134"
+        android:textSize="@dimen/sp_24"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/view_line_1"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="上岛咖啡的" />
+
+    <View
+        android:id="@+id/view_line_1"
+        android:layout_width="@dimen/dp_1"
+        android:layout_height="@dimen/dp_12"
+        android:layout_marginHorizontal="@dimen/dp_24"
+        android:background="@color/white_40"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_error_1"
+        app:layout_constraintEnd_toStartOf="@+id/tv_error_2"
+        app:layout_constraintStart_toEndOf="@+id/tv_error_1"
+        app:layout_constraintTop_toTopOf="@+id/tv_error_1" />
+
+    <TextView
+        android:id="@+id/tv_error_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#F44134"
+        android:textSize="@dimen/sp_24"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/view_line_2"
+        app:layout_constraintStart_toEndOf="@+id/view_line_1"
+        app:layout_constraintTop_toTopOf="@+id/tv_error_1"
+        tools:text="上岛咖啡的" />
+
+    <View
+        android:id="@+id/view_line_2"
+        android:layout_width="@dimen/dp_1"
+        android:layout_height="@dimen/dp_12"
+        android:layout_marginHorizontal="@dimen/dp_24"
+        android:background="@color/white_40"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_error_1"
+        app:layout_constraintEnd_toStartOf="@+id/tv_error_3"
+        app:layout_constraintStart_toEndOf="@+id/tv_error_2"
+        app:layout_constraintTop_toTopOf="@+id/tv_error_1" />
+
+    <TextView
+        android:id="@+id/tv_error_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#F44134"
+        android:textSize="@dimen/sp_24"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/view_line_2"
+        app:layout_constraintTop_toTopOf="@+id/tv_error_1"
+        tools:text="上岛咖啡的" />
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_sport"
