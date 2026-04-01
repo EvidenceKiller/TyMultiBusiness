@@ -71,6 +71,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     var enableRender: Boolean = true
     var frameTime: Long = 0
 
+    //是否正在播报语音
+    private var isSpeeching = false
+
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325144937894.mp4"
 
@@ -532,6 +535,12 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             override fun onBreakRules(index: Int, code: Int, role: String?) {
                 super.onBreakRules(index, code, role)
                 LogUtil.d("onBreakRules: $index -- $code -- $role")
+                if (!isSpeeching) {
+                    isSpeeching = true
+                    SpeechWrapper.speech2("${index + 1}号${role}") {
+                        isSpeeching = false
+                    }
+                }
                 runOnUiThread {
                     mBinding.sportView.addErrorMsg(index, code, role)
                 }
@@ -595,5 +604,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         mBinding.overlay.release()
         cameraDispatcher.quit()
         videoReader?.release()
+        SpeechWrapper.stop()
     }
 }

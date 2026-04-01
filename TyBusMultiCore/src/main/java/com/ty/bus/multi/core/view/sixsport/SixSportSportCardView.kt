@@ -269,25 +269,27 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         if (pair == null) {
             when (errorMap.size) {
                 0 -> {
-                    pair = 1 to mBinding.tvError1
+                    pair = 0 to mBinding.tvError1
                     mBinding.tvError1.visible()
                 }
 
                 1 -> {
-                    pair = 1 to mBinding.tvError2
+                    pair = 0 to mBinding.tvError2
                     mBinding.tvError2.visible()
                     mBinding.viewLine1.visible()
                 }
 
                 2 -> {
-                    pair = 1 to mBinding.tvError3
+                    pair = 0 to mBinding.tvError3
                     mBinding.tvError3.visible()
                     mBinding.viewLine2.visible()
                 }
             }
             errorMap.put(code, pair!!)
         }
-        pair.second.text = "${msg}: ${pair.first + 1}次"
+        val count = pair.first + 1
+        pair.second.text = "${msg}: ${count}次"
+        errorMap.put(code, count to pair.second)
     }
 
     private fun initView() {
