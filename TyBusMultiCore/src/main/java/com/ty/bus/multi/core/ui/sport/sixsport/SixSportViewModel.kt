@@ -468,7 +468,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                             readyGo()
                         } else {
                             //如果准备好的人数，不等于总运动人数，则等三秒检测已准备的是否等于已识别的
-                            uiHandler.postDelayed(checkLayDownRunnable, 3000)
+                            uiHandler.postDelayed(checkLayDownRunnable, 10_000)
                         }
                     }
                 }
@@ -482,6 +482,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     private val checkLayDownRunnable = Runnable {
         val layDownList = layDownStatusList.filter { it }
         LogUtil.d("checkLayDownRunnable  ${layDownList.size}")
+        SpeechWrapper.speech(getString(R.string.lie_on_back_and_face_screen))
         if (layDownList.size == sportPersonArray.size()) {
             //全部OK，可开始比赛
             readyGo()
