@@ -127,7 +127,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         for (i in 0 until viewModel.sportManCount) {
             checkStatusList.add(false)
         }
-        factory = MultiSportProduceFactory.getFactory(viewModel.sportInfo?.sportItemCode, viewModel.sportInfo?.testCount)
+        factory = MultiSportProduceFactory.getFactory(
+            viewModel.sportInfo?.sportItemCode,
+            viewModel.sportInfo?.testCount
+        )
         viewModel.getBestRankTop()
     }
 
@@ -135,18 +138,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         super.initObserver()
         viewModel.changeSportViewStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
-        }
-
-        viewModel.changeIdentityCardStateLD.observe(this) {
-//            mBinding.sportView.changeState(it, factory.getReadyTip())
-            val imageView = imgMap[it.first]
-            if (it.second == MultiSportCardViewState.NOBODY) {
-                imageView?.visibility = View.VISIBLE
-            } else {
-                imageView?.visibility = View.GONE
-            }
-
-            //已识别，设置已识别的位置给parser
             if (it.second == MultiSportCardViewState.IDENTIFIED) {
                 setTip(factory.getReadyTip())
                 for (i in checkStatusList.indices) {
@@ -168,32 +159,19 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         }
 
         viewModel.countDownFinishLD.observe(this) {
-            val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
-            params.width = 342
-            params.height = 192
-            params.rightMargin = 20
-            params.bottomMargin = 20
-            mBinding.cameraView.layoutParams = params
             hideTip()
-            //隐藏所有空闲图标
-            imgMap.forEach { (_, u) ->
-                u.visibility = View.GONE
-            }
             if (mBinding.overlay.multiRegion != null) {
                 mBinding.overlay.multiRegion.setDrawing(false)
             }
 
             //切换Pose模型ID
-            sportConfig.poseModelId = factory.getPoseModelId()
-            sportConfig.bodyModelId = factory.getBodyModelId()
-            multiSportProcessor.setConfig(sportConfig)
             mBinding.readyView.startReady {
                 viewModel.toStatusSportStart()
             }
         }
 
         viewModel.resultLD.observe(this) {
-//            mBinding.threeSportView.updateScore(it)
+            mBinding.sportView.updateResult(it)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
@@ -201,7 +179,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         }
 
         viewModel.sportCountDownLD.observe(this) {
-//            mBinding.sportView.updateTime(it)
+            mBinding.sportView.updateTime(it)
         }
 
         viewModel.readySpeechLD.observe(this) {
@@ -227,6 +205,9 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             viewModel.toStatusIdentifyFace()
         }
         mainHandler.postDelayed(tipRunnable, 1000)
+        mBinding.btnInTipConfirm.text =
+            getString(R.string.confirm_countdown, tipCountDownCount)
+
         initOverlay()
         initProcess()
         if (viewModel.streamType == 1) {
@@ -239,6 +220,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         }
         //初始化运动View按钮监听
         mBinding.sportView.listener = object : ResultViewBtnClickListener {
+            override fun onStartClick() {
+                viewModel.readyGo()
+            }
+
             override fun onRetestClick() {
                 retest()
             }
@@ -453,6 +438,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         hideTip()
         parser.checkChannelStatus = false
         parser.checkSkipScore = false
+        mBinding.sportView.sportFinish()
         multiSportProcessor.changeTo(SportProcessorStatus.Idle)
     }
 
@@ -533,6 +519,11 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
                      else -> mutableListOf()
                  }*/
                 viewModel.handleProcessorCallback(result.groupManList)
+
+            }
+
+            override fun onBreakRules(index: Int, code: Int, role: String?) {
+                super.onBreakRules(index, code, role)
 
             }
 

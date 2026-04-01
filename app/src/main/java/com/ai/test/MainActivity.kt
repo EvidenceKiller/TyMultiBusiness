@@ -329,6 +329,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuId = sportItemCode + "0001"
                     sportSkuName = "6人仰卧起坐"
                     testCount = "6"
+                    endValue = "20000"
                     sceneId = SceneConstants.FREE
                 }
             }, SixSportConfig.builder().build())

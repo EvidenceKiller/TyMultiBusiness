@@ -134,7 +134,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_36"
-        android:text="@string/forward_flexion_prepare_tip"
+        android:text="@string/lie_on_back_and_face_screen"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_40"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -199,7 +199,7 @@
 
     <!-- 运动状态 -->
     <com.ty.tybusbase.view.CircleImageView
-        android:id="@+id/iv_sporting_header"
+        android:id="@+id/civ_result_header"
         android:layout_width="@dimen/dp_56"
         android:layout_height="@dimen/dp_56"
         android:layout_marginStart="@dimen/dp_102"
@@ -208,23 +208,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/tv_sporting_name"
+        android:id="@+id/tv_result_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_16"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_40"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_sporting_header"
-        app:layout_constraintStart_toEndOf="@+id/iv_sporting_header"
-        app:layout_constraintTop_toTopOf="@+id/iv_sporting_header" />
+        app:layout_constraintBottom_toBottomOf="@+id/civ_result_header"
+        app:layout_constraintStart_toEndOf="@+id/civ_result_header"
+        app:layout_constraintTop_toTopOf="@+id/civ_result_header" />
 
     <ImageView
         android:id="@+id/iv_sport_arrow"
         android:layout_width="@dimen/dp_24"
         android:layout_height="@dimen/dp_24"
         android:layout_marginStart="@dimen/dp_162"
+        android:visibility="gone"
+        android:background="@mipmap/ic_this_result"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_sporting_name"
+        app:layout_constraintStart_toEndOf="@+id/tv_result_name"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -240,7 +242,7 @@
         tools:text="88" />
 
     <TextView
-        android:id="@+id/tv_sport_unit"
+        android:id="@+id/tv_result_unit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_10"
@@ -255,12 +257,14 @@
         android:id="@+id/group_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tv_sport_unit,tv_sport_result,tv_sporting_name,iv_sporting_header" />
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_result_unit,tv_sport_result,tv_result_name,civ_result_header" />
 
     <ImageView
         android:id="@+id/iv_sporting_mask"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:background="@drawable/bg_sit_up_6_result_mask_shape"/>
 
     <TextView
         android:id="@+id/tv_sporting_index"
@@ -303,6 +307,7 @@
         android:layout_marginBottom="@dimen/dp_18"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_88"
+        android:text="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_sporting_unit"
         app:layout_constraintHorizontal_chainStyle="packed"
@@ -313,6 +318,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_10"
+        android:text="@string/ge"
+        android:textSize="@dimen/sp_48"
+        android:textColor="@color/white_80"
         app:layout_constraintBottom_toBottomOf="@+id/tv_sporting_result"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/tv_sporting_result" />
@@ -321,6 +329,7 @@
         android:id="@+id/group_sport"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:constraint_referenced_ids="tv_sporting_index,tv_sporting_unit,tv_sporting_result,tv_sporting_result_name,civ_sporting_result_header,iv_sporting_mask" />
 
 

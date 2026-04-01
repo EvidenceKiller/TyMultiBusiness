@@ -39,7 +39,7 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     )
     private var scoreList: MutableList<Int> = mutableListOf()
 
-    private var preState: MultiSportCardViewState = MultiSportCardViewState.NOBODY
+    private var preState: MultiSportCardViewState = MultiSportCardViewState.IDLE
 
     /**
      * 进度条假增
@@ -66,6 +66,7 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
         val index = attributes.getInt(R.styleable.MoreSportCardSportView_pk_index, 1)
         mBinding.tvIndex.text = index.toString()
+        mBinding.tvSportingIndex.text = index.toString()
         initView()
     }
 
@@ -231,9 +232,22 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
         mBinding.tvName.text = accountInfo.studentEntity?.accountName
+
+        Glide.with(this)
+            .load(accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default).into(mBinding.civSportingResultHeader)
+        mBinding.tvSportingResultName.text = accountInfo.studentEntity?.accountName
+
+        Glide.with(this)
+            .load(accountInfo.studentEntity?.userFaceImgUrl)
+            .placeholder(R.mipmap.ic_head_default)
+            .error(R.mipmap.ic_head_default).into(mBinding.civResultHeader)
+        mBinding.tvResultName.text = accountInfo.studentEntity?.accountName
+
     }
 
-    fun setResult(result: Int) {
+    fun updateResult(result: Int) {
         mBinding.tvSportingResult.text = result.toString()
     }
 

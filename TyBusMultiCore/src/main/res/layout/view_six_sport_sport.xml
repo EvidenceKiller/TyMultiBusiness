@@ -99,6 +99,7 @@
         android:paddingVertical="@dimen/dp_19"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
+        android:text="@string/start_now"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

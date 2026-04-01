@@ -7,6 +7,8 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.view.isGone
+import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
@@ -54,13 +56,6 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         }
     }
 
-    /**
-     * 开始按钮
-     */
-    private val countDownTime = 50000L
-    private var currentTime = 5
-    private var countDownTimer: CountDownTimer? = null
-
     init {
         initView()
     }
@@ -73,8 +68,8 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         cardMap.put(5, mBinding.ffsSport5)
         cardMap.put(6, mBinding.ffsSport6)
         mBinding.tvBegin.setOnClickListener {
-            countDownTimer?.cancel()
-            startListener?.invoke()
+            sportStarted()
+            listener?.onStartClick()
         }
         mBinding.tvNext.setOnClickListener {
             next()
@@ -93,15 +88,6 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         startListener = listener
     }
 
-    private fun setConfirmText(lng: Int) {
-        if (lng <= 0) {
-            countDownTimer?.cancel()
-            startListener?.invoke()
-            mBinding.tvBegin.visibility = GONE
-        } else {
-            mBinding.tvBegin.text = getString(R.string.start_now_num, lng)
-        }
-    }
 
     /**
      * 显示下一步按钮
@@ -119,26 +105,9 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
             return
         }
         if (state == MultiSportCardViewState.IDENTIFIED) {
-            currentTime = 5
-            if (countDownTimer == null) {
+            if (mBinding.tvBegin.isGone) {
                 mBinding.tvBegin.visibility = VISIBLE
-                countDownTimer = object : CountDownTimer(
-                    countDownTime,
-                    1000L
-                ) {
-                    override fun onTick(millisUntilFinished: Long) {
-                        currentTime--
-
-                        setConfirmText(currentTime)
-                    }
-
-                    override fun onFinish() {
-                    }
-                }
-                countDownTimer?.start()
             }
-
-
         }
         cardMap[index]?.changeState(state)
     }
@@ -147,10 +116,9 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
     fun sportStarted() {
         isStarted = true
         mBinding.tvBegin.visibility = GONE
-        countDownTimer?.cancel()
     }
 
-    fun sportingTips(text: String) {
+    fun setSportingTips(text: String) {
         mBinding.tvSportingTips.visibility = VISIBLE
         mBinding.tvSportingTips.text = text
     }
@@ -158,7 +126,7 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
     fun sportFinish() {
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         mBinding.tvRetest.visibility = VISIBLE
-        mBinding.tvSportingTips.visibility = GONE
+        setSportingTips(getString(R.string.sport_finish))
         if (isShowNext) {
             mBinding.tvNext.visibility = VISIBLE
             updateNextText(NEXT_COUNT_DOWN_TIME)
@@ -166,8 +134,17 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         }
     }
 
-    fun setResult(index: Int, result: Int) {
-        cardMap[index]?.setResult(result)
+    fun updateResult(result: MutableList<GroupSportBaseMan>) {
+        for (index in result.indices) {
+            val skipMan = result[index]
+            if (skipMan.score != 0) {
+                cardMap[skipMan.positionNum]?.updateResult(skipMan.score)
+            }
+        }
+    }
+
+    fun updateTime(time: String) {
+        setSportingTips(getString(R.string.sport_countdown_time, time))
     }
 
     fun setAccountInfo(index: Int, accountInfo: AccountInfo) {

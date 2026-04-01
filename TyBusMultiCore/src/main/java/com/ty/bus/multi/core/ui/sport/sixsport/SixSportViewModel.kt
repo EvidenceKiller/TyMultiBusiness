@@ -24,6 +24,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
@@ -142,11 +143,34 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                 handleIdentityTimeFail()
             }
         })
+        multiIdentityEngine.addIdentityConfig(0, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+            minScoreThreshold = 0.7f
+        })
+        multiIdentityEngine.addIdentityConfig(1, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+            minScoreThreshold = 0.7f
+        })
+        multiIdentityEngine.addIdentityConfig(2, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+            minScoreThreshold = 0.6f
+        })
+        multiIdentityEngine.addIdentityConfig(3, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+            minScoreThreshold = 0.6f
+        })
+        multiIdentityEngine.addIdentityConfig(4, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+        })
+        multiIdentityEngine.addIdentityConfig(5, FaceIdentifyConfig().apply {
+            visitorRetryNum = 1
+        })
+
     }
 
     @Synchronized
     private fun handleIdentityTimeFail() {
-        changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
+        changeMultiSportViewCardState(currentIdentifyNumber, MultiSportCardViewState.IDLE)
         //处理下一道是否有人
         var tempNumber = currentIdentifyNumber + 1
         var findOk = false
@@ -158,7 +182,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                 ) == null
             ) {
                 currentIdentifyNumber = tempNumber
-                changeMultiIdentityCardState(
+                changeMultiSportViewCardState(
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFYING
                 )
@@ -202,7 +226,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                         LogUtil.d("已识别过${value.accountInfo.studentEntity!!.accountName}")
                         rmKey = key
                         layDownStatusList[value.number] = false
-                        changeMultiIdentityCardState(
+                        changeMultiSportViewCardState(
                             value.number,
                             MultiSportCardViewState.IDENTIFY_CHANGE
                         )
@@ -223,7 +247,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                     MultiSportResult(accountInfo, currentIdentifyNumber)
                 )
                 identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
-                changeMultiIdentityCardState(
+                changeMultiSportViewCardState(
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFIED
                 )
@@ -248,7 +272,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     fun handleProcessorCallback(groupSkippingManList: MutableList<GroupSportBaseMan>?) {
         //处理卡片和人的状态
         if (groupSkippingManList.isNullOrEmpty()) {
-            handleNoPersonState()
+//            handleNoPersonState()
             return
         }
 
@@ -280,7 +304,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             MultiSportState.IDLE, MultiSportState.IDENTIFYING -> {
                 for (index in currentPersonState.indices) {
                     if (currentPersonState[index] != GroupSportsBaseChannelStatus.none) {
-                        changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY)
+                        changeMultiSportViewCardState(index, MultiSportCardViewState.NOBODY)
                     }
                 }
                 currentIdentifyNumber = -1
@@ -355,7 +379,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                     currentYuvData.height,
                     currentIdentifyNumber
                 )
-                changeMultiIdentityCardState(
+                changeMultiSportViewCardState(
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFYING
                 )
@@ -380,56 +404,56 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             currentPersonState[skipMan.positionNum] = nextState
             //处理进入时间
             when (nextState) {
-                GroupSportsBaseChannelStatus.none -> {
-                    //如果当前为standby,下一个状态为 none
-                    if (currentState == GroupSportsBaseChannelStatus.standBy) {
-                        //当前比赛状态为运动中... 切换人员卡片到离开状态
-                        if (sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-                            changeMultiSportViewCardState(
-                                skipMan.positionNum,
-                                MultiSportCardViewState.LEAVE
-                            )
-                            currentCardState[skipMan.positionNum] = MultiSportCardViewState.LEAVE
-                        }
-                        if (sportState != MultiSportState.SPORTING && sportState != MultiSportState.COUNTDOWN && roseMultiResult == null) {
-                            changeMultiIdentityCardState(
-                                skipMan.positionNum,
-                                MultiSportCardViewState.NOBODY
-                            )
-                        }
-                    }
-                }
-
-                GroupSportsBaseChannelStatus.standBy -> {
-                    if (sportState != MultiSportState.SPORTING) {
-                        changeMultiIdentityCardState(
-                            skipMan.positionNum,
-                            MultiSportCardViewState.STANDBY
-                        )
-                    }
-                    //进入区域
-                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
-                        changeMultiSportViewCardState(
-                            skipMan.positionNum,
-                            MultiSportCardViewState.LEAVE_TO_SPORTING
-                        )
-                    }
-                }
-
-                GroupSportsBaseChannelStatus.checkDown -> {
-                    //进入区域
-                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
-                        changeMultiSportViewCardState(
-                            skipMan.positionNum,
-                            MultiSportCardViewState.LEAVE_TO_SPORTING
-                        )
-                    }
-                }
+//                GroupSportsBaseChannelStatus.none -> {
+//                    //如果当前为standby,下一个状态为 none
+//                    if (currentState == GroupSportsBaseChannelStatus.standBy) {
+//                        //当前比赛状态为运动中... 切换人员卡片到离开状态
+//                        if (sportState == MultiSportState.SPORTING && roseMultiResult != null) {
+//                            changeMultiSportViewCardState(
+//                                skipMan.positionNum,
+//                                MultiSportCardViewState.LEAVE
+//                            )
+//                            currentCardState[skipMan.positionNum] = MultiSportCardViewState.LEAVE
+//                        }
+//                        if (sportState != MultiSportState.SPORTING && sportState != MultiSportState.COUNTDOWN && roseMultiResult == null) {
+//                            changeMultiSportViewCardState(
+//                                skipMan.positionNum,
+//                                MultiSportCardViewState.NOBODY
+//                            )
+//                        }
+//                    }
+//                }
+//
+//                GroupSportsBaseChannelStatus.standBy -> {
+//                    if (sportState != MultiSportState.SPORTING) {
+//                        changeMultiSportViewCardState(
+//                            skipMan.positionNum,
+//                            MultiSportCardViewState.STANDBY
+//                        )
+//                    }
+//                    //进入区域
+//                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
+//                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
+//                        changeMultiSportViewCardState(
+//                            skipMan.positionNum,
+//                            MultiSportCardViewState.LEAVE_TO_SPORTING
+//                        )
+//                    }
+//                }
+//
+//                GroupSportsBaseChannelStatus.checkDown -> {
+//                    //进入区域
+//                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
+//                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
+//                        changeMultiSportViewCardState(
+//                            skipMan.positionNum,
+//                            MultiSportCardViewState.LEAVE_TO_SPORTING
+//                        )
+//                    }
+//                }
 
                 GroupSportsBaseChannelStatus.layDown -> {
-                    changeMultiIdentityCardState(
+                    changeMultiSportViewCardState(
                         skipMan.positionNum,
                         MultiSportCardViewState.PREPARED
                     )
@@ -489,18 +513,32 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     }
 
     private fun getIdentityRect(it: TsSportChannel?): Rect {
+        var rect = Rect(0, 0, 50, 50)
         if (it?.body == null || it.skeleton == null) {
             LogUtil.d("it.bodyrect  is Null null null null ------", true)
-            return Rect(0, 0, 50, 50)
+            return rect
         }
-        var rect = Rect(it.body.x, it.body.y, it.body.right(), it.body.bottom())
-        if (it.skeleton != null && it.skeleton.LShoulder != null && it.skeleton.RShoulder != null) {
-            val shoulderWidth = abs(it.skeleton.LShoulder.x - it.skeleton.RShoulder.x)
-            rect.bottom = max(it.skeleton.LShoulder.y, it.skeleton.RShoulder.y).toInt()
-            rect.left = min(it.skeleton.LShoulder.x, it.skeleton.RShoulder.x).toInt()
-            rect.right = rect.left + shoulderWidth.toInt()
+        //无头框，用骨骼推测
+        if (it.body == null) return rect
+        LogUtil.d("处理人脸识别：用骨骼")
+        val width = 180
+        val header = it.skeleton.headTop
+        if (header != null) {
+            rect.top = header.y.toInt()
+            rect.left = header.x.toInt() - width / 2
+            rect.right = header.x.toInt() + width / 2
+            rect.bottom = header.y.toInt() + width
+        } else {
+            val lShouder = it.skeleton.lShoulder
+            val rShouder = it.skeleton.rShoulder
+            val centerX: Double = (lShouder.x + rShouder.x) / 2.0
+            val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
+            rect.bottom = max(lShouder.y, rShouder.y).toInt()
+            rect.left = (centerX - shoulderWidth / 2.0).toInt()
+            rect.right = (centerX + shoulderWidth / 2).toInt()
             rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
         }
+
         if (rect.width() < 40 || rect.height() < 40) {
             rect.left = rect.left - 20
             rect.right = rect.left + 40
@@ -508,17 +546,12 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             rect.bottom = rect.top + 40
         }
         return rect
+
     }
 
     private fun changeMultiSportViewCardState(index: Int, state: MultiSportCardViewState) {
         uiHandler.post {
             changeSportViewStateLD.value = Pair(index, state)
-        }
-    }
-
-    private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
-        uiHandler.post {
-            changeIdentityCardStateLD.value = Pair(index, state)
         }
     }
 
@@ -567,9 +600,15 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until sportPersonArray.size) {
-            val multiResult = sportPersonArray.valueAt(index)
-            currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
+        for (index in 0 until sportManCount) {
+            val multiResult = sportPersonArray.get(index)
+            if (multiResult != null) {
+                changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.SPORTING)
+
+            } else {
+                changeMultiSportViewCardState(index, MultiSportCardViewState.NOBODY_SPORT)
+            }
+//            currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
         }
     }
 
@@ -581,17 +620,13 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportEngine.stopRecorder {
             handleUploadResult(sportPersonArray)
         }
-        //停止录像，上传录像成绩
-//        sportEngine.changeToNone()
-//        val recordModel = MMKVUtil.decodeInt(
-//            MMKVKey.HTTP_CAMERA_RECORD_MODEL,
-//            ConstantsValue.HTTP_CAMERA_RECORD_MODEL_IPC
-//        )
-//        if (recordModel == ConstantsValue.HTTP_CAMERA_RECORD_MODEL_DEFAULT) {
-//            sportEngine.stopRecorder(null)
-//        } else {
-//            NsCameraHKRecorder.instance().onStop()
-//        }
+        //切换卡片到结束状态
+        for (index in 0 until sportManCount) {
+            val multiResult = sportPersonArray.get(index)
+            if (multiResult != null) {
+                changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.FINISH)
+            }
+        }
         super.toStatusSportEnd()
     }
 
@@ -674,7 +709,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     fun retest() {
         super.reset()
         sportPersonArray.forEach { index, result ->
-            changeMultiIdentityCardState(index, MultiSportCardViewState.PREPARED)
+            changeMultiSportViewCardState(index, MultiSportCardViewState.PREPARED)
             result.count = 0
             changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_shape)
         }
