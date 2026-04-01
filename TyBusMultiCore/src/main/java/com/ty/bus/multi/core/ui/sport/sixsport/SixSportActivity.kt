@@ -218,7 +218,11 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             initVideoView()
             initVideo()
         }
-        if (viewModel.tsConfig?.isSupportNextGroup == true){
+        initSportView()
+    }
+
+    private fun initSportView() {
+        if (viewModel.tsConfig?.isSupportNextGroup == true) {
             mBinding.sportView.showNextBtn()
         }
         //初始化运动View按钮监听
@@ -552,23 +556,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     private fun next() {
         //切换Pose模型ID
         mBinding.overlay.multiRegion.setDrawing(true)
-        sportConfig.poseModelId = factory.getFacePoseModelId()
-        sportConfig.bodyModelId = factory.getFaceBodyModelId()
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
-        multiSportProcessor.setConfig(sportConfig)
         timeOutHelper.start()
-        //摄像头预览全屏
-        val params = mBinding.cameraView.layoutParams as ConstraintLayout.LayoutParams
-        params.width = ViewGroup.LayoutParams.MATCH_PARENT
-        params.height = ViewGroup.LayoutParams.MATCH_PARENT
-        params.rightMargin = 0
-        params.bottomMargin = 0
-        mBinding.cameraView.layoutParams = params
 
-        //显示所有空闲图片
-        imgMap.forEach { (_, u) ->
-            u.visibility = View.VISIBLE
-        }
+        mBinding.readyView.reset()
         viewModel.reset()
         multiSportProcessor.onReset()
         viewModel.toStatusIdentifyFace()
@@ -578,6 +569,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
      * 重测试
      */
     private fun retest() {
+        mBinding.readyView.reset()
         multiSportProcessor.onReset()
         viewModel.retest()
     }

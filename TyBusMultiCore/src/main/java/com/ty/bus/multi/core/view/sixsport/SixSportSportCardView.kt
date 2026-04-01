@@ -296,10 +296,20 @@ class SixSportSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     fun reset() {
         tickTimes = 0f
         scoreList.clear()
+        mBinding.tvError1.gone()
+        mBinding.tvError2.gone()
+        mBinding.tvError3.gone()
+        mBinding.viewLine1.gone()
+        mBinding.viewLine2.gone()
+        mBinding.tvError3.text = ""
+        mBinding.tvError2.text = ""
+        mBinding.tvError1.text = ""
+        mBinding.tvSportResult.text = "0"
+        mBinding.tvSportingResult.text = "0"
+        errorMap.clear()
         changeState(MultiSportCardViewState.IDLE)
     }
 
     fun retest() {
-//        changeState(ForwardFlexionCardState.SPORTING)
     }
 }

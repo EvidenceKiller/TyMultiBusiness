@@ -703,6 +703,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             currentCardState.add(MultiSportCardViewState.NOBODY)
             layDownStatusList.add(false)
         }
+
         sportState = MultiSportState.PREPARING
     }
 
@@ -714,7 +715,6 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_shape)
         }
         layDownStatusList.clear()
-        sportState = MultiSportState.PREPARING
         readyGo()
         videoFile = null
     }

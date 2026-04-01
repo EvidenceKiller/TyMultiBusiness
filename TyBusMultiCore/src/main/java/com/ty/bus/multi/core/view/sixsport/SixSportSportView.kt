@@ -34,7 +34,7 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
 
     var listener: ResultViewBtnClickListener? = null
 
-    private val NEXT_COUNT_DOWN_TIME = 5 //倒计时时间
+    private val NEXT_COUNT_DOWN_TIME = 10 //倒计时时间
 
     private var nextCountDownTime = NEXT_COUNT_DOWN_TIME //倒计时时间
 
@@ -132,6 +132,7 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
             updateNextText(NEXT_COUNT_DOWN_TIME)
             mHandler.postDelayed(runnable, 1000)
         }
+        isStarted = false
     }
 
     fun updateResult(result: MutableList<GroupSportBaseMan>) {
@@ -143,7 +144,7 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         }
     }
 
-    fun addErrorMsg(index: Int,code: Int, msg: String?){
+    fun addErrorMsg(index: Int, code: Int, msg: String?) {
         cardMap[index]?.addErrorMsg(code, msg)
     }
 
@@ -179,13 +180,14 @@ class SixSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
      * 重测，当前人员继续测试
      */
     fun retest() {
+        mHandler.removeCallbacks(runnable)
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         listener?.onRetestClick()
         mBinding.tvRetest.visibility = GONE
         mBinding.tvNext.visibility = GONE
         mBinding.tvSportingTips.visibility = GONE
         cardMap.forEach { (_, value) ->
-            value.retest()
+            value.reset()
         }
     }
 }
