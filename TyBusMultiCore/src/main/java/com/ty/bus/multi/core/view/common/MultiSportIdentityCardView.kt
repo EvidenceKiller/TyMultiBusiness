@@ -11,6 +11,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.databinding.MultiSportIdentityCardViewBinding
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.gone
 
 
 class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -90,7 +91,7 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
     /**
      * 设置用户信息
      */
-    fun setUserInfo(name: String, headUrl: String?,showHeaderBg: Boolean?) {
+    fun setUserInfo(name: String, headUrl: String?, showHeaderBg: Boolean?) {
         Glide.with(context).load(headUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
@@ -159,7 +160,8 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
     private fun toIdle() {
         mBinding.groupAccount.visibility = INVISIBLE
         mBinding.clIdentityNotice.visibility = INVISIBLE
-        identifyingTimer?.cancel()
+        mBinding.ivHeaderBg.gone()
+        identifyingTimer.cancel()
     }
 
     fun reset() {

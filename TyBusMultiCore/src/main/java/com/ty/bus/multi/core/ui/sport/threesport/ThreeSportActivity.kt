@@ -48,6 +48,7 @@ import com.ty.tybusbase.utils.MMKVUtil
 import androidx.core.view.isNotEmpty
 import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.adl.sport.general.multi.MultiSportResult
+import com.adl.sport.general.situp.SitUpBodyFilter
 import com.ty.tybusbase.utils.DeviceUtil
 
 class ThreeSportActivity :
@@ -273,7 +274,7 @@ class ThreeSportActivity :
     override fun onStatusSport() {
         super.onStatusSport()
         multiSportProcessor.changeTo(SportProcessorStatus.Sporting)
-        multiSportProcessor.setBodyFilter(MultiSportRegionCheckFilter())
+//        multiSportProcessor.setBodyFilter(MultiSportRegionCheckFilter())
         parser.checkSkipScore = true
     }
 
@@ -384,7 +385,8 @@ class ThreeSportActivity :
 
         multiSportProcessor.setConfig(sportConfig)
         multiSportProcessor.open(mBinding.overlay)
-        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
+//        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
+        multiSportProcessor.setBodyFilter(SitUpBodyFilter(0.3f))
         multiSportProcessor.setParser(parser)
         multiSportProcessor.setSmooth(factory.enableSmooth())
         multiSportProcessor.setHistoryBody(factory.enableHistoryBody())
@@ -425,7 +427,7 @@ class ThreeSportActivity :
     private fun next() {
         //切换Pose模型ID
         mBinding.overlay.multiRegion.setDrawing(true)
-        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
+//        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         mBinding.clSkipSportViewContainer.removeView(srrvResult)
         mBinding.threeIdentityView.visibility = View.VISIBLE
         mBinding.threeIdentityView.reset()

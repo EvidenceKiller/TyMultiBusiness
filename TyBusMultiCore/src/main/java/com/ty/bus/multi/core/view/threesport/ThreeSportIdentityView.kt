@@ -8,6 +8,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.view.common.MultiSportIdentityCardView
 import com.ty.bus.multi.databinding.ViewThreeSportIdentityBinding
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
 
 class ThreeSportIdentityView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
@@ -46,7 +47,7 @@ class ThreeSportIdentityView(context: Context, attrs: AttributeSet?, defStyleAtt
         cardMap[p.first]?.setUserInfo(
             p.second.studentEntity!!.accountName,
             p.second.studentEntity!!.userFaceImgUrl,
-            true
+            p.second.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE
         )
     }
 

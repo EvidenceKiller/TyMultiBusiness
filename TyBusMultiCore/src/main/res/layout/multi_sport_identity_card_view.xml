@@ -28,6 +28,7 @@
         android:id="@+id/iv_header_bg"
         android:layout_width="@dimen/dp_132"
         android:layout_height="@dimen/dp_132"
+        android:visibility="gone"
         android:background="@mipmap/icon_header_bg_vip"
         app:layout_constraintBottom_toBottomOf="@+id/iv_header"
         app:layout_constraintEnd_toEndOf="@+id/iv_header"
@@ -63,7 +64,7 @@
         android:id="@+id/group_account"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="tv_status_tip,tv_name,iv_header,iv_header_bg,iv_account_info_bg" />
+        app:constraint_referenced_ids="tv_status_tip,tv_name,iv_header,iv_account_info_bg" />
     <!--  人员信息卡片  -->
 
     <!--  识别中  -->
