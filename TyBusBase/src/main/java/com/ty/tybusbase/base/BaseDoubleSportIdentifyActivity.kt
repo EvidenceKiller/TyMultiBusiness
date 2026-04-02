@@ -81,6 +81,8 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     protected var sceneId: String? = null
 
+    protected var energyPoint: Int = 0
+
     //赛事运动详情ID
     protected var matchSportId: String? = null
 
@@ -92,6 +94,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
         modelId = intent.getStringExtra("model_id")
         matchName = intent.getStringExtra("match_name")
         sceneId = intent.getStringExtra("scene_id")
+        energyPoint = intent.getIntExtra("energy_point",0)
         matchSportId = intent.getStringExtra("match_sport_id")
         accountInfo = intent.getParcelableExtra("account_info")
         val sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity

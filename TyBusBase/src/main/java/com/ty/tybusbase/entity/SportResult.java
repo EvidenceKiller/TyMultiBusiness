@@ -121,6 +121,10 @@ public class SportResult {
     private File videoFile= null;
     private String videoCover= null;
 
+    private String cardType;
+
+    private int energyPoint;
+
     public Long getStartTime() {
         return startTime;
     }
@@ -324,6 +328,22 @@ public class SportResult {
 
     public void setReportVersion(String reportVersion) {
         this.reportVersion = reportVersion;
+    }
+
+    public String getCardType() {
+        return cardType;
+    }
+
+    public void setCardType(String cardType) {
+        this.cardType = cardType;
+    }
+
+    public int getEnergyPoint() {
+        return energyPoint;
+    }
+
+    public void setEnergyPoint(int energyPoint) {
+        this.energyPoint = energyPoint;
     }
 
     @Override

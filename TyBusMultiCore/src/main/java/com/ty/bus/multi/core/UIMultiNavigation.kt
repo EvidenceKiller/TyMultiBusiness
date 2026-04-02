@@ -160,6 +160,7 @@ object UIMultiNavigation {
         intent.putExtra("match_sport_id", config?.matchSportId)
         intent.putExtra("pt_plan_id", config?.ptPlanId)
         intent.putExtra("pt_standard_id", config?.ptStandardId)
+        intent.putExtra("energy_point", config?.energyPoint)
         context.startActivity(intent)
     }
 }

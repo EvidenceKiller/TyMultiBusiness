@@ -21,5 +21,6 @@ data class UINavConfig(
     var matchSportId: String? = null,
     var ptPlanId: String? = null,
     var ptStandardId: String? = null,
-    var recordMeet: SportRecordEntity.RecordMeeting? = null
+    var recordMeet: SportRecordEntity.RecordMeeting? = null,
+    var energyPoint: Int = 0
 ) : Serializable

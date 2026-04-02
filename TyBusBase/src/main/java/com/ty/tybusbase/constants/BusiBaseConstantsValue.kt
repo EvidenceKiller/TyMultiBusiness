@@ -115,8 +115,11 @@ object BusiBaseConstantsValue {
     const val FACE_DETECT_TYPE_TEACHER = 1 //人脸识别类型：老师
 
     const val THREE_SPORT_CONFIG_KEY = "overlay_three_sport_config_key"
-    const val THREE_SPORT_CONFIG_DEFAULT_REGION = "[{\"x\":203,\"y\":376},{\"x\":809,\"y\":379},{\"x\":157,\"y\":624},{\"x\":818,\"y\":639},{\"x\":146,\"y\":760},{\"x\":823,\"y\":766},{\"x\":91,\"y\":1015},{\"x\":815,\"y\":1018},{\"x\":967,\"y\":766},{\"x\":1633,\"y\":781},{\"x\":968,\"y\":1018},{\"x\":1703,\"y\":1027}]"
+    const val THREE_SPORT_CONFIG_DEFAULT_REGION =
+        "[{\"x\":203,\"y\":376},{\"x\":809,\"y\":379},{\"x\":157,\"y\":624},{\"x\":818,\"y\":639},{\"x\":146,\"y\":760},{\"x\":823,\"y\":766},{\"x\":91,\"y\":1015},{\"x\":815,\"y\":1018},{\"x\":967,\"y\":766},{\"x\":1633,\"y\":781},{\"x\":968,\"y\":1018},{\"x\":1703,\"y\":1027}]"
 
     const val DEFAULT_SINGLE_FACE_THRESHOLD = 0.75f //默认单人人脸阈值
     const val DEFAULT_MULTI_FACE_THRESHOLD = 0.4f //默认多人人脸阈值
+
+    const val CHINA_MOBILE_CARD_TYPE = "1" //移动卡类型
 }

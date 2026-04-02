@@ -44,6 +44,7 @@
         android:layout_height="@dimen/dp_40"
         android:layout_marginStart="@dimen/dp_150"
         android:layout_marginTop="@dimen/dp_32"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/iv_head_rw"
         app:layout_constraintTop_toTopOf="@+id/iv_head_rw" />
 
@@ -114,6 +115,7 @@
         android:layout_height="@dimen/dp_40"
         android:layout_marginStart="@dimen/dp_150"
         android:layout_marginTop="@dimen/dp_32"
+        android:visibility="gone"
         app:layout_constraintStart_toStartOf="@+id/iv_head_ll"
         app:layout_constraintTop_toTopOf="@+id/iv_head_ll" />
 

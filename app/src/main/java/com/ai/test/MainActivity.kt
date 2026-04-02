@@ -274,6 +274,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     endType = SportConstant.END_TYPE_TIME
                     testCount = "2"
                     sceneId = SceneConstants.FREE
+                    energyPoint = 10
                 }
             })
         }

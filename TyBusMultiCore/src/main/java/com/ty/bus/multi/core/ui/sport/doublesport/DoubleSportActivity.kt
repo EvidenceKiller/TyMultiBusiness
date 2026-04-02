@@ -79,6 +79,12 @@ class DoubleSportActivity :
         //识别成功
         mBinding.overLayout.setLeftPlayer(viewModel.leftAccountInfo.value)
         mBinding.overLayout.setRightPlayer(viewModel.rightAccountInfo.value)
+        viewModel.leftSportResult.cardType =
+            viewModel.leftAccountInfo.value?.studentEntity?.cardType ?: ""
+        viewModel.rightSportResult.cardType =
+            viewModel.rightAccountInfo.value?.studentEntity?.cardType ?: ""
+        viewModel.leftSportResult.energyPoint = energyPoint
+        viewModel.rightSportResult.energyPoint = energyPoint
     }
 
     override fun onStatusSport() {

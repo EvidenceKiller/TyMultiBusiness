@@ -93,6 +93,9 @@ public class DoubleSportSportView extends ConstraintLayout {
                 .error(R.mipmap.ic_head_default)
                 .into(vb.ivHeadLeft);
         vb.tvNameLeft.setText(info.getStudentEntity().getAccountName());
+        if (info.getStudentEntity().getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE)) {
+            vb.ivHeaderBgLeft.setVisibility(View.VISIBLE);
+        }
     }
 
     public void setRightPlayer(AccountInfo info) {
@@ -100,6 +103,10 @@ public class DoubleSportSportView extends ConstraintLayout {
                 .error(R.mipmap.ic_head_default)
                 .into(vb.ivHeadRight);
         vb.tvNameRight.setText(info.getStudentEntity().getAccountName());
+        if (info.getStudentEntity().getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE)) {
+            vb.ivHeaderBgRight.setVisibility(View.VISIBLE);
+        }
+
     }
 
     public void setAreaVisibility(Boolean show) {

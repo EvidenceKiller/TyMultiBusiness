@@ -173,10 +173,6 @@ class ThreeSportActivity :
                 mBinding.overlay.multiRegion.setDrawing(false)
             }
 
-            //切换Pose模型ID
-            sportConfig.poseModelId = factory.getPoseModelId()
-            sportConfig.bodyModelId = factory.getBodyModelId()
-            multiSportProcessor.setConfig(sportConfig)
             mBinding.threeSportView.readyGo {
                 viewModel.toStatusSportStart()
             }
@@ -354,8 +350,8 @@ class ThreeSportActivity :
         val skeleton = MMKVUtil.decodeBoolean(MMKVBusiKey.SKELETON_ABLE, false)
 
         sportConfig.debug = isDebug
-        sportConfig.bodyModelId = factory.getFaceBodyModelId()
-        sportConfig.poseModelId = factory.getFacePoseModelId()
+        sportConfig.bodyModelId = factory.getBodyModelId()
+        sportConfig.poseModelId = factory.getPoseModelId()
         sportConfig.drawAllBody = isDebug
         sportConfig.drawBody = isDebug
         sportConfig.drawSkeleton = skeleton
@@ -390,26 +386,15 @@ class ThreeSportActivity :
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         multiSportProcessor.setParser(parser)
         multiSportProcessor.setSmooth(factory.enableSmooth())
+        multiSportProcessor.setHistoryBody(factory.enableHistoryBody())
         multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
             override fun onResult(result: MultiSportResult) {
-                /* var listMan: MutableList<GroupSportBaseMan>? = when {
-                     o is GroupPushUpParser -> {
-                         o.groupPushUpManList as? MutableList<GroupSportBaseMan>
-                     }
-
-                     o is GroupCrunchParser -> {
-                         o.groupCrunchManList as? MutableList<GroupSportBaseMan>
-                     }
-
-                     else -> mutableListOf()
-                 }*/
                 viewModel.handleProcessorCallback(result.groupManList)
 
             }
 
             override fun onError(index: Int, code: Int, error: String) {}
         })
-        multiSportProcessor.setHistoryBody(true)
         multiSportProcessor.onInit()
     }
 
@@ -439,10 +424,7 @@ class ThreeSportActivity :
     private fun next() {
         //切换Pose模型ID
         mBinding.overlay.multiRegion.setDrawing(true)
-        sportConfig.poseModelId = factory.getFacePoseModelId()
-        sportConfig.bodyModelId = factory.getFaceBodyModelId()
         multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
-        multiSportProcessor.setConfig(sportConfig)
         mBinding.clSkipSportViewContainer.removeView(srrvResult)
         mBinding.threeIdentityView.visibility = View.VISIBLE
         mBinding.threeIdentityView.reset()

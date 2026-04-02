@@ -13,6 +13,8 @@ import com.adl.service.outer.AdlService;
 import com.bumptech.glide.Glide;
 import com.ty.bus.multi.R;
 import com.ty.bus.multi.databinding.ViewDoubleSportResultBinding;
+import com.ty.tybusbase.constants.BusiBaseConstantsValue;
+import com.ty.tybusbase.databinding.BusiBaseSlidingTabLayoutBinding;
 import com.ty.tybusbase.entity.SportResult;
 
 
@@ -72,11 +74,24 @@ public class DoubleSportResultView extends ConstraintLayout {
             TextView tvNameRl = view.findViewById(R.id.tv_name_rl);
             ImageView ivHeadLw = view.findViewById(R.id.iv_head_lw);
             ImageView ivHeadRl = view.findViewById(R.id.iv_head_rl);
-
+            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_lw);
+            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_rl);
+            if (leftResult.getEnergyPoint() > 0) {
+                View viewById = view.findViewById(R.id.layout_energy_rl);
+                View viewById1 = view.findViewById(R.id.layout_energy_lw);
+                viewById.setVisibility(View.VISIBLE);
+                viewById1.setVisibility(View.VISIBLE);
+                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
+                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
+                energyTvL.setText("+" + leftResult.getEnergyPoint());
+                energyTvR.setText("+" + rightResult.getEnergyPoint());
+            }
             tvNameLw.setText(leftResult.userName != null ? leftResult.userName : "");
             tvNameRl.setText(rightResult.userName == null ? "" : rightResult.userName);
             tvScoreLw.setText(String.valueOf(leftResult.getSportAchievement()));
             tvScoreRl.setText(String.valueOf(rightResult.getSportAchievement()));
+            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLw);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRl);
         } catch (Exception e) {
@@ -93,10 +108,24 @@ public class DoubleSportResultView extends ConstraintLayout {
             TextView tvNameLl = view.findViewById(R.id.tv_name_ll);
             ImageView ivHeadRw = view.findViewById(R.id.iv_head_rw);
             ImageView ivHeadLl = view.findViewById(R.id.iv_head_ll);
+            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_ll);
+            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_rw);
+            if (leftResult.getEnergyPoint() > 0) {
+                View viewById = view.findViewById(R.id.layout_energy_ll);
+                View viewById1 = view.findViewById(R.id.layout_energy_rw);
+                viewById.setVisibility(View.VISIBLE);
+                viewById1.setVisibility(View.VISIBLE);
+                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
+                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
+                energyTvL.setText("+" + leftResult.getEnergyPoint());
+                energyTvR.setText("+" + rightResult.getEnergyPoint());
+            }
             tvNameRw.setText(rightResult.userName != null ? rightResult.userName : "");
             tvNameLl.setText(leftResult.userName == null ? "" : leftResult.userName);
             tvScoreRw.setText(String.valueOf(rightResult.getSportAchievement()));
             tvScoreLl.setText(String.valueOf(leftResult.getSportAchievement()));
+            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRw);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLl);
         } catch (Exception e) {
@@ -113,10 +142,24 @@ public class DoubleSportResultView extends ConstraintLayout {
             TextView tvNameL = view.findViewById(R.id.tv_name_l);
             ImageView ivHeadR = view.findViewById(R.id.iv_head_r);
             ImageView ivHeadL = view.findViewById(R.id.iv_head_l);
+            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_l);
+            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_r);
+            if (leftResult.getEnergyPoint() > 0) {
+                View viewById = view.findViewById(R.id.layout_energy_l);
+                View viewById1 = view.findViewById(R.id.layout_energy_r);
+                viewById.setVisibility(View.VISIBLE);
+                viewById1.setVisibility(View.VISIBLE);
+                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
+                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
+                energyTvL.setText("+" + leftResult.getEnergyPoint());
+                energyTvR.setText("+" + rightResult.getEnergyPoint());
+            }
             tvNameR.setText(rightResult.userName != null ? rightResult.userName : "");
             tvNameL.setText(leftResult.userName == null ? "" : leftResult.userName);
             tvScoreR.setText(String.valueOf(rightResult.getSportAchievement()));
             tvScoreL.setText(String.valueOf(leftResult.getSportAchievement()));
+            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadR);
             Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadL);
         } catch (Exception e) {
