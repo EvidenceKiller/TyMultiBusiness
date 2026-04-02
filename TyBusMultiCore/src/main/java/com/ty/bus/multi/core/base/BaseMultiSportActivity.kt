@@ -26,6 +26,7 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
         viewModel.sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity
         viewModel.matchId = intent.getStringExtra("match_id")
         viewModel.sceneId = intent.getStringExtra("scene_id")
+        viewModel.energyPoint = intent.getIntExtra("energy_point", 0)
         viewModel.accountInfoLD.value = intent.getParcelableExtra("account_info")
         timeOutHelper.start()
     }

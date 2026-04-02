@@ -61,6 +61,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var matchId: String? = null
     var ptPlanId: String? = null
     var ptStandardId: String? = null
+    var energyPoint: Int = 0
 
     protected var uiHandler: Handler = AdlHandlerThread.getUIHandler()
 

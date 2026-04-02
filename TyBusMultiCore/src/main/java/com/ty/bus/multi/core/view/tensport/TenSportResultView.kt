@@ -20,6 +20,8 @@ import com.ty.bus.multi.databinding.ItemTenSportResultBinding
 import com.ty.bus.multi.databinding.TenSportResultViewBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.CoroutineScope
@@ -49,6 +51,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     private var isSpeech = true
     private var currentSpeechIndex = 0
     private var isSupportReport = false
+    private var energyPoint = 0
 
     private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
@@ -59,6 +62,10 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
 
     fun setReportOnclickListener(listener: (view: Int) -> Unit) {
         reportClickListener = listener
+    }
+
+    fun setEnergyPoint(point: Int) {
+        energyPoint = point
     }
 
     private fun initView() {
@@ -100,7 +107,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                         .placeholder(R.mipmap.ic_head_default)
                         .error(R.mipmap.ic_head_default)
                         .into(holder.vb.ivHeader)
-                    if (isSupportReport){
+                    if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+                        holder.vb.ivHeaderBg.visible()
+                    }
+                    if (energyPoint > 0) {
+                        holder.vb.layoutEnergy.root.visible()
+                        holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
+                    }
+                    if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
                         holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.number) }
                     }
@@ -127,7 +141,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                         .placeholder(R.mipmap.ic_head_default)
                         .error(R.mipmap.ic_head_default)
                         .into(holder.vb.ivHeader)
-                    if (isSupportReport){
+                    if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+                        holder.vb.ivHeaderBg.visible()
+                    }
+                    if (energyPoint > 0) {
+                        holder.vb.layoutEnergy.root.visible()
+                        holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
+                    }
+                    if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
                         holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.number) }
                     }
@@ -162,6 +183,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun setSupportReport(support: Boolean) {
         isSupportReport = support
     }
+
     /**
      * 设置下一组按钮的回调，不设置就不会自动下一组
      */
@@ -217,7 +239,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     ) {
         this.resultList = resultList
         this.top1Count = top1Count
-        if (resultList.size > 5&&isLargeScreen) {
+        if (resultList.size > 5 && isLargeScreen) {
             val list = resultList.subList(0, 5)
             (mBinding.rvResult1.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
                 list

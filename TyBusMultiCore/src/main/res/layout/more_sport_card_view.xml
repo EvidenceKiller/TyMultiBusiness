@@ -84,7 +84,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="iv_header,iv_header_bg,tv_name,tv_prepared" />
+        app:constraint_referenced_ids="iv_header,tv_name,tv_prepared" />
 
     <ImageView
         android:id="@+id/iv_header"
@@ -99,6 +99,7 @@
         android:id="@+id/iv_header_bg"
         android:layout_width="@dimen/dp_186"
         android:layout_height="@dimen/dp_186"
+        android:visibility="gone"
         android:background="@mipmap/icon_header_bg_vip"
         app:layout_constraintBottom_toBottomOf="@+id/iv_header"
         app:layout_constraintEnd_toEndOf="@+id/iv_header"
@@ -140,7 +141,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="civ_header,iv_header_bg2,tv_name_sport,tv_count,tv_unit" />
+        app:constraint_referenced_ids="civ_header,tv_name_sport,tv_count,tv_unit" />
 
     <com.ty.tybusbase.view.CircleImageView
         android:id="@+id/civ_header"
@@ -155,6 +156,7 @@
         android:id="@+id/iv_header_bg2"
         android:layout_width="@dimen/dp_60"
         android:layout_height="@dimen/dp_60"
+        android:visibility="gone"
         android:background="@mipmap/icon_header_bg_vip"
         app:layout_constraintBottom_toBottomOf="@+id/civ_header"
         app:layout_constraintEnd_toEndOf="@+id/civ_header"
