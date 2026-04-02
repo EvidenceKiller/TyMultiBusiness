@@ -40,13 +40,12 @@
         android:id="@+id/iv_header_bg"
         android:layout_width="@dimen/dp_108"
         android:layout_height="@dimen/dp_108"
+        android:visibility="gone"
         android:background="@mipmap/icon_header_bg_vip"
         app:layout_constraintBottom_toBottomOf="@+id/iv_header"
         app:layout_constraintEnd_toEndOf="@+id/iv_header"
         app:layout_constraintStart_toStartOf="@+id/iv_header"
         app:layout_constraintTop_toTopOf="@+id/iv_header" />
-
-
 
     <TextView
         android:id="@+id/tv_name"
@@ -69,6 +68,7 @@
         android:layout_width="@dimen/dp_110"
         android:layout_height="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_4"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="@+id/tv_name"
         app:layout_constraintStart_toStartOf="@+id/tv_name"
         app:layout_constraintTop_toBottomOf="@+id/tv_name" />

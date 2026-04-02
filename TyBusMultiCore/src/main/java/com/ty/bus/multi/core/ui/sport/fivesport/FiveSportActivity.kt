@@ -192,7 +192,7 @@ class FiveSportActivity :
                 finish()
             }
             doResultViewTranslateAnimation(srrvResult)
-            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count)
+            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count,viewModel.energyPoint)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {

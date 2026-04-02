@@ -65,10 +65,6 @@ abstract class BaseMultiSportView(
     }
 
     fun setUserInfo(p: Pair<Int, AccountInfo>) {
-        cardMap[p.first]?.setUserInfo(
-            p.second.studentEntity!!.accountName,
-            p.second.studentEntity?.userFaceImgUrl
-        )
         cardMap[p.first]?.setAccountInfo(p.second)
     }
 

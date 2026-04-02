@@ -10,8 +10,10 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.ISportCardView
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.databinding.ViewSkipRoseCardViewBinding
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
 
 /**
@@ -256,10 +258,13 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
      */
     override fun setAccountInfo(accountInfo: AccountInfo) {
         this.accountInfo = accountInfo
-//        mBinding.tvName.text = accountInfo.studentEntity?.accountName
-//        Glide.with(context.applicationContext).load(accountInfo.studentEntity?.userFaceImgUrl)
-//            .placeholder(R.mipmap.ic_head_default)
-//            .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
+        setUserInfo(
+            accountInfo.studentEntity?.accountName ?: "",
+            accountInfo.studentEntity?.userFaceImgUrl
+        )
+        if (accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+            mBinding.ivHeaderBg.visible()
+        }
     }
 
     override fun setPrecastAccountInfo(accountInfo: AccountInfo) {
@@ -278,6 +283,9 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
             Glide.with(context.applicationContext).load(accountInfo.studentEntity?.userFaceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
+            if (accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+                mBinding.ivHeaderBg2.visible()
+            }
         }
         //隐藏准备中的UI
         mBinding.groupPrepared.visibility = GONE

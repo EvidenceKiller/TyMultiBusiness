@@ -207,7 +207,8 @@ class ThreeSportActivity :
             srrvResult = ThreeSportResultView(this)
             srrvResult.setResult(
                 it,
-                if (viewModel.matchId != null) Int.MAX_VALUE else top1Count
+                if (viewModel.matchId != null) Int.MAX_VALUE else top1Count,
+                viewModel.energyPoint
             )
             if (viewModel.tsConfig?.isSupportNextGroup == true) {
                 srrvResult.showNextBtn()

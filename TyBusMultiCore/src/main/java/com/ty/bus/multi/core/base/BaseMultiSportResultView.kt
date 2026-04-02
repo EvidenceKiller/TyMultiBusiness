@@ -19,9 +19,10 @@ abstract class BaseMultiSportResultView(context: Context, attrs: AttributeSet?, 
 
     var measureUnit: String = context.getString(R.string.ge)
 
-    protected var reportClickListener:Action1<Int>? =null
+    protected var reportClickListener: Action1<Int>? = null
 
-    abstract fun getConfirmView():View
+    abstract fun getConfirmView(): View
+
     /**
      * 设置按钮回调
      */
@@ -35,19 +36,29 @@ abstract class BaseMultiSportResultView(context: Context, attrs: AttributeSet?, 
         reportClickListener = listener
     }
 
-    fun showReportButton(index:Int,show: Boolean) {
+    fun showReportButton(index: Int, show: Boolean) {
         resultCardArray.get(index).showReportButton(show)
     }
 
-    fun setResult(resultArray: MutableList< out MultiSportResult>, top1Count: Int){
-        setResult(resultArray,top1Count,getCount())
+    fun setResult(
+        resultArray: MutableList<out MultiSportResult>,
+        top1Count: Int,
+        energyPoint: Int
+    ) {
+        setResult(resultArray, top1Count, getCount(), energyPoint)
     }
+
     /**
      * 设置结果，需要先取出结果进行成绩排序，再设置卡片结果值
      */
-    private fun setResult(resultArray: MutableList<out MultiSportResult>, top1Count: Int, count:Int) {
+    private fun setResult(
+        resultArray: MutableList<out MultiSportResult>,
+        top1Count: Int,
+        count: Int,
+        energyPoint: Int
+    ) {
         val resultList = mutableListOf<MultiSportResult>()
-        for (index in 0 until  count) {
+        for (index in 0 until count) {
             val skipRoseMultiResult = resultArray.getOrNull(index)
             if (skipRoseMultiResult != null) {
                 //该位置有人
@@ -57,7 +68,7 @@ abstract class BaseMultiSportResultView(context: Context, attrs: AttributeSet?, 
         resultList.sortWith(compareBy { -it.count })
         var preRank = 0
         var preScore = -1
-        for (index in resultList.indices){
+        for (index in resultList.indices) {
             val skipRoseMultiResult = resultList[index]
             var rank = 0
             if (skipRoseMultiResult.count == preScore) {
@@ -67,9 +78,15 @@ abstract class BaseMultiSportResultView(context: Context, attrs: AttributeSet?, 
             }
             preRank = rank
             preScore = skipRoseMultiResult.count
-            resultCardArray.get(skipRoseMultiResult.number)?.setResult(rank,skipRoseMultiResult,skipRoseMultiResult.count > top1Count,measureUnit)
+            resultCardArray.get(skipRoseMultiResult.number)?.setResult(
+                rank,
+                skipRoseMultiResult,
+                skipRoseMultiResult.count > top1Count,
+                measureUnit,
+                energyPoint
+            )
         }
     }
 
-    abstract fun getCount():Int
+    abstract fun getCount(): Int
 }

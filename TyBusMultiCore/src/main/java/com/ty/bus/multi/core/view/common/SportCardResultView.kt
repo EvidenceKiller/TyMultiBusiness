@@ -8,6 +8,8 @@ import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ViewSkipRoseCardResultViewBinding
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.expand.visible
 
 class SportCardResultView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -32,7 +34,8 @@ class SportCardResultView(context: Context, attrs: AttributeSet?, defStyleAttr: 
         rank: Int,
         skipRoseMultiResult: MultiSportResult?,
         isBest: Boolean,
-        unit: String = "个"
+        unit: String = "个",
+        energyPoint: Int = 0
     ) {
         mBinding.groupResult.visibility = VISIBLE
         mBinding.tvNobody.visibility = GONE
@@ -88,6 +91,13 @@ class SportCardResultView(context: Context, attrs: AttributeSet?, defStyleAttr: 
             Glide.with(context).load(skipRoseMultiResult.accountInfo.studentEntity!!.userFaceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.ivHeader)
+            if (skipRoseMultiResult.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+                mBinding.ivHeaderBg.visible()
+            }
+            if (energyPoint > 0) {
+                mBinding.layoutEnergy.root.visible()
+                mBinding.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
+            }
             mBinding.tvName.text = skipRoseMultiResult.accountInfo.studentEntity?.accountName
             mBinding.tvCount.text = skipRoseMultiResult.count.toString()
         } ?: run {
