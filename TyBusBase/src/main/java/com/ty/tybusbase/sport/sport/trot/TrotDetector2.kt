@@ -5,6 +5,7 @@ import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.sport.general.EuHelper
 import com.ty.tybusbase.sport.base.CommonEuSingleBase
 import com.ty.tybusbase.sport.listener.SingleEuBaseCallBack
+import com.ty.tybusbase.utils.LogUtil
 import kotlin.math.sqrt
 
 /**
@@ -20,9 +21,34 @@ class TrotDetector2(singleEuBaseCallBack: SingleEuBaseCallBack?) :
         val rKnee = body.rKnee
         val lAnkle = body.lAnkle
         val rAnkle = body.rAnkle
+        val lHip = body.lHip
+        val rHip = body.rHip
+        val lShoulder = body.lShoulder
+        val rShoulder = body.rShoulder
         if (!EuHelper.notNull(lKnee, rKnee, lAnkle, rAnkle)) {
             if (null != singleEuBaseCallBack) {
                 singleEuBaseCallBack!!.onSpeaker("请保持正面面向屏屏幕")
+            }
+            return
+        }
+
+
+        //过滤不合格的骨骼
+        if (lAnkle.y <= lKnee.y || lKnee.y <= lHip.y || lAnkle.y <= lHip.y
+            || rAnkle.y <= rKnee.y || rAnkle.y <= rHip.y || rKnee.y <= rHip.y
+        ) {
+            if (null != singleEuBaseCallBack) {
+                singleEuBaseCallBack!!.onSpeaker("你已出框，请回到框内")
+            }
+            return
+        }
+
+        val lld = computeDistance(lKnee, lAnkle)
+        val rrd = computeDistance(rKnee, rAnkle)
+        val sd = computeDistance(lShoulder, rShoulder)
+        if (lld < sd / 4f || rrd < sd / 4f) {
+            if (null != singleEuBaseCallBack) {
+                singleEuBaseCallBack!!.onSpeaker("骨骼异常")
             }
             return
         }

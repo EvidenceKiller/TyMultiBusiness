@@ -246,7 +246,6 @@ object RecordUploadHelper {
             //视频需要上传
             if (it.videoUrl != null && it.videoUrl.isNotEmpty() && File(it.videoUrl).exists()) {
                 val cacheUploadFileInfo = getCacheUploadResFileInfo(it.videoUrl)
-                LogUtil.d("上传视频获取缓存的封面信息：${cacheUploadFileInfo?.first}--${cacheUploadFileInfo?.second}")
                 val videoPrefix =
                     cacheUploadFileInfo?.first
                         ?: "${authFactory.appCode}/video/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
@@ -266,7 +265,6 @@ object RecordUploadHelper {
             //封面需要上传
             if (it.videoCover != null && it.videoCover.isNotEmpty() && File(it.videoCover).exists()) {
                 val cacheUploadFileInfo = getCacheUploadResFileInfo(it.videoCover)
-                LogUtil.d("上传视频获取缓存的视频地址：${cacheUploadFileInfo?.first}--${cacheUploadFileInfo?.second}")
                 val coverPrefix = cacheUploadFileInfo?.first
                     ?: "${authFactory.appCode}/image/${sportRecordEntity.sportSceneCode}/${sportRecordEntity.sportTypeCode}/${
                         calendar.get(
