@@ -110,7 +110,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
                         holder.vb.ivHeaderBg.visible()
                     }
-                    if (energyPoint > 0) {
+                    if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                         holder.vb.layoutEnergy.root.visible()
                         holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
                     }
@@ -144,7 +144,7 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
                         holder.vb.ivHeaderBg.visible()
                     }
-                    if (energyPoint > 0) {
+                    if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                         holder.vb.layoutEnergy.root.visible()
                         holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
                     }

@@ -94,7 +94,7 @@ class SportCardResultView(context: Context, attrs: AttributeSet?, defStyleAttr: 
             if (skipRoseMultiResult.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
                 mBinding.ivHeaderBg.visible()
             }
-            if (energyPoint > 0) {
+            if (energyPoint > 0 && skipRoseMultiResult.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                 mBinding.layoutEnergy.root.visible()
                 mBinding.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
             }
