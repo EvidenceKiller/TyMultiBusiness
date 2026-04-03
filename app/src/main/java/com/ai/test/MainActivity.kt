@@ -274,8 +274,8 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     endType = SportConstant.END_TYPE_TIME
                     testCount = "2"
                     sceneId = SceneConstants.FREE
-                    energyPoint = 10
                 }
+                energyPoint = 10
             })
         }
 
@@ -324,18 +324,20 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnSixYwqz.setOnClickListener {
-            UIMultiNavigation.goSixSport(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportItemCode = SportConstant.SPORT_SIT_UP
-                    sportSkuId = sportItemCode + "0001"
-                    sportSkuName = "6人仰卧起坐"
-                    testCount = "6"
-                    endValue = "20000"
-                    sceneId = SceneConstants.FREE
-                }
-            }, SixSportConfig.builder()
-                .setSupportNextGroup(true)
-                .build())
+            UIMultiNavigation.goSixSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_SIT_UP
+                        sportSkuId = sportItemCode + "0001"
+                        sportSkuName = "6人仰卧起坐"
+                        testCount = "6"
+                        endValue = "20000"
+                        sceneId = SceneConstants.FREE
+                    }
+                }, SixSportConfig.builder()
+                    .setSupportNextGroup(true)
+                    .build()
+            )
         }
 
         mBinding.btnSixYwqzSet.setOnClickListener {

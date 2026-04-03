@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.ty.tybusbase.view.CircleImageView
-        android:id="@+id/iv_head_rl"
+        android:id="@+id/iv_head_r"
         android:layout_width="@dimen/dp_195"
         android:layout_height="@dimen/dp_195"
         android:layout_marginLeft="@dimen/dp_498"
@@ -28,28 +28,28 @@
         app:layout_constraintTop_toTopOf="@+id/rl_bg" />
 
     <ImageView
-        android:id="@+id/iv_header_bg_rl"
+        android:id="@+id/iv_header_bg_r"
         android:layout_width="@dimen/dp_294"
         android:layout_height="@dimen/dp_294"
         android:background="@mipmap/icon_header_bg_vip"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_head_rl"
-        app:layout_constraintEnd_toEndOf="@+id/iv_head_rl"
-        app:layout_constraintStart_toStartOf="@+id/iv_head_rl"
-        app:layout_constraintTop_toTopOf="@+id/iv_head_rl" />
+        app:layout_constraintBottom_toBottomOf="@+id/iv_head_r"
+        app:layout_constraintEnd_toEndOf="@+id/iv_head_r"
+        app:layout_constraintStart_toStartOf="@+id/iv_head_r"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_r" />
 
     <include
-        android:id="@+id/layout_energy_rl"
+        android:id="@+id/layout_energy_r"
         layout="@layout/base_layout_energy_icon"
         android:layout_width="@dimen/dp_110"
         android:layout_height="@dimen/dp_40"
         android:layout_marginStart="@dimen/dp_150"
         android:layout_marginTop="@dimen/dp_32"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="@+id/iv_head_rl"
-        app:layout_constraintTop_toTopOf="@+id/iv_head_rl" />
+        app:layout_constraintStart_toStartOf="@+id/iv_head_r"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_r" />
 
     <TextView
-        android:id="@+id/tv_name_rl"
+        android:id="@+id/tv_name_r"
         android:layout_width="@dimen/dp_254"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_263"
@@ -59,12 +59,12 @@
         android:textColor="@color/white"
         android:textSize="@dimen/sp_52"
         android:textStyle="bold"
-        app:layout_constraintLeft_toLeftOf="@+id/iv_head_rl"
-        app:layout_constraintRight_toRightOf="@+id/iv_head_rl"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_r"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_r"
         app:layout_constraintTop_toTopOf="@+id/rl_bg" />
 
     <TextView
-        android:id="@+id/tv_score_rl"
+        android:id="@+id/tv_score_r"
         android:layout_width="@dimen/dp_300"
         android:layout_height="@dimen/dp_99"
         android:layout_marginLeft="@dimen/dp_450"
@@ -87,7 +87,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.ty.tybusbase.view.CircleImageView
-        android:id="@+id/iv_head_lw"
+        android:id="@+id/iv_head_l"
         android:layout_width="@dimen/dp_195"
         android:layout_height="@dimen/dp_195"
         android:layout_marginLeft="@dimen/dp_440"
@@ -98,28 +98,28 @@
         app:layout_constraintStart_toStartOf="@+id/l_w_bg" />
 
     <ImageView
-        android:id="@+id/iv_header_bg_lw"
+        android:id="@+id/iv_header_bg_l"
         android:layout_width="@dimen/dp_294"
         android:layout_height="@dimen/dp_294"
         android:background="@mipmap/icon_header_bg_vip"
-        app:layout_constraintBottom_toBottomOf="@+id/iv_head_lw"
-        app:layout_constraintEnd_toEndOf="@+id/iv_head_lw"
-        app:layout_constraintStart_toStartOf="@+id/iv_head_lw"
-        app:layout_constraintTop_toTopOf="@+id/iv_head_lw" />
+        app:layout_constraintBottom_toBottomOf="@+id/iv_head_l"
+        app:layout_constraintEnd_toEndOf="@+id/iv_head_l"
+        app:layout_constraintStart_toStartOf="@+id/iv_head_l"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_l" />
 
     <include
-        android:id="@+id/layout_energy_lw"
+        android:id="@+id/layout_energy_l"
         layout="@layout/base_layout_energy_icon"
         android:layout_width="@dimen/dp_110"
         android:layout_height="@dimen/dp_40"
         android:layout_marginStart="@dimen/dp_150"
         android:layout_marginTop="@dimen/dp_32"
         android:visibility="gone"
-        app:layout_constraintStart_toStartOf="@+id/iv_head_lw"
-        app:layout_constraintTop_toTopOf="@+id/iv_head_lw" />
+        app:layout_constraintStart_toStartOf="@+id/iv_head_l"
+        app:layout_constraintTop_toTopOf="@+id/iv_head_l" />
 
     <TextView
-        android:id="@+id/tv_name_lw"
+        android:id="@+id/tv_name_l"
         android:layout_width="@dimen/dp_254"
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/dp_174"
@@ -130,11 +130,11 @@
         android:textSize="@dimen/sp_52"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@+id/l_w_bg"
-        app:layout_constraintLeft_toLeftOf="@+id/iv_head_lw"
-        app:layout_constraintRight_toRightOf="@+id/iv_head_lw" />
+        app:layout_constraintLeft_toLeftOf="@+id/iv_head_l"
+        app:layout_constraintRight_toRightOf="@+id/iv_head_l" />
 
     <TextView
-        android:id="@+id/tv_score_lw"
+        android:id="@+id/tv_score_l"
         android:layout_width="@dimen/dp_362"
         android:layout_height="@dimen/dp_101"
         android:layout_alignParentBottom="true"

@@ -79,12 +79,15 @@ class DoubleSportActivity :
         //识别成功
         mBinding.overLayout.setLeftPlayer(viewModel.leftAccountInfo.value)
         mBinding.overLayout.setRightPlayer(viewModel.rightAccountInfo.value)
+        viewModel.leftSportResult.userId = viewModel.leftAccountInfo.value?.studentEntity?.accountId
+        viewModel.rightSportResult.userId =
+            viewModel.rightAccountInfo.value?.studentEntity?.accountId
         viewModel.leftSportResult.cardType =
             viewModel.leftAccountInfo.value?.studentEntity?.cardType ?: ""
         viewModel.rightSportResult.cardType =
             viewModel.rightAccountInfo.value?.studentEntity?.cardType ?: ""
-        viewModel.leftSportResult.energyPoint = energyPoint
-        viewModel.rightSportResult.energyPoint = energyPoint
+        viewModel.leftSportResult.energyPoint = viewModel.energyPoint
+        viewModel.rightSportResult.energyPoint = viewModel.energyPoint
     }
 
     override fun onStatusSport() {
@@ -115,7 +118,8 @@ class DoubleSportActivity :
         LogUtil.d("---运动结束了")
         mBinding.viewSportResult.setResult(
             viewModel.rightSportResult,
-            viewModel.leftSportResult
+            viewModel.leftSportResult,
+            viewModel.energyPoint
         )
         val multiId = System.currentTimeMillis().toString()
         viewModel.rightSportResult.multiPersonId = multiId

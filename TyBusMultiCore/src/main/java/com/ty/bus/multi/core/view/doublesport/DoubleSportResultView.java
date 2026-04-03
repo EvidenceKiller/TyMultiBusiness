@@ -46,125 +46,75 @@ public class DoubleSportResultView extends ConstraintLayout {
         vb.ivResultExit.setOnClickListener(listener);
     }
 
-    public void setResult(SportResult rightResult, SportResult leftResult) {
+    public void setResult(SportResult rightResult, SportResult leftResult, int energyPoint) {
         if (leftResult == null || rightResult == null) return;
         int leftAchievement = leftResult.getSportAchievement();
         int rightAchievement = rightResult.getSportAchievement();
         if (leftAchievement > rightAchievement) {
             leftResult.setRank(1);
             rightResult.setRank(2);
-            leftWin(rightResult, leftResult);
+            loadResult(rightResult, leftResult, 1, energyPoint);
         } else if (leftAchievement < rightAchievement) {
             leftResult.setRank(2);
             rightResult.setRank(1);
-            rightWin(rightResult, leftResult);
+            loadResult(rightResult, leftResult, 2, energyPoint);
         } else {
             leftResult.setRank(2);
             rightResult.setRank(2);
-            draw(rightResult, leftResult);
+            loadResult(rightResult, leftResult, 3, energyPoint);
         }
     }
 
-    private void leftWin(SportResult rightResult, SportResult leftResult) {
-        try {
-            View view = vb.vsLeftWin.inflate();
-            TextView tvNameLw = view.findViewById(R.id.tv_name_lw);
-            TextView tvScoreLw = view.findViewById(R.id.tv_score_lw);
-            TextView tvScoreRl = view.findViewById(R.id.tv_score_rl);
-            TextView tvNameRl = view.findViewById(R.id.tv_name_rl);
-            ImageView ivHeadLw = view.findViewById(R.id.iv_head_lw);
-            ImageView ivHeadRl = view.findViewById(R.id.iv_head_rl);
-            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_lw);
-            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_rl);
-            if (leftResult.getEnergyPoint() > 0) {
-                View viewById = view.findViewById(R.id.layout_energy_rl);
-                View viewById1 = view.findViewById(R.id.layout_energy_lw);
-                viewById.setVisibility(View.VISIBLE);
-                viewById1.setVisibility(View.VISIBLE);
-                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
-                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
-                energyTvL.setText("+" + leftResult.getEnergyPoint());
-                energyTvR.setText("+" + rightResult.getEnergyPoint());
-            }
-            tvNameLw.setText(leftResult.userName != null ? leftResult.userName : "");
-            tvNameRl.setText(rightResult.userName == null ? "" : rightResult.userName);
-            tvScoreLw.setText(String.valueOf(leftResult.getSportAchievement()));
-            tvScoreRl.setText(String.valueOf(rightResult.getSportAchievement()));
-            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLw);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRl);
-        } catch (Exception e) {
-            e.printStackTrace();
+    /**
+     * 加载结果数据
+     *
+     * @param rightResult
+     * @param leftResult
+     * @param type：1左赢，2：右赢，3：平局
+     */
+    private void loadResult(SportResult rightResult, SportResult leftResult, int type, int energyPoint) {
+        View view = null;
+        switch (type) {
+            case 1:
+                view = vb.vsLeftWin.inflate();
+                break;
+            case 2:
+                view = vb.vsRightWin.inflate();
+                break;
+            case 3:
+                view = vb.vsDrawWin.inflate();
         }
-    }
-
-    private void rightWin(SportResult rightResult, SportResult leftResult) {
-        try {
-            View view = vb.vsRightWin.inflate();
-            TextView tvNameRw = view.findViewById(R.id.tv_name_rw);
-            TextView tvScoreRw = view.findViewById(R.id.tv_score_rw);
-            TextView tvScoreLl = view.findViewById(R.id.tv_score_ll);
-            TextView tvNameLl = view.findViewById(R.id.tv_name_ll);
-            ImageView ivHeadRw = view.findViewById(R.id.iv_head_rw);
-            ImageView ivHeadLl = view.findViewById(R.id.iv_head_ll);
-            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_ll);
-            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_rw);
-            if (leftResult.getEnergyPoint() > 0) {
-                View viewById = view.findViewById(R.id.layout_energy_ll);
-                View viewById1 = view.findViewById(R.id.layout_energy_rw);
-                viewById.setVisibility(View.VISIBLE);
-                viewById1.setVisibility(View.VISIBLE);
-                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
-                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
-                energyTvL.setText("+" + leftResult.getEnergyPoint());
-                energyTvR.setText("+" + rightResult.getEnergyPoint());
-            }
-            tvNameRw.setText(rightResult.userName != null ? rightResult.userName : "");
-            tvNameLl.setText(leftResult.userName == null ? "" : leftResult.userName);
-            tvScoreRw.setText(String.valueOf(rightResult.getSportAchievement()));
-            tvScoreLl.setText(String.valueOf(leftResult.getSportAchievement()));
-            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadRw);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadLl);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void draw(SportResult rightResult, SportResult leftResult) {
-        try {
-            View view = vb.vsDrawWin.inflate();
-            TextView tvNameR = view.findViewById(R.id.tv_name_r);
-            TextView tvScoreR = view.findViewById(R.id.tv_score_r);
-            TextView tvScoreL = view.findViewById(R.id.tv_score_l);
-            TextView tvNameL = view.findViewById(R.id.tv_name_l);
-            ImageView ivHeadR = view.findViewById(R.id.iv_head_r);
-            ImageView ivHeadL = view.findViewById(R.id.iv_head_l);
-            ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_l);
-            ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_r);
-            if (leftResult.getEnergyPoint() > 0) {
+        TextView tvNameLw = view.findViewById(R.id.tv_name_l);
+        TextView tvScoreLw = view.findViewById(R.id.tv_score_l);
+        TextView tvScoreRl = view.findViewById(R.id.tv_score_r);
+        TextView tvNameRl = view.findViewById(R.id.tv_name_r);
+        ImageView ivHeadLw = view.findViewById(R.id.iv_head_l);
+        ImageView ivHeadRl = view.findViewById(R.id.iv_head_r);
+        ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_l);
+        ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_r);
+        ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+        ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+        if (energyPoint > 0) {
+            if (!leftResult.userId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
                 View viewById = view.findViewById(R.id.layout_energy_l);
-                View viewById1 = view.findViewById(R.id.layout_energy_r);
                 viewById.setVisibility(View.VISIBLE);
-                viewById1.setVisibility(View.VISIBLE);
-                TextView energyTvL = viewById.findViewById(R.id.tv_energy_number);
-                TextView energyTvR = viewById1.findViewById(R.id.tv_energy_number);
-                energyTvL.setText("+" + leftResult.getEnergyPoint());
-                energyTvR.setText("+" + rightResult.getEnergyPoint());
+                TextView energyTvL = viewById.findViewById(com.ty.tybusbase.R.id.tv_energy_number);
+                energyTvL.setText("+" + energyPoint);
             }
-            tvNameR.setText(rightResult.userName != null ? rightResult.userName : "");
-            tvNameL.setText(leftResult.userName == null ? "" : leftResult.userName);
-            tvScoreR.setText(String.valueOf(rightResult.getSportAchievement()));
-            tvScoreL.setText(String.valueOf(leftResult.getSportAchievement()));
-            ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadR);
-            Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(R.mipmap.ic_head_default).into(ivHeadL);
-        } catch (Exception e) {
-            e.printStackTrace();
+            if (!rightResult.userId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
+                View viewById1 = view.findViewById(R.id.layout_energy_r);
+                viewById1.setVisibility(View.VISIBLE);
+                TextView energyTvR = viewById1.findViewById(com.ty.tybusbase.R.id.tv_energy_number);
+                energyTvR.setText("+" + energyPoint);
+            }
         }
+        tvNameLw.setText(leftResult.userName != null ? leftResult.userName : "");
+        tvNameRl.setText(rightResult.userName == null ? "" : rightResult.userName);
+        tvScoreLw.setText(String.valueOf(leftResult.getSportAchievement()));
+        tvScoreRl.setText(String.valueOf(rightResult.getSportAchievement()));
+        Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + leftResult.getHeadUrl()).error(com.ty.tybusbase.R.mipmap.ic_head_default).into(ivHeadLw);
+        Glide.with(getContext()).load(AdlService.getService().getFacePrefix() + rightResult.getHeadUrl()).error(com.ty.tybusbase.R.mipmap.ic_head_default).into(ivHeadRl);
     }
+
 
 }

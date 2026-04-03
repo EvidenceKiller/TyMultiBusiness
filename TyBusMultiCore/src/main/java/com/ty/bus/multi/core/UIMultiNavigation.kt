@@ -21,6 +21,7 @@ import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
+import com.ty.tybusbase.base.BaseNavigation
 import com.ty.tybusbase.config.UINavConfig
 
 /**
@@ -29,7 +30,7 @@ import com.ty.tybusbase.config.UINavConfig
  * Date       : 2025/7/18
  * Describe   : 类描述
  */
-object UIMultiNavigation {
+object UIMultiNavigation:BaseNavigation() {
     @JvmStatic
     fun goTenSport(
         context: Context,
@@ -146,21 +147,4 @@ object UIMultiNavigation {
         context.startActivity(Intent(context, LungSettingActivity::class.java))
     }
 
-    /**
-     * 设置传参，并跳转页面
-     */
-    private fun startActivity(context: Context, intent: Intent, config: UINavConfig?) {
-        intent.putExtra("sport_info", config?.sportInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("scene_id", config?.sceneId)
-        intent.putExtra("account_info", config?.accountInfo)
-        intent.putExtra("match_id", config?.matchId)
-        intent.putExtra("model_id", config?.modelId)
-        intent.putExtra("match_name", config?.matchName)
-        intent.putExtra("match_sport_id", config?.matchSportId)
-        intent.putExtra("pt_plan_id", config?.ptPlanId)
-        intent.putExtra("pt_standard_id", config?.ptStandardId)
-        intent.putExtra("energy_point", config?.energyPoint)
-        context.startActivity(intent)
-    }
 }
