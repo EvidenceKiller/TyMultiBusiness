@@ -92,8 +92,8 @@ public class DoubleSportResultView extends ConstraintLayout {
         ImageView ivHeadRl = view.findViewById(R.id.iv_head_r);
         ImageView ivHeaderBgL = view.findViewById(R.id.iv_header_bg_l);
         ImageView ivHeaderBgR = view.findViewById(R.id.iv_header_bg_r);
-        ivHeaderBgL.setVisibility(leftResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
-        ivHeaderBgR.setVisibility(rightResult.getCardType().equals(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) ? View.VISIBLE : View.GONE);
+        ivHeaderBgL.setVisibility(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE.equals(leftResult.getCardType()) ? View.VISIBLE : View.GONE);
+        ivHeaderBgR.setVisibility(BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE.equals(rightResult.getCardType()) ? View.VISIBLE : View.GONE);
         if (energyPoint > 0) {
             if (!leftResult.userId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
                 View viewById = view.findViewById(R.id.layout_energy_l);

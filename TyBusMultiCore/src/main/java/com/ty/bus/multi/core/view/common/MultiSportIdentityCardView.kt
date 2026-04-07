@@ -161,7 +161,7 @@ class MultiSportIdentityCardView(context: Context, attrs: AttributeSet?, defStyl
         mBinding.groupAccount.visibility = INVISIBLE
         mBinding.clIdentityNotice.visibility = INVISIBLE
         mBinding.ivHeaderBg.gone()
-        identifyingTimer.cancel()
+        identifyingTimer?.cancel()
     }
 
     fun reset() {
