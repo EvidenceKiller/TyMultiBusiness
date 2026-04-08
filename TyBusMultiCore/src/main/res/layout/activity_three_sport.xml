@@ -23,7 +23,7 @@
         android:layout_height="@dimen/dp_74"
         android:layout_marginTop="@dimen/dp_45"
         android:layout_marginStart="@dimen/dp_40"
-        android:visibility="visible"
+        android:visibility="gone"
         android:src="@drawable/sv_back"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
