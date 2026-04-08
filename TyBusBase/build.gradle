@@ -32,7 +32,6 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
     api 'adl.ssp:ssp-common-report:2.1.0-20260324.110759-12'
-    api 'com.tencent.tbs:tbssdk:44286'
 
     //rx管理View的生命周期
     api(rootProject.ext.dependencies["rxlifecycle-components"]) {

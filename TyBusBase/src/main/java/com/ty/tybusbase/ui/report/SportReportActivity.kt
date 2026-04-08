@@ -9,11 +9,11 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.JavascriptInterface
 import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.lifecycle.coroutineScope
 import com.adl.base.log.AdlLogger
 import com.alibaba.fastjson.JSON
-import com.tencent.smtt.sdk.WebView
-import com.tencent.smtt.sdk.WebViewClient
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.databinding.ActivitySportReportBinding
