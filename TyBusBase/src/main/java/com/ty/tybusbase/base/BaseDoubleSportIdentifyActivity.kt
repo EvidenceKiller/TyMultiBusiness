@@ -329,10 +329,12 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                 viewModel.leftAccountInfo.value = leftAccountInfo
                 viewModel.leftSportResult.userName = leftAccountInfo.studentEntity?.accountName
                 viewModel.leftSportResult.headUrl = leftAccountInfo.studentEntity?.userFaceImgUrl
+                viewModel.leftSportResult.cardType = leftAccountInfo.studentEntity?.cardType
 
                 viewModel.rightAccountInfo.value = rightAccountInfo
                 viewModel.rightSportResult.userName = rightAccountInfo.studentEntity?.accountName
                 viewModel.rightSportResult.headUrl = rightAccountInfo.studentEntity?.userFaceImgUrl
+                viewModel.rightSportResult.cardType = rightAccountInfo.studentEntity?.cardType
                 //去重，如果左边已识别此人，则提示已识别，以游客身份加入
                 if (viewModel.leftAccountInfo.value?.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID
                     && viewModel.leftAccountInfo.value?.studentEntity?.accountId == viewModel.rightAccountInfo.value?.studentEntity?.accountId
