@@ -104,7 +104,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="tv_name,layout_energy,iv_header,iv_header_bg,iv_header_crown,tv_count,tv_unit" />
+        app:constraint_referenced_ids="tv_name,iv_header,iv_header_crown,tv_count,tv_unit" />
 
     <TextView
         android:id="@+id/tv_nobody"
