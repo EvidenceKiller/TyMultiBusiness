@@ -66,7 +66,7 @@ dependencies {
     api 'com.amazonaws:aws-android-sdk-s3:2.77.0'
     api 'com.amazonaws:aws-android-sdk-core:2.77.0'
 
-    api ("com.ssp:ssp-common-oss-android:1.1.0@aar")
+    api ("com.ssp:ssp-common-oss-android:1.1.2@aar")
 
     // 其他依赖(必须)
     api 'com.jakewharton.timber:timber:4.7.1'
