@@ -89,12 +89,13 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sportSkuName = "十人"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
+                    energyPoint = 10
                 }, TenSportConfig.builder()
                     .setCountdownText("开始倒计时")
                     .setResultPageText("测试结束")
                     .setSportStartedText("开始咯，开始咯")
                     .setVoiceBroadcastSupported(true)
-                    .setSupportNextGroup(true)
+                    .setSupportNextGroup(false)
                     .setSupportReport(true)
                     .build()
             )
