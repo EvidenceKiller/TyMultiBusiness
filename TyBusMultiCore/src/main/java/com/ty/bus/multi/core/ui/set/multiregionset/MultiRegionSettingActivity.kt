@@ -69,6 +69,7 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
         )
         uiConfig.number = number
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
+        mBinding.overlay.refresh()
     }
 
 
