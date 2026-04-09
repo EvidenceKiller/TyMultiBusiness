@@ -14,6 +14,10 @@ class ThreeSiteUpFactory : AbstractMultiSportFactory() {
     override fun getBodyModelId(): Int = ModelIdConstants.SIT_UP_BODY_MODEL_ID
     override fun getPoseModelId(): Int = ModelIdConstants.SIT_UP_POSE_MODEL_ID
 
+    override fun getFaceBodyModelId(): Int = ModelIdConstants.COMMON_BODY_MODEL_ID
+
+    override fun getFacePoseModelId(): Int = ModelIdConstants.COMMON_POSE_MODEL_ID
+
     override fun getStartTip(): String = getString(R.string.pull_up_start_tips)
 
     override fun getInTip(): String = getString(R.string.sit_on_mat_and_look_at_screen)

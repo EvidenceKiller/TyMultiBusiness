@@ -402,6 +402,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             val roseMultiResult = sportPersonArray.get(skipMan.positionNum, null)
             val nextState = skipMan.channelStatus
             currentPersonState[skipMan.positionNum] = nextState
+            LogUtil.d("处理位置状态：道数 ${skipMan.positionNum} 状态 $currentState -> ${nextState.name}")
             //处理进入时间
             when (nextState) {
 //                GroupSportsBaseChannelStatus.none -> {

@@ -10,6 +10,12 @@ import com.ty.tybusbase.expand.getString
 class ThreePushUpFactory : AbstractMultiSportFactory() {
     override fun getPoseModelId(): Int = ModelIdConstants.PUSH_UP_POSE_MODEL_ID
 
+    override fun getBodyModelId(): Int = ModelIdConstants.THREE_BODY_MODEL_ID
+
+    override fun getFaceBodyModelId(): Int = ModelIdConstants.COMMON_BODY_MODEL_ID
+
+    override fun getFacePoseModelId(): Int = ModelIdConstants.COMMON_POSE_MODEL_ID
+
     override fun getStartTip(): String = getString(R.string.move_in_marked_area)
 
     override fun getInTip(): String = getString(R.string.enter_identification_area)

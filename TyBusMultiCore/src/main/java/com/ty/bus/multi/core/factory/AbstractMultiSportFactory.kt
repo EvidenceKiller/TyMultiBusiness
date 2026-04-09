@@ -5,7 +5,7 @@ import com.adl.sport.general.multi.MultiSportType
 import com.ty.tybusbase.constants.ModelIdConstants
 
 abstract class AbstractMultiSportFactory {
-    open fun getBodyModelId(): Int = 1054
+    open fun getBodyModelId(): Int = ModelIdConstants.THREE_BODY_MODEL_ID
     abstract fun getPoseModelId(): Int
 
     //通用ID

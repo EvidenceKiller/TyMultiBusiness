@@ -520,6 +520,8 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         sportConfig.drawBody = isDebug
         sportConfig.drawSkeleton = skeleton
         sportConfig.sportType = factory.getMultiSportType()
+        sportConfig.faceStatusBodyId = factory.getFaceBodyModelId()
+        sportConfig.faceStatusPoseId = factory.getFacePoseModelId()
         sportConfig.loadModel(object : TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
                 if (DeviceUtil.isTsRk3588()) {

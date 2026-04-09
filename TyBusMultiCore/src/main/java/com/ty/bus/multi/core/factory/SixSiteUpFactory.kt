@@ -12,6 +12,8 @@ import com.ty.tybusbase.expand.getString
 class SixSiteUpFactory : AbstractMultiSportFactory() {
     override fun getBodyModelId(): Int = ModelIdConstants.SIT_UP_BODY_MODEL_ID
     override fun getPoseModelId(): Int = ModelIdConstants.SIT_UP_POSE_MODEL_ID
+    override fun getFaceBodyModelId(): Int = ModelIdConstants.COMMON_BODY_MODEL_ID
+    override fun getFacePoseModelId(): Int = ModelIdConstants.COMMON_POSE_MODEL_ID
 
     override fun getStartTip(): String = getString(R.string.pull_up_start_tips)
 
