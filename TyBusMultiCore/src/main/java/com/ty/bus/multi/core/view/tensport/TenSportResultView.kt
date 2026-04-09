@@ -20,9 +20,12 @@ import com.ty.bus.multi.databinding.ItemTenSportResultBinding
 import com.ty.bus.multi.databinding.TenSportResultViewBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
+import com.ty.tybusbase.base.getContext
+import com.ty.tybusbase.base.getResources
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.SpeechWrapper
+import com.ty.tybusbase.utils.DisplayUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -113,6 +116,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                         holder.vb.layoutEnergy.root.visible()
                         holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
+                        holder.vb.layoutEnergy.tvEnergyNumber.textSize = DisplayUtil.px2dp(
+                            holder.getContext(),
+                            holder.getResources().getDimension(R.dimen.sp_20)
+                        ).toFloat()
+                        holder.vb.layoutEnergy.tvEnergyDes.textSize =DisplayUtil.px2dp(
+                            holder.getContext(),
+                            holder.getResources().getDimension(R.dimen.sp_16)
+                        ).toFloat()
                     }
                     if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
@@ -147,6 +158,14 @@ class TenSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr: I
                     if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                         holder.vb.layoutEnergy.root.visible()
                         holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
+                        holder.vb.layoutEnergy.tvEnergyNumber.textSize = DisplayUtil.px2dp(
+                            holder.getContext(),
+                            holder.getResources().getDimension(R.dimen.sp_20)
+                        ).toFloat()
+                        holder.vb.layoutEnergy.tvEnergyDes.textSize =DisplayUtil.px2dp(
+                            holder.getContext(),
+                            holder.getResources().getDimension(R.dimen.sp_16)
+                        ).toFloat()
                     }
                     if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
