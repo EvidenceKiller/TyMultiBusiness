@@ -144,20 +144,19 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         super.initObserver()
         viewModel.changeSportViewStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
-//            if (it.second == MultiSportCardViewState.IDENTIFIED) {
-//                setTip(factory.getReadyTip())
-//                for (i in checkStatusList.indices) {
-//                    checkStatusList[i] = false
-//                }
-//                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
-//                viewModel.sportPersonArray.forEach { _, value ->
-//                    val number = value.number
-//                    if (number in checkStatusList.indices) {
-//                        checkStatusList[number] = true
-//                    }
-//                }
-//                parser.setCheckStatusList(checkStatusList)
-//            }
+            if (it.second == MultiSportCardViewState.IDENTIFIED) {
+                for (i in checkStatusList.indices) {
+                    checkStatusList[i] = false
+                }
+                LogUtil.d("======================>>>>>>>>>>>>>>>>>>>>>> ${viewModel.sportPersonArray.size}")
+                viewModel.sportPersonArray.forEach { _, value ->
+                    val number = value.number
+                    if (number in checkStatusList.indices) {
+                        checkStatusList[number] = true
+                    }
+                }
+                parser.setCheckStatusList(checkStatusList)
+            }
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -341,7 +340,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             }
 
             override fun onLoginSucceed() {
-                changeResolution(64, 17)
+                changeResolution(64)
                 SystemClock.sleep(100)
                 runOnUiThread {
                     hideCameraTips()
@@ -454,7 +453,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     /**
      * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
      */
-    private fun changeResolution(re: Byte, frameRate: Byte) {
+    private fun changeResolution(re: Byte, frameRate: Byte = 14) {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, frameRate)

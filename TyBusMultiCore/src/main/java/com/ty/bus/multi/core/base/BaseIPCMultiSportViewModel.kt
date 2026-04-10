@@ -72,6 +72,7 @@ import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
+import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -341,6 +342,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
+        FaceDetectorHelper.getInstance().setFrameInterval(2)
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 

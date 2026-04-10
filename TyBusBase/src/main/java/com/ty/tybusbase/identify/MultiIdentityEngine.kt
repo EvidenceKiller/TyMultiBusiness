@@ -69,7 +69,6 @@ class MultiIdentityEngine {
     private fun initFaceDetect() {
         FaceDetectorHelper.getInstance()
             .setFaceFeatureThreshold(BusiBaseConstantsValue.DEFAULT_MULTI_FACE_THRESHOLD)
-        FaceDetectorHelper.getInstance().setFrameInterval(2)
         FaceDetectorHelper.getInstance().setFaceCallback(object : OnFaceCallback {
             override fun onFindStudent(user: StudentEntity?) {
                 user?.let {

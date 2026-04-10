@@ -27,6 +27,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.MultiIdentityEngine
@@ -126,6 +127,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
                 BusiBaseConstantsValue.VISITOR_OPEN
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
+        FaceDetectorHelper.getInstance().setFrameInterval(2)
         multiIdentityEngine.openMachine(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 
@@ -144,26 +146,26 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             }
         })
         multiIdentityEngine.addIdentityConfig(0, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 2
             minScoreThreshold = 0.7f
         })
         multiIdentityEngine.addIdentityConfig(1, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 2
             minScoreThreshold = 0.7f
         })
         multiIdentityEngine.addIdentityConfig(2, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 2
             minScoreThreshold = 0.6f
         })
         multiIdentityEngine.addIdentityConfig(3, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 2
             minScoreThreshold = 0.6f
         })
         multiIdentityEngine.addIdentityConfig(4, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 3
         })
         multiIdentityEngine.addIdentityConfig(5, FaceIdentifyConfig().apply {
-            visitorRetryNum = 1
+            visitorRetryNum = 3
         })
 
     }
