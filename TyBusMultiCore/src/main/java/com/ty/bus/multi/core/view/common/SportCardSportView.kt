@@ -13,6 +13,7 @@ import com.ty.bus.multi.databinding.ViewSkipRoseCardViewBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
 
@@ -155,6 +156,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
 
         mBinding.clGr.visibility = INVISIBLE
 
+        mBinding.ivHeaderBg.gone()
     }
 
     /**
@@ -288,9 +290,10 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
             }
         }
         //隐藏准备中的UI
-        mBinding.groupPrepared.visibility = GONE
-        mBinding.tvNotice.visibility = GONE
-        mBinding.tvLeaveNotice.visibility = GONE
+        mBinding.groupPrepared.gone()
+        mBinding.tvNotice.gone()
+        mBinding.tvLeaveNotice.gone()
+        mBinding.ivHeaderBg.gone()
     }
 
     /**
