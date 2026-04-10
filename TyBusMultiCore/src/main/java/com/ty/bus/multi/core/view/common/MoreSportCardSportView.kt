@@ -146,16 +146,15 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         state = MultiSportCardViewState.NOBODY
         mBinding.tvNotice.text = getString(R.string.prompt_move_to_sport_area)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
-        mBinding.tvSkipState.visibility = View.VISIBLE
+        mBinding.tvSkipState.visible()
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_nobody_more)
 
         //识别中
-        mBinding.rlIdentityNotice.visibility = View.GONE
+        mBinding.rlIdentityNotice.gone()
 
         //已准备
-        mBinding.groupPrepared.visibility = GONE
-
-//        mBinding.clGr.visibility = INVISIBLE
+        mBinding.groupPrepared.gone()
+        mBinding.ivHeaderBg.gone()
 
     }
 
