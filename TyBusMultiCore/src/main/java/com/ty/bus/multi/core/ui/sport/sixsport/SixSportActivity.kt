@@ -78,7 +78,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     private var isSpeeching = false
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325144937894.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/0601010003_1775815884231.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -373,6 +373,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     }
 
     private fun changeResolutionTo2K() {
+        if (viewModel.streamType == 2) return
         needChangeResolution = false
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             /********************切换分辨率********************/
@@ -390,6 +391,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     }
 
     private fun changeResolutionTo4K() {
+        if (viewModel.streamType == 2) return
         needChangeResolution = true
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             /********************切换分辨率********************/

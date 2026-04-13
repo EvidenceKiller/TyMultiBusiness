@@ -278,15 +278,15 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     fun handleProcessorCallback(groupSkippingManList: MutableList<GroupSportBaseMan>?) {
         //处理卡片和人的状态
         if (groupSkippingManList.isNullOrEmpty()) {
-//            handleNoPersonState()
             return
         }
 
-        handlePersonState(groupSkippingManList)
+
 
         when (sportState) {
 
             MultiSportState.PREPARING, MultiSportState.IDENTIFYING -> {
+                handlePersonState(groupSkippingManList)
                 handleIdentify(groupSkippingManList)
             }
 
@@ -399,11 +399,11 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
      * 记录每个位置的状态，并通知UI层更新卡片状态
      * 只处理卡片状态，此函数回调，一定有人在框里
      */
+    @Synchronized
     private fun handlePersonState(skipRopeManList: MutableList<GroupSportBaseMan>) {
 
         //非运动状态下记录每个位置的人员进入状态
         for (skipMan in skipRopeManList) {
-
             val currentState = currentPersonState[skipMan.positionNum]
             val roseMultiResult = sportPersonArray.get(skipMan.positionNum, null)
             val nextState = skipMan.channelStatus
