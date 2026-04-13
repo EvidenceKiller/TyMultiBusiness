@@ -489,7 +489,6 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     private val checkLayDownRunnable = Runnable {
         val layDownList = layDownStatusList.filter { it }
         LogUtil.d("checkLayDownRunnable  ${layDownList.size}")
-        SpeechWrapper.speech(getString(R.string.lie_on_back_and_face_screen))
         if (layDownList.size == sportPersonArray.size()) {
             //全部OK，可开始比赛
             readyGo()
