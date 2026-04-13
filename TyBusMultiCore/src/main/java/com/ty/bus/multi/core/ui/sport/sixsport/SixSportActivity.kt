@@ -173,6 +173,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             }
             //切换Pose模型ID
             mBinding.readyView.startReady {
+                mBinding.sportView.sportStarted()
                 viewModel.toStatusSportStart()
             }
         }
