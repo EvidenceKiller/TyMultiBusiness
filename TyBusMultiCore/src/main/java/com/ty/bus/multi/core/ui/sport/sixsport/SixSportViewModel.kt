@@ -9,10 +9,13 @@ import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.mount.sport.TsSportChannel
 import com.adl.service.entity.SportRecordEntity
 import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
+import com.adl.sport.general.multi.MultiSportProcessor
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportCardViewState
@@ -23,6 +26,7 @@ import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
@@ -562,20 +566,42 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     fun readyGo() {
         sportState = MultiSportState.COUNTDOWN
         countDownFinishLD.postValue(sportPersonArray)
-        startRecord()
     }
 
     /**
      * 开始录像
      */
-    private fun startRecord() {
+    private fun startRecord(cameraDispatcher: DynamicSportFrameDispatcher) {
         getVideoPath(sportInfo!!.sportSkuId)
         createTime = System.currentTimeMillis()
-        sportEngine.startRecorder(videoFile)
+        if (videoRecorder.isStarting) {
+            LogUtil.d("${sportManCount}人运动,录像已开始")
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val size = 2560 to 1440
+            videoRecorder.onStart(videoFile, size.first, size.second)
+            cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
+                override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
+                    videoRecorder.inputNv21(p0)
+                }
+            })
+        }
     }
 
     private fun stopRecord() {
-        sportEngine.stopRecorder(null)
+        videoRecorder.onStop()
+    }
+
+    fun onCameraOpen(
+        processor: MultiSportProcessor,
+        cameraDispatcher: DynamicSportFrameDispatcher
+    ) {
+        processor.clearTransform()
+        if (sportState == MultiSportState.SPORTING || sportState == MultiSportState.COUNTDOWN) {
+            LogUtil.d("${sportManCount}人运动，开始录像")
+            startRecord(cameraDispatcher)
+        }
     }
 
     /**
@@ -604,7 +630,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until  sportManCount) {
+        for (index in 0 until sportManCount) {
             val multiResult = sportPersonArray.get(index)
             if (multiResult != null) {
                 changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.SPORTING)
@@ -621,11 +647,10 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         endTime = System.currentTimeMillis()
         sportState = MultiSportState.IDLE
         SoundPlayUtils.play(24)
-        sportEngine.stopRecorder {
-            handleUploadResult(sportPersonArray)
-        }
+        stopRecord()
+        handleUploadResult(sportPersonArray)
         //切换卡片到结束状态
-        for (index in 0 until  sportManCount) {
+        for (index in 0 until sportManCount) {
             val multiResult = sportPersonArray.get(index)
             if (multiResult != null) {
                 changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.FINISH)

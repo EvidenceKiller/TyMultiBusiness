@@ -415,6 +415,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
             }
 
             override fun onCameraOpen() {
+                viewModel.onCameraOpen(multiSportProcessor, cameraDispatcher)
                 runOnUiThread {
                     hideCameraTips()
                 }
