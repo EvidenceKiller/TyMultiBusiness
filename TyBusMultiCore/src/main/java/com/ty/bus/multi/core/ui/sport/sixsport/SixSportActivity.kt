@@ -324,7 +324,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig
-            .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,

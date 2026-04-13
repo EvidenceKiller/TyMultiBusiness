@@ -753,6 +753,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportEngine.stopRecorder(null)
         multiIdentityEngine.closeMachine()
         sportingCountDownTimer?.cancel()
+        videoRecorder.onRelease()
         uiHandler.removeCallbacksAndMessages(null)
     }
 }
