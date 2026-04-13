@@ -495,6 +495,8 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
 
     private fun initOverlay() {
         val isDebug = MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, false)
+        mBinding.overlay.enableDraw(isDebug)
+        mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
