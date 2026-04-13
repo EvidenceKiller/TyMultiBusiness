@@ -821,6 +821,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private fun startRecord() {
         getVideoPath(sportInfo!!.sportSkuId)
         createTime = System.currentTimeMillis()
+        if (videoRecorder.isStarting) {
+            LogUtil.d("${skipManCount}人运动,录像已开始")
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             val size = getCameraSize()
             videoRecorder.onStart(videoFile, size.first, size.second)
