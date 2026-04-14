@@ -360,7 +360,7 @@ open class ForwardFlexionActivity :
                     OnLoadModelCallbackSample() {
 
                     override fun onStart() {
-                        if (DeviceUtil.isTsRk3588() || DeviceUtil.isTsRk35882()) {
+                        if (DeviceUtil.isTsRk3588()) {
                             runOnUiThread {
                                 showLoadingDialog(getString(R.string.model_loding))
                             }

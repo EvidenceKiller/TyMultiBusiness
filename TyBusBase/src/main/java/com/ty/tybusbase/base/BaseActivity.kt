@@ -18,6 +18,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.trello.rxlifecycle4.components.support.RxAppCompatActivity
 import com.ty.tybusbase.R
+import com.ty.tybusbase.gesture.GestureCommand
+import com.ty.tybusbase.gesture.GestureListener
+import com.ty.tybusbase.gesture.GestureProcessor
+import com.ty.tybusbase.gesture.GestureType
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -31,6 +35,34 @@ abstract class BaseActivity<DB : ViewBinding, VM : BaseViewModel> : RxAppCompatA
     //    private SweetAlertDialog pDialog;
     private var loadingView: View? = null
     private var imgLoading: ImageView? = null
+
+    private val gestureListener: GestureListener = object :
+        GestureListener {
+        override fun onGesture(command: GestureCommand, type: GestureType) {
+            runOnUiThread {
+                this@BaseActivity.onGesture(command, type)
+                when (command) {
+                    GestureCommand.LEFT -> {
+                        onGestureLeft()
+                    }
+
+                    GestureCommand.RIGHT -> {
+                        onGestureRight()
+                    }
+
+                    GestureCommand.HANDS_UP -> {
+                        if (type == GestureType.TYPE_LEFT) {
+                            onGestureLeftHandsUp()
+                        } else {
+                            onGestureRightHandsUp()
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +101,32 @@ abstract class BaseActivity<DB : ViewBinding, VM : BaseViewModel> : RxAppCompatA
 
     abstract fun initView(savedInstanceState: Bundle?)
 
+    protected open fun onGesture(command: GestureCommand, type: GestureType){}
+
+    protected open fun onGestureLeft() {}
+    protected open fun onGestureRight() {}
+
+    protected open fun onGestureLeftHandsUp() {
+        finish()
+    }
+    protected open fun onGestureRightHandsUp() {}
+    private fun addGestureListener() {
+        GestureProcessor.getInstance().addGestureListener(gestureListener)
+    }
+
+    private fun removeGestureListener() {
+        GestureProcessor.getInstance().removeGestureListener(gestureListener)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        addGestureListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        removeGestureListener()
+    }
     open fun initViewDataBinding() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {

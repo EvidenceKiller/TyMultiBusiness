@@ -7,6 +7,8 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.text.TextUtils
+import com.adl.base.common.AdlDeviceHelper
+import com.adl.base.common.AdlDevicePlatform
 import java.io.DataOutputStream
 import java.io.File
 import java.io.IOException
@@ -52,7 +54,7 @@ object DeviceUtil {
 
     fun isKunL1(): Boolean = getModel() == EQUIPMENT_MODEL_ONE || getModel() == EQUIPMENT_MODEL_TWO
 
-    fun isTsRk3588(): Boolean = getModel() == EQUIPMENT_MODEL_FOUR
+    fun isTsRk3588(): Boolean = AdlDeviceHelper.getPlatform() == AdlDevicePlatform.TShan
 
     fun isTsRk35882(): Boolean = getModel() == EQUIPMENT_MODEL_TS2
 

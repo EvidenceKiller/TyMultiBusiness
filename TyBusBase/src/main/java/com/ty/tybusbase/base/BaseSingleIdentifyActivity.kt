@@ -26,6 +26,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.constants.SportStatusEnum
+import com.ty.tybusbase.databinding.BaseActivitySportExitBinding
 import com.ty.tybusbase.databinding.BaseSingleIdentifyAcitvityBinding
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.helper.SpeechWrapper
@@ -260,6 +261,10 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
 
     override fun initViewDataBinding() {
         mBaseBinding = BaseSingleIdentifyAcitvityBinding.inflate(layoutInflater)
+        initContentBinding()
+    }
+
+    override fun initContentBinding() {
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             var mdPosition = -1
@@ -318,6 +323,71 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
 
         } else throw IllegalArgumentException("Generic error")
     }
+
+    fun getBaseSingleIdentifyBinding(): BaseSingleIdentifyAcitvityBinding {
+        return mBaseBinding
+    }
+
+//    override fun initViewDataBinding() {
+//        mBaseBinding = BaseSingleIdentifyAcitvityBinding.inflate(layoutInflater)
+//        val type = javaClass.genericSuperclass
+//        if (type is ParameterizedType) {
+//            var mdPosition = -1
+//            var vbPosition = -1
+//            for (index in type.actualTypeArguments.indices) {
+//                val cls = type.actualTypeArguments[index] as Class<*>
+//                if (ViewDataBinding::class.java.isAssignableFrom(cls) || ViewBinding::class.java.isAssignableFrom(
+//                        cls
+//                    )
+//                ) {
+//                    vbPosition = index
+//                } else if (BaseViewModel::class.java.isAssignableFrom(cls)) {
+//                    mdPosition = index
+//                }
+//            }
+//
+//            if (vbPosition >= 0) {
+//                val cls = type.actualTypeArguments[vbPosition] as Class<*>
+//                when {
+//                    ViewDataBinding::class.java.isAssignableFrom(cls) && cls != ViewDataBinding::class.java -> {
+//                        if (initLayoutId() == 0) throw IllegalArgumentException("Using DataBinding requires overriding method initLayoutId")
+//                        mBinding = DataBindingUtil.inflate(
+//                            layoutInflater, initLayoutId(), null, false
+//                        )
+//                        setContentView(mBaseBinding.root)
+//                        mBaseBinding.flContentLayout.addView(
+//                            mBinding.root, FrameLayout.LayoutParams.MATCH_PARENT,
+//                            FrameLayout.LayoutParams.MATCH_PARENT
+//                        )
+//                        (mBinding as ViewDataBinding).lifecycleOwner = this
+//
+//                    }
+//
+//                    ViewBinding::class.java.isAssignableFrom(cls) && cls != ViewBinding::class.java -> {
+//                        cls.getDeclaredMethod("inflate", LayoutInflater::class.java).let {
+//                            @Suppress("UNCHECKED_CAST") mBinding =
+//                                it.invoke(null, layoutInflater) as VB
+//                            setContentView(mBaseBinding.root)
+//                            mBaseBinding.flContentLayout.addView(
+//                                mBinding.root, FrameLayout.LayoutParams.MATCH_PARENT,
+//                                FrameLayout.LayoutParams.MATCH_PARENT
+//                            )
+//                        }
+//                    }
+//
+//                    else -> {
+//                        if (initLayoutId() == 0) throw IllegalArgumentException("If you don't use ViewBinding, you need to override method initLayoutId")
+//                        layoutInflater.inflate(initLayoutId(), null, false)
+//                    }
+//                }
+//            }
+//            // val cls = type.actualTypeArguments[mdPosition] as Class<*>
+//            if (mdPosition >= 0) {
+//                createViewModel(type.actualTypeArguments[mdPosition])
+//            }
+//
+//        } else throw IllegalArgumentException("Generic error")
+//    }
 
     override fun onResume() {
         super.onResume()
