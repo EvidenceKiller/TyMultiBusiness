@@ -22,7 +22,6 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     companion object {
         const val GESTURE_REGION_CONFIG_KEY = "gesture_region_config_key"
-        const val GESTURE_REGION_DEFAULT = "{\"x\":796,\"y\":610},{\"x\":1083,\"y\":615},{\"x\":732,\"y\":853},{\"x\":1146,\"y\":864}"
         private var instance: GestureProcessor? = null
 
         fun getInstance(): GestureProcessor {
@@ -137,8 +136,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         overlayVessel?.setConfig(uiConfig,OnRenderScene.StatusSportSet)
         overlayVessel?.setListener {
             tsSportLifecycle.toSporting()
-//            {"x":796,"y":610},{"x":1083,"y":615},{"x":732,"y":853},{"x":1146,"y":864},
-//            tsConfig.sportRegion = TsSportRegion(mutableListOf(Point(796,610),Point(1083,615),Point(732,853),Point(1146,864)))
+            tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
         }
     }
 
