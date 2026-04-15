@@ -29,8 +29,10 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.gesture.GestureProcessor
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.utils.LogUtil
@@ -317,9 +319,18 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     override fun onStatusSport() {
+        GestureProcessor.getInstance().pause()
+    }
+
+    override fun onGestureRightHandsUp() {
+        super.onGestureRightHandsUp()
+        if (viewModel.statusLD.value == SportStatusEnum.SPORT_END) {
+            finish()
+        }
     }
 
     override fun onStatusEnd() {
+        GestureProcessor.getInstance().restart()
         mBinding.cameraView.stopPreview()
     }
 
