@@ -88,6 +88,11 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         overlayVessel?.enableDraw(isDebug)
         overlayVessel?.enableDebug(isDebug)
         overlayVessel?.enableTouch(false)
+        val uiConfig = AdlUIConfig.instance().readConfig(
+            GESTURE_REGION_CONFIG_KEY,
+            RoleConfigRopeSkip::class.java
+        )
+        overlayVessel?.setConfig(uiConfig,OnRenderScene.StatusSportSet)
         // 运动配置
 
         tsConfig.debug = isDebug
@@ -129,11 +134,6 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         processorSingle.open(overlayVessel)
         processorSingle.changeTo(SportProcessorStatus.Sporting)
         processorSingle.onInit()
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            GESTURE_REGION_CONFIG_KEY,
-            RoleConfigRopeSkip::class.java
-        )
-        overlayVessel?.setConfig(uiConfig,OnRenderScene.StatusSportSet)
         overlayVessel?.setListener {
             tsSportLifecycle.toSporting()
             tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
