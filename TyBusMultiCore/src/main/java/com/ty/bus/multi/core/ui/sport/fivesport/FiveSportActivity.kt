@@ -192,7 +192,11 @@ class FiveSportActivity :
                 finish()
             }
             doResultViewTranslateAnimation(srrvResult)
-            srrvResult.setResult(it, if (viewModel.matchId != null) 100000 else top1Count,viewModel.energyPoint)
+            srrvResult.setResult(
+                it,
+                if (viewModel.matchId != null) 100000 else top1Count,
+                viewModel.energyPoint
+            )
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
@@ -226,9 +230,12 @@ class FiveSportActivity :
     }
 
     override fun onStatusSport() {
+        super.onStatusSport()
     }
 
+
     override fun onStatusEnd() {
+        super.onStatusEnd()
         mBinding.cameraView.stopPreview()
     }
 

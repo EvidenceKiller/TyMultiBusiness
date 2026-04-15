@@ -319,7 +319,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     override fun onStatusSport() {
-        GestureProcessor.getInstance().pause()
+        super.onStatusSport()
     }
 
     override fun onGestureRightHandsUp() {
@@ -330,7 +330,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     override fun onStatusEnd() {
-        GestureProcessor.getInstance().restart()
+        super.onStatusEnd()
         mBinding.cameraView.stopPreview()
     }
 

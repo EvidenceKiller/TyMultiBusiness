@@ -400,10 +400,11 @@ open class ForwardFlexionActivity :
     }
 
     override fun onStatusSport() {
-
+        super.onStatusSport()
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         hideSportingTips()
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)

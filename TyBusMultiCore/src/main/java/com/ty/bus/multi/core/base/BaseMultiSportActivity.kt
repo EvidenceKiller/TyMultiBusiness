@@ -6,6 +6,7 @@ import com.ty.bus.multi.R
 import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.SportStatusEnum
+import com.ty.tybusbase.gesture.GestureProcessor
 import com.ty.tybusbase.helper.TimeOutHelper
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -47,6 +48,18 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
 
     override fun onStatusSport() {
         timeOutHelper.cancel()
+        GestureProcessor.getInstance().pause()
+    }
+
+    override fun onGestureRightHandsUp() {
+        super.onGestureRightHandsUp()
+        if (viewModel.statusLD.value == SportStatusEnum.SPORT_END) {
+            finish()
+        }
+    }
+
+    override fun onStatusEnd() {
+        GestureProcessor.getInstance().restart()
     }
 
 
