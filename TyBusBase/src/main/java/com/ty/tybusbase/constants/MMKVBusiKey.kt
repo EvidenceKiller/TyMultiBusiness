@@ -106,4 +106,6 @@ object MMKVBusiKey {
     const val PULL_UP_CONFIG = "PULL_UP_CONFIG"
     const val ORGANIZE_SITE_UP_CONFIG = "ORGANIZE_SITE_UP_CONFIG"
     const val ORGANIZE_PULL_UP_CONFIG = "ORGANIZE_PULL_UP_CONFIG"
+
+    const val PARAM_FREE_SPORT_SITE_UP = "base_param_free_site_up" //自主测试仰卧起坐参数
 }

@@ -1,5 +1,6 @@
 package com.ty.tybusbase.config
 
+import com.google.gson.Gson
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
@@ -108,6 +109,24 @@ object BusiBaseConfig {
             MMKVBusiKey.IDENTITY_TYPE,
             BusiBaseConstantsValue.IDENTITY_TYPE_FACE
         )
+    }
+
+    /**
+     * 获取仰卧起坐设置参数
+     */
+    fun getSiteUpParamBean(): SiteUpParamBean {
+
+        return MMKVUtil.decodeParcelable<SiteUpParamBean>(
+            MMKVBusiKey.PARAM_FREE_SPORT_SITE_UP,
+            SiteUpParamBean::class.java
+        ) ?: SiteUpParamBean()
+    }
+
+    /**
+     * 更新仰卧起坐设置参数
+     */
+    fun updateSiteUpParamBean(bean: SiteUpParamBean) {
+        MMKVUtil.encode(MMKVBusiKey.PARAM_FREE_SPORT_SITE_UP, bean)
     }
 
     /**
