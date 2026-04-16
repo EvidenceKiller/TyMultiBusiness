@@ -352,6 +352,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                     viewModel.rightAccountInfo.value = aInfo
                     viewModel.rightSportResult.userName = aInfo.studentEntity?.accountName
                     viewModel.rightSportResult.headUrl = null
+                    viewModel.rightSportResult.cardType = ""
                 }
                 viewModel.toStatusIdentifySuccess()
             }
