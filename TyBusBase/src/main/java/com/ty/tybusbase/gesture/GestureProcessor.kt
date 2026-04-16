@@ -1,5 +1,7 @@
 package com.ty.tybusbase.gesture
 
+import android.os.Handler
+import android.os.Looper
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.overlay.OnRenderScene
@@ -16,6 +18,7 @@ import com.adl.processor.SportModelType
 import com.adl.processor.SportProcessorSingle
 import com.adl.processor.SportProcessorStatus
 import com.ty.tybusbase.constants.ModelIdConstants
+import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.utils.DeviceUtil
 
 class GestureProcessor private constructor() : AdlCameraFrameProcessor {
@@ -38,8 +41,21 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     private val gestureListeners by lazy { mutableListOf<GestureListener>() }
 
-    private var overlayVessel: SportOverlayRopeSkip? = null
+    private var noGestureListener: Action? = null
 
+    //无手势的判定时间
+    private var noGestureCheckTime = 1 * 60 * 1000L
+
+    private val mHandler = Handler(Looper.getMainLooper())
+
+    private val noGestureRunnable = object : Runnable {
+        override fun run() {
+            noGestureListener?.invoke()
+        }
+
+    }
+
+    private var overlayVessel: SportOverlayRopeSkip? = null
 
     private lateinit var processorSingle: SportProcessorSingle
 
@@ -56,6 +72,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
                 gestureListeners.forEach {
                     it.onGesture(command, type)
                 }
+                //无手势提供回调
+                mHandler.removeCallbacks(noGestureRunnable)
+                mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
             }
         })
     }
@@ -63,6 +82,14 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     fun initEngine(overlayVessel: SportOverlayRopeSkip) {
         this.overlayVessel = overlayVessel
         initSportEngine()
+    }
+
+    fun setNoGestureListener(listener: Action) {
+        noGestureListener = listener
+    }
+
+    fun setNoGestureCheckTime(time: Long) {
+        noGestureCheckTime = time
     }
 
     fun addGestureListener(listener: GestureListener) {
@@ -92,7 +119,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
             GESTURE_REGION_CONFIG_KEY,
             RoleConfigRopeSkip::class.java
         )
-        overlayVessel?.setConfig(uiConfig,OnRenderScene.StatusSportSet)
+        overlayVessel?.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         // 运动配置
 
         tsConfig.debug = isDebug
@@ -140,12 +167,12 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         }
     }
 
-    fun reloadRegion(){
+    fun reloadRegion() {
         val uiConfig = AdlUIConfig.instance().readConfig(
             GESTURE_REGION_CONFIG_KEY,
             RoleConfigRopeSkip::class.java
         )
-        overlayVessel?.setConfig(uiConfig,OnRenderScene.StatusSportSet)
+        overlayVessel?.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         overlayVessel?.refresh()
         tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
     }
@@ -153,14 +180,16 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     /**
      * 暂停检测手势，运动时，可节约性能
      */
-    fun pause(){
+    fun pause() {
         gestureFlag = false
+        mHandler.removeCallbacks(noGestureRunnable)
     }
 
     /**
      * 恢复检测手势
      */
-    fun restart(){
+    fun restart() {
+        mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
         gestureFlag = true
     }
 
