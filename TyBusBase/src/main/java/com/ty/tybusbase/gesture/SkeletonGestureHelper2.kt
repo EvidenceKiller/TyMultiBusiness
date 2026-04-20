@@ -60,8 +60,20 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         //手势检测起始点
         private var gestureStartPoint = PointF(Float.MAX_VALUE, Float.MAX_VALUE)
 
-        //手势移动距离
+        //手势判定需要移动的距离
+        private var gestureNeedMoveDistance = 0f
+
+        //手势判定实时移动的距离
         private var gestureMoveDistance = 0f
+
+        //手势起始点Y的坐标
+        private var gestureStartPointY = 0f
+
+        //手势上一次X坐标
+        private var gesturePrePointX = 0f
+
+        //手势Y轴区间移动最大距离，超过此距离，则不判定为手势左右
+        private var gestureYMoveDistance = 0f
 
         //头部位置
         private var headY = 0f
@@ -105,13 +117,15 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             centralShoulder: AdlPoseKeyPoint,
         ) {
             val shoulderWidth = abs(anotherShoulder.x - centralShoulder.x)
-            gestureMoveDistance = shoulderWidth * 0.5f
+            gestureNeedMoveDistance = shoulderWidth * 0.5f
 
 
             //肩到下颚点的X倍为头的位置
             headY = centralShoulder.y - shoulderWidth * 1f
 
             downThreshold = centralShoulder.y + shoulderWidth * 1f
+
+            gestureYMoveDistance = (downThreshold - headY) * 0.8f
         }
 
         /**
@@ -136,54 +150,72 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         }
 
         private fun checkGesture(wrist: AdlPoseKeyPoint, centralShoulder: AdlPoseKeyPoint) {
-            val gestureStartX = centralShoulder.x
-            val gestureStartY = centralShoulder.y
             //开始检测手势
             if (gestureStartFlag) {
-                //向上
-//                if (wrist.y - gestureStartY < -gestureMoveDistance) {
-//                    handleGestureCallback(GestureCommand.UP)
-//                }
-//
-//                //向下
-//                if (wrist.y - gestureStartY > gestureMoveDistance) {
-//                    handleGestureCallback(GestureCommand.DOWN)
-//                }
-
-                //向左
-                if (wrist.x - gestureStartX > gestureMoveDistance) {
-                    handleGestureCallback(GestureCommand.RIGHT)
-                }
-
-                //向右
-                if (wrist.x - gestureStartX < -gestureMoveDistance) {
-                    handleGestureCallback(GestureCommand.LEFT)
-                }
-
-                //超过一定时间未检测到手势，重新取起始点
-//                if (System.currentTimeMillis() - startCheckTime > gestureDetectResetTime) {
-//                    startCheckTime = System.currentTimeMillis()
-//                    gestureStartPoint.x = wrist.x
-//                    gestureStartPoint.y = wrist.y
-//                }
 
                 //如果手势不在检测范围，则取消检测
                 if (wrist.y > downThreshold || wrist.y < headY) {
                     gestureStartPoint.x = Float.MAX_VALUE
                     gestureStartPoint.y = Float.MAX_VALUE
                     gestureStartFlag = false
+//                    LogUtil.d("手势取消")
+                    return
                 }
+
+                //赋值Y坐标
+                if (gestureMoveDistance == 0f) {
+                    gestureStartPointY = centralShoulder.y
+                }
+
+                gestureMoveDistance += wrist.x - gesturePrePointX
+
+                //Y轴移动的距离
+                val movedYDistance = abs(wrist.y - gestureStartPointY)
+
+                //手势终点到中心控制点的距离
+                val centralToEndDistance = abs(centralShoulder.x - wrist.x)
+//                LogUtil.d("每次加的距离：${wrist.x - gesturePrePointX},总距离：${gestureMoveDistance}")
+//                LogUtil.d("当前点：${wrist.x},上一个点: ${gesturePrePointX} 起始点x: ${gestureStartPoint.x},中轴点：${centralShoulder.x}")
+                gesturePrePointX = wrist.x
+                //如果手势Y轴移动距离超过阈值，则手势检测无效
+                //如果手势终点到中心控制点的距离小于阈值（需要移动的距离的80%），则手势检测无效
+                if (movedYDistance > gestureYMoveDistance
+                    || centralToEndDistance < gestureNeedMoveDistance * 0.8f
+                ) {
+                    return
+                }
+//                LogUtil.d("手势检测：移动距离${gestureMoveDistance} 起始点x: ${gestureStartPoint.x},中轴点：${centralShoulder.x}")
+//                LogUtil.d("手势检测：${if (gestureMoveDistance > gestureNeedMoveDistance) "向右" else if (gestureMoveDistance < -gestureNeedMoveDistance) "向左" else "未移动"}")
+
+                //向右
+                if (gestureMoveDistance > gestureNeedMoveDistance) {
+                    handleGestureCallback(GestureCommand.RIGHT)
+                }
+
+                //向左
+                if (gestureMoveDistance < -gestureNeedMoveDistance) {
+                    handleGestureCallback(GestureCommand.LEFT)
+                }
+
                 return
             }
 
+            //是否在中轴点附近
+            val isCloseCentral = abs(centralShoulder.x - wrist.x) < gestureNeedMoveDistance * 0.2f
+            //满足此条件，开始检测手势
+            //时间间隔满足，并且，在检测范围之内
             if (System.currentTimeMillis() - preGestureTime > gestureDetectIntervalTime
                 && wrist.y < downThreshold
                 && wrist.y > headY
+                && isCloseCentral
             ) {
                 gestureStartPoint.x = wrist.x
                 gestureStartPoint.y = (downThreshold + headY) / 2
                 startCheckTime = System.currentTimeMillis()
+                gestureMoveDistance = 0f
                 gestureStartFlag = true
+                gesturePrePointX = wrist.x
+//                LogUtil.d("手势开始;起始点坐标：${gesturePrePointX}")
             }
         }
 
@@ -216,6 +248,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             gestureCallback?.invoke(value)
             preGestureTime = System.currentTimeMillis()
             gestureStartFlag = false
+            gestureMoveDistance = 0f
         }
 
         private fun handleGestureConfirmCallback(value: Boolean) {
@@ -253,7 +286,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             gestureStartFlag = false
             gestureStartPoint.x = Float.MAX_VALUE
             gestureStartPoint.y = Float.MAX_VALUE
-            gestureMoveDistance = 0f
+            gestureNeedMoveDistance = 0f
             headY = 0f
             gestureCallback = null
             gestureConfirmCallback = null
