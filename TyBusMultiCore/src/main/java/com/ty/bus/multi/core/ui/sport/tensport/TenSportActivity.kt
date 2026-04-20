@@ -317,9 +317,11 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     override fun onStatusSport() {
+        super.onStatusSport()
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         mBinding.cameraView.stopPreview()
     }
 

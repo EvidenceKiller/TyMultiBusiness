@@ -3,6 +3,7 @@ package com.ty.tybusbase.base
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
@@ -18,6 +19,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewbinding.ViewBinding
 import com.trello.rxlifecycle4.components.support.RxAppCompatActivity
 import com.ty.tybusbase.R
+import com.ty.tybusbase.helper.GlobalTouchHelper
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
 
@@ -61,6 +63,11 @@ abstract class BaseActivity<DB : ViewBinding, VM : BaseViewModel> : RxAppCompatA
 
     protected open fun onError() {
 
+    }
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        GlobalTouchHelper.onTouch()
+        return super.dispatchTouchEvent(ev)
     }
 
     abstract fun initObserver()

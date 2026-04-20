@@ -35,6 +35,7 @@ import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.databinding.BaseDoubleIdentifySportLayoutBinding
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.helper.GlobalTouchHelper
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.DoubleIdentifyMachineListener
 import com.ty.tybusbase.identify.OnceCacheProcessor
@@ -92,7 +93,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
         modelId = intent.getStringExtra("model_id")
         matchName = intent.getStringExtra("match_name")
         sceneId = intent.getStringExtra("scene_id")
-        viewModel.energyPoint = intent.getIntExtra("energy_point",0)
+        viewModel.energyPoint = intent.getIntExtra("energy_point", 0)
         matchSportId = intent.getStringExtra("match_sport_id")
         accountInfo = intent.getParcelableExtra("account_info")
         val sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity
@@ -371,6 +372,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
     }
 
     override fun onStatusSport() {
+        GlobalTouchHelper.pause()
         sportLifecycleDouble.toSporting()
         viewModel.rightSportResult.startTime = System.currentTimeMillis()
         viewModel.leftSportResult.startTime = System.currentTimeMillis()
@@ -410,6 +412,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
     }
 
     override fun onStatusEnd() {
+        GlobalTouchHelper.restart()
         mTimer.stop()
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()

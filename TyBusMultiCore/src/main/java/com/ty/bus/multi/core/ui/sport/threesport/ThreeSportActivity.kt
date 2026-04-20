@@ -279,6 +279,7 @@ class ThreeSportActivity :
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         hideTip()
         parser.checkChannelStatus = false
         parser.checkSkipScore = false

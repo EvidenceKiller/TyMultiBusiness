@@ -485,6 +485,7 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         hideTip()
         parser.checkChannelStatus = false
         parser.checkSkipScore = false

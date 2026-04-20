@@ -400,10 +400,11 @@ open class ForwardFlexionActivity :
     }
 
     override fun onStatusSport() {
-
+        super.onStatusSport()
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         hideSportingTips()
         forwardFlexionProcessor.onReset()
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
@@ -419,7 +420,7 @@ open class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT
         )
-        if (viewModel.ffSportConfig?.isSupportNextGroup == true){
+        if (viewModel.ffSportConfig?.isSupportNextGroup == true) {
             resultView.showNextBtn()
         }
         resultView.setSportResult(viewModel.sportPersonArray)

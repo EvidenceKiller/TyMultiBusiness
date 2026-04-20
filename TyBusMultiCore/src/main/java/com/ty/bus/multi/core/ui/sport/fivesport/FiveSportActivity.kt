@@ -226,9 +226,11 @@ class FiveSportActivity :
     }
 
     override fun onStatusSport() {
+        super.onStatusSport()
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         mBinding.cameraView.stopPreview()
     }
 
