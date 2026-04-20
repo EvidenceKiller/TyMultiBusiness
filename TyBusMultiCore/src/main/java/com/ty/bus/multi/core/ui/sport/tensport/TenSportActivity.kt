@@ -32,7 +32,6 @@ import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
-import com.ty.tybusbase.gesture.GestureProcessor
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.utils.LogUtil
@@ -316,17 +315,6 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     }
 
     override fun onStatusIdentifySuccess() {
-    }
-
-    override fun onStatusSport() {
-        super.onStatusSport()
-    }
-
-    override fun onGestureRightHandsUp() {
-        super.onGestureRightHandsUp()
-        if (viewModel.statusLD.value == SportStatusEnum.SPORT_END) {
-            finish()
-        }
     }
 
     override fun onStatusEnd() {

@@ -420,7 +420,7 @@ open class ForwardFlexionActivity :
             LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT
         )
-        if (viewModel.ffSportConfig?.isSupportNextGroup == true){
+        if (viewModel.ffSportConfig?.isSupportNextGroup == true) {
             resultView.showNextBtn()
         }
         resultView.setSportResult(viewModel.sportPersonArray)

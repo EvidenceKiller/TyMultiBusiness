@@ -483,6 +483,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     //识别到人，取消超时机制
                     timeOutHelper.cancel()
                 } else {
+                    startCountDownTimer.start()
                     resetIdentifyNumber()
                     ToastUtil.getInstance(
                         getApplication(),

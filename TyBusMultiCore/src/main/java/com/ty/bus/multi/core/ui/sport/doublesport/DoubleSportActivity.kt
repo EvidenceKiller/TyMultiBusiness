@@ -110,6 +110,10 @@ class DoubleSportActivity :
         videoFile = viewModel.getVideoPath()
         createTime = System.currentTimeMillis()
         viewModel.sportEngine.startRecorder(videoFile)
+        //配置overlay动画
+        Thread {
+            configSurfaceOverlay()
+        }.start()
     }
 
     override fun onStatusEnd() {
@@ -197,13 +201,6 @@ class DoubleSportActivity :
     private fun checkArea(left: TsSportChannel?, right: TsSportChannel?) {
         mBinding.overLayout.checkLeftArea(left?.skeleton, viewModel.sportInfo!!.sportItemCode)
         mBinding.overLayout.checkRightArea(right?.skeleton, viewModel.sportInfo!!.sportItemCode)
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Thread {
-            configSurfaceOverlay()
-        }.start()
     }
 
     override fun onDestroy() {

@@ -7,6 +7,7 @@ import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.gesture.GestureProcessor
+import com.ty.tybusbase.helper.GlobalTouchHelper
 import com.ty.tybusbase.helper.TimeOutHelper
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -47,6 +48,7 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
     }
 
     override fun onStatusSport() {
+        GlobalTouchHelper.pause()
         timeOutHelper.cancel()
         GestureProcessor.getInstance().pause()
     }
@@ -60,8 +62,8 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
 
     override fun onStatusEnd() {
         GestureProcessor.getInstance().restart()
+        GlobalTouchHelper.restart()
     }
-
 
     override fun onDestroy() {
         super.onDestroy()

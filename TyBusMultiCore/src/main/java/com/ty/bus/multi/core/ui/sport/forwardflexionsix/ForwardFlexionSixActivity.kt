@@ -604,10 +604,11 @@ class ForwardFlexionSixActivity :
     }
 
     override fun onStatusSport() {
-
+        super.onStatusSport()
     }
 
     override fun onStatusEnd() {
+        super.onStatusEnd()
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
         forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         forwardFlexionProcessor.onReset()
