@@ -125,7 +125,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             //肩到下颚点的X倍为头的位置
             headY = centralShoulder.y - shoulderWidth * 1f
 
-            downThreshold = hipY
+            downThreshold = hipY - shoulderWidth
 
             gestureYMoveDistance = (downThreshold - headY) * 0.8f
         }
