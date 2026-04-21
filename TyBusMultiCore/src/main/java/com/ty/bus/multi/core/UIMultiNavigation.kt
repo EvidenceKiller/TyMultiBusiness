@@ -3,6 +3,7 @@ package com.ty.bus.multi.core
 import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.config.BluetoothSportConfig
+import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
@@ -30,7 +31,7 @@ import com.ty.tybusbase.config.UINavConfig
  * Date       : 2025/7/18
  * Describe   : 类描述
  */
-object UIMultiNavigation:BaseNavigation() {
+object UIMultiNavigation : BaseNavigation() {
     @JvmStatic
     fun goTenSport(
         context: Context,
@@ -68,8 +69,9 @@ object UIMultiNavigation:BaseNavigation() {
     }
 
     @JvmStatic
-    fun goFiveSport(context: Context, config: UINavConfig?) {
+    fun goFiveSport(context: Context, config: UINavConfig?, sportConfig: FiveSportConfig? = null) {
         val intent = Intent(context, FiveSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
         startActivity(context, intent, config)
     }
 

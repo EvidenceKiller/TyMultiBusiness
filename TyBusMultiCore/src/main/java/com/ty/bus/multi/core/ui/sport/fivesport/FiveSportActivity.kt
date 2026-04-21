@@ -23,6 +23,8 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.base.BaseMultiSportResultView
 import com.ty.bus.multi.core.base.BaseMultiSportView
+import com.ty.bus.multi.core.config.FiveSportConfig
+import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.view.fivesport.MultiSport5ResultView
 import com.ty.bus.multi.core.view.fivesport.MultiSport5SportView
@@ -48,6 +50,7 @@ class FiveSportActivity :
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.fiveSportConfig = intent.getSerializableExtra("sport_config") as? FiveSportConfig
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
         LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
@@ -172,7 +175,10 @@ class FiveSportActivity :
             srrvResult = MultiSport5ResultView(this).apply { measureUnit = viewModel.measureUnit }
             if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
                 it.forEach {
-                    srrvResult.showReportButton(it.number, true)
+                    srrvResult.showReportButton(
+                        it.number,
+                        viewModel.fiveSportConfig?.isSupportReport != false
+                    )
                 }
                 srrvResult.setReportOnclickListener {
                     viewReport(viewModel.getIndicatorsResultDto(it))
