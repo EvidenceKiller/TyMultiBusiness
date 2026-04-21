@@ -6,6 +6,7 @@ import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.sport.general.EuHelper
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
 
@@ -88,7 +89,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         private var gestureConfirmCallback: ((Boolean) -> Unit)? = null
 
         //手势检测间隔时间
-        private var gestureDetectIntervalTime = 500L
+        private var gestureDetectIntervalTime = 300L
 
         //上一次检测手势完成的时间
         private var preGestureTime = 0L
@@ -115,6 +116,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         fun refreshParams(
             anotherShoulder: AdlPoseKeyPoint,
             centralShoulder: AdlPoseKeyPoint,
+            hipY: Float
         ) {
             val shoulderWidth = abs(anotherShoulder.x - centralShoulder.x)
             gestureNeedMoveDistance = shoulderWidth * 0.5f
@@ -123,7 +125,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             //肩到下颚点的X倍为头的位置
             headY = centralShoulder.y - shoulderWidth * 1f
 
-            downThreshold = centralShoulder.y + shoulderWidth * 1f
+            downThreshold = hipY
 
             gestureYMoveDistance = (downThreshold - headY) * 0.8f
         }
@@ -139,20 +141,25 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             //刷新参数
             refreshParams(
                 if (isLeft) skeleton.LShoulder else skeleton.RShoulder,
-                if (isLeft) skeleton.RShoulder else skeleton.LShoulder
+                if (isLeft) skeleton.RShoulder else skeleton.LShoulder,
+                min(skeleton.lHip.y,skeleton.rHip.y)
             )
             //检测确认手势
             checkHandsUpGesture(skeleton, isLeft.not())
             checkGesture(
                 if (isLeft) skeleton.RWrist else skeleton.LWrist,
-                if (isLeft) skeleton.RShoulder else skeleton.LShoulder
+                if (isLeft) skeleton.RShoulder else skeleton.LShoulder,
+                isLeft
             )
         }
 
-        private fun checkGesture(wrist: AdlPoseKeyPoint, centralShoulder: AdlPoseKeyPoint) {
+        private fun checkGesture(
+            wrist: AdlPoseKeyPoint,
+            centralShoulder: AdlPoseKeyPoint,
+            isLeft: Boolean
+        ) {
             //开始检测手势
             if (gestureStartFlag) {
-
                 //如果手势不在检测范围，则取消检测
                 if (wrist.y > downThreshold || wrist.y < headY) {
                     gestureStartPoint.x = Float.MAX_VALUE
@@ -188,20 +195,19 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
 //                LogUtil.d("手势检测：${if (gestureMoveDistance > gestureNeedMoveDistance) "向右" else if (gestureMoveDistance < -gestureNeedMoveDistance) "向左" else "未移动"}")
 
                 //向右
-                if (gestureMoveDistance > gestureNeedMoveDistance) {
+                if (isLeft && gestureMoveDistance > gestureNeedMoveDistance) {
                     handleGestureCallback(GestureCommand.RIGHT)
                 }
 
                 //向左
-                if (gestureMoveDistance < -gestureNeedMoveDistance) {
+                if (isLeft.not() && gestureMoveDistance < -gestureNeedMoveDistance) {
                     handleGestureCallback(GestureCommand.LEFT)
                 }
-
                 return
             }
 
             //是否在中轴点附近
-            val isCloseCentral = abs(centralShoulder.x - wrist.x) < gestureNeedMoveDistance * 0.2f
+            val isCloseCentral = abs(centralShoulder.x - wrist.x) < gestureNeedMoveDistance * 0.3f
             //满足此条件，开始检测手势
             //时间间隔满足，并且，在检测范围之内
             if (System.currentTimeMillis() - preGestureTime > gestureDetectIntervalTime
