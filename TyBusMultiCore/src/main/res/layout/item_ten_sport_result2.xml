@@ -42,6 +42,7 @@
         layout="@layout/base_layout_energy_icon"
         android:layout_width="@dimen/dp_110"
         android:layout_height="@dimen/dp_40"
+        android:visibility="gone"
         android:layout_marginTop="@dimen/dp_2"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="@dimen/dp_48"
