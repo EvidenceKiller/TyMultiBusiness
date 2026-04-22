@@ -35,6 +35,7 @@ import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.databinding.BaseDoubleIdentifySportLayoutBinding
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.gesture.GestureProcessor
 import com.ty.tybusbase.helper.GlobalTouchHelper
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.DoubleIdentifyMachineListener
@@ -373,6 +374,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     override fun onStatusSport() {
         GlobalTouchHelper.pause()
+        GestureProcessor.getInstance().pause()
         sportLifecycleDouble.toSporting()
         viewModel.rightSportResult.startTime = System.currentTimeMillis()
         viewModel.leftSportResult.startTime = System.currentTimeMillis()
@@ -413,6 +415,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     override fun onStatusEnd() {
         GlobalTouchHelper.restart()
+        GestureProcessor.getInstance().restart()
         mTimer.stop()
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
