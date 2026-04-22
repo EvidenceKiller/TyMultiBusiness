@@ -89,7 +89,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         private var gestureConfirmCallback: ((Boolean) -> Unit)? = null
 
         //手势检测间隔时间
-        private var gestureDetectIntervalTime = 300L
+        private var gestureDetectIntervalTime = 200L
 
         //上一次检测手势完成的时间
         private var preGestureTime = 0L
@@ -116,16 +116,18 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         fun refreshParams(
             anotherShoulder: AdlPoseKeyPoint,
             centralShoulder: AdlPoseKeyPoint,
+            header: AdlPoseKeyPoint?,
             hipY: Float
         ) {
             val shoulderWidth = abs(anotherShoulder.x - centralShoulder.x)
             gestureNeedMoveDistance = shoulderWidth * 0.5f
 
-
             //肩到下颚点的X倍为头的位置
-            headY = centralShoulder.y - shoulderWidth * 1f
+            headY = header?.y ?: (centralShoulder.y - gestureNeedMoveDistance)
 
-            downThreshold = hipY - shoulderWidth
+            //髋部向上1/3
+            val shoulderHip = (hipY - centralShoulder.y) * 0.3f
+            downThreshold = hipY - shoulderHip
 
             gestureYMoveDistance = (downThreshold - headY) * 0.8f
         }
@@ -142,7 +144,8 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             refreshParams(
                 if (isLeft) skeleton.LShoulder else skeleton.RShoulder,
                 if (isLeft) skeleton.RShoulder else skeleton.LShoulder,
-                min(skeleton.lHip.y,skeleton.rHip.y)
+                skeleton.headTop,
+                min(skeleton.lHip.y, skeleton.rHip.y)
             )
             //检测确认手势
             checkHandsUpGesture(skeleton, isLeft.not())
