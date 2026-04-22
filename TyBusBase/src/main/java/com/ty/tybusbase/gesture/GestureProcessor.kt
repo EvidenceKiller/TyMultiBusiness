@@ -20,6 +20,7 @@ import com.adl.processor.SportProcessorStatus
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.utils.DeviceUtil
+import com.ty.tybusbase.utils.LogUtil
 
 class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
@@ -69,14 +70,21 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     private val gestureHelper by lazy {
         SkeletonGestureHelper2(object : GestureListener {
             override fun onGesture(command: GestureCommand, type: GestureType) {
-                gestureListeners.forEach {
-                    it.onGesture(command, type)
-                }
-                //无手势提供回调
-                mHandler.removeCallbacks(noGestureRunnable)
-                mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
+                gestureCallback(command, type)
             }
         })
+    }
+
+    @Synchronized
+    private fun gestureCallback(command: GestureCommand, type: GestureType) {
+        if (gestureFlag.not()) return
+        LogUtil.d("gestureCallback: $command, $type")
+        gestureListeners.forEach {
+            it.onGesture(command, type)
+        }
+        //无手势提供回调
+        mHandler.removeCallbacks(noGestureRunnable)
+        mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
     }
 
     fun initEngine(overlayVessel: SportOverlayRopeSkip) {
@@ -102,8 +110,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         gestureListeners.remove(listener)
     }
 
+    @Synchronized
     override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-        if (gestureListeners.size > 0 && gestureFlag) {
+        if (gestureListeners.isNotEmpty() && gestureFlag) {
             processorSingle.onFrame(p0, p1)
         }
     }
@@ -180,7 +189,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     /**
      * 暂停检测手势，运动时，可节约性能
      */
+    @Synchronized
     fun pause() {
+        LogUtil.d("GestureProcessor pause")
         gestureFlag = false
         mHandler.removeCallbacks(noGestureRunnable)
     }
@@ -188,7 +199,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     /**
      * 恢复检测手势
      */
+    @Synchronized
     fun restart() {
+        LogUtil.d("GestureProcessor restart")
         mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
         gestureFlag = true
     }
@@ -198,6 +211,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         tsSportLifecycle.toIdAuth()
         tsSportLifecycle.onRelease()
         processorSingle.changeTo(SportProcessorStatus.Idle)
+        mHandler.removeCallbacksAndMessages(null)
         processorSingle.onRelease()
         gestureListeners.clear()
     }
