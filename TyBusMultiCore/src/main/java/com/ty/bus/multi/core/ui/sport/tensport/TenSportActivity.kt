@@ -8,6 +8,7 @@ import android.text.TextUtils
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.adl.base.common.AdlHandlerThread
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.log.AdlLogger
@@ -320,6 +321,11 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     override fun onStatusEnd() {
         super.onStatusEnd()
         mBinding.cameraView.stopPreview()
+        viewModel.tenSportConfig?.autoFinishTime?.let {
+            if (it > 0) {
+                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
+            }
+        }
     }
 
     fun reset() {
@@ -378,5 +384,6 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         mBinding.cameraView.release()
         mBinding.sportView.release()
         mBinding.overlay.release()
+        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
 }

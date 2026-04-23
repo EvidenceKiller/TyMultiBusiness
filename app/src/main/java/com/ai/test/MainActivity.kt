@@ -20,6 +20,7 @@ import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.BluetoothSportConfig
+import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
@@ -72,7 +73,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuName = "五人"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
-            })
+            }, FiveSportConfig.builder()
+                .setSupportReport(false)
+                .setAutoFinishTime(15_1000)
+                .build())
         }
 
         mBinding.bnt5RegionSet.setOnClickListener {

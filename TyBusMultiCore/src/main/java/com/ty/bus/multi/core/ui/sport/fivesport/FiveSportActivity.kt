@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.adl.base.common.AdlHandlerThread
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.overlay.OnRenderScene
@@ -243,6 +244,11 @@ class FiveSportActivity :
     override fun onStatusEnd() {
         super.onStatusEnd()
         mBinding.cameraView.stopPreview()
+        viewModel.fiveSportConfig?.autoFinishTime?.let {
+            if (it > 0) {
+                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
+            }
+        }
     }
 
     /**
@@ -296,5 +302,6 @@ class FiveSportActivity :
         mBinding.cameraView.release()
         srsvSport.release()
         mBinding.overlay.release()
+        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
 }
