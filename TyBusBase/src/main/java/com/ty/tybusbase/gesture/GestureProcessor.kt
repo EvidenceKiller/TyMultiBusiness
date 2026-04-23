@@ -62,6 +62,8 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     private lateinit var tsSportLifecycle: TsSportLifecycle<*>
 
+    private var hkipcCamera: HKIPCCamera? = null
+
     //手势标识，为true时才检测手势
     private var gestureFlag = true
 
@@ -115,6 +117,10 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         if (gestureListeners.isNotEmpty() && gestureFlag) {
             processorSingle.onFrame(p0, p1)
         }
+    }
+
+    fun bindHKIPCamera(camera: HKIPCCamera) {
+        hkipcCamera = camera
     }
 
     private fun initSportEngine() {
@@ -191,6 +197,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
      */
     @Synchronized
     fun pause() {
+        hkipcCamera?.pause()
         LogUtil.d("GestureProcessor pause")
         gestureFlag = false
         mHandler.removeCallbacks(noGestureRunnable)
@@ -202,6 +209,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     @Synchronized
     fun restart() {
         LogUtil.d("GestureProcessor restart")
+        hkipcCamera?.restart()
         mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
         gestureFlag = true
     }
@@ -214,6 +222,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         mHandler.removeCallbacksAndMessages(null)
         processorSingle.onRelease()
         gestureListeners.clear()
+        hkipcCamera = null
     }
 
 }
