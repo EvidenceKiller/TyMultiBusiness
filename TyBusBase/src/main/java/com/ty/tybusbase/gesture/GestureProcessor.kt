@@ -17,6 +17,7 @@ import com.adl.processor.SportConfigSingle
 import com.adl.processor.SportModelType
 import com.adl.processor.SportProcessorSingle
 import com.adl.processor.SportProcessorStatus
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.utils.DeviceUtil
@@ -124,7 +125,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     }
 
     private fun initSportEngine() {
-        val isDebug = true
+        val isDebug = BusiBaseConfig.getDebugEnable()
         overlayVessel?.enableDrawSkeleton(isDebug)
         overlayVessel?.enableDrawBox(isDebug)
         overlayVessel?.enableDraw(isDebug)
@@ -180,6 +181,17 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
             tsSportLifecycle.toSporting()
             tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
         }
+    }
+
+    fun refreshDebug() {
+        val isDebug = BusiBaseConfig.getDebugEnable()
+        overlayVessel?.enableDrawSkeleton(isDebug)
+        overlayVessel?.enableDrawBox(isDebug)
+        overlayVessel?.enableDraw(isDebug)
+        overlayVessel?.enableDebug(isDebug)
+        overlayVessel?.enableTouch(false)
+        tsConfig.debug = isDebug
+        overlayVessel?.refresh()
     }
 
     fun reloadRegion() {
