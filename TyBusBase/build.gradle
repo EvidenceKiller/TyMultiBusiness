@@ -56,7 +56,7 @@ dependencies {
     api(name: 'AdlCamera-2025-12-01', ext: 'aar')
     api(name: 'AdlBase-2026-04-13', ext: 'aar')
     api(name: 'NzWebSerivce-2026-04-02', ext: 'aar')
-    api(name: 'NzAuthCore-v2.0.1-2026-02-28', ext: 'aar')
+    api(name: 'NzAuthCore-v2.0.1-2026-04-28', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
     api(name: 'NzSportGeneral-v1.1.0-2026-04-09', ext: 'aar')
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')

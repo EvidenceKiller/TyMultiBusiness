@@ -190,7 +190,7 @@ dependencies {
     implementation(name: 'NzPoseCore-v1.0.0-2026-03-31', ext: 'aar')
     implementation(name: 'AdlPoseSdk-2026-03-09', ext: 'aar')
     implementation(name: 'AdlPoseGt-2025-05-28', ext: 'aar')
-    implementation(name: 'NzAuthCore-v2.0.1-2026-02-28', ext: 'aar')
+    implementation(name: 'NzAuthCore-v2.0.1-2026-04-28', ext: 'aar')
 
     implementation(name: 'tool-release', ext: 'aar')
 
