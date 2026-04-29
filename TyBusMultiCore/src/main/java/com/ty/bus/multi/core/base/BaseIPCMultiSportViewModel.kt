@@ -415,8 +415,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             return
         }
 
-        //识别到人，取消倒计时再处理显示逻辑
-        startCountDownTimer.cancel()
+
         stopPlayCutDown()
         SpeechWrapper.speech(
             getString(
@@ -451,6 +450,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 }
                 if (checkResult) {
                     //存已识别的人信息
+                    //识别到人，且有效时，取消倒计时再处理显示逻辑
+                    startCountDownTimer.cancel()
                     skipPersonArray.put(
                         identifyNumber,
                         MultiSportResult(accountInfo, identifyNumber)
@@ -483,7 +484,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     //识别到人，取消超时机制
                     timeOutHelper.cancel()
                 } else {
-                    startCountDownTimer.start()
                     resetIdentifyNumber()
                     ToastUtil.getInstance(
                         getApplication(),
