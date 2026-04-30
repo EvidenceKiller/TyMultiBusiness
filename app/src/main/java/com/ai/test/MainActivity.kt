@@ -11,6 +11,7 @@ import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
+import com.ai.ui.gesture.GestureActivity
 import com.ai.ui.glframe.OpenGlFrameActivity
 import com.ai.ui.multiface.MultiFaceTestActivity
 import com.ai.ui.nfc.NfcReaderActivity
@@ -65,18 +66,20 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         mBinding.bnt0.setOnClickListener {
-            UIMultiNavigation.goFiveSport(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
-                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                    endValue = "40000"
-                    sportSkuName = "五人"
-                    sceneId = SceneConstants.INDEPENDENT_TEST
-                }
-            }, FiveSportConfig.builder()
-                .setSupportReport(false)
-                .setAutoFinishTime(15_1000)
-                .build())
+            UIMultiNavigation.goFiveSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                        sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                        endValue = "40000"
+                        sportSkuName = "五人"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, FiveSportConfig.builder()
+                    .setSupportReport(false)
+                    .setAutoFinishTime(15_1000)
+                    .build()
+            )
         }
 
         mBinding.bnt5RegionSet.setOnClickListener {
@@ -347,6 +350,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         mBinding.btnSixYwqzSet.setOnClickListener {
             UIMultiNavigation.goMultiRegionSetting(this, 6, 1)
+        }
+
+        mBinding.btnGesture.setOnClickListener {
+            startActivity(Intent(this, GestureActivity::class.java))
         }
 
     }

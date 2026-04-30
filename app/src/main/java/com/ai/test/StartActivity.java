@@ -86,7 +86,7 @@ public class StartActivity extends BaseActivity {
         authFactory.setChipType(3);// 1.高通， 2.天山， 3.自动识别
         authFactory.setDebug(true);
         authFactory.setUseNewTsModel(true);
-        authFactory.setDebugApp(AdlAppCode.SmartScreenApp);
+        authFactory.setDebugApp(AdlAppCode.TySmartScreenLiteApp);
         authFactory.startAuth(this, new AdlAuthCallback() {
             @Override
             public void onSucceed() {

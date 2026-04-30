@@ -41,9 +41,9 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
-    <uses-permission android:name="android.intent.action.PACKAGE_CHANGED"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.intent.action.PACKAGE_CHANGED" />
 
     <uses-feature
         android:name="android.hardware.usb.host"
@@ -104,10 +104,14 @@
         <activity android:name="com.ai.ui.nfc.NfcReaderActivity" />
         <activity android:name="com.ai.ui.bodytest.BodyChooseTestActivity" />
         <activity android:name="com.ai.ui.doubleface.DoubleFaceTestActivity" />
-        <activity android:name="com.ai.ui.multiface.MultiFaceTestActivity"/>
-        <activity android:name="com.ai.ui.picfacetest.PicFaceTestActivity"/>
-        <activity android:name="com.ai.ui.glframe.OpenGlFrameActivity"
-            android:exported="true"/>
+        <activity android:name="com.ai.ui.multiface.MultiFaceTestActivity" />
+        <activity android:name="com.ai.ui.picfacetest.PicFaceTestActivity" />
+        <activity
+            android:name="com.ai.ui.glframe.OpenGlFrameActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.ai.ui.gesture.GestureActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

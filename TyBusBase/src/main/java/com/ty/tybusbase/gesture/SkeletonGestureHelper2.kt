@@ -4,10 +4,13 @@ import com.adl.base.bean.PointF
 import com.adl.lib.pose.AdlPoseKeyPoint
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.sport.general.EuHelper
+import com.ty.tybusbase.utils.ApplicationUtil
+import com.ty.tybusbase.utils.ToastUtil
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
+@Deprecated("手势本身存在歧义，手势挥动无法统一；Deprecated in favor of SkeletonGestureHelper3")
 class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
 
     private val leftSkeletonGesture by lazy { SkeletonGesture() }
@@ -38,7 +41,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             return
         }
         //左手检测
-        leftSkeletonGesture.updateSkeleton(ski, true)
+//        leftSkeletonGesture.updateSkeleton(ski, true)
         //右手检测
         rightSkeletonGesture.updateSkeleton(ski, false)
     }
@@ -49,14 +52,26 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
     }
 
     inner class SkeletonGesture {
+
+        // ---------- 可调参数 ----------
+        private val SWIPE_THRESHOLD_RATIO = 0.6f    // 滑动距离阈值（肩宽倍数）
+        private val REVERSE_RATIO = 0.3f            // 反向位移阈值（相对于滑动阈值）
+        private val BACK_CENTER_RATIO = 0.2f        // 回归中心再开始的比例
+        private val CONSISTENCY_FRAMES = 10          // 方向稳定帧数
+        private val REVERSE_FRAMES = 2              // 反向判定帧数
+        private val ARM_STRAIGHT_ANGLE = 150f       // 手臂伸直判定角度
+        private val SHOULDER_STRAIGHT_ANGLE = 150f       // 手臂伸直判定角度
+        private val ARM_UP_ANGLE = 20f              // 手臂是否抬起的角度
+        private var GESTURE_DETECT_INTERVAL_TIME = 200L //手势检测间隔时间
+
+        //检测确认和取消的手势，连续检测到该帧数，则认为手势结束;防止骨骼抖动带来的影响
+        private var HANDS_UP_FRAMES = 8
+
         //初始化标志位
         private var initFlag = false
 
         //开始检测手势标志位
         private var gestureStartFlag = false
-
-        //开始确认标识
-        private var confirmFlag = false
 
         //手势检测起始点
         private var gestureStartPoint = PointF(Float.MAX_VALUE, Float.MAX_VALUE)
@@ -67,9 +82,6 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         //手势判定实时移动的距离
         private var gestureMoveDistance = 0f
 
-        //手势起始点Y的坐标
-        private var gestureStartPointY = 0f
-
         //手势上一次X坐标
         private var gesturePrePointX = 0f
 
@@ -79,17 +91,11 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         //头部位置
         private var headY = 0f
 
-        //手势开始的下阈值
-        private var downThreshold = 0f
-
         //手势回调，1：左，2：右
         private var gestureCallback: ((GestureCommand) -> Unit)? = null
 
         //确认手势回调，true：确认，false：取消
         private var gestureConfirmCallback: ((Boolean) -> Unit)? = null
-
-        //手势检测间隔时间
-        private var gestureDetectIntervalTime = 200L
 
         //上一次检测手势完成的时间
         private var preGestureTime = 0L
@@ -100,15 +106,29 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         //开始检测手势的时间
         private var startCheckTime = 0L
 
-        //手势起始点重置时间
-        private var gestureDetectResetTime = 1500L
-
-        //检测确认和取消的手势，连续检测到该帧数，则认为手势结束;防止骨骼抖动带来的影响
-        private var handsUpFrameCount = 10
-
         //当前检测确认和取消的手势帧数
         private var currentHandsUpFrame = 0
 
+        //上一次产生的手势
+        private var preGestureCommand: GestureCommand? = null
+
+        //下一次候选手势；消抖判断
+        private var candidateGestureCommand: GestureCommand? = null
+
+        //产生手势时的手腕位置
+        private var endGesturePoint = PointF(0f, 0f)
+
+        //产生候选后的累计帧数
+        private var candidateFrames = 0
+
+        //候选手势后移动的距离
+        private var candidateMoveDistance = 0f
+
+        //候选手势后是否反向
+        private var candidateReverse = false
+
+        //反向帧数
+        private var candidateReverseFrames = 0
         fun setGestureCallback(callback: ((GestureCommand) -> Unit)?) {
             gestureCallback = callback
         }
@@ -116,20 +136,9 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
         fun refreshParams(
             anotherShoulder: AdlPoseKeyPoint,
             centralShoulder: AdlPoseKeyPoint,
-            header: AdlPoseKeyPoint?,
-            hipY: Float
         ) {
             val shoulderWidth = abs(anotherShoulder.x - centralShoulder.x)
-            gestureNeedMoveDistance = shoulderWidth * 0.5f
-
-            //肩到下颚点的X倍为头的位置
-            headY = header?.y ?: (centralShoulder.y - gestureNeedMoveDistance)
-
-            //髋部向上1/3
-            val shoulderHip = (hipY - centralShoulder.y) * 0.3f
-            downThreshold = hipY - shoulderHip
-
-            gestureYMoveDistance = (downThreshold - headY) * 0.8f
+            gestureNeedMoveDistance = shoulderWidth * SWIPE_THRESHOLD_RATIO
         }
 
         /**
@@ -143,103 +152,191 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             //刷新参数
             refreshParams(
                 if (isLeft) skeleton.LShoulder else skeleton.RShoulder,
-                if (isLeft) skeleton.RShoulder else skeleton.LShoulder,
-                skeleton.headTop,
-                min(skeleton.lHip.y, skeleton.rHip.y)
+                if (isLeft) skeleton.RShoulder else skeleton.LShoulder
             )
             //检测确认手势
             checkHandsUpGesture(skeleton, isLeft.not())
             checkGesture(
                 if (isLeft) skeleton.RWrist else skeleton.LWrist,
                 if (isLeft) skeleton.RShoulder else skeleton.LShoulder,
-                isLeft
+                if (isLeft) skeleton.RElbow else skeleton.LElbow,
+                if (isLeft) skeleton.RHip else skeleton.LHip
             )
         }
 
         private fun checkGesture(
             wrist: AdlPoseKeyPoint,
             centralShoulder: AdlPoseKeyPoint,
-            isLeft: Boolean
+            elbow: AdlPoseKeyPoint,
+            hip: AdlPoseKeyPoint,
         ) {
-            //开始检测手势
+            // 手臂垂直判断
+            val straight = isArmStraight(centralShoulder, elbow, wrist, hip)
+            if (straight) {
+                //如果手臂垂直，则不进行手势检测
+                resetParam()
+                return
+            }
             if (gestureStartFlag) {
-                //如果手势不在检测范围，则取消检测
-                if (wrist.y > downThreshold || wrist.y < headY) {
-                    gestureStartPoint.x = Float.MAX_VALUE
-                    gestureStartPoint.y = Float.MAX_VALUE
-                    gestureStartFlag = false
-//                    LogUtil.d("手势取消")
-                    return
-                }
-
-                //赋值Y坐标
-                if (gestureMoveDistance == 0f) {
-                    gestureStartPointY = centralShoulder.y
-                }
 
                 gestureMoveDistance += wrist.x - gesturePrePointX
 
                 //Y轴移动的距离
-                val movedYDistance = abs(wrist.y - gestureStartPointY)
+                val movedYDistance = abs(wrist.y - gestureStartPoint.y)
 
                 //手势终点到中心控制点的距离
                 val centralToEndDistance = abs(centralShoulder.x - wrist.x)
-//                LogUtil.d("每次加的距离：${wrist.x - gesturePrePointX},总距离：${gestureMoveDistance}")
-//                LogUtil.d("当前点：${wrist.x},上一个点: ${gesturePrePointX} 起始点x: ${gestureStartPoint.x},中轴点：${centralShoulder.x}")
                 gesturePrePointX = wrist.x
+//                //如果手势终点到中心控制点的距离小于阈值（需要移动的距离的80%），则手势检测无效
+//                if (centralToEndDistance < gestureNeedMoveDistance * 0.8f) {
+//
+//                    return
+//                }
+
                 //如果手势Y轴移动距离超过阈值，则手势检测无效
-                //如果手势终点到中心控制点的距离小于阈值（需要移动的距离的80%），则手势检测无效
-                if (movedYDistance > gestureYMoveDistance
-                    || centralToEndDistance < gestureNeedMoveDistance * 0.8f
-                ) {
-                    return
-                }
-//                LogUtil.d("手势检测：移动距离${gestureMoveDistance} 起始点x: ${gestureStartPoint.x},中轴点：${centralShoulder.x}")
-//                LogUtil.d("手势检测：${if (gestureMoveDistance > gestureNeedMoveDistance) "向右" else if (gestureMoveDistance < -gestureNeedMoveDistance) "向左" else "未移动"}")
+//                if (movedYDistance > gestureNeedMoveDistance * VALID_HEIGHT_RATIO) {
+//                    ToastUtil.getInstance(ApplicationUtil.getContext(), "垂直距离超标手势无效")
+//                        .show()
+//                    resetParam()
+//                    return
+//                }
 
+                //添加预选机制（消抖），输出用户最后的手势，蓄力过程应该屏蔽掉
                 //向右
-                if (isLeft && gestureMoveDistance > gestureNeedMoveDistance) {
-                    handleGestureCallback(GestureCommand.RIGHT)
-                }
+                if (candidateGestureCommand == null) {
+                    if (gestureMoveDistance > gestureNeedMoveDistance) {
+                        candidateGestureCommand = GestureCommand.RIGHT
+                    }
 
-                //向左
-                if (isLeft.not() && gestureMoveDistance < -gestureNeedMoveDistance) {
-                    handleGestureCallback(GestureCommand.LEFT)
+                    //向左
+                    if (gestureMoveDistance < -gestureNeedMoveDistance) {
+                        candidateGestureCommand = GestureCommand.LEFT
+                    }
+                    //记录手腕位置
+                    endGesturePoint.x = wrist.x
+                    endGesturePoint.y = wrist.y
+                } else {
+                    candidateFrames++
+                    val netDx = wrist.x - endGesturePoint.x
+                    val reverse = (candidateGestureCommand == GestureCommand.RIGHT && netDx < 0) ||
+                            (candidateGestureCommand == GestureCommand.LEFT && netDx > 0)
+                    if (reverse) {
+                        candidateReverseFrames++
+                        if (candidateReverseFrames >= REVERSE_FRAMES) {
+                            candidateReverse = true
+                        }
+                        candidateMoveDistance += abs(endGesturePoint.x - wrist.x)
+                    }
+                    //候选手势到达一致性帧数，判断是否候选手势为最终手势
+                    //需要区分，比如往右蓄力，到达右判定点，继续往右，然后往左，一致性帧数到时，正好到产生候选的终点附近，则可能判定为候选有效，其实用户目的可能是向左的手势
+                    //所以需要记录终点后的移动距离，如果这个距离小于阈值，则判定为最终手势
+                    if (candidateFrames >= CONSISTENCY_FRAMES) {
+                        //发生了反转才需要判断回拉距离，移动距离小于阈值，则判定为最终手势
+                        if (candidateReverse.not() || candidateMoveDistance < gestureNeedMoveDistance * REVERSE_RATIO) {
+                            handleGestureCallback(candidateGestureCommand!!)
+                            preGestureCommand = candidateGestureCommand
+                            resetParam()
+                        } else {
+                            //手势反转重新赋值起点，设当前手势点为起点
+                            gestureStartPoint.x = wrist.x
+                            gestureStartPoint.y = wrist.y
+                            gestureMoveDistance =
+                                if (candidateGestureCommand == GestureCommand.RIGHT) candidateMoveDistance * -1f else candidateMoveDistance
+                            resetReverseParam()
+                        }
+                    }
+                    endGesturePoint.x = wrist.x
+                    endGesturePoint.y = wrist.y
                 }
                 return
             }
 
             //是否在中轴点附近
-            val isCloseCentral = abs(centralShoulder.x - wrist.x) < gestureNeedMoveDistance * 0.3f
+            var isCloseCentral =
+                abs(centralShoulder.x - wrist.x) < gestureNeedMoveDistance * BACK_CENTER_RATIO
+            //如果不满足，则再根据上次是什么手势，判断是否是骨骼点跳过了检测区域，例如上次是左滑，手势回拉太快，可能直接跳过检测区，拉到了检测区右边，导致无法检测
+            if (isCloseCentral.not()) {
+                when (preGestureCommand) {
+                    GestureCommand.LEFT -> {
+                        //已经移动到了检测区右边
+                        if (wrist.x > centralShoulder.x) {
+                            isCloseCentral = true
+                        }
+                    }
+
+                    GestureCommand.RIGHT -> {
+                        if (wrist.x < centralShoulder.x) {
+                            isCloseCentral = true
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
             //满足此条件，开始检测手势
             //时间间隔满足，并且，在检测范围之内
-            if (System.currentTimeMillis() - preGestureTime > gestureDetectIntervalTime
-                && wrist.y < downThreshold
-                && wrist.y > headY
+            if (System.currentTimeMillis() - preGestureTime > GESTURE_DETECT_INTERVAL_TIME
                 && isCloseCentral
             ) {
                 gestureStartPoint.x = wrist.x
-                gestureStartPoint.y = (downThreshold + headY) / 2
+                //如果起始点的Y在
+                gestureStartPoint.y = wrist.y
                 startCheckTime = System.currentTimeMillis()
                 gestureMoveDistance = 0f
                 gestureStartFlag = true
                 gesturePrePointX = wrist.x
-//                LogUtil.d("手势开始;起始点坐标：${gesturePrePointX}")
             }
         }
 
         private fun checkHandsUpGesture(skeleton: AdlPoseSkeleton, isLeft: Boolean) {
             //检测冷却时间内，不处理
-            if (System.currentTimeMillis() - preHandsUpTime < gestureDetectIntervalTime) return
+            if (System.currentTimeMillis() - preHandsUpTime < GESTURE_DETECT_INTERVAL_TIME) return
             //检测是否是确认手势开始
             if (isHandsUp(skeleton, isLeft)) {
                 currentHandsUpFrame++
-                if (currentHandsUpFrame >= handsUpFrameCount) {
+                if (currentHandsUpFrame >= HANDS_UP_FRAMES) {
                     handsUpGestureCallback()
                 }
             } else {
                 currentHandsUpFrame = max(0, currentHandsUpFrame - 1)
             }
+        }
+
+        private fun resetReverseParam() {
+            candidateGestureCommand = null
+            candidateFrames = 0
+            candidateReverseFrames = 0
+            candidateReverse = false
+            candidateMoveDistance = 0f
+        }
+
+        private fun resetParam() {
+            candidateGestureCommand = null
+            gestureStartFlag = false
+            gestureMoveDistance = 0f
+            endGesturePoint.x = 0f
+            endGesturePoint.y = 0f
+            candidateGestureCommand = null
+            candidateMoveDistance = 0f
+            candidateFrames = 0
+            candidateReverseFrames = 0
+            candidateReverse = false
+        }
+
+        // ---------- 手臂垂直判定 ----------
+        private fun isArmStraight(
+            shoulder: AdlPoseKeyPoint,
+            elbow: AdlPoseKeyPoint,
+            smoothWrist: AdlPoseKeyPoint,
+            hip: AdlPoseKeyPoint
+        ): Boolean {
+            // 计算肩-肘-腕的夹角
+            val angle = EuHelper.calculateAngle(
+                elbow, shoulder,
+                smoothWrist
+            )
+            val a3 = EuHelper.calculateAngle(shoulder, hip, elbow)
+            return angle >= ARM_STRAIGHT_ANGLE && a3 < ARM_UP_ANGLE
         }
 
         /**
@@ -280,10 +377,14 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
             // 手腕 < 手肘 < 肩膀
             if (wrist.y < elbow.y && elbow.y < shoulder.y) {
                 val angle1 = EuHelper.calculateAngle(elbow, wrist, shoulder)
-                val angle2 = EuHelper.calculateAngle(shoulder, wrist, hip)
-                return EuHelper.inRange(angle1, 120.0, 180.0) && EuHelper.inRange(
+                val angle2 = EuHelper.calculateAngle(shoulder, elbow, hip)
+                return EuHelper.inRange(
+                    angle1,
+                    ARM_STRAIGHT_ANGLE.toDouble(),
+                    180.0
+                ) && EuHelper.inRange(
                     angle2,
-                    80.0,
+                    SHOULDER_STRAIGHT_ANGLE.toDouble(),
                     180.0
                 )
             }
@@ -310,22 +411,7 @@ class SkeletonGestureHelper2(val gestureListener: GestureListener?) {
     }
 }
 
-interface GestureListener {
-    fun onGesture(command: GestureCommand, type: GestureType)
-}
-
 enum class GestureType {
     TYPE_LEFT,
     TYPE_RIGHT
-}
-
-//手势指令
-enum class GestureCommand {
-    UP,
-    DOWN,
-    LEFT,
-    RIGHT,
-
-    //举手
-    HANDS_UP,
 }
