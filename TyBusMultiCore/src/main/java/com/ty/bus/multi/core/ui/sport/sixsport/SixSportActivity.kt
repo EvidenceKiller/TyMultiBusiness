@@ -480,7 +480,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     override fun onStatusSport() {
         super.onStatusSport()
         multiSportProcessor.changeTo(SportProcessorStatus.Sporting)
-        multiSportProcessor.setBodyFilter(MultiSportRegionCheckFilter())
         parser.checkSkipScore = true
     }
 
@@ -610,7 +609,6 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     private fun next() {
         //切换Pose模型ID
         mBinding.overlay.multiRegion.setDrawing(true)
-        multiSportProcessor.setBodyFilter(ThreeSportStandFilter())
         timeOutHelper.start()
         changeResolutionTo4K()
         mBinding.readyView.reset()
