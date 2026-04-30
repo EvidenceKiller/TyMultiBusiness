@@ -20,6 +20,7 @@ import com.adl.processor.SportProcessorStatus
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.expand.Action
+import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
 
@@ -40,6 +41,8 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
             return instance!!
         }
     }
+
+    private val singleTracker = SingleTracker()
 
     private val gestureListeners by lazy { mutableListOf<GestureListener>() }
 
@@ -71,7 +74,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     private val tsConfig by lazy { SportConfigSingle() }
 
     private val gestureHelper by lazy {
-        SkeletonGestureHelper2(object : GestureListener {
+        SkeletonGestureHelper3(object : GestureListener {
             override fun onGesture(command: GestureCommand, type: GestureType) {
                 gestureCallback(command, type)
             }
@@ -169,7 +172,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         processorSingle = SportProcessorSingle().apply {
             setSportLifecycle(tsSportLifecycleSingle)
             setConfig(tsConfig)
-//            setBodyTracker(singleTracker)
+            setBodyTracker(singleTracker)
             setPoseType(if (DeviceUtil.isTsRk3588()) SportModelType.TS else SportModelType.KunL)
             setSmooth(false)
             setAutoDeleteFrame(false)
@@ -180,6 +183,10 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         overlayVessel?.setListener {
             tsSportLifecycle.toSporting()
             tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
+            singleTracker.setInitPointF(
+                tsConfig.sportRegion.centerX().toFloat(),
+                tsConfig.sportRegion.centerY().toFloat()
+            )
         }
     }
 
