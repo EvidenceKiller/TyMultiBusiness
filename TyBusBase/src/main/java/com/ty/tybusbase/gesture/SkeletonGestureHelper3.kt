@@ -51,6 +51,7 @@ class SkeletonGestureHelper3(val gestureListener: GestureListener?,val isMirror:
         private val RAISE_ARM_UP_ANGLE_MAX =
             RAISE_ARM_UP_ANGLE + RAISE_ARM_UP_ANGLE * RAISE_ARM_UP_RATIO //手臂抬起角度最大值
         private var GESTURE_DETECT_INTERVAL_TIME = 400L //手势检测间隔时间
+        private var GESTURE_HANDSUP_INTERVAL_TIME = 1000L //举手检测间隔时间
 
         //上一次检测手势完成的时间
         private var preGestureTime = 0L
@@ -108,7 +109,7 @@ class SkeletonGestureHelper3(val gestureListener: GestureListener?,val isMirror:
 
         private fun checkHandsUpGesture(skeleton: AdlPoseSkeleton) {
             //检测冷却时间内，不处理
-            if (System.currentTimeMillis() - preHandsUpTime < GESTURE_DETECT_INTERVAL_TIME) return
+            if (System.currentTimeMillis() - preHandsUpTime < GESTURE_HANDSUP_INTERVAL_TIME) return
             //检测是否是确认手势开始
             if (isHandsUp(skeleton)) {
                 currentHandsUpFrame++
