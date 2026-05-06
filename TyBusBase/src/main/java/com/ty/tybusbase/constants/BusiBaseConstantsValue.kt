@@ -122,4 +122,6 @@ object BusiBaseConstantsValue {
     const val DEFAULT_MULTI_FACE_THRESHOLD = 0.4f //默认多人人脸阈值
 
     const val CHINA_MOBILE_CARD_TYPE = "1" //移动卡类型
+
+    const val AUTO_BACK_TIME = 15_000L //运动完自动退出的时间
 }
