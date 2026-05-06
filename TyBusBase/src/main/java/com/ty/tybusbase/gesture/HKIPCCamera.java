@@ -1,5 +1,8 @@
 package com.ty.tybusbase.gesture;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import com.adl.base.log.AdlLogger;
 import com.hcnetsdk.control.DevManageGuider;
 import com.hcnetsdk.control.SDKGuider;
@@ -28,14 +31,50 @@ public final class HKIPCCamera {
     private VideoDecoder mVideoDecoder;
     private OnCameraCallback mCameraCallback;
     private boolean isPause = false;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+
+    private long retryTime = 5 * 1000;
 
     static {
         HCNetSDKJNAInstance.getInstance();
     }
 
+    private final OnCameraCallback innerCameraCallback = new OnCameraCallback() {
+        @Override
+        public void onSuccess(String ip) {
+            if (mCameraCallback != null) {
+                mCameraCallback.onSuccess(ip);
+            }
+        }
+
+        @Override
+        public void onFailed(String ip) {
+            if (mCameraCallback != null) {
+                mCameraCallback.onFailed(ip);
+            }
+            retryOpen();
+        }
+
+        @Override
+        public void onFrame(String ip, byte[] yuv, int width, int height, long timestamp) {
+            if (mCameraCallback != null) {
+                mCameraCallback.onFrame(ip, yuv, width, height, timestamp);
+            }
+        }
+    };
 
     public void setOnCameraCallback(OnCameraCallback callback) {
         mCameraCallback = callback;
+    }
+
+    public void setRetryTime(long retryTime) {
+        this.retryTime = retryTime;
+    }
+
+    private void retryOpen() {
+        mHandler.removeCallbacksAndMessages(null);
+        close();
+        mHandler.postDelayed(this::open, retryTime);
     }
 
     public void open() {
@@ -76,9 +115,7 @@ public final class HKIPCCamera {
                 try {
                     if (!SDKGuider.g_sdkGuider.m_comDMGuider.login_v40_jna_with_deviceInfo(mDeviceItem)) {
                         logger("登录失败");
-                        if (mCameraCallback != null) {
-                            mCameraCallback.onFailed(cameraIp);
-                        }
+                        innerCameraCallback.onFailed(cameraIp);
                         return;
                     }
 
@@ -95,22 +132,21 @@ public final class HKIPCCamera {
         }
     }
 
-    public void pause(){
+    public void pause() {
         isPause = true;
     }
 
-    public void restart(){
+    public void restart() {
         isPause = false;
     }
+
     private void openPreview(int streamType) {
 
         logger("打开摄像头...");
 
         if (mDeviceItem.m_lUserID < 0) {
             logger("无效用户id");
-            if (mCameraCallback != null) {
-                mCameraCallback.onFailed(cameraIp);
-            }
+            innerCameraCallback.onFailed(cameraIp);
             return;
         }
 
@@ -133,15 +169,11 @@ public final class HKIPCCamera {
 
         if (mPreviewHandle < 0) {
             logger("预览失败");
-            if (mCameraCallback != null) {
-                mCameraCallback.onFailed(cameraIp);
-            }
+            innerCameraCallback.onFailed(cameraIp);
             return;
         }
         // 打开成功
-        if (mCameraCallback != null) {
-            mCameraCallback.onSuccess(cameraIp);
-        }
+        innerCameraCallback.onSuccess(cameraIp);
     }
 
     public void close() {
@@ -252,7 +284,6 @@ public final class HKIPCCamera {
                                int nWidth, int nHeight, int nFrameTime, int nDataType,
                                int Reserved, int nYear, int nMon, int nDay, int nHour,
                                int nMin, int nSec, int nMs) {
-            if (mCameraCallback == null) return;
             if (yuvBuffer == null) {
                 yuvBuffer = new byte[nWidth * nHeight * 3 / 2];
             }
@@ -273,9 +304,7 @@ public final class HKIPCCamera {
             // yv12 - nv21
             YV12toNV21(data, yuvBuffer, nWidth, nHeight);
 
-            if (mCameraCallback != null) {
-                mCameraCallback.onFrame(cameraIp, yuvBuffer, nWidth, nHeight, timestamp);
-            }
+            innerCameraCallback.onFrame(cameraIp, yuvBuffer, nWidth, nHeight, timestamp);
         }
     }
 
