@@ -2,6 +2,7 @@ package com.ty.tybusbase.utils
 
 import android.content.Context
 import android.util.Log
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,7 +22,7 @@ object LogUtil {
     private val logcatLength = 256
     private var writeFileEnable = true
     private var consoleEnable = true
-    private val stringBuffer by lazy { StringBuffer() }
+    private val stringBuffer by lazy { StringBuffer((writeSize * 1.2).toInt()) }
     private val TAG = "BUSI>>"
 
     /**
@@ -55,7 +56,6 @@ object LogUtil {
         cacheLog(msg, flushNow)
     }
 
-    @Synchronized
     private fun cacheLog(msg: String, flushNow: Boolean) {
         if (!writeFileEnable) return
         stringBuffer.append(format.format(Date()) + ": ")
@@ -78,18 +78,19 @@ object LogUtil {
         return list
     }
 
-    @Synchronized
+    @OptIn(DelicateCoroutinesApi::class)
     private fun flush(flush: Boolean) {
         if (flush || stringBuffer.length >= writeSize) {
             //写文件
             GlobalScope.launch(Dispatchers.IO) {
-                writeLog(stringBuffer.toString())
-                stringBuffer.delete(0, stringBuffer.length)
+                synchronized(this){
+                    writeLog(stringBuffer.toString())
+                    stringBuffer.delete(0, stringBuffer.length)
+                }
             }
         }
     }
 
-    @Synchronized
     private fun writeLog(log: String) {
         try {
             val fileD = File(logPath)
