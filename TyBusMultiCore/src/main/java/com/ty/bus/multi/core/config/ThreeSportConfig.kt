@@ -8,7 +8,8 @@ class ThreeSportConfig private constructor(
     val hideTopOne: Boolean,
     val countdownText: String,
     val sportStartText: String,
-    val resultPageText: String
+    val resultPageText: String,
+    val autoFinishTime: Long,
 ) : Serializable {
 
     class Builder {
@@ -18,6 +19,7 @@ class ThreeSportConfig private constructor(
         private var countdownText: String = ""
         private var gameStartText: String = ""
         private var resultPageText: String = ""
+        private var autoFinishTime: Long = 0
 
         /**
          * 是否支持语音播报
@@ -67,6 +69,11 @@ class ThreeSportConfig private constructor(
             return this
         }
 
+        fun setAutoFinishTime(time: Long): Builder {
+            this.autoFinishTime = time
+            return this
+        }
+
         fun build(): ThreeSportConfig {
             return ThreeSportConfig(
                 isVoiceBroadcastSupported,
@@ -74,7 +81,8 @@ class ThreeSportConfig private constructor(
                 hideTopOne,
                 countdownText,
                 gameStartText,
-                resultPageText
+                resultPageText,
+                autoFinishTime
             )
         }
     }

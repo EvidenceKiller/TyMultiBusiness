@@ -45,7 +45,7 @@ import kotlinx.coroutines.withContext
 class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
     //记录开始和结束时间
-    var tsConfig: ThreeSportConfig? = null
+    var threeSportConfig: ThreeSportConfig? = null
 
     var startTime: Long = 0
     var endTime: Long = 0

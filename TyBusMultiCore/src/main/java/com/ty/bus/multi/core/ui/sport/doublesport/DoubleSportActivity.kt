@@ -1,10 +1,14 @@
 package com.ty.bus.multi.core.ui.sport.doublesport
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
+import com.adl.base.common.AdlHandlerThread
 import com.adl.mount.impl.TsDoubleProcessor
 import com.adl.mount.sport.TsSportChannel
 import com.ty.bus.multi.core.callback.DoubleBaseCallback
+import com.ty.bus.multi.core.config.DoubleSportConfig
+import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.factory.DoubleSportDetector
 import com.ty.bus.multi.databinding.ActivityDoubleSportBinding
 import com.ty.tybusbase.base.BaseDoubleSportIdentifyActivity
@@ -50,6 +54,12 @@ class DoubleSportActivity :
             }
         }
 
+    }
+
+    override fun initData() {
+        super.initData()
+        viewModel.doubleSportConfig =
+            intent.getSerializableExtra("sport_config") as? DoubleSportConfig
     }
 
     override fun createTsDoubleProcessor(): TsDoubleProcessor {
@@ -116,9 +126,16 @@ class DoubleSportActivity :
         }.start()
     }
 
+    @SuppressLint("ImplicitSamInstance")
     override fun onStatusEnd() {
         super.onStatusEnd()
         SoundPlayUtils.play(2)
+        //如果配置了自动结束
+        viewModel.doubleSportConfig?.autoFinishTime?.let {
+            if (it > 0) {
+                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
+            }
+        }
         LogUtil.d("---运动结束了")
         mBinding.viewSportResult.setResult(
             viewModel.rightSportResult,
@@ -206,6 +223,7 @@ class DoubleSportActivity :
     override fun onDestroy() {
         super.onDestroy()
         mBinding.surfaceOverlay.stop()
+        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
 
 }

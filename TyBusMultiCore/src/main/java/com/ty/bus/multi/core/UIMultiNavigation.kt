@@ -3,6 +3,7 @@ package com.ty.bus.multi.core
 import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.config.BluetoothSportConfig
+import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
@@ -116,8 +117,13 @@ object UIMultiNavigation : BaseNavigation() {
     /**
      * 跳转到双人运动
      */
-    fun goDoubleSport(context: Context, config: UINavConfig?) {
+    fun goDoubleSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: DoubleSportConfig? = null
+    ) {
         val intent = Intent(context, DoubleSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
         startActivity(context, intent, config)
     }
 

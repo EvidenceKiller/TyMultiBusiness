@@ -1,6 +1,7 @@
 package com.ty.bus.multi.core.ui.sport.doublesport
 
 import android.app.Application
+import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.tybusbase.base.BaseDoubleSportViewModel
 import com.ty.tybusbase.constants.SportConstant.SPORT_COME_ON
 import com.ty.tybusbase.constants.SportConstant.SPORT_PERFECT
@@ -21,6 +22,9 @@ class DoubleSportViewModel(application: Application) : BaseDoubleSportViewModel(
     private val comboLimitTime = (2 * 1000).toLong()
 
     private var upCountRightTime: Long = 0
+
+    var doubleSportConfig: DoubleSportConfig? = null
+
     fun setSportDuration(timeMillis: Int) {
         leftSportResult.sportDuration = if (timeMillis == 0) 0 else timeMillis
         rightSportResult.sportDuration = if (timeMillis == 0) 0 else timeMillis

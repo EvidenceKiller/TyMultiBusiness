@@ -46,6 +46,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.utils.MMKVUtil
 import androidx.core.view.isNotEmpty
+import com.adl.base.common.AdlHandlerThread
 import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.adl.sport.general.multi.MultiSportResult
 import com.adl.sport.general.situp.SitUpBodyFilter
@@ -89,7 +90,7 @@ class ThreeSportActivity :
         super.initData()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
-        viewModel.tsConfig =
+        viewModel.threeSportConfig =
             intent.getSerializableExtra("sport_config") as? ThreeSportConfig
         for (i in 0 until viewModel.sportManCount) {
             checkStatusList.add(false)
@@ -108,7 +109,7 @@ class ThreeSportActivity :
             viewModel.toStatusIdentifyFace()
         }
         mainHandler.postDelayed(tipRunnable, 1000)
-        if (viewModel.tsConfig?.hideTopOne == true) {
+        if (viewModel.threeSportConfig?.hideTopOne == true) {
             mBinding.groupTodayTop.visibility = View.GONE
         }
         initOverlay()
@@ -211,7 +212,7 @@ class ThreeSportActivity :
                 if (viewModel.matchId != null) Int.MAX_VALUE else top1Count,
                 viewModel.energyPoint
             )
-            if (viewModel.tsConfig?.isSupportNextGroup == true) {
+            if (viewModel.threeSportConfig?.isSupportNextGroup == true) {
                 srrvResult.showNextBtn()
             }
             srrvResult.listener = object : ResultViewBtnClickListener {
@@ -280,14 +281,19 @@ class ThreeSportActivity :
 
     override fun onStatusEnd() {
         super.onStatusEnd()
+        //如果配置了自动结束
+        viewModel.threeSportConfig?.autoFinishTime?.let {
+            if (it > 0) {
+                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
+            }
+        }
         hideTip()
         parser.checkChannelStatus = false
         parser.checkSkipScore = false
         multiSportProcessor.changeTo(SportProcessorStatus.Idle)
         //隐藏运动页
         mBinding.threeSportView.visibility = View.GONE
-        //结束清除骨骼数据等
-//        mBinding.overlay.clearScreen()
+
     }
 
     private fun initCamera() {
@@ -482,5 +488,6 @@ class ThreeSportActivity :
         multiSportProcessor.onRelease()
         parser.resetScore()
         sportConfig.unloadModel()
+        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
 }
