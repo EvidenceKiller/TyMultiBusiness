@@ -11,12 +11,16 @@ import com.hikvision.netsdk.HCNetSDK;
 import com.hikvision.netsdk.NET_DVR_PREVIEWINFO_V20;
 import com.ty.tybusbase.constants.BusiBaseConstantsValue;
 import com.ty.tybusbase.constants.MMKVBusiKey;
+import com.ty.tybusbase.utils.ListUtils;
+import com.ty.tybusbase.utils.LogUtil;
 import com.ty.tybusbase.utils.MMKVUtil;
 
 import org.MediaPlayer.PlayM4.Player;
 import org.MediaPlayer.PlayM4.PlayerCallBack;
 
 import java.text.SimpleDateFormat;
+
+import kotlin.jvm.Synchronized;
 
 /**
  * 海康运动摄像头定义
@@ -57,9 +61,11 @@ public final class HKIPCCamera {
 
         @Override
         public void onFrame(String ip, byte[] yuv, int width, int height, long timestamp) {
+            mHandler.removeCallbacksAndMessages(null);
             if (mCameraCallback != null) {
                 mCameraCallback.onFrame(ip, yuv, width, height, timestamp);
             }
+            timingCheckStream();
         }
     };
 
@@ -71,7 +77,9 @@ public final class HKIPCCamera {
         this.retryTime = retryTime;
     }
 
+    @Synchronized
     private void retryOpen() {
+        if (isPause) return;
         mHandler.removeCallbacksAndMessages(null);
         close();
         mHandler.postDelayed(this::open, retryTime);
@@ -132,12 +140,28 @@ public final class HKIPCCamera {
         }
     }
 
+    @Synchronized
     public void pause() {
+        mHandler.removeCallbacksAndMessages(null);
         isPause = true;
     }
 
     public void restart() {
         isPause = false;
+        // 重新打开时
+        timingCheckStream();
+    }
+
+    /**
+     * 定时检测流断开，重新打开摄像头
+     */
+    @Synchronized
+    private void timingCheckStream() {
+        if (isPause) return;
+        mHandler.postDelayed(() -> {
+            LogUtil.INSTANCE.d("检测到流断开，重新打开摄像头", false);
+            open();
+        }, retryTime);
     }
 
     private void openPreview(int streamType) {
@@ -176,8 +200,9 @@ public final class HKIPCCamera {
         innerCameraCallback.onSuccess(cameraIp);
     }
 
+    @Synchronized
     public void close() {
-
+        pause();
         closePreview();
 
         // 退出登录

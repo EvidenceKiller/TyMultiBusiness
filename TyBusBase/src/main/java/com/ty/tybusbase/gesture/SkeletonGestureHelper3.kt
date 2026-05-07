@@ -130,6 +130,10 @@ class SkeletonGestureHelper3(val gestureListener: GestureListener?,val isMirror:
             val shoulder = if (isLeft) skeleton.lShoulder else skeleton.rShoulder
             val hip = if (isLeft) skeleton.lHip else skeleton.rHip
 
+            if (!EuHelper.notNull(wrist, elbow, shoulder, hip)) {
+                return
+            }
+
             // 计算肩-肘-腕的夹角
             val armAngle = EuHelper.calculateAngle(elbow, shoulder, wrist)
             // 计算臀-肩-肘的夹角
