@@ -8,6 +8,7 @@ import com.adl.base.overlay.OnRenderScene
 import com.adl.base.overlay.SportOverlayRopeSkip
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.mount.impl.TsSingleProcessor
 import com.adl.mount.impl.TsSportFrameSingle
 import com.adl.mount.impl.TsSportLifecycleSingle
@@ -20,6 +21,7 @@ import com.adl.processor.SportProcessorStatus
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.expand.Action
+import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
@@ -60,8 +62,6 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     }
 
-    private var overlayVessel: SportOverlayRopeSkip? = null
-
     private lateinit var processorSingle: SportProcessorSingle
 
     private lateinit var tsSportLifecycle: TsSportLifecycle<*>
@@ -70,6 +70,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     //手势标识，为true时才检测手势
     private var gestureFlag = true
+
+    //骨骼回调
+    private var skeletonCallback: Action1<AdlPoseSkeleton>? = null
 
     private val tsConfig by lazy { SportConfigSingle() }
 
@@ -93,17 +96,16 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
     }
 
-    fun initEngine(overlayVessel: SportOverlayRopeSkip) {
-        this.overlayVessel = overlayVessel
-        initSportEngine()
-    }
-
     fun setNoGestureListener(listener: Action) {
         noGestureListener = listener
     }
 
     fun setNoGestureCheckTime(time: Long) {
         noGestureCheckTime = time
+    }
+
+    fun setSkeletonCallback(callback: Action1<AdlPoseSkeleton>?) {
+        skeletonCallback = callback
     }
 
     fun addGestureListener(listener: GestureListener) {
@@ -127,20 +129,8 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
         hkipcCamera = camera
     }
 
-    private fun initSportEngine() {
+    fun initSportEngine(region: TsSportRegion) {
         val isDebug = BusiBaseConfig.getDebugEnable()
-        overlayVessel?.enableDrawSkeleton(isDebug)
-        overlayVessel?.enableDrawBox(isDebug)
-        overlayVessel?.enableDraw(isDebug)
-        overlayVessel?.enableDebug(isDebug)
-        overlayVessel?.enableTouch(false)
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            GESTURE_REGION_CONFIG_KEY,
-            RoleConfigRopeSkip::class.java
-        )
-        overlayVessel?.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        // 运动配置
-
         tsConfig.debug = isDebug
         tsConfig.bodyModelId = ModelIdConstants.COMMON_BODY_MODEL_ID // 人框
         tsConfig.poseModelId = ModelIdConstants.COMMON_POSE_MODEL_ID // 骨骼
@@ -165,7 +155,10 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
             }
 
             override fun onAnalyzer(frame: TsSportFrameSingle?) {
-                frame?.skeleton?.let { gestureHelper.updateSkeleton(it) }
+                frame?.skeleton?.let {
+                    gestureHelper.updateSkeleton(it)
+                    skeletonCallback?.invoke(it)
+                }
             }
         }).apply { tsSportLifecycle = this }
 
@@ -177,38 +170,24 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
             setSmooth(false)
             setAutoDeleteFrame(false)
         }
-        processorSingle.open(overlayVessel)
+        processorSingle.open(null)
         processorSingle.changeTo(SportProcessorStatus.Sporting)
         processorSingle.onInit()
-        overlayVessel?.setListener {
-            tsSportLifecycle.toSporting()
-            tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
-            singleTracker.setInitPointF(
-                tsConfig.sportRegion.centerX().toFloat(),
-                tsConfig.sportRegion.centerY().toFloat()
-            )
-        }
+        tsSportLifecycle.toSporting()
+        tsConfig.sportRegion = region
+        singleTracker.setInitPointF(
+            tsConfig.sportRegion.centerX().toFloat(),
+            tsConfig.sportRegion.centerY().toFloat()
+        )
     }
 
     fun refreshDebug() {
         val isDebug = BusiBaseConfig.getDebugEnable()
-        overlayVessel?.enableDrawSkeleton(isDebug)
-        overlayVessel?.enableDrawBox(isDebug)
-        overlayVessel?.enableDraw(isDebug)
-        overlayVessel?.enableDebug(isDebug)
-        overlayVessel?.enableTouch(false)
         tsConfig.debug = isDebug
-        overlayVessel?.refresh()
     }
 
-    fun reloadRegion() {
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            GESTURE_REGION_CONFIG_KEY,
-            RoleConfigRopeSkip::class.java
-        )
-        overlayVessel?.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        overlayVessel?.refresh()
-        tsConfig.sportRegion = TsSportRegion(overlayVessel?.sportRegion?.previewPoints)
+    fun reloadRegion(region: TsSportRegion) {
+        tsConfig.sportRegion = region
     }
 
     /**
