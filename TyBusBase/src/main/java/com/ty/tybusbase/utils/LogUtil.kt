@@ -83,7 +83,7 @@ object LogUtil {
         if (flush || stringBuffer.length >= writeSize) {
             //写文件
             GlobalScope.launch(Dispatchers.IO) {
-                synchronized(this){
+                synchronized(this@LogUtil) {
                     writeLog(stringBuffer.toString())
                     stringBuffer.delete(0, stringBuffer.length)
                 }
@@ -99,9 +99,6 @@ object LogUtil {
             }
             val fileName: String = dformat.format(Date()) + ".log"
             val logFile = File(fileD, fileName)
-//            if (!logFile.exists()) {
-//                logFile.createNewFile()
-//            }
             val fw = FileWriter(logFile, true)
             fw.write(log)
             fw.flush()

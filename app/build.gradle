@@ -187,7 +187,7 @@ dependencies {
     implementation 'org.bouncycastle:bcprov-jdk15to18:1.66'
 
     implementation(name: 'AdlPose-2025-04-29', ext: 'aar')
-    implementation(name: 'NzPoseCore-v1.0.0-2026-03-31', ext: 'aar')
+//    implementation(name: 'NzPoseCore-v1.0.0-2026-04-31', ext: 'aar')
     implementation(name: 'AdlPoseSdk-2026-03-09', ext: 'aar')
     implementation(name: 'AdlPoseGt-2025-05-28', ext: 'aar')
     implementation(name: 'NzAuthCore-v2.0.1-2026-04-28', ext: 'aar')
