@@ -29,6 +29,7 @@ import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.databinding.BaseActivitySportExitBinding
 import com.ty.tybusbase.databinding.BaseSingleIdentifyAcitvityBinding
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.gesture.GestureProcessor
 import com.ty.tybusbase.helper.GlobalTouchHelper
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.IdentifyMachineListener
@@ -236,12 +237,14 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
 
     override fun onStatusSport() {
         GlobalTouchHelper.pause()
+        GestureProcessor.getInstance().pause()
         tsSportLifecycle.toSporting()
         singleTracker.changeStatus(SportStatusEnum.SPORT_START)
     }
 
     override fun onStatusEnd() {
         GlobalTouchHelper.restart()
+        GestureProcessor.getInstance().restart()
         tsSportLifecycle.toIdle()
         processorSingle.changeTo(SportProcessorStatus.Done)
         runOnUiThread {

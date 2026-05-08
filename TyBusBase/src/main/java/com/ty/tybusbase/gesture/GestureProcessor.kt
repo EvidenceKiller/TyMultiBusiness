@@ -71,6 +71,9 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
     //手势标识，为true时才检测手势
     private var gestureFlag = true
 
+    //是否开启手势
+    private var enable = false
+
     //骨骼回调
     private var skeletonCallback: Action1<AdlPoseSkeleton>? = null
 
@@ -106,6 +109,10 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
 
     fun setSkeletonCallback(callback: Action1<AdlPoseSkeleton>?) {
         skeletonCallback = callback
+    }
+
+    fun enable(enable: Boolean) {
+        this.enable = enable
     }
 
     fun addGestureListener(listener: GestureListener) {
@@ -195,6 +202,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
      */
     @Synchronized
     fun pause() {
+        if (enable.not()) return
         hkipcCamera?.pause()
         LogUtil.d("GestureProcessor pause")
         gestureFlag = false
@@ -206,6 +214,7 @@ class GestureProcessor private constructor() : AdlCameraFrameProcessor {
      */
     @Synchronized
     fun restart() {
+        if (enable.not()) return
         LogUtil.d("GestureProcessor restart")
         hkipcCamera?.restart()
         mHandler.postDelayed(noGestureRunnable, noGestureCheckTime)
