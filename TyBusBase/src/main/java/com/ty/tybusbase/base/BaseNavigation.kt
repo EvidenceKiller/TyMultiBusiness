@@ -21,6 +21,7 @@ open class BaseNavigation {
         intent.putExtra("pt_plan_id", config?.ptPlanId)
         intent.putExtra("pt_standard_id", config?.ptStandardId)
         intent.putExtra("energy_point", config?.energyPoint)
+        intent.putExtra("record_meet", config?.recordMeet)
         context.startActivity(intent)
     }
 }
