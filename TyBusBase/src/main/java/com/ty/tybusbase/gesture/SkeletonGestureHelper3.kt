@@ -43,8 +43,8 @@ class SkeletonGestureHelper3(val gestureListener: GestureListener?,val isMirror:
         // ---------- 可调参数 ----------
         private val RAISE_ARM_UP_RATIO = 0.15f        // 回归中心再开始的比例
         private val CONSISTENCY_FRAMES = 10          // 方向稳定帧数
-        private val ARM_STRAIGHT_ANGLE = 150f       // 手臂伸直判定角度
-        private val SHOULDER_STRAIGHT_ANGLE = 150f       // 手臂伸直判定角度
+        private val ARM_STRAIGHT_ANGLE = 120f       // 手臂伸直判定角度
+        private val SHOULDER_STRAIGHT_ANGLE = 120f       // 手臂伸直判定角度
         private val RAISE_ARM_UP_ANGLE = 90f              // 手臂是否抬起的角度
         private val RAISE_ARM_UP_ANGLE_MIN =
             RAISE_ARM_UP_ANGLE - RAISE_ARM_UP_ANGLE * RAISE_ARM_UP_RATIO //手臂抬起角度最小值
@@ -143,6 +143,7 @@ class SkeletonGestureHelper3(val gestureListener: GestureListener?,val isMirror:
                 if ((armAngle in ARM_STRAIGHT_ANGLE..180f)
                     && (angleA in RAISE_ARM_UP_ANGLE_MIN..RAISE_ARM_UP_ANGLE_MAX)
                 ) {
+                    //随便赋值，回调时根据isLeft回调对应值
                     candidateGestureCommand = GestureCommand.RIGHT
                 }
             } else {
