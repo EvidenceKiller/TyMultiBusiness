@@ -31,11 +31,39 @@ object BusiBaseConfig {
         )
     }
 
-    /**
-     * 设置默认调试开关
-     */
     fun setDebugEnable(enable: Boolean) {
         MMKVUtil.encode(MMKVBusiKey.MODEL_DEBUG, enable)
+    }
+
+    /**
+     * 获取骨骼开关
+     */
+    fun getSkeletonEnable(): Boolean {
+        return MMKVUtil.decodeBoolean(
+            MMKVBusiKey.SKELETON_ABLE,
+            BusiBaseConstantsValue.DEFAULT_SKELETON
+        )
+    }
+
+    fun setSkeletonEnable(enable: Boolean) {
+        MMKVUtil.encode(MMKVBusiKey.SKELETON_ABLE, enable)
+    }
+
+    /**
+     * 获取骨骼旋转角度
+     */
+    fun getSkeletonRotate(): Int {
+        return MMKVUtil.decodeInt(
+            MMKVBusiKey.SKELETON_ROTATE,
+            0
+        )
+    }
+
+    /**
+     * 设置骨骼旋转角度
+     */
+    fun setSkeletonRotate(value: Int) {
+        MMKVUtil.encode(MMKVBusiKey.SKELETON_ROTATE, value)
     }
 
     /**

@@ -98,6 +98,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
      */
     private boolean cardOk;
 
+    private boolean callbackOk = false; //是否回调OK
+
     /**
      * 识别完成时，是否需要检测人在区域里
      */
@@ -182,7 +184,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         //1.获取是否开启游客模式，如果未开启游客模式会倒计时推出
         visitorAble = MMKVUtil.INSTANCE.decodeBoolean(BusiBaseConstantsValue.VISITOR_ABLE, BusiBaseConstantsValue.VISITOR_OPEN);
         //2.获取身份识别的方式
-        identity_type = MMKVUtil.INSTANCE.decodeInt(MMKVBusiKey.IDENTITY_TYPE, 0);
+        identity_type = BusiBaseConfig.INSTANCE.getIdentityType();
         //3.获取屏幕尺寸
         size = DisplayUtil.INSTANCE.getSize(context);
         //4.运动区域检查
@@ -283,6 +285,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     @Override
     public void openMachine(IdentifyMachineListener listener) {
         identity_type = BusiBaseConfig.INSTANCE.getIdentityType();
+        callbackOk =false;
         //这里做初始化
         this.identityListener = listener;
         isFirstDetect = true;
@@ -440,6 +443,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     public void reset() {
         identityStartTime = 0;
         isFirstDetect = true;
+        callbackOk = false;
         cardOk = false;
         qrOk = false;
         switch (identity_type) {
@@ -693,6 +697,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
     }
 
     private void identityOkCallback(AccountInfo accountInfo) {
+        if (callbackOk) return;
+        callbackOk = true;
         cancelTimeOutTask();
         if (identityListener != null && accountInfo != null) {
             identityListener.onIdentityOk(accountInfo);
@@ -854,6 +860,19 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         SpeechWrapper.INSTANCE.speech(mBinding.getRoot().getContext().getString(R.string.rec_face_fail));
         ToastUtil.getInstance(mBinding.getRoot().getContext(), mBinding.getRoot().getContext().getString(R.string.rec_face_fail)).show();
         cardOk = false;
+    }
+
+    public void pause() {
+        if (nfcReaderManager != null) {
+            nfcReaderManager.stopRead();
+        }
+    }
+
+    public void resume() {
+        callbackOk = false;
+        if (nfcReaderManager != null) {
+            nfcReaderManager.startRead(this);
+        }
     }
 
 

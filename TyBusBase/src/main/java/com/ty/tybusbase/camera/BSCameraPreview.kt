@@ -17,6 +17,7 @@ import com.adl.lib.camera.uvc.NsUVCCameraSource.UVCModel
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.MMKVUtil.decodeInt
