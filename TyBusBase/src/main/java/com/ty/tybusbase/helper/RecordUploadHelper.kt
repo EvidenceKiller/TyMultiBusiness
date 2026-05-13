@@ -1,7 +1,6 @@
 package com.ty.tybusbase.helper
 
 import com.adl.auth.core.AdlAuthFactory
-import com.adl.base.log.AdlLogger
 import com.adl.service.entity.RecordResEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.SportRecordEntity
@@ -193,12 +192,17 @@ object RecordUploadHelper {
          *
          */
         if (TextUtils.isEmpty(sportRecordEntity.accountId) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
-            AdlLogger.d("游客模式，不进行上传")
+            LogUtil.d("游客模式，不进行上传")
             AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
             return
         }
         //先存原始数据到数据库
         saveSportResultToDB(sportRecordEntity)
+        //接口服务或者前缀不OK，不处理上传逻辑
+        if (AdlService.getService() == null || AdlService.getService().facePrefix == null) {
+            LogUtil.e("接口服务或者前缀不OK，不处理上传逻辑,service:${AdlService.getService()}--facePrefix:${AdlService.getService()?.facePrefix}")
+            return
+        }
         val calendar = Calendar.getInstance()
         //指标上传
         sportRecordEntity.sportIndicators?.forEach { indicators ->
@@ -284,7 +288,7 @@ object RecordUploadHelper {
         //更新哈数据库,存储已上传的资源
         saveSportResultToDB(sportRecordEntity)
         val uploadRecord = SportRecordService.uploadRecord(sportRecordEntity)
-        AdlLogger.d("成绩上传完成：accountId = ${sportRecordEntity.accountId} 上传结果：${if (uploadRecord?.isOk == true) "成功" else "失败"}")
+        LogUtil.d("成绩上传完成：accountId = ${sportRecordEntity.accountId} 上传结果：${if (uploadRecord?.isOk == true) "成功" else "失败"}")
         if (uploadRecord?.isOk == true || uploadRecord?.msg?.contains("记录id重复") == true) {
             AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
         }
