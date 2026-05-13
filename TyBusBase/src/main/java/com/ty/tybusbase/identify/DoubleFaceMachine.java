@@ -839,7 +839,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         }
     }
 
-    public void closeMachine() {
+    public synchronized void closeMachine() {
         //TODO 关闭
         getHandler().post(() -> {
             DoubleFaceMachine.this.setVisibility(GONE);
