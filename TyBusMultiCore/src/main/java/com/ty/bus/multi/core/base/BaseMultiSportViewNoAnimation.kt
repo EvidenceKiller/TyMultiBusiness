@@ -77,13 +77,6 @@ abstract class BaseMultiSportViewNoAnimation(
     }
 
     /**
-     * 切换卡片到无人状态
-     */
-    fun toNobody(number: Int) {
-        cardMap[number]?.toNobody()
-    }
-
-    /**
      * 倒计时准备开始
      */
     open fun readyGo(block: Action) {

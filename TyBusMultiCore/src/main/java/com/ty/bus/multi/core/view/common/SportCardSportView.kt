@@ -139,7 +139,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
      * 切换到没人状态
      * 可从，standby，identifying,prepared,切换过来
      */
-    override fun toNobody() {
+    fun toNobody() {
         state = MultiSportCardViewState.NOBODY
         mBinding.tvNotice.text = getString(R.string.prompt_move_to_sport_area)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
@@ -162,7 +162,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到举手准备状态
      */
-    override fun toStandby() {
+    fun toStandby() {
         //只有NOBODY和IDENTIFYING状态才能切换到STANDBY状态
         if (state != MultiSportCardViewState.NOBODY && state != MultiSportCardViewState.IDENTIFYING) return
         state = MultiSportCardViewState.STANDBY
@@ -177,7 +177,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到识别中，由准备 ==》识别中
      */
-    override fun toIdentifying() {
+    fun toIdentifying() {
         state = MultiSportCardViewState.IDENTIFYING
         mBinding.rlIdentityNotice.visibility = VISIBLE
         mBinding.progressView.setProgress(10f)
@@ -189,7 +189,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到，已准备状态，由识别中 ==》已准备（游客或已识别到人）
      */
-    override fun toPrepared(accountInfo: AccountInfo) {
+    fun toPrepared(accountInfo: AccountInfo) {
         state = MultiSportCardViewState.PREPARED
         //设置头像和名字
         mBinding.groupPrepared.visibility = VISIBLE
@@ -211,7 +211,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到识别已准备状态
      */
-    override fun toPrepared() {
+    fun toPrepared() {
         state = MultiSportCardViewState.PREPARED
         //设置头像和名字
         mBinding.groupPrepared.visibility = VISIBLE
@@ -229,7 +229,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         identifyingTimer.cancel()
     }
 
-    override fun toPrecastPrepare() {
+    fun toPrecastPrepare() {
         state = MultiSportCardViewState.PRECAST_PREPARE
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_ready)
         mBinding.tvNotice.text = getString(R.string.prompt_ready_position)
@@ -238,7 +238,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.rlIdentityNotice.visibility = GONE
     }
 
-    override fun toPrecastPerson() {
+    fun toPrecastPerson() {
         state = MultiSportCardViewState.PRECAST_PERSON
         mBinding.tvNotice.text =
             getString(R.string.prompt_move_to_sport_area)
@@ -277,7 +277,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 开始运动状态
      */
-    override fun toSporting() {
+    fun toSporting() {
         state = MultiSportCardViewState.SPORTING
         mBinding.groupSport.visibility = VISIBLE
         if (::accountInfo.isInitialized) {
@@ -299,7 +299,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到比赛开始，但是该位置无人状态，由Nobody ==> NobodySport
      */
-    override fun toNobodySport() {
+    fun toNobodySport() {
         state = MultiSportCardViewState.NOBODY_SPORT
         //隐藏空闲状态提示
         mBinding.tvSkipState.visibility = GONE
@@ -316,7 +316,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 运动中切换到离开状态
      */
-    override fun sportingToLeave() {
+    fun sportingToLeave() {
         state = MultiSportCardViewState.LEAVE
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_start_warn)
         mBinding.tvLeaveNotice.visibility = VISIBLE
@@ -329,7 +329,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 离开状态切换回运动中状态
      */
-    override fun leaveToSporting() {
+    fun leaveToSporting() {
         state = MultiSportCardViewState.SPORTING
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_already)
         mBinding.tvLeaveNotice.visibility = GONE
@@ -341,14 +341,14 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到干扰模式
      */
-    override fun sportingToInterference() {
+    fun sportingToInterference() {
         state = MultiSportCardViewState.INTERFERENCE
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_disturb)
         mBinding.clGr.visibility = VISIBLE
         mBinding.tvGr.text = getString(R.string.interference_detected)
     }
 
-    override fun interferenceToSporting() {
+    fun interferenceToSporting() {
         state = MultiSportCardViewState.SPORTING
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_already)
         mBinding.clGr.visibility = INVISIBLE
@@ -357,23 +357,11 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     /**
      * 切换到识别失败
      */
-    override fun toIdentifyFail() {
+    fun toIdentifyFail() {
         toStandby()
         state = MultiSportCardViewState.IDENTIFY_FAIL
         mBinding.clGr.visibility = VISIBLE
         mBinding.tvGr.text = getString(R.string.rec_face_fail)
-    }
-
-    /**
-     * 比赛开始，如果已识别到人 ==> toSporting,如果未识别到人 ==>toNobodySport
-     */
-    override fun toStarted() {
-        if (state == MultiSportCardViewState.PREPARED) {
-            toSporting()
-        } else {
-            toNobodySport()
-        }
-
     }
 
     /**

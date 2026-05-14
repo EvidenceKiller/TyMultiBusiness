@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlHandlerThread
 import com.adl.base.config.AdlUIConfig
@@ -22,6 +23,7 @@ import com.adl.service.outer.AdlService
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSportConfig
@@ -112,6 +114,12 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
 
         mBinding.sportView.startNowCallback = {
             startDialog = CommonTipDialog().setCallback {
+                //如果是运动会模式，则切到准备状态
+                if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING){
+                    viewModel.skipPersonArray.forEach { key, value ->
+                        mBinding.sportView.changeState(value.number, MultiSportCardViewState.PREPARED)
+                    }
+                }
                 startDialog = null
                 viewModel.readyGo()
             }

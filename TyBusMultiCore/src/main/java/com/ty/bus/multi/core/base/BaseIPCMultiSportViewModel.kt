@@ -105,7 +105,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     protected val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
-    private val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
+    val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
     private val indicatorsMap by lazy {
         ConcurrentHashMap<Int, IndicatorsResultDto>()
@@ -213,7 +213,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             identified(index, accountInfo)
             changeMultiIdentityCardState(
                 index,
-                MultiSportCardViewState.PREPARED
+                MultiSportCardViewState.PRECAST_PERSON
             )
         }
     }
@@ -601,7 +601,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 }
 
                 GroupSportsBaseChannelStatus.standBy -> {
-                    if (skipRoseState != MultiSportState.SPORTING) {
+                    if (getSportModel() == SportModel.NORMAL && skipRoseState != MultiSportState.SPORTING) {
                         changeMultiIdentityCardState(
                             skipMan.positionNum,
                             MultiSportCardViewState.STANDBY
@@ -625,10 +625,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                             if (person != null && !person.hasVoice) {
                                 person.hasVoice = true
                                 SpeechWrapper.speech("${person.accountInfo.studentEntity?.accountName}已就位")
-                                identified(person.number, person.accountInfo)
                                 changeMultiIdentityCardState(
                                     person.number,
-                                    MultiSportCardViewState.PREPARED
+                                    MultiSportCardViewState.PRECAST_PREPARE
                                 )
                             }
                         }
