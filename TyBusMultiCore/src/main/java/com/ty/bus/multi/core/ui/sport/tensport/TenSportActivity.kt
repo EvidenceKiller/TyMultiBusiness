@@ -15,6 +15,7 @@ import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.service.entity.BestRankTopEntity
+import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
@@ -22,6 +23,7 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.view.tensport.TenSportResultView
@@ -47,6 +49,8 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
     private var startDialog: CommonTipDialog? = null
     override fun initData() {
         super.initData()
+        val studentList =
+            intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tenSportConfig = intent.getSerializableExtra("sport_config") as? TenSportConfig
@@ -61,6 +65,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
+        viewModel.loadPerson(studentList)
     }
 
 
@@ -114,6 +119,10 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
 
         mBinding.sportView.setSportStartedText(viewModel.tenSportConfig?.sportStartText)
+
+        if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING) {
+            mBinding.sportView.visibilityStartBtn(View.VISIBLE)
+        }
     }
 
     //模拟

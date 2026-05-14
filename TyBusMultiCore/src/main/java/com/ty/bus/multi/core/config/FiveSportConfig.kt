@@ -10,6 +10,7 @@ class FiveSportConfig private constructor(
     val resultPageText: String,
     val isSupportReport: Boolean,
     val autoFinishTime: Long,
+    val sportModel: SportModel
 ) : Serializable {
 
     class Builder {
@@ -20,6 +21,7 @@ class FiveSportConfig private constructor(
         private var resultPageText: String = ""
         private var isOpenReport: Boolean = false
         private var autoFinishTime: Long = 0
+        private var sportModel: SportModel = SportModel.NORMAL
 
         /**
          * 是否支持语音播报
@@ -74,6 +76,11 @@ class FiveSportConfig private constructor(
             return this
         }
 
+        fun setSportModel(model: SportModel): FiveSportConfig.Builder {
+            this.sportModel = model
+            return this
+        }
+
         fun build(): FiveSportConfig {
             return FiveSportConfig(
                 isVoiceBroadcastSupported,
@@ -82,7 +89,8 @@ class FiveSportConfig private constructor(
                 gameStartText,
                 resultPageText,
                 isOpenReport,
-                autoFinishTime
+                autoFinishTime,
+                sportModel
             )
         }
     }

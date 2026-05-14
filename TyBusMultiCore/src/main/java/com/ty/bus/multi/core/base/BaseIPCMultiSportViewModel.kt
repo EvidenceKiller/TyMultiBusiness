@@ -70,6 +70,7 @@ import com.adl.sport.general.groupskippingremix.GroupSkippingManLRemix
 import com.adl.sport.general.groupskippingremix.GroupSkippingManRemix
 import com.adl.sport.general.multi.MultiSportCallbackImpl
 import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.bus.multi.core.config.SportModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.face.FaceDetectorHelper
@@ -79,12 +80,13 @@ import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
+import androidx.core.util.isEmpty
+import com.adl.service.entity.MeetGroupDetailsEntity
+import com.adl.service.entity.StudentEntity
+import com.adl.service.outer.AdlService
 
 open class BaseIPCMultiSportViewModel(application: Application) :
     BaseMultiSportViewModel(application) {
-    private var facePreviewWidth = 1920
-    private var facePreviewHeight = 1080
-
     private var createTime: Long = 0
     private val bsSkipRoseMultiProcessor by lazy { OnceCacheProcessor() } //五人跳绳代理帧数据处理类
     private val cameraDispatcher by lazy {
@@ -133,9 +135,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     var countDownTime: Long = 10 //竞技倒计时10S，单位秒
     var countDownNoticeLD = MutableLiveData<String>() //竞技倒计时过程中更新UI的LD
-
-    private var preViewWidth = facePreviewWidth
-    private var preViewHeight = facePreviewHeight
 
     //记录每个位置状态
     private val currentPersonState =
@@ -192,6 +191,33 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
     }
 
+    fun loadPerson(data: ArrayList<MeetGroupDetailsEntity>?) {
+        if (data.isNullOrEmpty() || getSportModel() != SportModel.MEETING) return
+        data.forEachIndexed { index, meetGroupDetailsEntity ->
+            //给accountInfo赋值，用来获取存储视频的地址
+            val accountInfo = AccountInfo().apply {
+                studentEntity = StudentEntity().apply {
+                    accountId = meetGroupDetailsEntity.accountId
+                    accountName = meetGroupDetailsEntity.accountName
+                    userFaceImgUrl =
+                        AdlService.getService().facePrefix + meetGroupDetailsEntity.accountAvatar
+                }
+            }
+            if (accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
+                accountInfoLD.postValue(accountInfo)
+            }
+            skipPersonArray.put(
+                index,
+                MultiSportResult(accountInfo, index, meetGroup = meetGroupDetailsEntity)
+            )
+            identified(index, accountInfo)
+            changeMultiIdentityCardState(
+                index,
+                MultiSportCardViewState.PREPARED
+            )
+        }
+    }
+
     @Synchronized
     private fun processCallback(groupSkippingManList: MutableList<GroupSportBaseMan>) {
         //处理卡片和人的状态
@@ -238,25 +264,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         multiSportProcessor.setParser(multiSportParser)
         multiSportProcessor.setCallback(object : MultiSportCallbackImpl() {
             override fun onResult(result: com.adl.sport.general.multi.MultiSportResult) {
-                /*var listMan: MutableList<GroupSportBaseMan> = when {
-                    o is GroupSkippingRemixParser -> {
-                        o.groupSkippingManRemixList as MutableList<GroupSportBaseMan>
-                    }
-
-                    o is GroupJumpingJackParser -> {
-                        o.jumpingJackManList as MutableList<GroupSportBaseMan>
-                    }
-
-                    o is GroupSquatParser -> {
-                        o.groupSquatManList as MutableList<GroupSportBaseMan>
-                    }
-
-                    o is GroupSkippingLRemixParser -> {
-                        o.groupSkippingManLRemixList as MutableList<GroupSportBaseMan>
-                    }
-
-                    else -> mutableListOf()
-                }*/
                 processCallback(result.groupManList)
             }
 
@@ -284,17 +291,16 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             )
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
-        ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
-            .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-                ip,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-                account,
-                psw
-            ).setStreamType(0).build() as NsCameraHKSource
+        ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
+            ip,
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
+            account,
+            psw
+        ).setStreamType(0).build() as NsCameraHKSource
     }
 
     /**
-     * 切回分辨率
+     * 切分辨率
      */
     private fun changeResolution() {
         val ip =
@@ -313,13 +319,12 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             )
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
-        ipcHik = hikSubConfig.setPreviewSize(preViewWidth, preViewHeight)
-            .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-                ip,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-                account,
-                psw
-            ).setStreamType(0).build() as NsCameraHKSource
+        ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
+            ip,
+            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
+            account,
+            psw
+        ).setStreamType(0).build() as NsCameraHKSource
     }
 
     /**
@@ -333,6 +338,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     }
 
     open fun initFaceIdentify() {
+        //目前只有常规模式，才需要人脸识别，运动会模式不需要
+        if (getSportModel() != SportModel.NORMAL) return
         /**
          * 人脸识别回调
          */
@@ -429,8 +436,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 //处理结果加锁，post到主线程执行时，子线程可能会改变currentIdentifyNumber的值，或其他状态
                 skipRoseState = MultiSportState.PREPARING
                 //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
-                if (!accountInfo.studentEntity!!.accountId.equals(BusiBaseConstantsValue.VISITOR_USER_ID)) {
-                    for (index in 0 until skipPersonArray.size()) {
+                if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
+                    for (index in 0 until skipPersonArray.size) {
                         val multiResult = skipPersonArray.valueAt(index)
                         //已识别过此人
                         if (multiResult.accountInfo.studentEntity!!.accountId == accountInfo.studentEntity?.accountId) {
@@ -499,6 +506,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
     }
 
+    @Synchronized
     private fun resetIdentifyNumber() {
         LogUtil.d("重置识别编号为-1")
         currentIdentifyNumber = -1
@@ -610,6 +618,21 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 }
 
                 GroupSportsBaseChannelStatus.checkDown -> {
+                    if (getSportModel() == SportModel.MEETING) {
+                        //进入区域
+                        if (skipRoseState != MultiSportState.SPORTING && skipRoseState != MultiSportState.COUNTDOWN && skipRoseState != MultiSportState.IDLE) {
+                            val person = skipPersonArray.get(skipMan.positionNum)
+                            if (person != null && !person.hasVoice) {
+                                person.hasVoice = true
+                                SpeechWrapper.speech("${person.accountInfo.studentEntity?.accountName}已就位")
+                                identified(person.number, person.accountInfo)
+                                changeMultiIdentityCardState(
+                                    person.number,
+                                    MultiSportCardViewState.PREPARED
+                                )
+                            }
+                        }
+                    }
                     //进入区域
                     if (currentState == GroupSportsBaseChannelStatus.none && skipRoseState == MultiSportState.SPORTING && roseMultiResult != null) {
                         currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
@@ -629,6 +652,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     @Synchronized
     private fun handleIdentify(skipRopeManList: MutableList<GroupSportBaseMan>) {
+        //目前只有常规模式才需要识别人脸，运动会模式不需要
+        if (getSportModel() != SportModel.NORMAL) return
+
         //如果为识别状态
         if (skipRoseState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
@@ -715,6 +741,14 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
         multiIdentityEngine.closeMachine()
+        //处理开始后摄像头分辨率
+        handleStartCameraResolution()
+    }
+
+    /**
+     * 处理开始后的摄像头分辨率
+     */
+    private fun handleStartCameraResolution() {
         viewModelScope.launch(Dispatchers.IO) {
             /********************切换分辨率********************/
             ipcHik.pauseProcessor()
@@ -722,7 +756,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             SystemClock.sleep(100)
             stopPreviewLD.postValue(true)
             SystemClock.sleep(100)
-            changeResolution()
             ipcHik.restartProcessor()
             startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
             SystemClock.sleep(200)
@@ -735,6 +768,12 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         uiHandler.post {
             LogUtil.d("changeMultiIdentityCardState: index $index state ${state.name}")
             changeSportViewStateLD.value = Pair(index, state)
+        }
+    }
+
+    private fun identified(index: Int, accountInfo: AccountInfo) {
+        uiHandler.post {
+            identifiedLD.value = Pair(index, accountInfo)
         }
     }
 
@@ -757,7 +796,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             }
 
             override fun onLoginSucceed() {
-                setResolution(ipcHik, getIdentifyResolution(), 14)
+                setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
                 SystemClock.sleep(100)
                 cameraLoginStateLD.postValue(true)
                 startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
@@ -813,7 +852,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         sportingCountDownTimer?.start()
         multiSportParser.checkSkipScore = true
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until skipPersonArray.size()) {
+        for (index in 0 until skipPersonArray.size) {
             val multiResult = skipPersonArray.valueAt(index)
             currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
         }
@@ -842,10 +881,19 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      */
     fun toDone() {
         toStatusSportEnd()
-        skipRoseState = MultiSportState.IDLE
-        multiSportProcessor.changeTo(SportProcessorStatus.Idle)
-        multiSportParser.checkChannelStatus = false
-        multiSportParser.checkSkipScore = false
+        //java.lang.NullPointerException: Attempt to invoke virtual method 'void com.adl.mount.core.TsTaskNormalCenter.reset()' on a null object reference
+        //	at com.adl.sport.general.multi.MultiSportImplTs.reset(MultiSportImplTs.java:117)
+        //	at com.adl.sport.general.multi.MultiSportProcessor.changeTo(MultiSportProcessor.java:250)
+        //	at com.ty.bus.multi.core.base.BaseIPCMultiSportViewModel.toDone(BaseIPCMultiSportViewModel.kt:846)
+        //有崩溃，补货异常
+        try {
+            skipRoseState = MultiSportState.IDLE
+            multiSportProcessor.changeTo(SportProcessorStatus.Idle)
+            multiSportParser.checkChannelStatus = false
+            multiSportParser.checkSkipScore = false
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     /**
@@ -865,7 +913,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      * 处理成绩，处理名次，成绩结果页显示，成绩上传
      */
     private fun handleResult(skipPersonArray: SparseArray<MultiSportResult>) {
-        if (sportInfo == null || skipPersonArray.size() == 0) {
+        if (sportInfo == null || skipPersonArray.isEmpty()) {
             return
         }
         val resultList = mutableListOf<MultiSportResult>()
@@ -1024,6 +1072,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     open fun getSportResolution(): Byte = 27
 
     open fun getCameraSize(): Pair<Int, Int> = 1920 to 1080
+
+    //获取运动模式
+    open fun getSportModel(): SportModel = SportModel.NORMAL
+
+    open fun getInitCameraFrameRate(): Byte = if (getSportModel() == SportModel.NORMAL) 14 else 17
 
     open fun getIdentityRect(
         it: TsSportChannel?,

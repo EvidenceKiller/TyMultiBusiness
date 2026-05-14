@@ -61,6 +61,10 @@ class TenSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         mBinding.tvStartNow.visibility = GONE
     }
 
+    fun visibilityStartBtn(visibility: Int){
+        mBinding.tvStartNow.visibility = visibility
+    }
+
     override fun onStarted() {
         super.onStarted()
         mBinding.llTime.visibility = VISIBLE

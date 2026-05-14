@@ -76,17 +76,6 @@
         app:layout_constraintTop_toTopOf="@+id/iv_header" />
 
 
-    <TextView
-        android:id="@+id/tv_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/dp_40"
-        android:textColor="@color/white"
-        android:textSize="@dimen/sp_40"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toRightOf="@+id/iv_header"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="王强" />
 
     <include
         android:id="@+id/layout_energy"
@@ -98,6 +87,18 @@
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginStart="@dimen/dp_48"
         app:layout_constraintStart_toStartOf="@+id/iv_header" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="王强" />
 
     <TextView
         android:id="@+id/tv_visitor_number"

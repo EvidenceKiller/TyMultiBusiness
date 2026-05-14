@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import com.adl.base.speech.AdlTextSpeaker
 import com.adl.service.entity.FaceDataEntity
+import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
@@ -23,6 +24,7 @@ import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
+import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
@@ -104,8 +106,19 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     .setVoiceBroadcastSupported(true)
                     .setSupportNextGroup(false)
                     .setSupportReport(true)
+                    .setSportModel(SportModel.MEETING)
                     .build()
-            )
+            ){
+                val list = arrayListOf<MeetGroupDetailsEntity>()
+                for (index in 1..10){
+                    list.add(MeetGroupDetailsEntity().apply {
+                        accountName = "张$index"
+                        accountId = "123456$index"
+                        accountAvatar = "V2/busi/userFaceImgUrl/2025-12-11/1765450309969_7c033eb3.png"
+                    })
+                }
+                it.putExtra("student_list", list)
+            }
         }
 
         mBinding.btnTenOpenClose.setOnClickListener {

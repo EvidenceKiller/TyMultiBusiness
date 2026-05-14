@@ -25,6 +25,8 @@ import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.base.BaseNavigation
 import com.ty.tybusbase.config.UINavConfig
+import com.ty.tybusbase.expand.Action
+import com.ty.tybusbase.expand.Action1
 
 /**
  * ProjectName: TylMultiBusiness
@@ -37,10 +39,12 @@ object UIMultiNavigation : BaseNavigation() {
     fun goTenSport(
         context: Context,
         config: UINavConfig?,
-        sportConfig: TenSportConfig? = null
+        sportConfig: TenSportConfig? = null,
+        preCallback: Action1<Intent>? = null
     ) {
         val intent = Intent(context, TenSportActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
         startActivity(context, intent, config)
     }
 
