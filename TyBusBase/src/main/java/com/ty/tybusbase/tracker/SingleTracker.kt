@@ -17,6 +17,7 @@ open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTrack
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_1230),
 //        ContextUtil.getContext()!!.resources.getDimensionPixelOffset(R.dimen.dp_1000)
 //    )
+    private var enableDynamicId = true
     protected var sportStatus = SportStatusEnum.IDENTIFY_FACE
     private var initCenterBottom = PointF(
         ApplicationUtil.getContext().resources.getDimensionPixelOffset(R.dimen.dp_960).toFloat(),
@@ -43,8 +44,16 @@ open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTrack
                 it.bottom().toFloat()
             )
             if (distance < min) {
+                val smoothFlag = if (lastBody == null) 0 else 1
                 min = distance
                 lastBody = it
+                if (enableSmooth) {
+                    lastBody.smoothId = getPersonId()
+                    lastBody.smoothFlag = smoothFlag
+                } else {
+                    lastBody.smoothId = -1
+                    lastBody.smoothFlag = -1
+                }
             }
         }
         if (sportStatus == SportStatusEnum.SPORT_START) {
@@ -77,9 +86,18 @@ open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTrack
     /**
      * 设置初始化框框的中心点
      */
-    fun setInitPointF(x:Float, y:Float) {
+    fun setInitPointF(x: Float, y: Float) {
         preCenterBottom.x = x
         preCenterBottom.y = y
+    }
+
+    override fun setEnableDynamicId(enable: Boolean): TsBodyTracker? {
+        enableDynamicId = enable
+        return super.setEnableDynamicId(enable)
+    }
+
+    private fun getPersonId(): Int {
+        return if (this.enableDynamicId) ++this.personId else this.personId
     }
 }
 
