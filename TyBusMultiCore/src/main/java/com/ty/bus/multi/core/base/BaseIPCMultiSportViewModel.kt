@@ -82,6 +82,7 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 import androidx.core.util.isEmpty
 import com.adl.service.entity.MeetGroupDetailsEntity
+import com.adl.service.entity.SportRecordEntity.RecordMeeting
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 
@@ -1031,12 +1032,27 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         ptStandardId = this@BaseIPCMultiSportViewModel.ptStandardId
                     }
                 }
+                var sportMeet: RecordMeeting? = null
+                recordMeet?.let {
+                    sportMeet = RecordMeeting().apply {
+                        meetId = recordMeet?.meetId
+                        meetGroupType = recordMeet?.meetGroupType
+                        meetSportSkuId = recordMeet?.meetSportSkuId
+                        meetRound = recordMeet?.meetRound
+                        teamUnitCode = recordMeet?.teamUnitCode
+                        meetTeamNo = recordMeet?.meetTeamNo
+                        meetNumberCode = multiResult.meetGroup?.numberCode
+                        meetRunwayCode = multiResult.meetGroup?.runwayCode
+                        serialNumber = multiResult.meetGroup?.serialCode
+                    }
+                }
                 uploadSportResult(
                     sceneId ?: SceneConstants.PK,
                     sportResult,
                     sportResult.userId,
                     indicatorList = indicatorsList,
-                    recordPlan = recordPlan
+                    recordPlan = recordPlan,
+                    recordMeeting = sportMeet,
                 )
             }
         }

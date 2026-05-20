@@ -2,6 +2,7 @@ package com.ty.bus.multi.core.base
 
 import androidx.viewbinding.ViewBinding
 import com.adl.service.entity.SceneSportInfoEntity
+import com.adl.service.entity.SportRecordEntity
 import com.ty.bus.multi.R
 import com.ty.tybusbase.base.BaseExitActivity
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -26,6 +27,8 @@ abstract class BaseMultiSportActivity<VB : ViewBinding, VM : BaseMultiSportViewM
 
     override fun initData() {
         viewModel.sportInfo = intent.getSerializableExtra("sport_info") as? SceneSportInfoEntity
+        viewModel.recordMeet =
+            intent.getSerializableExtra("record_meet") as? SportRecordEntity.RecordMeeting
         viewModel.matchId = intent.getStringExtra("match_id")
         viewModel.sceneId = intent.getStringExtra("scene_id")
         viewModel.energyPoint = intent.getIntExtra("energy_point", 0)

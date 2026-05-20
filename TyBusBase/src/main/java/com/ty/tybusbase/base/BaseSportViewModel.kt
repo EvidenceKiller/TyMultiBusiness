@@ -56,7 +56,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     val accountInfoLD: BaseLiveData<AccountInfo> = BaseLiveData()
     val dictMapLD = BaseLiveData<MutableList<DictExcelEntity>>()
     val remindLD = MutableLiveData<Int>()
-    var sportInfo: SceneSportInfoEntity? = null
+    var sportInfo: SceneSportInfoEntity? = null //运动详情数据结构
+    var recordMeet: RecordMeeting? = null //运动会数据结构
     var sceneId: String? = null
     var matchId: String? = null
     var ptPlanId: String? = null
