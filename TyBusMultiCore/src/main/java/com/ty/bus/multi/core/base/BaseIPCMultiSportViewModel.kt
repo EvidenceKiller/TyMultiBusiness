@@ -111,6 +111,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         ConcurrentHashMap<Int, IndicatorsResultDto>()
     }
 
+    //随堂赛的组号
+    var personIndex = 0
+
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
 
     private var skipManCount = 0 //几人跳绳
@@ -944,8 +947,12 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      */
     private fun handleUploadResult(resultList: MutableList<MultiSportResult>) {
         GlobalScope.launch(Dispatchers.IO) {
+            val multiId = if (personIndex > 0) {
+                "${resultList[0].meetGroup?.classId}${personIndex}"
+            } else {
+                System.currentTimeMillis().toString()
+            }
             SystemClock.sleep(1500)
-            val multiId = System.currentTimeMillis().toString()
             for (index in resultList.indices) {
                 var multiResult = resultList[index]
                 var sportResult = SportResult()
@@ -962,6 +969,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.startTime = startTime
                 sportResult.endTime = endTime
                 sportResult.rank = multiResult.rank
+                sportResult.multiPersonIndex = personIndex
                 sportResult.multiPersonId = multiId
                 sportResult.sportResult = multiResult.count.toString()
                 sportResult.videoCover = videoCover

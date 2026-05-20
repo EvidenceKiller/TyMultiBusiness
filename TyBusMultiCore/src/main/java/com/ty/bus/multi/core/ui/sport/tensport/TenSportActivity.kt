@@ -53,6 +53,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         super.initData()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
+        viewModel.personIndex = intent.getIntExtra("person_index", 0)
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tenSportConfig = intent.getSerializableExtra("sport_config") as? TenSportConfig
