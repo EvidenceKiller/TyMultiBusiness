@@ -66,8 +66,8 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     private var identifyListener: DoubleIdentifyMachineListener? = null
 
-    private lateinit var sportLifecycleDouble: TsSportLifecycle<*>
-    private lateinit var processorDouble: SportProcessorDouble
+    lateinit var sportLifecycleDouble: TsSportLifecycle<*>
+    lateinit var processorDouble: SportProcessorDouble
     private val executor = Executors.newSingleThreadExecutor()
 
     @Volatile
@@ -278,7 +278,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
         }.start()
     }
 
-    private fun initRegion() {
+    open fun initRegion() {
         val list: List<Quadrilateral> = mBaseBinding.overlay.displayRegion
         if (list.size == 2) {
             val lq = list[0]
@@ -318,6 +318,10 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
         }
     }
+
+    fun getOverlay() = mBaseBinding.overlay
+
+    fun getCameraView() = mBaseBinding.cameraView
 
     fun initFaceRec() {
         //初始化人脸识别
