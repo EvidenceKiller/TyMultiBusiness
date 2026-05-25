@@ -12,6 +12,7 @@ import com.adl.sport.general.EuExerciseFileGroup
 import com.adl.sport.general.pullup.PullUpPrescription
 import com.adl.sport.general.ropeskip.EuRopeSkipExercisePrescription
 import com.adl.sport.general.situp.SitUpPrescription
+import com.adl.sport.standard.ExercisePrescription
 import com.ty.tybusbase.entity.IndicatorSportStartTimeInvalid
 import com.ty.tybusbase.entity.IndicatorSportTimeInvalid
 import com.alibaba.fastjson.JSON
@@ -123,6 +124,248 @@ object IndicatorsHelper {
             val list = mutableListOf<IndicatorXY<Float>>()
             pres.trackPointArr?.forEach {
                 list.add(getOffset(it, sportRect))
+            }
+            this.indicatorsValue = list
+        })
+        indicatorsList.add(SportIndicatorsEntity<Float, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_UPPER_ARM_ANGLE_RATE
+            this.indicatorsName = "摇绳大臂夹角合格率"
+            this.indicatorsUnit = "%"
+            this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingSwingPosture).toFloat()
+            this.indicatorsImages = mutableListOf()
+            if (pres.jumpingSwingPosture < hgl) {
+                pres.jumpingSwingPostureIconWorst?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "典型错误",
+                            "0"
+                        )
+                    )
+                }
+            } else {
+                pres.jumpingSwingPostureIconBest?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "运动风采",
+                            "0"
+                        )
+                    )
+                }
+            }
+        })
+        indicatorsList.add(SportIndicatorsEntity<Float, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_FOREARM_ANGLE_RATE
+            this.indicatorsName = "摇绳小臂夹角合格率"
+            this.indicatorsUnit = "%"
+            this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingHLShoulder).toFloat()
+            this.indicatorsImages = mutableListOf()
+            if (pres.jumpingHLShoulder < hgl) {
+                pres.jumpingHLShoulderIconWorst?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "典型错误",
+                            "0"
+                        )
+                    )
+                }
+            } else {
+                pres.jumpingHLShoulderIconBest?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "运动风采",
+                            "0"
+                        )
+                    )
+                }
+            }
+
+        })
+        indicatorsList.add(SportIndicatorsEntity<WristRate, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_WRIST_RATE
+            this.indicatorsName = "摇绳手腕对称性合格率"
+            this.indicatorsUnit = "%"
+            this.indicatorsValue =
+                WristRate(
+                    NumberUtil.formatHalfUp(pres.jumpingHLShoulder).toFloat(),
+                    if (pres.jumpingHLShoulder < 85) pres.jumpingHLShoulderLevel else "0"
+                )
+            this.indicatorsImages = mutableListOf()
+            if (pres.jumpingHLShoulder < hgl) {
+                pres.jumpingHLShoulderIconWorst?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "典型错误",
+                            "0"
+                        )
+                    )
+                }
+            } else {
+                pres.jumpingHLShoulderIconBest?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "运动风采",
+                            "0"
+                        )
+                    )
+                }
+            }
+
+        })
+        indicatorsList.add(SportIndicatorsEntity<Float, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_JUMP_HIGH_RATE
+            this.indicatorsName = "起跳高度合格率"
+            this.indicatorsUnit = "%"
+            this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingHeight).toFloat()
+            this.indicatorsImages = mutableListOf()
+            pres.jumpingHeightIcon?.let {
+                this.indicatorsImages.add(
+                    SportImageEntity(
+                        it.absolutePath,
+                        "",
+                        if (pres.jumpingHeight < hgl) "典型错误" else "运动风采",
+                        "0"
+                    )
+                )
+            }
+        })
+        indicatorsList.add(SportIndicatorsEntity<Float, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_FOOT_SPACE_RATE
+            this.indicatorsName = "双脚间距合格率"
+            this.indicatorsUnit = "%"
+            this.indicatorsValue = NumberUtil.formatHalfUp(pres.jumpingAnkleWidth).toFloat()
+            this.indicatorsImages = mutableListOf()
+            if (pres.jumpingAnkleWidth < hgl) {
+                pres.jumpingAnkleWidthIconWorst?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "典型错误",
+                            "0"
+                        )
+                    )
+                }
+            } else {
+                pres.jumpingAnkleWidthIconBest?.let {
+                    this.indicatorsImages.add(
+                        SportImageEntity(
+                            it.absolutePath,
+                            "",
+                            "运动风采",
+                            "0"
+                        )
+                    )
+                }
+            }
+        })
+        return indicatorsList
+    }
+
+    fun getSkipIndicatorsList(
+        pres: ExercisePrescription?,
+        startSportTime: Long,
+        endSportTime: Long,
+        sportRect: Rect?
+    ): MutableList<SportIndicatorsEntity<*, *>>? {
+        if (pres == null || pres.totalCount == 0) return null
+        val indicatorsList = mutableListOf<SportIndicatorsEntity<*, *>>()
+        indicatorsList.add(SportIndicatorsEntity<List<Float>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_SINGLE_TIME_DISTRIBUTION
+            this.indicatorsName = "运动单个时间分布"
+            val list = mutableListOf<Float>()
+            pres.scoreTimeList?.forEach {
+                list.add(NumberUtil.formatHalfUp((it - startSportTime) / 1000f).toFloat())
+            }
+            this.indicatorsValue = list
+        })
+        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_VALID_COUNT
+            this.indicatorsName = "有效个数"
+            this.indicatorsValue = pres.totalCount
+        })
+        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_VIOLATION_COUNT
+            this.indicatorsName = "违规个数"
+            val list = mutableListOf<Float>()
+            pres.scoreTimeList?.forEach {
+                list.add(NumberUtil.formatHalfUp((it - startSportTime) / 1000f).toFloat())
+            }
+            this.indicatorsValue = (list.size - pres.totalCount).coerceAtLeast(0)
+        })
+        indicatorsList.add(SportIndicatorsEntity<List<IndicatorXY<Float>>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_SPEED_TIME_DISTRIBUTION
+            this.indicatorsName = "速度时间分布"
+            val list = mutableListOf<IndicatorXY<Float>>()
+            var time = 0
+            pres.speedArr?.forEach {
+                time += 3
+                list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
+            }
+
+            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat().roundToInt()
+            //补齐时间线
+            while (time < sportTime) {
+                time += 3
+                if (time > sportTime) {
+                    time = sportTime.toInt()
+                }
+                list.add(IndicatorXY(time.toFloat(), 0f))
+            }
+            //有多一个的情况，一般只多一个，如果多了，清除最后一个
+            val count = NumberUtil.formatHalfUp(sportTime / 3f).toFloat().roundToInt()
+
+            var size = list.size
+            while(size > count){
+                list.removeAt(list.lastIndex)
+                size--
+            }
+            this.indicatorsValue = list
+        })
+        indicatorsList.add(SportIndicatorsEntity<List<IndicatorInterrupt>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_INTERRUPT_TIME_DISTRIBUTION
+            this.indicatorsName = "中断时间区域分布"
+            val list = mutableListOf<IndicatorInterrupt>()
+            pres.interruptList?.forEach {
+                list.add(
+                    IndicatorInterrupt(
+                        NumberUtil.formatHalfUp((it.startTime - startSportTime) / 1000f).toFloat(),
+                        NumberUtil.formatHalfUp((it.endTime - startSportTime) / 1000f).toFloat()
+                    )
+                )
+            }
+            this.indicatorsValue = list
+        })
+        indicatorsList.add(SportIndicatorsEntity<Float, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_TOTAL_TIME
+            this.indicatorsName = "总时长"
+            this.indicatorsUnit = "s"
+            this.indicatorsValue =
+                NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat()
+        })
+        indicatorsList.add(SportIndicatorsEntity<Int, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_MAST_COMBO_COUNT
+            this.indicatorsName = "最大连击数"
+            this.indicatorsUnit = "g"
+            this.indicatorsValue = pres.comboCountBest
+        })
+        indicatorsList.add(SportIndicatorsEntity<List<IndicatorXY<Float>>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.SKIP_POSITION_OFFSET
+            this.indicatorsName = "位置偏移"
+            val list = mutableListOf<IndicatorXY<Float>>()
+            pres.trackPointArr?.forEach {
+                list.add(getOffset(Point(it.x, it.y), sportRect))
             }
             this.indicatorsValue = list
         })
