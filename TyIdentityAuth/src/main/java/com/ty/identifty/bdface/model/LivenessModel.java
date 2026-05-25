@@ -6,6 +6,7 @@ package com.ty.identifty.bdface.model;
 
 import com.baidu.idl.main.facesdk.FaceInfo;
 import com.baidu.idl.main.facesdk.model.BDFaceImageInstance;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceFeature;
 
 public class LivenessModel {
@@ -25,6 +26,8 @@ public class LivenessModel {
     private byte[] feature;
     private int trackStatus;
     private String key;
+    private FailType failType;
+    private String msg;
 
     private boolean isRGBLiveStatus;
     private boolean isNIRLiveStatus;
@@ -284,6 +287,22 @@ public class LivenessModel {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    public FailType getFailType() {
+        return failType;
+    }
+
+    public void setFailType(FailType failType) {
+        this.failType = failType;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 }
 

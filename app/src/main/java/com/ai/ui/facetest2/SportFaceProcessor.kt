@@ -4,6 +4,7 @@ import android.graphics.Rect
 import com.adl.base.bean.ViewTransform
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.StudentEntity
+import com.ty.identifty.base.FailType
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
@@ -113,7 +114,7 @@ class SportFaceProcessor : SportCameraYuv("人脸识别"), SportLifecycle {
                 LogUtil.d("识别学生：${user?.accountName}")
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?) {
+            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
             }
 
         })

@@ -14,6 +14,7 @@ import com.baidu.idl.main.facesdk.model.BDFaceInstance;
 import com.baidu.idl.main.facesdk.model.BDFaceSDKCommon;
 import com.baidu.idl.main.facesdk.model.BDFaceSDKConfig;
 import com.baidu.idl.main.facesdk.model.Feature;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceFeature;
 import com.ty.identifty.base.TyFaceLogger;
 import com.ty.identifty.bdface.model.GlobalSet;
@@ -279,16 +280,18 @@ public class FaceSDKManager {
                                         float threholdScore,
                                         final FaceDetectCallBack faceDetectCallBack) {
 
+        LivenessModel livenessModel = new LivenessModel();
         // 模型加载
         if (!initModelSuccess) {
             TyFaceLogger.e("模型没有初始化");
-            return null;
+            livenessModel.setFailType(FailType.NOT_INIT);
+            livenessModel.setMsg("模型没有初始化");
+            return livenessModel;
         }
 
         long startTime = System.currentTimeMillis();
 
         // 创建检测结果存储数据
-        LivenessModel livenessModel = new LivenessModel();
         livenessModel.setKey(key);
 
         LivenessModel result = null;
@@ -330,6 +333,9 @@ public class FaceSDKManager {
                 faceDetectCallBack.onFaceDetectDrawCallback(null);
                 faceDetectCallBack.onTip(0, "未检测到人脸");
             }
+            livenessModel.setFailType(FailType.NO_FACE);
+            livenessModel.setMsg("未检测到人脸");
+            result = livenessModel;
         }
 
         return result;
@@ -427,7 +433,7 @@ public class FaceSDKManager {
                                         BDFaceSDKCommon.FeatureType type) {
 
         // 如果提取特征+检索，调用search 方法
-        if (featureSize == GlobalSet.FEATURE_SIZE / 4) {
+        if (featureSize == GlobalSet.FEATURE_SIZE / 4f) {
 
             // 特征提取成功
             // TODO 阈值可以根据不同模型调整
@@ -435,9 +441,12 @@ public class FaceSDKManager {
             ArrayList<Feature> featureResult =
                     FaceSDKManager.getInstance().getFaceFeature().featureSearch(feature,
                             type, 1, true);
+            if (featureResult == null || featureResult.isEmpty()){
+                livenessModel.setFailType(FailType.NO_SEARCH);
+            }
 
             // TODO 返回top num = 1 个数据集合，此处可以任意设置，会返回比对从大到小排序的num 个数据集合
-            if (featureResult != null && featureResult.size() > 0) {
+            if (featureResult != null && !featureResult.isEmpty()) {
 
                 // 获取第一个数据
                 Feature topFeature = featureResult.get(0);
@@ -470,6 +479,8 @@ public class FaceSDKManager {
             }
 
             livenessModel.setCheckDuration(System.currentTimeMillis() - startFeature);
+        }else{
+            livenessModel.setFailType(FailType.NO_FEATURE);
         }
 
         return livenessModel;

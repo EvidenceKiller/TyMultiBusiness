@@ -9,6 +9,7 @@ import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.demo.databinding.ActivityPicFaceTestBinding
 import com.ty.bus.multi.demo.databinding.ItemFileInfoBinding
+import com.ty.identifty.base.FailType
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.identifty.stface.SaveBitmapUtil
 import com.ty.tybusbase.base.BaseActivity
@@ -17,6 +18,7 @@ import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
 import java.io.File
 import java.util.concurrent.ExecutorService
@@ -53,7 +55,8 @@ class PicFaceTestActivity : BaseActivity<ActivityPicFaceTestBinding, BaseViewMod
                 }
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?) {
+            override fun onFindFail(info: TyFaceInfo<*>?,type: FailType) {
+                LogUtil.d("onFindFail: ${info?.faceIconData?.size} --type: ${type.name}")
             }
 
         })
@@ -84,7 +87,8 @@ class PicFaceTestActivity : BaseActivity<ActivityPicFaceTestBinding, BaseViewMod
     }
 
     private var picPath = "/sdcard/zy.sport.cache/resCollect"
-    private var bitmapDic = "/sdcard/zy.sport.cache/resCollect/pic_1.jpg"
+//    private var bitmapDic = "/sdcard/zy.sport.cache/resCollect/pic_1.jpg"
+    private var bitmapDic = "/sdcard/zy.sport.cache/pic/2026-04-07/2026-04-07_19-25-12_1987760563068407808_小海_0.7567313.jpg"
 
     private var identifyRunning = false
 

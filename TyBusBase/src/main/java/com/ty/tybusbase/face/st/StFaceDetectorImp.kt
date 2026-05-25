@@ -10,6 +10,7 @@ import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
 import com.alibaba.fastjson.JSON
 import com.sensetime.sdk.video.module.sdk.common.StVerifyResult
+import com.ty.identifty.base.FailType
 import com.ty.identifty.base.TyLivingModel
 import com.ty.identifty.stface.BeforeSenseActiveCallBack
 import com.ty.identifty.stface.STFaceDetector
@@ -219,18 +220,30 @@ class StFaceDetectorImp : FaceDetectorInterface {
     ): TyLivingModel? {
         if (!isInitOk) {
             LogUtil.d("ERROR: 人脸未初始化")
-            return null
+            return TyLivingModel().apply {
+                failType = FailType.NOT_INIT
+                msg = "人脸未初始化"
+            }
         }
         if (yuv == null) {
             LogUtil.d("ERROR: yuv is null")
-            return null
+            return TyLivingModel().apply {
+                failType = FailType.DATA_ERROR
+                msg = "yuv is null"
+            }
         }
         // 检测裁剪矩形
         if (rectF == null || (rectF.left < 0 || rectF.top < 0 || rectF.right > width || rectF.bottom > height)) {
             LogUtil.d("ERROR : 人脸裁剪区域错误")
-            return null
+            return TyLivingModel().apply {
+                failType = FailType.AREA_ERROR
+                msg = "人脸裁剪区域错误"
+            }
         }
-        if (isIsDetecting) return null
+        if (isIsDetecting) return TyLivingModel().apply {
+            failType = FailType.DETECTING
+            msg = "人脸正在检测中..."
+        }
         isIsDetecting = true
         LogUtil.d("商汤开始检测人脸")
         //裁剪区矫正,rect太小会导致人脸识别程序崩溃
@@ -246,7 +259,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
         }
         val startDetectFace = System.currentTimeMillis()
         var bytes = yuv
-        var jfLivingModel: TyLivingModel? = null
+        var tyLivingModel: TyLivingModel? = null
         try {
             var targetW = width
             var targetH = height
@@ -258,9 +271,12 @@ class StFaceDetectorImp : FaceDetectorInterface {
 
             if (bytes == null) {
                 LogUtil.d("警告： 人脸数据为null")
-                return null
+                return TyLivingModel().apply {
+                    failType = FailType.DATA_ERROR
+                    msg = "裁剪出的数据为空"
+                }
             }
-            jfLivingModel =
+            tyLivingModel =
                 faceDetector!!.detectByYuv(
                     key,
                     bytes,
@@ -273,12 +289,16 @@ class StFaceDetectorImp : FaceDetectorInterface {
         } catch (e: Exception) {
             e.printStackTrace()
             LogUtil.e("人脸识别异常：" + e.message)
+            tyLivingModel = TyLivingModel().apply {
+                failType = FailType.EXCEPTION
+                msg = e.message
+            }
         } finally {
             isIsDetecting = false
             val endDetect = System.currentTimeMillis()
             LogUtil.d("商汤结束人脸检测，人脸识别耗时:" + (endDetect - startDetectFace))
         }
-        return jfLivingModel
+        return tyLivingModel
     }
 
     override fun release() {

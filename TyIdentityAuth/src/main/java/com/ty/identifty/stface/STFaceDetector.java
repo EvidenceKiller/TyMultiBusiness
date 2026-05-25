@@ -19,6 +19,7 @@ import com.sensetime.sdk.video.module.sdk.common.StRect;
 import com.sensetime.sdk.video.module.sdk.common.StTrackInfo;
 import com.sensetime.sdk.video.module.sdk.common.StTrackResult;
 import com.sensetime.sdk.video.module.sdk.common.StVerifyResult;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceCallback;
 import com.ty.identifty.base.TyFaceDetector;
 import com.ty.identifty.base.TyFaceFeature;
@@ -244,7 +245,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
      */
     @Override
     public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height, RectF rectF, float scale, int featureCheckMode) {
-        if (!isInit) return errorReturn("初始化未完成");
+        if (!isInit) return errorReturn("初始化未完成", yuv, FailType.NOT_INIT);
         TyLivingModel jfFaceResult = null;
         //构建图片信息
         StImage stImage = createStImage(yuv, width, height, rectF);
@@ -252,7 +253,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         /*---------人脸检测----------*/
         int ret = mStDetect.sdkVideoDetectOne(stImage);
         StHelper.parseSdkErrorCode(ret, "检测");
-        if (ret != 0) return errorReturn("检测异常");
+        if (ret != 0) return errorReturn("检测异常", yuv, FailType.NO_FACE);
         //获取人脸检测的结果
         StTrackResult stDetectResult = mStDetect.getStDetectResult();
         //获取人员检测中的人脸信息
@@ -262,7 +263,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         ret = mStQuality.sdkVideoQualityDetect(stImage, detectInfo);
         StHelper.parseSdkErrorCode(ret, "质量");
         if (ret != 0) {
-            return errorReturn("质量检测异常");
+            return errorReturn("质量检测异常", yuv, FailType.NO_QUALITY);
         }
         //获取质量检测结果
         StQualityResult stQualityResult = mStQuality.getStQualityResult();
@@ -321,7 +322,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
 
         /**************************************************************/
         if (qualityInfos.isEmpty()) {
-            return errorReturn("质量角度检测异常");
+            return errorReturn("质量角度检测异常", yuv, FailType.NO_QUALITY);
         }
         int faceNum = qualityInfos.size();
 
@@ -351,10 +352,12 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         }
         //【2: 提取特征】，抽取特征值得方式->图片多张人脸时，直接报错;//退出了不继续,返回人脸位置}
         else if (featureCheckMode == 2) {
-            if (faceNum > 1) return errorReturn("特征抽取失败，图片中发现多个人脸");
+            if (faceNum > 1)
+                return errorReturn("特征抽取失败，图片中发现多个人脸", yuv, FailType.MORE_FACE);
             //提取特征值
             StVerifyResult stVerifyResult = getFeature(stImage, detectInfos.get(0), qualityInfos.get(0));
-            if (stVerifyResult == null) return errorReturn("特征提取异常");
+            if (stVerifyResult == null)
+                return errorReturn("特征提取异常", yuv, FailType.NO_FEATURE);
             jfFaceResult = new TyLivingModel();
             TyFaceInfo<float[]> jfFaceInfo = new TyFaceInfo();
             jfFaceInfo.setFeatureFloat(stVerifyResult.getVerifyFeature());
@@ -397,14 +400,20 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 onFaceInfo(jfFaceResult);
                 return jfFaceResult;
             }
-            return errorReturn("未查询到人员");
+            return errorReturn("未查询到人员", yuv, FailType.NO_SEARCH);
         }
     }
 
-    private TyLivingModel errorReturn(String errorMsg) {
+    private TyLivingModel errorReturn(String errorMsg, byte[] yuv, FailType failType) {
         StHelper.INSTANCE.e(errorMsg, true);
         onFaceFast(null);
-        return null;
+        TyLivingModel model = new TyLivingModel();
+        model.setFailType(failType);
+        TyFaceInfo faceInfo = new TyFaceInfo();
+        faceInfo.setFaceIconData(yuv);
+        model.setFaceInfo(faceInfo);
+        model.setMsg(errorMsg);
+        return model;
     }
 
     private StVerifyResult getFeature(StImage stImage, StTrackInfo stTrackInfo, StQualityInfo stQualityInfo) {

@@ -26,6 +26,7 @@ import com.adl.service.entity.TeacherEntity;
 import com.adl.service.outer.AdlService;
 import com.adl.service.outer.UserCaller;
 import com.adl.sport.general.EuHelper;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceInfo;
 import com.ty.nfc.reader.base.NfcType;
 import com.ty.nfc.reader.base.ReadCallback;
@@ -555,7 +556,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             }
 
             @Override
-            public void onFindFail(@Nullable TyFaceInfo<?> info) {
+            public void onFindFail(@Nullable TyFaceInfo<?> info, FailType failType) {
+                LogUtil.INSTANCE.d("onFindFail------->" + failType.name(), false);
             }
 
             @Override

@@ -7,6 +7,8 @@ import android.os.HandlerThread
 import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
+import com.ty.identifty.base.FailType
+import com.ty.identifty.base.TyLivingModel
 import com.ty.identifty.stface.SaveBitmapUtil
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.toEven
@@ -166,14 +168,18 @@ class FaceDetectorHelper private constructor() {
         isIsDetecting = true
         /***************************连续一次识别中，隔三帧检测一次*******************************/
         faceHandler?.post {
-            val livingModel = faceDetector?.detectFace(key, yuv, width, height, rectF, type)
+            val livingModel =
+                faceDetector?.detectFace(key, yuv, width, height, rectF, type) ?: TyLivingModel()
             val userId = faceDetector?.getUserId(livingModel)
-            savePic(yuv, width, height, rectF, userId, livingModel?.faceInfo?.score ?: 0f)
-            if (userId != null && verifyStrategy.verifyUser(
-                    userId,
-                    livingModel?.faceInfo?.score ?: 0f
-                )
-            ) {
+            savePic(yuv, width, height, rectF, userId, livingModel.faceInfo?.score ?: 0f)
+            if (userId == null && livingModel.failType == FailType.NONE) {
+                livingModel.failType = FailType.NO_SEARCH
+            }
+            val verify = verifyStrategy.verifyUser(
+                userId ?: "",
+                livingModel.faceInfo?.score ?: 0f
+            )
+            if (verify) {
                 LogUtil.d("识别到用户ID：$userId")
                 if (type == BusiBaseConstantsValue.FACE_DETECT_TYPE_STUDENT) {
                     val studentEntity = findUerStrategy.findStudent(userId)
@@ -181,7 +187,7 @@ class FaceDetectorHelper private constructor() {
                         mFaceCallback?.onFindStudent(studentEntity);
                         LogUtil.d("本地数据库中查询到学生：${studentEntity.accountName}")
                     } else {
-                        mFaceCallback?.onFindFail(livingModel?.faceInfo)
+                        mFaceCallback?.onFindFail(livingModel?.faceInfo, FailType.NO_MATCH)
                         LogUtil.d("本地数据库中未查询到学生：空")
                     }
                 } else {
@@ -191,11 +197,14 @@ class FaceDetectorHelper private constructor() {
                         LogUtil.d("本地数据库中查询到老师：${teacherEntity.accountName}")
                     } else {
                         LogUtil.d("本地数据库中未查询到老师：空");
-                        mFaceCallback?.onFindFail(livingModel?.faceInfo)
+                        mFaceCallback?.onFindFail(livingModel.faceInfo, FailType.NO_MATCH)
                     }
                 }
             } else {
-                mFaceCallback?.onFindFail(livingModel?.faceInfo)
+                if (livingModel.failType == FailType.NONE){
+                    livingModel.failType = FailType.NO_VERIFY
+                }
+                mFaceCallback?.onFindFail(livingModel.faceInfo,livingModel.failType)
             }
             isIsDetecting = false
         }

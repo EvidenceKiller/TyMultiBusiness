@@ -3,30 +3,23 @@ package com.ty.tybusbase.face.baidu
 import android.content.Context
 import android.graphics.RectF
 import android.os.SystemClock
-import android.system.StructCmsghdr
 import android.util.Base64
 import android.util.Log
 import com.adl.base.log.AdlLogger
-import com.adl.lib.AdlYUVUtil
 import com.adl.service.entity.StudentEntity
 import com.adl.service.entity.TeacherEntity
+import com.ty.identifty.base.FailType
 import com.ty.identifty.base.TyFaceAuthCallback
 import com.ty.identifty.base.TyFaceFeature
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.identifty.base.TyLivingModel
 import com.ty.identifty.bdface.BDFaceDetector
 import com.ty.identifty.bdface.BDFaceFactory
-import com.ty.identifty.stface.StContact
-import com.ty.identifty.stface.StHelper
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
-import com.ty.tybusbase.expand.toEven
 import com.ty.tybusbase.face.FaceDetectorInterface
-import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.pow
 import kotlin.text.isEmpty
 
@@ -146,18 +139,27 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
     ): TyLivingModel? {
         if (!isInitOk) {
             AdlLogger.d("ERROR: 人脸未初始化")
-            return null
+            return TyLivingModel().apply {
+                failType = FailType.NOT_INIT
+                msg = "人脸未初始化"
+            }
         }
         if (yuv == null) {
             AdlLogger.d("ERROR: yuv is null")
-            return null
+            return TyLivingModel().apply {
+                failType = FailType.DATA_ERROR
+                msg = "yuv is null"
+            }
         }
-        if (isIsDetecting) return null
+        if (isIsDetecting) return TyLivingModel().apply {
+            failType = FailType.DETECTING
+            msg = "人脸正在检测中..."
+        }
         isIsDetecting = true
         val startDetectFace = System.currentTimeMillis()
-        var jfLivingModel: TyLivingModel? = null
+        var tyLivingModel: TyLivingModel? = null
         try {
-            jfLivingModel =
+            tyLivingModel =
                 faceBdDetector?.detectByYuv(
                     key,
                     yuv,
@@ -169,12 +171,16 @@ class BaiduFaceDetectorImp : FaceDetectorInterface {
                 )
         } catch (e: Exception) {
             e.printStackTrace()
+            tyLivingModel = TyLivingModel().apply {
+                failType = FailType.EXCEPTION
+                msg = e.message
+            }
         } finally {
             isIsDetecting = false
             val endDetect = System.currentTimeMillis()
-            Log.d("BDFace","百度人脸识别耗时:" + (endDetect - startDetectFace))
+            Log.d("BDFace", "百度人脸识别耗时:" + (endDetect - startDetectFace))
         }
-        return jfLivingModel
+        return tyLivingModel
     }
 
     override fun release() {

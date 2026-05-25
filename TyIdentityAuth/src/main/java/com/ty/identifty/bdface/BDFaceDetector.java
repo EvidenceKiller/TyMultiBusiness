@@ -6,6 +6,7 @@ import android.graphics.RectF;
 
 import com.baidu.idl.main.facesdk.FaceInfo;
 import com.baidu.idl.main.facesdk.model.BDFaceImageInstance;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceCallback;
 import com.ty.identifty.base.TyFaceDetector;
 import com.ty.identifty.base.TyFaceFeature;
@@ -126,8 +127,26 @@ public final class BDFaceDetector extends TyFaceDetector<Object> {
     @Override
     public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height,
                                      RectF rectF, float scale, int featureCheckMode) {
-        if (yuv == null || width <= 0 || height <= 0
-                || mDetectCallBack == null || !FaceSDKManager.isOk()) return null;
+        if (yuv == null) {
+            TyLivingModel model = new TyLivingModel();
+            model.setFailType(FailType.DATA_ERROR);
+            model.setMsg("YUV数据为空");
+            return model;
+        }
+
+        if (width <= 0 || height <= 0) {
+            TyLivingModel model = new TyLivingModel();
+            model.setFailType(FailType.AREA_ERROR);
+            model.setMsg("裁剪区错误");
+            return model;
+        }
+
+        if (!FaceSDKManager.isOk()) {
+            TyLivingModel model = new TyLivingModel();
+            model.setFailType(FailType.NOT_INIT);
+            model.setMsg("未初始化");
+            return model;
+        }
 
         // 构建识别对象
         BDFaceImageInstance imageInstance = createFaceImageInstance(yuv, width, height, rectF, scale);
@@ -166,6 +185,8 @@ public final class BDFaceDetector extends TyFaceDetector<Object> {
             fi.setFaceHeight(faceImage.height);
         }
         livingModel.setFaceInfo(fi);
+        livingModel.setMsg(model.getMsg());
+        livingModel.setFailType(model.getFailType());
         return livingModel;
     }
 

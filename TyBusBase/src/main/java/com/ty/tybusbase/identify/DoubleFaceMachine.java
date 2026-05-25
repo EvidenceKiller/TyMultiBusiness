@@ -28,6 +28,7 @@ import com.adl.service.entity.StudentEntity;
 import com.adl.service.entity.TeacherEntity;
 import com.adl.service.outer.AdlService;
 import com.adl.service.outer.UserCaller;
+import com.ty.identifty.base.FailType;
 import com.ty.identifty.base.TyFaceInfo;
 import com.ty.nfc.reader.base.NfcType;
 import com.ty.nfc.reader.base.ReadCallback;
@@ -459,7 +460,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
             }
 
             @Override
-            public void onFindFail(@Nullable TyFaceInfo<?> tyFaceInfo) {
+            public void onFindFail(@Nullable TyFaceInfo<?> tyFaceInfo, FailType failType) {
             }
         });
     }
