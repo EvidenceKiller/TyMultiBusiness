@@ -17,6 +17,7 @@ import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettin
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
+import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
 import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
@@ -126,7 +127,7 @@ object UIMultiNavigation : BaseNavigation() {
         config: UINavConfig?,
         sportConfig: DoubleSportConfig? = null
     ) {
-        val intent = Intent(context, DoubleSportActivity::class.java)
+        val intent = Intent(context, DoubleGbSportActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
         startActivity(context, intent, config)
     }

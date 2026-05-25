@@ -5,14 +5,19 @@ import android.os.Bundle
 import android.view.View
 import com.adl.base.bean.Quadrilateral
 import com.adl.base.common.AdlHandlerThread
+import com.adl.base.config.AdlUIConfig
+import com.adl.base.config.RoleConfigRopeSkip
+import com.adl.base.overlay.OnRenderScene
 import com.adl.mount.core.TsModelInfo
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.impl.TsDoubleProcessor
 import com.adl.mount.impl.TsSportFrameDouble
 import com.adl.mount.sport.TsSportChannel
 import com.adl.mount.sport.TsSportRegion
+import com.adl.processor.SportProcessorStatus
 import com.adl.sport.standard.JumpConfig
 import com.adl.sport.standard.JumpType
+import com.adl.sport.standard.jumpcore.BaseSportState
 import com.adl.sport.standard.jumpcore.JumpRopeProcessor
 import com.ty.bus.multi.core.callback.DoubleBaseCallback
 import com.ty.bus.multi.core.config.DoubleSportConfig
@@ -79,7 +84,7 @@ class DoubleGbSportActivity :
     }
 
     override fun createTsDoubleProcessor(): TsDoubleProcessor {
-        return object : TsDoubleProcessor{
+        return object : TsDoubleProcessor {
             override fun onAnalyzer(frame: TsSportFrameDouble?) {
             }
 
@@ -102,6 +107,22 @@ class DoubleGbSportActivity :
         super.initView(savedInstanceState)
         mBinding.viewSportResult.setResultBtnListener { finish() }
         lifecycle.addObserver(mBinding.surfaceOverlay)
+        initOverlay()
+    }
+
+    private fun initOverlay(){
+        val uiConfig = AdlUIConfig.instance()
+            .readConfig(
+                mBinding.sportOverlay.configKey,
+                RoleConfigRopeSkip::class.java
+            )
+        if (uiConfig.targetRegion == null) {
+            uiConfig.targetRegion =
+                "[{\"x\":777,\"y\":848},{\"x\":1131,\"y\":845},{\"x\":708,\"y\":1063},{\"x\":1215,\"y\":1065}]"
+        }
+        mBinding.sportOverlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
+        mBinding.sportOverlay.enableTouch(false)
+        mBinding.sportOverlay.sportRegion.setDrawing(false)
     }
 
     fun configSurfaceOverlay() {
@@ -134,12 +155,14 @@ class DoubleGbSportActivity :
 
     override fun onStatusSport() {
         super.onStatusSport()
+        startJumping()
         mBinding.overLayout.visibility = View.VISIBLE
         mBinding.overLayout.setSportName(viewModel.sportInfo!!.sportSkuName ?: "--")
         //todo 录像
         videoFile = viewModel.getVideoPath()
         createTime = System.currentTimeMillis()
         viewModel.sportEngine.startRecorder(videoFile)
+        processorDouble.changeTo(SportProcessorStatus.Idle)
         //配置overlay动画
         Thread {
             configSurfaceOverlay()
@@ -149,6 +172,7 @@ class DoubleGbSportActivity :
     @SuppressLint("ImplicitSamInstance")
     override fun onStatusEnd() {
         super.onStatusEnd()
+        stopJumping()
         SoundPlayUtils.play(2)
         //如果配置了自动结束
         viewModel.doubleSportConfig?.autoFinishTime?.let {
@@ -295,6 +319,25 @@ class DoubleGbSportActivity :
         rightJumpRopeProcessor?.combineJumpRopeOverlay(mBinding.sportOverlay)
     }
 
+    fun startJumping() {
+        jumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
+        jumpRopeProcessor?.setStart(true)
+
+        rightJumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
+        rightJumpRopeProcessor?.setStart(true)
+    }
+
+    fun stopJumping() {
+        jumpRopeProcessor?.changeStatus(BaseSportState.Standby)
+        jumpRopeProcessor?.setStart(false)
+        jumpRopeProcessor?.onRelease()
+
+        rightJumpRopeProcessor?.changeStatus(BaseSportState.Standby)
+        rightJumpRopeProcessor?.setStart(false)
+        rightJumpRopeProcessor?.onRelease()
+    }
+
+
     //区域可配置
     override fun initRegion() {
         super.initRegion()
@@ -396,6 +439,7 @@ class DoubleGbSportActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        stopJumping()
         mBinding.surfaceOverlay.stop()
         AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
