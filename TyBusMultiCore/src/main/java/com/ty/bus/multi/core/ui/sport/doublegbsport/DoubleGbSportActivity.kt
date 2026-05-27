@@ -1,7 +1,9 @@
 package com.ty.bus.multi.core.ui.sport.doublegbsport
 
 import android.annotation.SuppressLint
+import android.graphics.Point
 import android.os.Bundle
+import android.text.TextUtils
 import android.view.View
 import com.adl.base.bean.Quadrilateral
 import com.adl.base.common.AdlHandlerThread
@@ -21,7 +23,6 @@ import com.adl.sport.standard.jumpcore.BaseSportState
 import com.adl.sport.standard.jumpcore.JumpRopeProcessor
 import com.ty.bus.multi.core.callback.DoubleBaseCallback
 import com.ty.bus.multi.core.config.DoubleSportConfig
-import com.ty.bus.multi.core.factory.DoubleSportDetector
 import com.ty.bus.multi.databinding.ActivityDoubleGbSportBinding
 import com.ty.tybusbase.base.BaseDoubleSportIdentifyActivity
 import com.ty.tybusbase.config.BusiBaseConfig
@@ -52,10 +53,6 @@ class DoubleGbSportActivity :
     private var jumpRopeProcessor: JumpRopeProcessor? = null
     private var modelIsLoaded = false
 
-    private val rightConfig by lazy { JumpConfig() }
-    private var rightJumpRopeProcessor: JumpRopeProcessor? = null
-    private var rightModelIsLoaded = false
-
     private var doubleBaseCallback: DoubleBaseCallback = object : DoubleBaseCallback() {
         override fun onLeftCompleteOnce(result: SportDetectResult) {
             runOnUiThread {
@@ -81,6 +78,26 @@ class DoubleGbSportActivity :
         super.initData()
         viewModel.doubleSportConfig =
             intent.getSerializableExtra("sport_config") as? DoubleSportConfig
+        initGbRegion()
+    }
+
+    private fun initGbRegion() {
+        val configLeft = RoleConfigRopeSkip()
+        val configRight = RoleConfigRopeSkip()
+        if (TextUtils.isEmpty(configLeft.key)) {
+            configLeft.key = mBinding.sportOverlay.configKey + "LEFT"
+        }
+
+        if (TextUtils.isEmpty(configRight.key)) {
+            configRight.key = mBinding.sportOverlay.configKey + "RIGHT"
+        }
+
+        configLeft.targetRegion =
+            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
+        configRight.targetRegion =
+            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
+        AdlUIConfig.instance().saveConfig(configLeft)
+        AdlUIConfig.instance().saveConfig(configRight)
     }
 
     override fun createTsDoubleProcessor(): TsDoubleProcessor {
@@ -107,22 +124,22 @@ class DoubleGbSportActivity :
         super.initView(savedInstanceState)
         mBinding.viewSportResult.setResultBtnListener { finish() }
         lifecycle.addObserver(mBinding.surfaceOverlay)
-        initOverlay()
     }
 
-    private fun initOverlay(){
-        val uiConfig = AdlUIConfig.instance()
-            .readConfig(
-                mBinding.sportOverlay.configKey,
-                RoleConfigRopeSkip::class.java
-            )
+    private fun initOverlay() {
+        val uiConfig = AdlUIConfig.instance().readConfig(
+            mBinding.sportOverlay.configKey,
+            RoleConfigRopeSkip::class.java
+        )
         if (uiConfig.targetRegion == null) {
             uiConfig.targetRegion =
-                "[{\"x\":777,\"y\":848},{\"x\":1131,\"y\":845},{\"x\":708,\"y\":1063},{\"x\":1215,\"y\":1065}]"
+                "[{\"x\":0,\"y\":0},{\"x\":100,\"y\":0},{\"x\":0,\"y\":100},{\"x\":100,\"y\":100}]"
         }
+        mBinding.sportOverlay.isMultiPerson = true
         mBinding.sportOverlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        mBinding.sportOverlay.enableTouch(false)
-        mBinding.sportOverlay.sportRegion.setDrawing(false)
+//        mBinding.sportOverlay.enableTouch(false)
+        mBinding.sportOverlay.refresh()
+//        mBinding.sportOverlay.sportRegion.setDrawing(false)
     }
 
     fun configSurfaceOverlay() {
@@ -229,8 +246,9 @@ class DoubleGbSportActivity :
         config.checkDownRope = isDebug // 检测下方绳索
         config.drawSkeleton = drawSkeleton // 绘制骨骼
         config.drawRope = isDebug // 绘制绳索
-        config.multiPersonType = JumpConfig.MultiPersonType.SINGLE_PERSON // 单人模式
-        config.enablePrescription = true
+        config.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_THREE // 单人模式
+        config.enablePrescription = false
+        config.experienceEnable = false
         // 设置跳绳类型
         config.setJumpType(JumpType.jump, object : TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
@@ -255,94 +273,45 @@ class DoubleGbSportActivity :
                 // 模型加载完成
             }
         })
-        config.sportRegion = getLeftRegion()
         jumpRopeProcessor = JumpRopeProcessor(config)
 
-        jumpRopeProcessor?.setJumpRopeCallBack { singleJumper, _ ->
+        jumpRopeProcessor?.setJumpRopeCallBack { singleJumper, multiJumper ->
             runOnUiThread {
 //                updateResult(singleJumper)
-                doubleBaseCallback.onLeftCompleteOnce(SportDetectResult().apply {
-                    sportAchievement = singleJumper.score
-                    singleSportLevel = 5
-                })
+//                doubleBaseCallback.onLeftCompleteOnce(SportDetectResult().apply {
+//                    sportAchievement = singleJumper.score
+//                    singleSportLevel = 5
+//                })
+                multiJumper.forEach {
+
+                }
             }
         }
         getCameraView().addProcessor(jumpRopeProcessor)
         jumpRopeProcessor?.combineJumpRopeOverlay(mBinding.sportOverlay)
-    }
-
-    private fun initRightGbJumpRopeProcessor() {
-        showLoadingDialog("运动引擎加载中...")
-        val drawSkeleton = BusiBaseConfig.getSkeletonEnable()
-        val isDebug: Boolean = BusiBaseConfig.getDebugEnable()
-        // 创建配置对象
-        rightConfig.debug = isDebug // 开启调试模式
-        rightConfig.checkRope = true // 检测绳索
-        rightConfig.checkDownRope = isDebug // 检测下方绳索
-        rightConfig.drawSkeleton = drawSkeleton // 绘制骨骼
-        rightConfig.drawRope = isDebug // 绘制绳索
-        rightConfig.multiPersonType = JumpConfig.MultiPersonType.SINGLE_PERSON // 单人模式
-        rightConfig.enablePrescription = true
-        // 设置跳绳类型
-        rightConfig.setJumpType(JumpType.jump, object : TsModelResPool.OnLoadModelCallback {
-            override fun onStart() {
-            }
-
-            override fun onSucceed(list: List<TsModelInfo?>?) {
-                // todo 模型加载成功回调
-                //模型加载成功后开始人脸识别
-                rightModelIsLoaded = true
-                hideLoadingDialog()
-                modelInitSuccessful()
-            }
-
-            override fun onFinish(
-                list: List<TsModelInfo?>?,
-                errrorList: List<TsModelInfo?>?
-            ) {
-
-            }
-
-            override fun onEnd(str: String?) {
-                // 模型加载完成
-            }
-        })
-        rightConfig.sportRegion = getRightRegion()
-        rightJumpRopeProcessor = JumpRopeProcessor(rightConfig)
-
-        rightJumpRopeProcessor?.setJumpRopeCallBack { singleJumper, _ ->
-            runOnUiThread {
-//                updateResult(singleJumper)
-            }
-        }
-        getCameraView().addProcessor(rightJumpRopeProcessor)
-        rightJumpRopeProcessor?.combineJumpRopeOverlay(mBinding.sportOverlay)
+        config.sportRegion = TsSportRegion(mBinding.sportOverlay.sportRegion.previewPoints)
+        config.sportRegionLeft = TsSportRegion(mBinding.sportOverlay.sportRegionLeft.previewPoints)
+        config.sportRegionRight =
+            TsSportRegion(mBinding.sportOverlay.sportRegionRight.previewPoints)
     }
 
     fun startJumping() {
         jumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
         jumpRopeProcessor?.setStart(true)
-
-        rightJumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
-        rightJumpRopeProcessor?.setStart(true)
     }
 
     fun stopJumping() {
         jumpRopeProcessor?.changeStatus(BaseSportState.Standby)
         jumpRopeProcessor?.setStart(false)
         jumpRopeProcessor?.onRelease()
-
-        rightJumpRopeProcessor?.changeStatus(BaseSportState.Standby)
-        rightJumpRopeProcessor?.setStart(false)
-        rightJumpRopeProcessor?.onRelease()
     }
 
 
     //区域可配置
     override fun initRegion() {
         super.initRegion()
+        initOverlay()
         initGbJumpRopeProcessor()
-        initRightGbJumpRopeProcessor()
     }
 
     private fun getLeftRegion(): TsSportRegion {
@@ -378,9 +347,6 @@ class DoubleGbSportActivity :
 
     @Synchronized
     private fun modelInitSuccessful() {
-        if (modelIsLoaded.not() || rightModelIsLoaded.not()) {
-            return
-        }
         viewModel.toStatusIdentifyFace()
         runOnUiThread {
             initFaceRec()

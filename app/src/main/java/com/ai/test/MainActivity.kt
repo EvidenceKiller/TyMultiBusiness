@@ -61,9 +61,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         MMKVUtil.encode(
             MMKVBusiKey.IDENTITY_TYPE,
-            BusiBaseConstantsValue.IDENTITY_TYPE_FACE or BusiBaseConstantsValue.IDENTITY_TYPE_CARD
+            BusiBaseConstantsValue.IDENTITY_TYPE_FACE
         )
-        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
+//        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -291,7 +291,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportItemCode = SportConstant.SPORT_SKIP_ROPE
                     sportSkuId = sportItemCode + "0001"
                     sportSkuName = "双人跳绳"
-                    endValue = "20000"
+                    endValue = "160000"
                     endType = SportConstant.END_TYPE_TIME
                     testCount = "2"
                     sceneId = SceneConstants.FREE
