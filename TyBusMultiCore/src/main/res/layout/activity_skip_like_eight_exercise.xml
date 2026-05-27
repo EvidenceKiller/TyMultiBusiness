@@ -7,9 +7,22 @@
     android:background="@mipmap/bg_new_all"
     tools:ignore="MissingDefaultResource">
 
+    <com.ty.tybusbase.camera.BSCameraPreview
+        android:id="@+id/camera_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintEnd_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!--  SportOverlayRopeSkipEx  -->
     <com.adl.sport.standard.ui.SportOverlayRopeSkipEx
         android:id="@+id/gb_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+
+    <com.adl.base.overlay.SportOverlayMultiRegion
+        android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
