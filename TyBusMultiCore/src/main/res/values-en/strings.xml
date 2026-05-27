@@ -74,4 +74,9 @@
     <string name="busi_multi_already_add">已添加过此用户</string>
     <string name="busi_multi_prompt_align_mat_to_edge">请将垫子与框体下边缘对齐</string>
     <string name="sport_countdown_time">运动倒计时：%s</string>
+
+    <string name="trick_jump_speed_no">瞬时速度：-</string>
+    <string name="no_exception_record">暂无记录</string>
+    <string name="exception_record">异常记录</string>
+    <string name="skip_like_a_eight">8字跳绳</string>
 </resources>

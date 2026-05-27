@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_new_all"
+    tools:ignore="MissingDefaultResource">
+
+    <!--  SportOverlayRopeSkipEx  -->
+    <com.adl.sport.standard.ui.SportOverlayRopeSkipEx
+        android:id="@+id/gb_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.ty.tybusbase.view.SportAreaView
+        android:id="@+id/sport_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/header_content"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_50"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_72"
+        android:layout_marginStart="@dimen/dp_40"
+        android:background="@mipmap/skip_eight_sports_name_bg"
+        android:paddingHorizontal="@dimen/dp_24"
+        android:paddingVertical="@dimen/dp_12"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_content">
+
+        <ImageView
+            android:layout_width="@dimen/dp_48"
+            android:layout_height="@dimen/dp_48"
+            android:background="@mipmap/icon_8_jump_rope" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:gravity="center"
+            android:text="@string/skip_like_a_eight"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_36" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="@dimen/dp_224"
+        android:layout_height="@dimen/dp_68"
+        android:background="@mipmap/count_down_time_bg"
+        android:gravity="center"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="@dimen/dp_36"
+            android:layout_height="@dimen/dp_36"
+            android:background="@mipmap/icon_time_countdown" />
+
+        <TextView
+            android:id="@+id/tv_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_40"
+            tools:text="00:57" />
+
+    </LinearLayout>
+
+    <!-- 准备View -->
+    <com.ty.tybusbase.view.ReadyView
+        android:id="@+id/ready_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="321倒计时视图"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/layout_combo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_271"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.ty.tybusbase.view.BounceTextView
+            android:id="@+id/tv_combo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X16"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_94"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:paddingLeft="@dimen/dp_60"
+            android:paddingRight="@dimen/dp_60"
+            android:text="COMBO"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_48"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_exception"
+        android:layout_width="@dimen/dp_320"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginEnd="@dimen/dp_40"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/rl_speed">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/exception_record"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_20"
+            tools:text="异常记录" />
+
+        <TextView
+            android:id="@+id/tv_no_exception"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginVertical="@dimen/dp_30"
+            android:text="@string/no_exception_record"
+            android:textColor="@color/white_60"
+            android:textSize="@dimen/sp_20"
+            tools:text="暂无记录" />
+
+        <ScrollView
+            android:id="@+id/sv_exception"
+            android:layout_width="@dimen/dp_320"
+            android:layout_height="@dimen/dp_178"
+            android:layout_marginTop="@dimen/dp_12"
+            android:layout_marginBottom="@dimen/dp_10"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_exception"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:lineSpacingExtra="10dp"
+                android:paddingHorizontal="@dimen/dp_20"
+                android:textColor="#F44134"
+                android:textSize="@dimen/sp_20"
+                tools:text="00.12..2322233221211212151454" />
+        </ScrollView>
+    </LinearLayout>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_speed"
+        android:layout_width="@dimen/dp_320"
+        android:layout_height="@dimen/dp_134"
+        android:layout_marginTop="@dimen/dp_50"
+        android:layout_marginEnd="@dimen/dp_40"
+        android:background="@drawable/bg_ss_speed_shape"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.adl.base.view.WaveLine
+            android:id="@+id/wave_line"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentBottom="true" />
+
+        <TextView
+            android:id="@+id/tv_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:layout_marginTop="@dimen/dp_16"
+            android:text="@string/trick_jump_speed_no"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_20"
+            tools:text="瞬时速度：-" />
+
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

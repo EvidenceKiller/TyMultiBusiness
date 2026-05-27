@@ -7,6 +7,7 @@ import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
+import com.ty.bus.multi.core.config.SkipEightSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
@@ -18,15 +19,14 @@ import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
-import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
+import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.base.BaseNavigation
 import com.ty.tybusbase.config.UINavConfig
-import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.Action1
 
 /**
@@ -158,6 +158,16 @@ object UIMultiNavigation : BaseNavigation() {
      */
     fun goLungSetting(context: Context) {
         context.startActivity(Intent(context, LungSettingActivity::class.java))
+    }
+
+    fun goSkipEightSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: SkipEightSportConfig? = null
+    ) {
+        val intent = Intent(context, SkipLikeEightSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        startActivity(context, intent, config)
     }
 
 }

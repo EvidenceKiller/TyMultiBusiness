@@ -369,5 +369,19 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             startActivity(Intent(this, GestureActivity::class.java))
         }
 
+        mBinding.btnSkipEight.setOnClickListener {
+            UIMultiNavigation.goSkipEightSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_SKIP_EIGHT_JUMP
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "八字跳绳"
+                    endValue = "160000"
+                    endType = SportConstant.END_TYPE_TIME
+                    sceneId = SceneConstants.FREE
+                }
+                energyPoint = 10
+            })
+        }
+
     }
 }

@@ -119,6 +119,9 @@ object SportConstant {
     //双摇跳绳
     const val SPORT_DOUBLE_SHAKE_JUMP: String = "020501"
 
+    //八字跳绳
+    const val SPORT_SKIP_EIGHT_JUMP: String = "901408"
+
 
     //跳绳sportSkuId
     const val SPORT_SKIP_ROPE_SKU_ID: String = "0201010001"

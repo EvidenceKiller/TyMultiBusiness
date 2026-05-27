@@ -45,7 +45,11 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity"
             android:exported="true" />
-        <activity android:name="com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity"
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity"
+            android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity"
             android:exported="true" />
     </application>
 </manifest>
