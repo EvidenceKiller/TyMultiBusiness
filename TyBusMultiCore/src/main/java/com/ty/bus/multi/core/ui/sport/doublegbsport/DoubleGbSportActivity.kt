@@ -10,6 +10,8 @@ import com.adl.base.common.AdlHandlerThread
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.overlay.OnRenderScene
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.mount.core.TsModelInfo
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.impl.TsDoubleProcessor
@@ -26,10 +28,13 @@ import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.bus.multi.databinding.ActivityDoubleGbSportBinding
 import com.ty.tybusbase.base.BaseDoubleSportIdentifyActivity
 import com.ty.tybusbase.config.BusiBaseConfig
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.sport.bean.SportDetectResult
 import com.ty.tybusbase.utils.LogUtil
+import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
 import com.ty.tybusbase.view.SportComboAnimal
 import com.ty.tybusbase.view.SportLevelAnimation
@@ -52,6 +57,9 @@ class DoubleGbSportActivity :
     private val config by lazy { JumpConfig() }
     private var jumpRopeProcessor: JumpRopeProcessor? = null
     private var modelIsLoaded = false
+
+    private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
+    private var isNus = false //是否是纳秒时间戳
 
     private var doubleBaseCallback: DoubleBaseCallback = object : DoubleBaseCallback() {
         override fun onLeftCompleteOnce(result: SportDetectResult) {
@@ -135,11 +143,25 @@ class DoubleGbSportActivity :
             uiConfig.targetRegion =
                 "[{\"x\":0,\"y\":0},{\"x\":100,\"y\":0},{\"x\":0,\"y\":100},{\"x\":100,\"y\":100}]"
         }
+        val isDebug: Boolean =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.MODEL_DEBUG,
+                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+            )
+        val skeleton =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.SKELETON_ABLE,
+                BusiBaseConstantsValue.DEFAULT_SKELETON
+            )
+        mBinding.sportOverlay.apply {
+            enableDebug(isDebug)
+            enableDrawBox(false)
+            enableDrawSkeleton(skeleton)
+        }
         mBinding.sportOverlay.isMultiPerson = true
         mBinding.sportOverlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-//        mBinding.sportOverlay.enableTouch(false)
         mBinding.sportOverlay.refresh()
-//        mBinding.sportOverlay.sportRegion.setDrawing(false)
+        mBinding.sportOverlay.enableTouch(false)
     }
 
     fun configSurfaceOverlay() {
@@ -243,7 +265,7 @@ class DoubleGbSportActivity :
         // 创建配置对象
         config.debug = isDebug // 开启调试模式
         config.checkRope = true // 检测绳索
-        config.checkDownRope = isDebug // 检测下方绳索
+        config.checkDownRope = true // 检测下方绳索
         config.drawSkeleton = drawSkeleton // 绘制骨骼
         config.drawRope = isDebug // 绘制绳索
         config.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_THREE // 单人模式
@@ -276,26 +298,44 @@ class DoubleGbSportActivity :
         jumpRopeProcessor = JumpRopeProcessor(config)
 
         jumpRopeProcessor?.setJumpRopeCallBack { singleJumper, multiJumper ->
-            runOnUiThread {
+//            runOnUiThread {
 //                updateResult(singleJumper)
 //                doubleBaseCallback.onLeftCompleteOnce(SportDetectResult().apply {
 //                    sportAchievement = singleJumper.score
 //                    singleSportLevel = 5
 //                })
-                multiJumper.forEach {
-
+//                multiJumper.forEach {
+//
+//                }
+//            }
+        }
+        getCameraView().addProcessor(object : AdlCameraFrameProcessor {
+            override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo?) {
+                previewInfo?.let {
+                    if (preFrameTime != 0L) {
+                        if (it.frameTimestamp - preFrameTime > 1000_000) {
+                            isNus = true
+                        }
+                    } else {
+                        preFrameTime = it.frameTimestamp
+                    }
+                    if (isNus) {
+                        previewInfo.frameTimestamp = previewInfo.frameTimestamp / 1000_000
+                        previewInfo.imageId = (previewInfo.imageId.toLong() / 1000_000).toString()
+                    }
+                    jumpRopeProcessor?.onFrame(yuv, previewInfo)
                 }
             }
-        }
-        getCameraView().addProcessor(jumpRopeProcessor)
+
+        })
         jumpRopeProcessor?.combineJumpRopeOverlay(mBinding.sportOverlay)
+    }
+
+    fun startJumping() {
         config.sportRegion = TsSportRegion(mBinding.sportOverlay.sportRegion.previewPoints)
         config.sportRegionLeft = TsSportRegion(mBinding.sportOverlay.sportRegionLeft.previewPoints)
         config.sportRegionRight =
             TsSportRegion(mBinding.sportOverlay.sportRegionRight.previewPoints)
-    }
-
-    fun startJumping() {
         jumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
         jumpRopeProcessor?.setStart(true)
     }
