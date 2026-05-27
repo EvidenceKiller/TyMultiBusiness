@@ -316,7 +316,8 @@ class ForwardFlexionSixActivity :
     private fun cameraLogin() {
         if (viewModel.streamType != 1) return
         ipcHik.login(object : AdlCameraListener {
-            override fun onOpenSucceed() {
+
+            override fun onOpenSucceed(p0: Boolean) {
 
             }
 
@@ -365,6 +366,10 @@ class ForwardFlexionSixActivity :
                 runOnUiThread {
                     hideCameraTips()
                 }
+            }
+
+            override fun onCameraReOpen() {
+
             }
 
             override fun onDestroyed() {

@@ -335,7 +335,8 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
     private fun cameraLogin() {
         if (viewModel.streamType != 1) return
         ipcHik.login(object : AdlCameraListener {
-            override fun onOpenSucceed() {
+
+            override fun onOpenSucceed(p0: Boolean) {
 
             }
 
@@ -421,6 +422,10 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
                 runOnUiThread {
                     hideCameraTips()
                 }
+            }
+
+            override fun onCameraReOpen() {
+
             }
 
             override fun onDestroyed() {

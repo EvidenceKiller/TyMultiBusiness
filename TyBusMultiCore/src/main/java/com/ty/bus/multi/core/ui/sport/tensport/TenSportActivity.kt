@@ -116,9 +116,12 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         mBinding.sportView.startNowCallback = {
             startDialog = CommonTipDialog().setCallback {
                 //如果是运动会模式，则切到准备状态
-                if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING){
+                if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING) {
                     viewModel.skipPersonArray.forEach { key, value ->
-                        mBinding.sportView.changeState(value.number, MultiSportCardViewState.PREPARED)
+                        mBinding.sportView.changeState(
+                            value.number,
+                            MultiSportCardViewState.PREPARED
+                        )
                     }
                 }
                 startDialog = null
@@ -195,6 +198,10 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
                 override fun onCameraOpen() {
                     viewModel.onCameraOpen()
                     hideTips()
+                }
+
+                override fun onCameraReOpen() {
+
                 }
 
                 override fun onDestroyed() {

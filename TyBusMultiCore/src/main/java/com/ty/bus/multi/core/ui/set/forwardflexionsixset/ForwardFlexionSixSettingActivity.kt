@@ -197,7 +197,8 @@ class ForwardFlexionSixSettingActivity :
 
     private fun cameraLogin() {
         ipcHik.login(object : AdlCameraListener {
-            override fun onOpenSucceed() {
+            override fun onOpenSucceed(p0: Boolean) {
+
             }
 
             override fun onLoginSucceed() {
@@ -235,6 +236,10 @@ class ForwardFlexionSixSettingActivity :
             }
 
             override fun onCameraOpen() {
+            }
+
+            override fun onCameraReOpen() {
+
             }
 
             override fun onDestroyed() {

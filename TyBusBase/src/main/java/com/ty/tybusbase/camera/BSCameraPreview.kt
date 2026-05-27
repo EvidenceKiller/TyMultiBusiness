@@ -33,6 +33,7 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
     var cameraFpsCounter: ElementFpsCounter? = null
     private var cameraDispatcher: DynamicSportFrameDispatcher? = null
     private var onCameraOpenListener: Action? = null
+
     init {
         loadView(context)
     }
@@ -43,13 +44,17 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
         val params = LayoutParams(-1, -1)
         addView(cameraView, params)
         var cameraId = AdlCameraConfig.CameraId.Front
-        val anInt = MMKVUtil.decodeInt(MMKVBusiKey.CAMERA_CHOOSE, BusiBaseConstantsValue.CAMERA_FRONT)
+        val anInt =
+            MMKVUtil.decodeInt(MMKVBusiKey.CAMERA_CHOOSE, BusiBaseConstantsValue.CAMERA_FRONT)
         if (anInt == BusiBaseConstantsValue.CAMERA_BACK) {
             cameraId = AdlCameraConfig.CameraId.Back
         }
         var cameraType = AdlCameraConfig.CameraType.UVC
         val tempType =
-            MMKVUtil.decodeInt(MMKVBusiKey.CAMERA_TYPE_CHOOSE, BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT)
+            MMKVUtil.decodeInt(
+                MMKVBusiKey.CAMERA_TYPE_CHOOSE,
+                BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
+            )
         if (tempType == BusiBaseConstantsValue.CAMERA_TYPE_CAMERA) {
             cameraType = AdlCameraConfig.CameraType.Old
         } else if (tempType == BusiBaseConstantsValue.CAMERA_TYPE_CAMERAX) {
@@ -59,7 +64,10 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
         zyCamera = AdlCameraConfig.builder()
             .setCameraType(cameraType)
             .setCameraId(cameraId)
-            .setPreviewSize(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH, BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
+            .setPreviewSize(
+                BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH,
+                BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT
+            )
             .setPreviewFps(BusiBaseConstantsValue.PREVIEW_FPS)
             .setDisplayOrientation(0)
             .build()
@@ -95,7 +103,9 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
     }
 
     fun setMirror(isMirror: Boolean) {
-        (zyCamera as? NsUVCCameraSource)?.setMirror(isMirror)?:cameraDispatcher?.setMirror(isMirror)
+        (zyCamera as? NsUVCCameraSource)?.setMirror(isMirror) ?: cameraDispatcher?.setMirror(
+            isMirror
+        )
     }
 
     fun setRotate(rotate: Int) {
@@ -120,6 +130,10 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
                     configUVCModel()
                 }
                 onCameraOpenListener?.invoke()
+            }
+
+            override fun onCameraReOpen() {
+
             }
 
             override fun onDestroyed() {
@@ -180,10 +194,13 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
         postDelayed({
             if (zyCamera is NsUVCCameraSource) {
                 (zyCamera as? NsUVCCameraSource)?.configUvcModel(model)
-                if (defa == BusiBaseConstantsValue.UVC_CAMERA_DISPLAY_PARAM_CUSTOM){
+                if (defa == BusiBaseConstantsValue.UVC_CAMERA_DISPLAY_PARAM_CUSTOM) {
                     //设置进度值
                     val light =
-                        decodeInt(MMKVBusiKey.UVC_CAMERA_LIGHT, BusiBaseConstantsValue.UVC_CAMERA_DEFAULT_LIGHT)
+                        decodeInt(
+                            MMKVBusiKey.UVC_CAMERA_LIGHT,
+                            BusiBaseConstantsValue.UVC_CAMERA_DEFAULT_LIGHT
+                        )
                     val contrast = decodeInt(
                         MMKVBusiKey.UVC_CAMERA_CONTRAST,
                         BusiBaseConstantsValue.UVC_CAMERA_DEFAULT_CONTRAST
