@@ -271,6 +271,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
         processorDouble = SportProcessorDouble()
         processorDouble.setSportLifecycle(tsSportLifecycleDouble)
         processorDouble.setConfig(tsConfig)
+        processorDouble.setDebug(false)
         processorDouble.open(mBaseBinding.overlay)
         //init方法耗时，放在线程中执行
         Thread {

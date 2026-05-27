@@ -60,6 +60,7 @@ class DoubleGbSportActivity :
 
     private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
     private var isNus = false //是否是纳秒时间戳
+    private var countFrame = 0
 
     private var doubleBaseCallback: DoubleBaseCallback = object : DoubleBaseCallback() {
         override fun onLeftCompleteOnce(result: SportDetectResult) {
@@ -271,6 +272,9 @@ class DoubleGbSportActivity :
         config.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_THREE // 单人模式
         config.enablePrescription = false
         config.experienceEnable = false
+        config.drawAllBody = isDebug
+        config.drawSingleBody = isDebug
+        config.drawSelectBody = isDebug
         // 设置跳绳类型
         config.setJumpType(JumpType.jump, object : TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
@@ -311,6 +315,11 @@ class DoubleGbSportActivity :
         }
         getCameraView().addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo?) {
+
+                // TODO 针对国标跳绳，帧率控制在25帧， add by 南山, 2026/05/27
+                countFrame++
+                if (countFrame % 5 == 0) return@onFrame
+
                 previewInfo?.let {
                     if (preFrameTime != 0L) {
                         if (it.frameTimestamp - preFrameTime > 1000_000) {

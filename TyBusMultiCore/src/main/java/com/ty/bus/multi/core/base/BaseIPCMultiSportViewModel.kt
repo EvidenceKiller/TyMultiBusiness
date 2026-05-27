@@ -794,7 +794,8 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     override fun onResume() {
         super.onResume()
         ipcHik.login(object : AdlCameraListener {
-            override fun onOpenSucceed() {
+
+            override fun onOpenSucceed(p0: Boolean) {
 
             }
 

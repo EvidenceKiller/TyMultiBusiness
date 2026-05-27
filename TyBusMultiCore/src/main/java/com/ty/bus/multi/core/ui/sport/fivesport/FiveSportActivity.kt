@@ -116,6 +116,10 @@ class FiveSportActivity :
                     hideTips()
                 }
 
+                override fun onCameraReOpen() {
+
+                }
+
                 override fun onDestroyed() {
 
                 }

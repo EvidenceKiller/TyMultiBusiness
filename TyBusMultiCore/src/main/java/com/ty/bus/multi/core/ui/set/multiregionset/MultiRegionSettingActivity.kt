@@ -15,8 +15,10 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
-class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding, BaseViewModel>() {
+class MultiRegionSettingActivity :
+    BaseActivity<ActivityMultiRegionSettingBinding, BaseViewModel>() {
     private val number by lazy { intent.getIntExtra("test_count", 0) }
+
     // 0:1920*1080;
     // 1:2560*1440;
     // 2:3840*2160
@@ -81,7 +83,10 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
 
     private fun openCamera() {
         val ip =
-            MMKVUtil.decodeString(MMKVBusiKey.HTTP_CAMERA_IP, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP)
+            MMKVUtil.decodeString(
+                MMKVBusiKey.HTTP_CAMERA_IP,
+                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+            )
         val account = MMKVUtil.decodeString(
             MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
@@ -97,7 +102,7 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
             else -> Pair(1920, 1080)
         }
         val camera = AdlCameraConfig.builder()
-            .setPreviewSize(pairResolution.first,pairResolution.second)
+            .setPreviewSize(pairResolution.first, pairResolution.second)
             .setCameraType(AdlCameraConfig.CameraType.HK)
             .setConnect(ip, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT, account, psw)
             .setStreamType(0)
@@ -106,6 +111,9 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
             AdlCameraPreviewView.OnViewStatusListener {
             override fun onAvailable() {}
             override fun onCameraOpen() {
+            }
+
+            override fun onCameraReOpen() {
             }
 
             override fun onDestroyed() {}
@@ -117,5 +125,5 @@ class MultiRegionSettingActivity:BaseActivity<ActivityMultiRegionSettingBinding,
         })
         mBinding.previewView.getTextureView().setScaleX(-1f)
     }
-    
+
 }
