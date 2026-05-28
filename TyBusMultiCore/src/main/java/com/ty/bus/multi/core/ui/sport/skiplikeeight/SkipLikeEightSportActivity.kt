@@ -1,6 +1,10 @@
 package com.ty.bus.multi.core.ui.sport.skiplikeeight
 
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.animation.AlphaAnimation
+import androidx.constraintlayout.widget.ConstraintLayout
 import com.adl.base.bean.Quadrilateral
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
@@ -34,6 +38,7 @@ import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.ty.bus.multi.R
 
 class SkipLikeEightSportActivity :
     BaseMultiSportActivity<ActivitySkipLikeEightExerciseBinding, SkipLikeEightViewModel>() {
@@ -44,6 +49,14 @@ class SkipLikeEightSportActivity :
     private var rightRegion: TsSportRegion? = null
     private var isLeftPrepared = false
     private var isRightPrepared = false
+
+    // 区域动画相关
+    private val animHandler = Handler(Looper.getMainLooper())
+    private var leftAnimRunnable: Runnable? = null
+    private var rightAnimRunnable: Runnable? = null
+    private var leftAnimFrame = 0
+    private var rightAnimFrame = 0
+    private val animInterval = 300L // 300毫秒
 
     private val config by lazy { JumpConfig() }
     private var jumpRopeProcessor: JumpRopeProcessor? = null
@@ -152,6 +165,8 @@ class SkipLikeEightSportActivity :
             }
             tsConfig.rightTracker.setEnableSmooth(true)
 
+            // 初始化区域动画
+            initRegionAnimation()
         }
     }
 
@@ -225,6 +240,8 @@ class SkipLikeEightSportActivity :
     private fun leftPrepared() {
         isLeftPrepared = true
         ToastUtil.getInstance(this, "左边准备好了").show()
+        // 切换到准备状态图片
+        showLeftRegionReady()
         if (isRightPrepared) {
             viewModel.toStatusPrepare()
         }
@@ -233,9 +250,155 @@ class SkipLikeEightSportActivity :
     private fun rightPrepared() {
         isRightPrepared = true
         ToastUtil.getInstance(this, "右边准备好了").show()
+        // 切换到准备状态图片
+        showRightRegionReady()
         if (isLeftPrepared) {
             viewModel.toStatusPrepare()
         }
+    }
+
+    /**
+     * 初始化区域动画
+     */
+    private fun initRegionAnimation() {
+        // 显示左右区域ImageView
+        mBinding.ivLeftRegion.visibility = android.view.View.VISIBLE
+        mBinding.ivRightRegion.visibility = android.view.View.VISIBLE
+
+        // 设置图片位置到左右区域的中点
+        setRegionImagePosition()
+
+        // 启动左侧动画
+        startLeftRegionAnimation()
+        // 启动右侧动画
+        startRightRegionAnimation()
+    }
+
+    /**
+     * 设置区域图片位置到左右区域中点
+     */
+    private fun setRegionImagePosition() {
+        // 获取左右区域的中点
+        val leftCenterX = leftRegion?.centerX() ?: 0
+        val leftCenterY = leftRegion?.centerY() ?: 0
+        val rightCenterX = rightRegion?.centerX() ?: 0
+        val rightCenterY = rightRegion?.centerY() ?: 0
+
+        // 获取图片控件的宽高
+        val imageWidth = mBinding.ivLeftRegion.measuredWidth.takeIf { it > 0 } ?: resources.getDimensionPixelSize(com.ty.bus.multi.R.dimen.dp_303)
+        val imageHeight = mBinding.ivLeftRegion.measuredHeight.takeIf { it > 0 } ?: resources.getDimensionPixelSize(com.ty.bus.multi.R.dimen.dp_87)
+        
+        // 计算偏移量（图片宽高的一半）
+        val offsetX = imageWidth / 2
+        val offsetY = imageHeight / 2
+
+        // 设置左侧图片位置（中心点对齐）
+        val leftParams = mBinding.ivLeftRegion.layoutParams as ConstraintLayout.LayoutParams
+        leftParams.leftMargin = leftCenterX - offsetX
+        leftParams.topMargin = leftCenterY - offsetY
+        mBinding.ivLeftRegion.layoutParams = leftParams
+
+        // 设置右侧图片位置（中心点对齐，使用 leftMargin）
+        val rightParams = mBinding.ivRightRegion.layoutParams as ConstraintLayout.LayoutParams
+        rightParams.leftMargin = rightCenterX - offsetX
+        rightParams.topMargin = rightCenterY - offsetY
+        mBinding.ivRightRegion.layoutParams = rightParams
+    }
+
+    /**
+     * 启动左侧区域动画
+     */
+    private fun startLeftRegionAnimation() {
+        leftAnimFrame = 0
+        leftAnimRunnable = object : Runnable {
+            override fun run() {
+                leftAnimFrame = (leftAnimFrame + 1) % 2
+                val resId = if (leftAnimFrame == 0) {
+                    R.mipmap.user_swingrope_01
+                } else {
+                    R.mipmap.user_swingrope_02
+                }
+                mBinding.ivLeftRegion.setImageResource(resId)
+                animHandler.postDelayed(this, animInterval)
+            }
+        }
+        animHandler.post(leftAnimRunnable!!)
+    }
+
+    /**
+     * 启动右侧区域动画
+     */
+    private fun startRightRegionAnimation() {
+        rightAnimFrame = 0
+        rightAnimRunnable = object : Runnable {
+            override fun run() {
+                rightAnimFrame = (rightAnimFrame + 1) % 2
+                val resId = if (rightAnimFrame == 0) {
+                    R.mipmap.user_swingrope_01
+                } else {
+                    R.mipmap.user_swingrope_02
+                }
+                mBinding.ivRightRegion.setImageResource(resId)
+                animHandler.postDelayed(this, animInterval)
+            }
+        }
+        animHandler.post(rightAnimRunnable!!)
+    }
+
+    /**
+     * 停止左侧区域动画
+     */
+    private fun stopLeftRegionAnimation() {
+        leftAnimRunnable?.let {
+            animHandler.removeCallbacks(it)
+            leftAnimRunnable = null
+        }
+    }
+
+    /**
+     * 停止右侧区域动画
+     */
+    private fun stopRightRegionAnimation() {
+        rightAnimRunnable?.let {
+            animHandler.removeCallbacks(it)
+            rightAnimRunnable = null
+        }
+    }
+
+    /**
+     * 显示左侧准备状态图片
+     */
+    private fun showLeftRegionReady() {
+        stopLeftRegionAnimation()
+        mBinding.ivLeftRegion.setImageResource(R.mipmap.user_swingrope_ready)
+        // 添加淡入效果
+        val fadeIn = AlphaAnimation(0.0f, 1.0f).apply {
+            duration = 300
+            fillAfter = true
+        }
+        mBinding.ivLeftRegion.startAnimation(fadeIn)
+    }
+
+    /**
+     * 显示右侧准备状态图片
+     */
+    private fun showRightRegionReady() {
+        stopRightRegionAnimation()
+        mBinding.ivRightRegion.setImageResource(R.mipmap.user_swingrope_ready)
+        // 添加淡入效果
+        val fadeIn = AlphaAnimation(0.0f, 1.0f).apply {
+            duration = 300
+            fillAfter = true
+        }
+        mBinding.ivRightRegion.startAnimation(fadeIn)
+    }
+
+    /**
+     * 停止所有区域动画
+     */
+    private fun stopRegionAnimation() {
+        stopLeftRegionAnimation()
+        stopRightRegionAnimation()
     }
 
     override fun onStatusPrepare() {
@@ -436,6 +599,8 @@ class SkipLikeEightSportActivity :
         jumpRopeProcessor?.onRelease()
         viewModel.onRelease()
         SpeechWrapper.stop()
+        // 清理动画资源
+        stopRegionAnimation()
     }
 
 }

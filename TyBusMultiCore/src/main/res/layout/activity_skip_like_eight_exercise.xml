@@ -26,6 +26,24 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- 左侧区域动画图片 -->
+    <ImageView
+        android:id="@+id/iv_left_region"
+        android:layout_width="@dimen/dp_303"
+        android:layout_height="@dimen/dp_87"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 右侧区域动画图片 -->
+    <ImageView
+        android:id="@+id/iv_right_region"
+        android:layout_width="@dimen/dp_303"
+        android:layout_height="@dimen/dp_87"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.ty.tybusbase.view.SportAreaView
         android:id="@+id/sport_area"
         android:layout_width="match_parent"
@@ -49,6 +67,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_sport_name"
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp_72"
         android:layout_marginStart="@dimen/dp_40"
@@ -59,11 +78,13 @@
         app:layout_constraintTop_toBottomOf="@+id/header_content">
 
         <ImageView
+            android:id="@+id/iv_sport_icon"
             android:layout_width="@dimen/dp_48"
             android:layout_height="@dimen/dp_48"
             android:background="@mipmap/icon_8_jump_rope" />
 
         <TextView
+            android:id="@+id/tv_sport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -76,6 +97,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/ll_countdown"
         android:layout_width="@dimen/dp_224"
         android:layout_height="@dimen/dp_68"
         android:background="@mipmap/count_down_time_bg"
@@ -85,6 +107,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
+            android:id="@+id/iv_countdown_icon"
             android:layout_width="@dimen/dp_36"
             android:layout_height="@dimen/dp_36"
             android:background="@mipmap/icon_time_countdown" />
@@ -130,6 +153,7 @@
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/tv_combo_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -153,6 +177,7 @@
         app:layout_constraintTop_toBottomOf="@+id/rl_speed">
 
         <TextView
+            android:id="@+id/tv_exception_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_20"
