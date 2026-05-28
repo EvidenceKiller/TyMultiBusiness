@@ -19,6 +19,7 @@ import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
+import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
@@ -123,6 +124,19 @@ object UIMultiNavigation : BaseNavigation() {
      * 跳转到双人运动
      */
     fun goDoubleSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: DoubleSportConfig? = null
+    ) {
+        val intent = Intent(context, DoubleSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        startActivity(context, intent, config)
+    }
+
+    /**
+     * 跳转到双人运动
+     */
+    fun goDoubleGbSport(
         context: Context,
         config: UINavConfig?,
         sportConfig: DoubleSportConfig? = null

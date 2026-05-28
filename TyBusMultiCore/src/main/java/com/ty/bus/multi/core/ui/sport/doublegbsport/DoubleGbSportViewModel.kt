@@ -30,8 +30,8 @@ class DoubleGbSportViewModel(application: Application) : BaseDoubleSportViewMode
         rightSportResult.sportDuration = if (timeMillis == 0) 0 else timeMillis
     }
 
-    fun refreshLeftValue(sportAchievement: Int, singleSportLevel: Int) {
-        leftValue += sportAchievement
+    fun refreshLeftValue(sportAchievement: Int, singleSportLevel: Int = SPORT_PERFECT) {
+        leftValue = sportAchievement
         val now = System.currentTimeMillis()
         if (now - upCountLeftTime < comboLimitTime) leftComboCount += 1 else {
             leftSportResult.maxComboCount =
@@ -77,7 +77,8 @@ class DoubleGbSportViewModel(application: Application) : BaseDoubleSportViewMode
     }
 
 
-    fun refreshRightValue(sportAchievement: Int, singleSportLevel: Int) {
+    fun refreshRightValue(sportAchievement: Int, singleSportLevel: Int = SPORT_PERFECT) {
+        rightValue = sportAchievement
         val now = System.currentTimeMillis()
         if (now - upCountRightTime < comboLimitTime) rightComboCount += 1 else {
             rightSportResult.maxComboCount =
@@ -85,7 +86,6 @@ class DoubleGbSportViewModel(application: Application) : BaseDoubleSportViewMode
             rightComboCount = 0
         }
         upCountRightTime = now
-        rightValue += sportAchievement
         rightSportResult.sportAchievement = rightValue
         rightSportResult.sportResult = rightValue.toString()
         var score = 0

@@ -2,12 +2,16 @@ package com.ai.test
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.TextUtils
+import com.adl.base.config.AdlUIConfig
+import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.speech.AdlTextSpeaker
 import com.adl.service.entity.FaceDataEntity
 import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
+import com.adl.sport.standard.ui.SportOverlayRopeSkipEx
 import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
@@ -64,6 +68,27 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             BusiBaseConstantsValue.IDENTITY_TYPE_FACE
         )
 //        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
+        initGbRegion()
+    }
+
+    private fun initGbRegion() {
+        val configLeft = RoleConfigRopeSkip()
+        val configRight = RoleConfigRopeSkip()
+        val sportOverlay = SportOverlayRopeSkipEx(this,null)
+        if (TextUtils.isEmpty(configLeft.key)) {
+            configLeft.key = sportOverlay.configKey + "LEFT"
+        }
+
+        if (TextUtils.isEmpty(configRight.key)) {
+            configRight.key = sportOverlay.configKey + "RIGHT"
+        }
+
+        configLeft.targetRegion =
+            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
+        configRight.targetRegion =
+            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
+        AdlUIConfig.instance().saveConfig(configLeft)
+        AdlUIConfig.instance().saveConfig(configRight)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -285,21 +310,6 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             startActivity(Intent(this, PicFaceTestActivity::class.java))
         }
 
-        mBinding.btnDSkip.setOnClickListener {
-            UIMultiNavigation.goDoubleSport(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                    sportSkuId = sportItemCode + "0001"
-                    sportSkuName = "双人跳绳"
-                    endValue = "160000"
-                    endType = SportConstant.END_TYPE_TIME
-                    testCount = "2"
-                    sceneId = SceneConstants.FREE
-                }
-                energyPoint = 10
-            })
-        }
-
         mBinding.btnBmiSetting.setOnClickListener {
             UIMultiNavigation.goBmiSetting(this)
         }
@@ -377,6 +387,56 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuName = "八字跳绳"
                     endValue = "160000"
                     endType = SportConstant.END_TYPE_TIME
+                    sceneId = SceneConstants.FREE
+                }
+                energyPoint = 10
+            })
+        }
+
+        initDouble()
+
+    }
+
+    private fun initDouble(){
+        mBinding.btnSkipGb.setOnClickListener {
+            UIMultiNavigation.goDoubleGbSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "双人跳绳"
+                    endValue = "20000"
+                    endType = SportConstant.END_TYPE_TIME
+                    testCount = "2"
+                    sceneId = SceneConstants.FREE
+                }
+                energyPoint = 10
+            })
+        }
+
+        mBinding.btnSkip.setOnClickListener {
+            UIMultiNavigation.goDoubleSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "双人跳绳"
+                    endValue = "20000"
+                    endType = SportConstant.END_TYPE_TIME
+                    testCount = "2"
+                    sceneId = SceneConstants.FREE
+                }
+                energyPoint = 10
+            })
+        }
+
+        mBinding.btnDoubleOpenClose.setOnClickListener {
+            UIMultiNavigation.goDoubleSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_JUMPING_JACK_SKIP_ROPE
+                    sportSkuId = sportItemCode + "0001"
+                    sportSkuName = "双人跳绳"
+                    endValue = "20000"
+                    endType = SportConstant.END_TYPE_TIME
+                    testCount = "2"
                     sceneId = SceneConstants.FREE
                 }
                 energyPoint = 10

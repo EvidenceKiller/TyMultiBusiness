@@ -12,6 +12,7 @@ import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.mount.core.TsModelInfo
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.impl.TsDoubleProcessor
@@ -23,6 +24,7 @@ import com.adl.sport.standard.JumpConfig
 import com.adl.sport.standard.JumpType
 import com.adl.sport.standard.jumpcore.BaseSportState
 import com.adl.sport.standard.jumpcore.JumpRopeProcessor
+import com.adl.sport.standard.jumpcore.Jumper
 import com.ty.bus.multi.core.callback.DoubleBaseCallback
 import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.bus.multi.databinding.ActivityDoubleGbSportBinding
@@ -32,6 +34,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.sport.bean.SportDetectResult
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
@@ -62,52 +65,31 @@ class DoubleGbSportActivity :
     private var isNus = false //是否是纳秒时间戳
     private var countFrame = 0
 
-    private var doubleBaseCallback: DoubleBaseCallback = object : DoubleBaseCallback() {
-        override fun onLeftCompleteOnce(result: SportDetectResult) {
-            runOnUiThread {
-                onLeftComplete(result)
-            }
-        }
-
-        override fun onRightCompleteOnce(result: SportDetectResult) {
-            runOnUiThread {
-                onRightComplete(result)
-            }
-        }
-
-        override fun onChannel(left: TsSportChannel?, right: TsSportChannel?) {
-            runOnUiThread {
-                checkArea(left, right)
-            }
-        }
-
-    }
-
     override fun initData() {
         super.initData()
         viewModel.doubleSportConfig =
             intent.getSerializableExtra("sport_config") as? DoubleSportConfig
-        initGbRegion()
+//        initGbRegion()
     }
 
-    private fun initGbRegion() {
-        val configLeft = RoleConfigRopeSkip()
-        val configRight = RoleConfigRopeSkip()
-        if (TextUtils.isEmpty(configLeft.key)) {
-            configLeft.key = mBinding.sportOverlay.configKey + "LEFT"
-        }
-
-        if (TextUtils.isEmpty(configRight.key)) {
-            configRight.key = mBinding.sportOverlay.configKey + "RIGHT"
-        }
-
-        configLeft.targetRegion =
-            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
-        configRight.targetRegion =
-            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
-        AdlUIConfig.instance().saveConfig(configLeft)
-        AdlUIConfig.instance().saveConfig(configRight)
-    }
+//    private fun initGbRegion() {
+//        val configLeft = RoleConfigRopeSkip()
+//        val configRight = RoleConfigRopeSkip()
+//        if (TextUtils.isEmpty(configLeft.key)) {
+//            configLeft.key = mBinding.sportOverlay.configKey + "LEFT"
+//        }
+//
+//        if (TextUtils.isEmpty(configRight.key)) {
+//            configRight.key = mBinding.sportOverlay.configKey + "RIGHT"
+//        }
+//
+//        configLeft.targetRegion =
+//            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
+//        configRight.targetRegion =
+//            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
+//        AdlUIConfig.instance().saveConfig(configLeft)
+//        AdlUIConfig.instance().saveConfig(configRight)
+//    }
 
     override fun createTsDoubleProcessor(): TsDoubleProcessor {
         return object : TsDoubleProcessor {
@@ -142,7 +124,7 @@ class DoubleGbSportActivity :
         )
         if (uiConfig.targetRegion == null) {
             uiConfig.targetRegion =
-                "[{\"x\":0,\"y\":0},{\"x\":100,\"y\":0},{\"x\":0,\"y\":100},{\"x\":100,\"y\":100}]"
+                "[{\"x\":0,\"y\":0},{\"x\":10,\"y\":0},{\"x\":0,\"y\":10},{\"x\":10,\"y\":10}]"
         }
         val isDebug: Boolean =
             MMKVUtil.decodeBoolean(
@@ -203,6 +185,8 @@ class DoubleGbSportActivity :
         createTime = System.currentTimeMillis()
         viewModel.sportEngine.startRecorder(videoFile)
         processorDouble.changeTo(SportProcessorStatus.Idle)
+        overlayVessel.clearScreen()
+        overlayVessel.gone()
         //配置overlay动画
         Thread {
             configSurfaceOverlay()
@@ -302,16 +286,9 @@ class DoubleGbSportActivity :
         jumpRopeProcessor = JumpRopeProcessor(config)
 
         jumpRopeProcessor?.setJumpRopeCallBack { singleJumper, multiJumper ->
-//            runOnUiThread {
-//                updateResult(singleJumper)
-//                doubleBaseCallback.onLeftCompleteOnce(SportDetectResult().apply {
-//                    sportAchievement = singleJumper.score
-//                    singleSportLevel = 5
-//                })
-//                multiJumper.forEach {
-//
-//                }
-//            }
+            runOnUiThread {
+                handleJumpRopeResult(multiJumper)
+            }
         }
         getCameraView().addProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo?) {
@@ -338,6 +315,19 @@ class DoubleGbSportActivity :
 
         })
         jumpRopeProcessor?.combineJumpRopeOverlay(mBinding.sportOverlay)
+    }
+
+    @Synchronized
+    private fun handleJumpRopeResult(jumpers: List<Jumper>) {
+        val leftJumper = jumpers.firstOrNull { it.indexNum == 0 }
+        val rightJumper = jumpers.firstOrNull { it.indexNum == 2 }
+        if ((leftJumper?.score ?: 0) != viewModel.leftValue) {
+            onLeftComplete(leftJumper?.score ?: 0)
+        }
+        if ((rightJumper?.score ?: 0) != viewModel.rightValue) {
+            onRightComplete(rightJumper?.score ?: 0)
+        }
+        checkArea(leftJumper?.skeleton, rightJumper?.skeleton)
     }
 
     fun startJumping() {
@@ -407,9 +397,9 @@ class DoubleGbSportActivity :
 
     }
 
-    private fun onLeftComplete(result: SportDetectResult) {
-        viewModel.refreshLeftValue(result.sportAchievement, result.singleSportLevel)
-        leftLevelAnimal?.setLevel(result.singleSportLevel)
+    private fun onLeftComplete(score: Int) {
+        viewModel.refreshLeftValue(score)
+        leftLevelAnimal?.setLevel(SportConstant.SPORT_PERFECT)
         //播放计数音效
         SoundPlayUtils.play(1)
         if (System.currentTimeMillis() - upLeftComboTime < 2000) {
@@ -427,9 +417,9 @@ class DoubleGbSportActivity :
         mBinding.overLayout.post { mBinding.overLayout.setLeftValue(viewModel.leftValue) }
     }
 
-    private fun onRightComplete(result: SportDetectResult) {
-        viewModel.refreshRightValue(result.sportAchievement, result.singleSportLevel)
-        rightLevelAnimal?.setLevel(result.singleSportLevel)
+    private fun onRightComplete(score: Int) {
+        viewModel.refreshRightValue(score)
+        rightLevelAnimal?.setLevel(SportConstant.SPORT_PERFECT)
         //播放计数音效
         SoundPlayUtils.play(1)
         if (System.currentTimeMillis() - upRightComboTime < 2000) {
@@ -447,9 +437,9 @@ class DoubleGbSportActivity :
         mBinding.overLayout.post { mBinding.overLayout.setRightValue(viewModel.rightValue) }
     }
 
-    private fun checkArea(left: TsSportChannel?, right: TsSportChannel?) {
-        mBinding.overLayout.checkLeftArea(left?.skeleton, viewModel.sportInfo!!.sportItemCode)
-        mBinding.overLayout.checkRightArea(right?.skeleton, viewModel.sportInfo!!.sportItemCode)
+    private fun checkArea(leftSkeleton: AdlPoseSkeleton?, rightSkeleton: AdlPoseSkeleton?) {
+        mBinding.overLayout.checkLeftArea(leftSkeleton, viewModel.sportInfo!!.sportItemCode)
+        mBinding.overLayout.checkRightArea(rightSkeleton, viewModel.sportInfo!!.sportItemCode)
     }
 
     override fun onDestroy() {
