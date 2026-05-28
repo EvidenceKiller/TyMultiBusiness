@@ -32,6 +32,7 @@ import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.SportTimer
 import com.ty.tybusbase.utils.ToastUtil
 
 class SkipLikeEightSportActivity :
@@ -51,6 +52,8 @@ class SkipLikeEightSportActivity :
     protected val tsConfig = SportConfigDouble()
 
     private var isStop = false
+
+    private var countDownTimer: SportTimer? = null
 
     override fun onStatusIdentify() {
     }
@@ -246,6 +249,33 @@ class SkipLikeEightSportActivity :
     override fun onStatusSport() {
         super.onStatusSport()
         startJumping()
+        startCountDown()
+    }
+
+    private fun startCountDown() {
+        countDownTimer?.cancel()
+        countDownTimer = SportTimer.build {
+            mode = SportTimer.Mode.COUNT_DOWN
+            totalTimeSeconds = viewModel.getEndValue() / 1000
+            callback = object : SportTimer.Callback {
+
+                override fun onTick(time: Long) {
+                    setCountTime(time)
+                }
+
+                override fun onFinish() {
+                    viewModel.toStatusSportEnd()
+                }
+
+            }
+        }
+        countDownTimer?.start()
+    }
+
+    private fun setCountTime(time: Long){
+        val min = time / 60
+        val sec = time % 60
+        mBinding.tvTime.text = "${viewModel.toTwoStr(min.toInt())}:${viewModel.toTwoStr(sec.toInt())}"
     }
 
     override fun onStatusEnd() {
@@ -381,6 +411,7 @@ class SkipLikeEightSportActivity :
 
     override fun onPause() {
         super.onPause()
+        countDownTimer?.cancel()
         mBinding.cameraView.onPause()
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
