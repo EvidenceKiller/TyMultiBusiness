@@ -32,8 +32,16 @@ import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.base.BaseBindingAdapter
+import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.utils.SportTimer
 import com.ty.tybusbase.utils.ToastUtil
+import com.bumptech.glide.Glide
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import android.view.View
+import android.graphics.Rect
+import com.ty.bus.multi.databinding.ItemAvatarBinding
 
 class SkipLikeEightSportActivity :
     BaseMultiSportActivity<ActivitySkipLikeEightExerciseBinding, SkipLikeEightViewModel>() {
@@ -71,6 +79,7 @@ class SkipLikeEightSportActivity :
         initSportEngine()
         initDoubleOverlay()
         initCamera()
+        initHeader()
     }
 
 
@@ -396,6 +405,67 @@ class SkipLikeEightSportActivity :
     fun startJumping() {
         jumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
         jumpRopeProcessor?.setStart(true)
+    }
+
+    private fun initHeader() {
+        val avatarUrl = "https://f.nezhasport.com/V2/busi/userFaceImgUrl/2025-12-11/1765450309969_7c033eb3.png"
+        val totalCount = 15 // 实际总数，可从接口获取
+        val items = mutableListOf<AvatarItem>()
+
+        // 前9个固定显示头像
+        repeat(kotlin.math.min(totalCount, 9)) {
+            items.add(AvatarItem(url = avatarUrl))
+        }
+
+        // 超出10个时，最后一个显示+X
+        if (totalCount > 10) {
+            items.add(AvatarItem(showMore = true, moreCount = totalCount - 10))
+        } else if (totalCount == 10) {
+            items.add(AvatarItem(url = avatarUrl))
+        }
+
+        val adapter = AvatarAdapter(items)
+        mBinding.rvHeader.apply {
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+            setHasFixedSize(true)
+            this.adapter = adapter
+            addItemDecoration(OverlapDecoration(20))
+            clipToPadding = false
+        }
+    }
+
+    class OverlapDecoration(private val overlapPx: Int) : RecyclerView.ItemDecoration() {
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+            val position = parent.getChildAdapterPosition(view)
+            if (position != 0) {
+                outRect.set(-overlapPx, 0, 0, 0)
+            }
+        }
+    }
+
+    data class AvatarItem(
+        val url: String = "",
+        val showMore: Boolean = false,
+        val moreCount: Int = 0
+    )
+
+    class AvatarAdapter(data: MutableList<AvatarItem>? = null) :
+        BaseBindingAdapter<ItemAvatarBinding, AvatarItem>(data) {
+
+        override fun convert(holder: VBViewHolder<ItemAvatarBinding>, item: AvatarItem) {
+            if (item.showMore) {
+                holder.vb.ivAvatar.visibility = View.GONE
+                holder.vb.tvMore.visibility = View.VISIBLE
+                holder.vb.tvMore.text = "+${item.moreCount}"
+            } else {
+                holder.vb.ivAvatar.visibility = View.VISIBLE
+                holder.vb.tvMore.visibility = View.GONE
+                Glide.with(holder.vb.root)
+                    .load(item.url)
+                    .circleCrop()
+                    .into(holder.vb.ivAvatar)
+            }
+        }
     }
 
     fun stopJumping() {

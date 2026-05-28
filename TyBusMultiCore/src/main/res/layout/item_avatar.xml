@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingEnd="@dimen/dp_8">
+
+    <ImageView
+        android:id="@+id/iv_avatar"
+        android:layout_width="@dimen/dp_48"
+        android:layout_height="@dimen/dp_48"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/tv_more"
+        android:layout_width="@dimen/dp_48"
+        android:layout_height="@dimen/dp_48"
+        android:background="@drawable/bg_avatar_more"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_20"
+        android:textStyle="bold"
+        android:visibility="gone" />
+</FrameLayout>
