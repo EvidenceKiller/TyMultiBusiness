@@ -65,31 +65,13 @@ class DoubleGbSportActivity :
     private var isNus = false //是否是纳秒时间戳
     private var countFrame = 0
 
+    private var isStop = false
+
     override fun initData() {
         super.initData()
         viewModel.doubleSportConfig =
             intent.getSerializableExtra("sport_config") as? DoubleSportConfig
-//        initGbRegion()
     }
-
-//    private fun initGbRegion() {
-//        val configLeft = RoleConfigRopeSkip()
-//        val configRight = RoleConfigRopeSkip()
-//        if (TextUtils.isEmpty(configLeft.key)) {
-//            configLeft.key = mBinding.sportOverlay.configKey + "LEFT"
-//        }
-//
-//        if (TextUtils.isEmpty(configRight.key)) {
-//            configRight.key = mBinding.sportOverlay.configKey + "RIGHT"
-//        }
-//
-//        configLeft.targetRegion =
-//            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
-//        configRight.targetRegion =
-//            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
-//        AdlUIConfig.instance().saveConfig(configLeft)
-//        AdlUIConfig.instance().saveConfig(configRight)
-//    }
 
     override fun createTsDoubleProcessor(): TsDoubleProcessor {
         return object : TsDoubleProcessor {
@@ -109,7 +91,6 @@ class DoubleGbSportActivity :
 
         }
     }
-
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
@@ -267,6 +248,7 @@ class DoubleGbSportActivity :
             override fun onSucceed(list: List<TsModelInfo?>?) {
                 // todo 模型加载成功回调
                 //模型加载成功后开始人脸识别
+                if (isStop) return
                 modelIsLoaded = true
                 hideLoadingDialog()
                 modelInitSuccessful()
@@ -353,37 +335,6 @@ class DoubleGbSportActivity :
         initGbJumpRopeProcessor()
     }
 
-    private fun getLeftRegion(): TsSportRegion {
-        val list: List<Quadrilateral> = getOverlay().displayRegion
-        if (list.size == 2) {
-            val lq = list[0]
-            val offset = 100
-            return TsSportRegion(
-                lq.p1.apply { y -= offset },
-                lq.p2.apply { y -= offset },
-                lq.p3,
-                lq.p4
-            )
-        }
-        return TsSportRegion.defRegion(1920, 1080, 960, 1080)
-    }
-
-    private fun getRightRegion(): TsSportRegion {
-        val list: List<Quadrilateral> = getOverlay().displayRegion
-        if (list.size == 2) {
-            val rq = list[1]
-            val offset = 100
-            return TsSportRegion(
-                rq.p1.apply { y -= offset },
-                rq.p2.apply { y -= offset },
-                rq.p3,
-                rq.p4
-            )
-        }
-        return TsSportRegion.defRegion(1920, 1080, 960, 1080)
-    }
-
-
     @Synchronized
     private fun modelInitSuccessful() {
         viewModel.toStatusIdentifyFace()
@@ -440,6 +391,16 @@ class DoubleGbSportActivity :
     private fun checkArea(leftSkeleton: AdlPoseSkeleton?, rightSkeleton: AdlPoseSkeleton?) {
         mBinding.overLayout.checkLeftArea(leftSkeleton, viewModel.sportInfo!!.sportItemCode)
         mBinding.overLayout.checkRightArea(rightSkeleton, viewModel.sportInfo!!.sportItemCode)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        isStop = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        isStop = true
     }
 
     override fun onDestroy() {

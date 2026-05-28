@@ -35,6 +35,7 @@ import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.config.UINavConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -68,27 +69,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             BusiBaseConstantsValue.IDENTITY_TYPE_FACE
         )
 //        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
-        initGbRegion()
-    }
-
-    private fun initGbRegion() {
-        val configLeft = RoleConfigRopeSkip()
-        val configRight = RoleConfigRopeSkip()
-        val sportOverlay = SportOverlayRopeSkipEx(this,null)
-        if (TextUtils.isEmpty(configLeft.key)) {
-            configLeft.key = sportOverlay.configKey + "LEFT"
-        }
-
-        if (TextUtils.isEmpty(configRight.key)) {
-            configRight.key = sportOverlay.configKey + "RIGHT"
-        }
-
-        configLeft.targetRegion =
-            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
-        configRight.targetRegion =
-            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
-        AdlUIConfig.instance().saveConfig(configLeft)
-        AdlUIConfig.instance().saveConfig(configRight)
+        BusiBaseConfig.setDoubleSkipGbDefaultRegion(this)
     }
 
     override fun initView(savedInstanceState: Bundle?) {

@@ -1,6 +1,10 @@
 package com.ty.tybusbase.config
 
-import com.google.gson.Gson
+import android.content.Context
+import android.text.TextUtils
+import com.adl.base.config.AdlUIConfig
+import com.adl.base.config.RoleConfigRopeSkip
+import com.adl.sport.standard.ui.SportOverlayRopeSkipEx
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
@@ -176,4 +180,30 @@ object BusiBaseConfig {
         )
     }
 
+    /**
+     * 设置国标区域
+     */
+    fun setDoubleSkipGbDefaultRegion(context: Context) {
+        val configLeft = RoleConfigRopeSkip()
+        val configRight = RoleConfigRopeSkip()
+        val sportOverlay = SportOverlayRopeSkipEx(context, null)
+        if (TextUtils.isEmpty(configLeft.key)) {
+            configLeft.key = sportOverlay.configKey + "LEFT"
+        }
+        if (TextUtils.isEmpty(configRight.key)) {
+            configRight.key = sportOverlay.configKey + "RIGHT"
+        }
+        val readLeft =
+            AdlUIConfig.instance().readConfig(configLeft.key, RoleConfigRopeSkip::class.java)
+        val readRight =
+            AdlUIConfig.instance().readConfig(configRight.key, RoleConfigRopeSkip::class.java)
+        //已经有值则不再设置
+        if (readLeft != null && readRight != null) return
+        configLeft.targetRegion =
+            "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
+        configRight.targetRegion =
+            "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
+        AdlUIConfig.instance().saveConfig(configLeft)
+        AdlUIConfig.instance().saveConfig(configRight)
+    }
 }
