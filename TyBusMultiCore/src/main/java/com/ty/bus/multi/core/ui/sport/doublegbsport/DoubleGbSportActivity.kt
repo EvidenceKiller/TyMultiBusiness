@@ -335,7 +335,6 @@ class DoubleGbSportActivity :
         initGbJumpRopeProcessor()
     }
 
-    @Synchronized
     private fun modelInitSuccessful() {
         viewModel.toStatusIdentifyFace()
         runOnUiThread {

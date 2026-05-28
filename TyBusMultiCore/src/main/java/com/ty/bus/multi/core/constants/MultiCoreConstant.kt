@@ -27,4 +27,6 @@ object MultiCoreConstant {
 
     const val BMI_SET_PARAM = "bmi_set_param"  //bmi设置项
     const val LUNG_SET_PARAM = "lung_set_param"  //肺活量设置项
+
+    const val SKIP_EIGHT_OVERLAY_UI_KEY = "skip_eight_overlay_ui_key"  //八字跳绳UI KEY
 }

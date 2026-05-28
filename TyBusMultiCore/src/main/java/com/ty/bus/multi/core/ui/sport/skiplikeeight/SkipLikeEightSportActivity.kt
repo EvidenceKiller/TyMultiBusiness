@@ -4,7 +4,10 @@ import android.os.Bundle
 import com.adl.base.bean.Quadrilateral
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
+import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.overlay.OnRenderScene
+import com.adl.mount.core.TsModelInfo
+import com.adl.mount.core.TsModelResPool
 import com.adl.mount.impl.TsDoubleProcessor
 import com.adl.mount.impl.TsSportFrameDouble
 import com.adl.mount.impl.TsSportLifecycleDouble
@@ -13,11 +16,19 @@ import com.adl.mount.sport.TsSportRegion
 import com.adl.processor.SportConfigDouble
 import com.adl.processor.SportProcessorDouble
 import com.adl.processor.SportProcessorStatus
+import com.adl.sport.standard.JumpConfig
+import com.adl.sport.standard.JumpType
+import com.adl.sport.standard.jumpcore.BaseSportState
+import com.adl.sport.standard.jumpcore.JumpRopeProcessor
+import com.adl.sport.standard.jumpcore.Jumper
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
+import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivitySkipLikeEightExerciseBinding
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.ModelIdConstants
+import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
@@ -33,7 +44,13 @@ class SkipLikeEightSportActivity :
     private var isLeftPrepared = false
     private var isRightPrepared = false
 
+    private val config by lazy { JumpConfig() }
+    private var jumpRopeProcessor: JumpRopeProcessor? = null
+    private var modelIsLoaded = false
+
     protected val tsConfig = SportConfigDouble()
+
+    private var isStop = false
 
     override fun onStatusIdentify() {
     }
@@ -63,7 +80,6 @@ class SkipLikeEightSportActivity :
             )
         )
         mBinding.cameraView.addProcessor(viewModel.sportEngine)
-        mBinding.cameraView.addProcessor(processorDouble)
     }
 
     private fun initDoubleOverlay() {
@@ -88,9 +104,10 @@ class SkipLikeEightSportActivity :
             // 配置，绘制 绑定
             setListener {
                 initRegion()
+                initGbOverlay()
+                initGbJumpRopeProcessor()
                 processorDouble.changeTo(SportProcessorStatus.Sporting)
                 sportLifecycleDouble.toSporting()
-                viewModel.toStatusPrepare()
                 multiRegion.setDrawing(isDebug)
             }
         }
@@ -206,7 +223,7 @@ class SkipLikeEightSportActivity :
         isLeftPrepared = true
         ToastUtil.getInstance(this, "左边准备好了").show()
         if (isRightPrepared) {
-            closeDoubleProcessor()
+            viewModel.toStatusPrepare()
         }
     }
 
@@ -214,17 +231,148 @@ class SkipLikeEightSportActivity :
         isRightPrepared = true
         ToastUtil.getInstance(this, "右边准备好了").show()
         if (isLeftPrepared) {
-            closeDoubleProcessor()
+            viewModel.toStatusPrepare()
         }
     }
 
+    override fun onStatusPrepare() {
+        super.onStatusPrepare()
+        closeDoubleProcessor()
+        mBinding.readyView.startReady {
+            viewModel.toStatusSportStart()
+        }
+    }
+
+    override fun onStatusSport() {
+        super.onStatusSport()
+        startJumping()
+    }
+
+    override fun onStatusEnd() {
+        super.onStatusEnd()
+        stopJumping()
+    }
 
     private fun closeDoubleProcessor() {
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
         mBinding.cameraView.removeProcessor(processorDouble)
+        mBinding.overlay.clearScreen()
+        mBinding.overlay.gone()
     }
 
+    private fun initGbOverlay() {
+        val uiConfig = AdlUIConfig.instance().readConfig(
+            MultiCoreConstant.SKIP_EIGHT_OVERLAY_UI_KEY,
+            RoleConfigRopeSkip::class.java
+        )
+        val list = mBinding.overlay.previewRegion
+        if (uiConfig.targetRegion == null) {
+            if (list.size == 2) {
+                val lq = list[0]
+                val rq = list[1]
+                val leftX = lq.rect.centerX()
+                val rightX = rq.rect.centerX()
+                uiConfig.targetRegion =
+                    "[{\"x\":$leftX,\"y\":0},{\"x\":$rightX,\"y\":0},{\"x\":$leftX,\"y\":1080},{\"x\":$rightX,\"y\":1080}]"
+            } else {
+                uiConfig.targetRegion =
+                    "[{\"x\":$0,\"y\":0},{\"x\":$1920,\"y\":0},{\"x\":$0,\"y\":1080},{\"x\":$1920,\"y\":1080}]"
+            }
+        }
+
+        val isDebug: Boolean =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.MODEL_DEBUG,
+                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+            )
+        val skeleton =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.SKELETON_ABLE,
+                BusiBaseConstantsValue.DEFAULT_SKELETON
+            )
+        mBinding.gbOverlay.apply {
+            enableDebug(isDebug)
+            enableDrawBox(false)
+            enableDrawSkeleton(skeleton)
+        }
+        mBinding.gbOverlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
+        mBinding.gbOverlay.refresh()
+        mBinding.gbOverlay.enableTouch(false)
+    }
+
+    private fun initGbJumpRopeProcessor() {
+        showLoadingDialog("运动引擎加载中...")
+        val drawSkeleton = BusiBaseConfig.getSkeletonEnable()
+        val isDebug: Boolean = BusiBaseConfig.getDebugEnable()
+        // 创建配置对象
+        config.debug = isDebug // 开启调试模式
+        config.checkRope = true // 检测绳索
+        config.checkDownRope = true // 检测下方绳索
+        config.drawSkeleton = drawSkeleton // 绘制骨骼
+        config.drawRope = isDebug // 绘制绳索
+        config.multiPersonType = JumpConfig.MultiPersonType.SINGLE_PERSON // 单人模式
+        config.enablePrescription = false
+        config.experienceEnable = false
+        config.drawAllBody = isDebug
+        config.drawSingleBody = isDebug
+        config.drawSelectBody = isDebug
+        // 设置跳绳类型
+        config.setJumpType(
+            JumpType.skippingLikeAEight,
+            object : TsModelResPool.OnLoadModelCallback {
+                override fun onStart() {
+                }
+
+                override fun onSucceed(list: List<TsModelInfo?>?) {
+                    // todo 模型加载成功回调
+                    //模型加载成功后开始人脸识别
+                    if (isStop) return
+                    modelIsLoaded = true
+                    hideLoadingDialog()
+                    modelInitSuccessful()
+                }
+
+                override fun onFinish(
+                    list: List<TsModelInfo?>?,
+                    errrorList: List<TsModelInfo?>?
+                ) {
+
+                }
+
+                override fun onEnd(str: String?) {
+                    // 模型加载完成
+                }
+            })
+        jumpRopeProcessor = JumpRopeProcessor(config)
+
+        jumpRopeProcessor?.setJumpRopeCallBack { singleJumper, multiJumper ->
+            runOnUiThread {
+                handleJumpRopeResult(singleJumper)
+            }
+        }
+        mBinding.cameraView.addProcessor(jumpRopeProcessor)
+        jumpRopeProcessor?.combineJumpRopeOverlay(mBinding.gbOverlay)
+    }
+
+    private fun handleJumpRopeResult(jumper: Jumper) {
+
+    }
+
+    private fun modelInitSuccessful() {
+        mBinding.cameraView.addProcessor(processorDouble)
+    }
+
+    fun startJumping() {
+        jumpRopeProcessor?.changeStatus(BaseSportState.Sporting)
+        jumpRopeProcessor?.setStart(true)
+    }
+
+    fun stopJumping() {
+        jumpRopeProcessor?.changeStatus(BaseSportState.Standby)
+        jumpRopeProcessor?.setStart(false)
+        jumpRopeProcessor?.onRelease()
+    }
 
     override fun onResume() {
         super.onResume()
@@ -236,6 +384,7 @@ class SkipLikeEightSportActivity :
         mBinding.cameraView.onPause()
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
+        stopJumping()
     }
 
     override fun onDestroy() {
@@ -243,6 +392,7 @@ class SkipLikeEightSportActivity :
         mBinding.cameraView.onRelease()
         processorDouble.onRelease()
         sportLifecycleDouble.onRelease()
+        jumpRopeProcessor?.onRelease()
         SpeechWrapper.stop()
     }
 
