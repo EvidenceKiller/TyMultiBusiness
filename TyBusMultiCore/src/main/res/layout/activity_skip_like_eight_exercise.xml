@@ -247,7 +247,6 @@
         </ScrollView>
     </LinearLayout>
 
-
     <RelativeLayout
         android:id="@+id/rl_speed"
         android:layout_width="@dimen/dp_320"
@@ -277,5 +276,10 @@
             tools:text="瞬时速度：-" />
 
     </RelativeLayout>
+
+    <include
+        android:id="@+id/sport_result_view"
+        android:visibility="gone"
+        layout="@layout/skip_eight_sport_result_view"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

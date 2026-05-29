@@ -170,3 +170,37 @@ fun Long.toMs(): String {
     var timeFormat = SimpleDateFormat("mm:ss")
     return timeFormat.format(this)
 }
+
+/**
+ * 时间戳转换成字mm:ss:ss字符串
+ * 比赛计时
+ */
+fun Long.toRaceTiming(): String {
+    var dateTimes: String? = null
+    val days = this / (60 * 60 * 24)
+    val hours = (this % (60 * 60 * 24)) / (60 * 60)
+    val minutes = (this % (60 * 60)) / 60
+    val seconds = this % 60
+    dateTimes = when {
+        days > 0 -> {
+            (days.toString() + "'" + hours + "'" + minutes + "'"
+                    + seconds + "\"")
+        }
+
+        hours > 0 -> {
+            (hours.toString() + "'" + minutes + "'"
+                    + seconds + "\"")
+        }
+
+        minutes > 0 -> {
+            (minutes.toString() + "'"
+                    + seconds + "\"")
+        }
+
+        else -> {
+            (0.toString() + "'"
+                    + seconds + "\"")
+        }
+    }
+    return dateTimes
+}

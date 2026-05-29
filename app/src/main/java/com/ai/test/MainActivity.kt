@@ -366,7 +366,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportItemCode = SportConstant.SPORT_SKIP_EIGHT_JUMP
                     sportSkuId = sportItemCode + "0001"
                     sportSkuName = "八字跳绳"
-                    endValue = "160000"
+                    endValue = "20000"
                     endType = SportConstant.END_TYPE_TIME
                     sceneId = SceneConstants.FREE
                 }

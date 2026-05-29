@@ -198,7 +198,7 @@ object BusiBaseConfig {
         val readRight =
             AdlUIConfig.instance().readConfig(configRight.key, RoleConfigRopeSkip::class.java)
         //已经有值则不再设置
-        if (readLeft != null && readRight != null) return
+        if (readLeft?.targetRegion != null && readRight?.targetRegion != null) return
         configLeft.targetRegion =
             "[{\"x\":271,\"y\":704},{\"x\":664,\"y\":703},{\"x\":179,\"y\":1058},{\"x\":762,\"y\":1060}]"
         configRight.targetRegion =

@@ -42,8 +42,12 @@ import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.service.entity.MeetGroupDetailsEntity
 import com.ty.bus.multi.R
 import com.ty.tybusbase.expand.toMs
+import com.ty.tybusbase.expand.toRaceTiming
 import com.ty.tybusbase.expand.visible
 
 class SkipLikeEightSportActivity :
@@ -88,7 +92,8 @@ class SkipLikeEightSportActivity :
 
     override fun initData() {
         super.initData()
-
+        viewModel.studentList =
+            intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -97,7 +102,7 @@ class SkipLikeEightSportActivity :
         initDoubleOverlay()
         initCamera()
         observeViewModel()
-        viewModel.loadAvatars()
+        viewModel.loadPerson()
         setupGradientText()
     }
 
@@ -186,11 +191,15 @@ class SkipLikeEightSportActivity :
     }
 
     fun readConfig(): RoleConfigMulti {
-
         return AdlUIConfig.instance().readConfig(
-            "_double_person",
+            MultiCoreConstant.SKIP_EIGHT_IDENTIFY_OVERLAY_UI_KEY,
             RoleConfigMulti::class.java
-        )
+        ).apply {
+            if (targetRegion == null) {
+                targetRegion =
+                    "[{\"x\":215,\"y\":587},{\"x\":514,\"y\":582},{\"x\":210,\"y\":782},{\"x\":533,\"y\":774},{\"x\":1345,\"y\":590},{\"x\":1665,\"y\":581},{\"x\":1332,\"y\":789},{\"x\":1676,\"y\":785}]"
+            }
+        }
     }
 
     fun initSportEngine() {
@@ -240,7 +249,7 @@ class SkipLikeEightSportActivity :
     private fun checkPersonState(frame: TsSportFrameDouble?) {
         runOnUiThread {
             frame?.left?.skeleton?.let {
-                leftPrepared()
+//                leftPrepared()
             }
 
             frame?.right?.skeleton?.let {
@@ -276,8 +285,8 @@ class SkipLikeEightSportActivity :
      */
     private fun initRegionAnimation() {
         // 显示左右区域ImageView
-        mBinding.ivLeftRegion.visibility = android.view.View.VISIBLE
-        mBinding.ivRightRegion.visibility = android.view.View.VISIBLE
+        mBinding.ivLeftRegion.visibility = View.VISIBLE
+        mBinding.ivRightRegion.visibility = View.VISIBLE
 
         // 设置图片位置到左右区域的中点
         setRegionImagePosition()
@@ -433,6 +442,14 @@ class SkipLikeEightSportActivity :
         mBinding.tvCount.visible()
         mBinding.tvUnit.visible()
         viewModel.startSportTime = System.currentTimeMillis()
+        //开始录像
+        mBinding.cameraView.addProcessor(object : AdlCameraFrameProcessor {
+            override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
+                viewModel.videoRecorder.inputNv21(p0)
+            }
+        })
+        viewModel.startRecord()
+
         startJumping()
         startCountDown()
     }
@@ -453,6 +470,37 @@ class SkipLikeEightSportActivity :
         super.onStatusEnd()
         viewModel.endSportTime = System.currentTimeMillis()
         stopJumping()
+        // 停止录像,上传成绩
+        viewModel.stopRecord()
+        uploadResult()
+        showResultView()
+    }
+
+    private fun uploadResult() {
+        //结束上传成绩
+//        viewModel.recordMeet?.let {
+//            it.meetNumberCode = meetGroupDetail!!.numberCode
+//            it.meetRunwayCode = meetGroupDetail!!.runwayCode
+//            it.serialNumber = meetGroupDetail!!.serialCode
+//        }
+//        viewModel.uploadSportResult(
+//            sceneId ?: SceneConstants.FREE,
+//            sportResult,
+//            modelId,
+//            matchId,
+//            matchSportId,
+//            matchName,
+//            recordMeet
+//        )
+    }
+
+    private fun showResultView() {
+        mBinding.sportResultView.root.visible()
+        mBinding.sportResultView.sportScore.text = count.toString()
+        mBinding.sportResultView.tvCount.text = count.toString()
+        mBinding.sportResultView.tvDuration.text =
+            ((viewModel.endSportTime - viewModel.startSportTime) / 1000L).toRaceTiming()
+        mBinding.sportResultView.btnSure.setOnClickListener { finish() }
     }
 
     private fun closeDoubleProcessor() {
@@ -558,14 +606,12 @@ class SkipLikeEightSportActivity :
     }
 
     private fun handleJumpRopeResult(singleJumper: Jumper) {
-// 实时更新运动数据
-//        setCount(singleJumper.score, SportConstant.SPORT_PERFECT)
-        count++
+        if (count == singleJumper.score) return
         //处理combo
         if (System.currentTimeMillis() - upComboTime < comboTimeThreshold) {
             mBinding.layoutCombo.visible()
             mBinding.tvCombo.text = "x$comboCount"
-            comboCount += count
+            comboCount++
         } else {
             maxComboCount = maxComboCount.coerceAtLeast(comboCount)
             mBinding.layoutCombo.gone()
@@ -578,7 +624,7 @@ class SkipLikeEightSportActivity :
         val exceptionList = arrayListOf<String>().apply {
             addAll(singleJumper.ropeSkipOnce.exceptionList)
         }
-//        count = singleJumper.score
+        count = singleJumper.score
         mBinding.tvCount.text = count.toString()
         mBinding.tvSpeed.text =
             getString(

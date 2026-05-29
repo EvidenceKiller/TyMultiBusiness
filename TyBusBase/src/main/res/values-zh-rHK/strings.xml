@@ -113,4 +113,7 @@
   <string name="busi_base_energe">能量</string>
 
   <string name="trick_jump_speed">瞬时速度：%d个/分钟</string>
+  <string name="sport_result">运动成绩</string>
+  <string name="sport_duration">运动时长</string>
+  <string name="current_rank">本次排名</string>
 </resources>

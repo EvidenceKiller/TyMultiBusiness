@@ -885,10 +885,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
      */
     fun toDone() {
         toStatusSportEnd()
-        //java.lang.NullPointerException: Attempt to invoke virtual method 'void com.adl.mount.core.TsTaskNormalCenter.reset()' on a null object reference
-        //	at com.adl.sport.general.multi.MultiSportImplTs.reset(MultiSportImplTs.java:117)
-        //	at com.adl.sport.general.multi.MultiSportProcessor.changeTo(MultiSportProcessor.java:250)
-        //	at com.ty.bus.multi.core.base.BaseIPCMultiSportViewModel.toDone(BaseIPCMultiSportViewModel.kt:846)
         //有崩溃，补货异常
         try {
             skipRoseState = MultiSportState.IDLE

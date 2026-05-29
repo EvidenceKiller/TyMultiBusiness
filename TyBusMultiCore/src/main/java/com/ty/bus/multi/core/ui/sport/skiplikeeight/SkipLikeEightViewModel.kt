@@ -2,8 +2,12 @@ package com.ty.bus.multi.core.ui.sport.skiplikeeight
 
 import android.app.Application
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
+import com.adl.service.entity.MeetGroupDetailsEntity
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.tybusbase.utils.SportTimer
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class SkipLikeEightViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
@@ -18,10 +22,11 @@ class SkipLikeEightViewModel(application: Application) : BaseMultiSportViewModel
     /** 头像列表数据 */
     val avatarListLD = MutableLiveData<List<AvatarItem>>()
 
+    var studentList: ArrayList<MeetGroupDetailsEntity>? = null
     /**
      * 加载头像列表数据
      */
-    fun loadAvatars() {
+    fun loadPerson() {
         val avatarUrl = "https://f.nezhasport.com/V2/busi/userFaceImgUrl/2025-12-11/1765450309969_7c033eb3.png"
         val totalCount = 15 // 实际总数，可从接口获取
         val items = mutableListOf<AvatarItem>()
@@ -60,6 +65,22 @@ class SkipLikeEightViewModel(application: Application) : BaseMultiSportViewModel
             }
         }
         countDownTimer?.start()
+    }
+
+    fun startRecord(){
+        if (videoRecorder.isStarting) {
+            return
+        }
+        getVideoPath()
+        viewModelScope.launch(Dispatchers.IO) {
+            val size = 1920 to 1080
+            videoRecorder.onStart(videoFile, size.first, size.second)
+        }
+    }
+
+
+    fun stopRecord(){
+        videoRecorder.onStop()
     }
 
     /**
