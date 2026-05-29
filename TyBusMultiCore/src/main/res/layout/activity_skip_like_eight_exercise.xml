@@ -62,9 +62,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_header"
-            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical" />
 
     </LinearLayout>
 
@@ -73,10 +73,10 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/dp_72"
         android:layout_marginStart="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_12"
         android:background="@mipmap/skip_eight_sports_name_bg"
         android:paddingHorizontal="@dimen/dp_24"
         android:paddingVertical="@dimen/dp_12"
-        android:layout_marginTop="@dimen/dp_12"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_content">
 
@@ -105,6 +105,7 @@
         android:layout_height="@dimen/dp_68"
         android:background="@mipmap/count_down_time_bg"
         android:gravity="center"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -134,37 +135,62 @@
         android:contentDescription="321倒计时视图"
         android:visibility="gone" />
 
+    <TextView
+        android:id="@+id/tv_count"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_48"
+        android:textSize="@dimen/sp_140"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:text="@string/ge"
+        android:textSize="@dimen/sp_56"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_count"
+        app:layout_constraintStart_toEndOf="@+id/tv_count" />
+
     <LinearLayout
         android:id="@+id/layout_combo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_271"
+        android:layout_marginTop="@dimen/dp_241"
+        android:background="@drawable/bg_combo_shape"
         android:gravity="center_horizontal"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:visibility="gone"
+        android:paddingHorizontal="@dimen/dp_20"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
-        <com.ty.tybusbase.view.BounceTextView
-            android:id="@+id/tv_combo"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="X16"
-            android:textColor="@color/white"
-            android:textSize="@dimen/dp_94"
-            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/tv_combo_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginVertical="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_46"
             android:gravity="center"
-            android:paddingLeft="@dimen/dp_60"
-            android:paddingRight="@dimen/dp_60"
             android:text="COMBO"
-            android:textColor="@color/white"
-            android:textSize="@dimen/dp_48"
+            android:textSize="@dimen/dp_32"
+            android:textStyle="bold" />
+
+        <com.ty.tybusbase.view.BounceTextView
+            android:id="@+id/tv_combo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_46"
+            android:text="X16"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/dp_32"
             android:textStyle="bold" />
     </LinearLayout>
 

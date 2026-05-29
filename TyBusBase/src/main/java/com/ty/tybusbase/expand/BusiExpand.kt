@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
 import java.nio.ByteBuffer
+import java.text.SimpleDateFormat
 
 typealias Action = () -> Unit
 typealias Action1<T> = (t: T) -> Unit
@@ -160,4 +161,12 @@ fun String.getFileExtension(): String {
     val lastDotIndex = fileName.lastIndexOf('.')
     // 如果点不存在，或者点位于第一个字符（隐藏文件），则无后缀
     return if (lastDotIndex > 0) fileName.substring(lastDotIndex + 1) else ""
+}
+
+/**
+ * 时间戳转换成字mm:ss符串
+ */
+fun Long.toMs(): String {
+    var timeFormat = SimpleDateFormat("mm:ss")
+    return timeFormat.format(this)
 }

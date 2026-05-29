@@ -1,8 +1,12 @@
 package com.ty.bus.multi.core.ui.sport.skiplikeeight
 
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Shader
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import android.view.animation.AlphaAnimation
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.adl.base.bean.Quadrilateral
@@ -39,6 +43,8 @@ import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.ty.bus.multi.R
+import com.ty.tybusbase.expand.toMs
+import com.ty.tybusbase.expand.visible
 
 class SkipLikeEightSportActivity :
     BaseMultiSportActivity<ActivitySkipLikeEightExerciseBinding, SkipLikeEightViewModel>() {
@@ -64,6 +70,14 @@ class SkipLikeEightSportActivity :
 
     protected val tsConfig = SportConfigDouble()
 
+    private var count = 0
+
+    private val comboTimeThreshold = 3000
+
+    private var maxComboCount = 0
+    private var upComboTime: Long = 0
+    protected var comboCount = 1
+
     private var isStop = false
 
     override fun onStatusIdentify() {
@@ -84,6 +98,7 @@ class SkipLikeEightSportActivity :
         initCamera()
         observeViewModel()
         viewModel.loadAvatars()
+        setupGradientText()
     }
 
 
@@ -412,6 +427,12 @@ class SkipLikeEightSportActivity :
 
     override fun onStatusSport() {
         super.onStatusSport()
+        mBinding.llCountdown.visible()
+        mBinding.rlSpeed.visible()
+        mBinding.llException.visible()
+        mBinding.tvCount.visible()
+        mBinding.tvUnit.visible()
+        viewModel.startSportTime = System.currentTimeMillis()
         startJumping()
         startCountDown()
     }
@@ -430,6 +451,7 @@ class SkipLikeEightSportActivity :
 
     override fun onStatusEnd() {
         super.onStatusEnd()
+        viewModel.endSportTime = System.currentTimeMillis()
         stopJumping()
     }
 
@@ -509,7 +531,6 @@ class SkipLikeEightSportActivity :
                     //模型加载成功后开始人脸识别
                     if (isStop) return
                     modelIsLoaded = true
-                    hideLoadingDialog()
                     modelInitSuccessful()
                 }
 
@@ -522,6 +543,7 @@ class SkipLikeEightSportActivity :
 
                 override fun onEnd(str: String?) {
                     // 模型加载完成
+                    hideLoadingDialog()
                 }
             })
         jumpRopeProcessor = JumpRopeProcessor(config)
@@ -535,8 +557,46 @@ class SkipLikeEightSportActivity :
         jumpRopeProcessor?.combineJumpRopeOverlay(mBinding.gbOverlay)
     }
 
-    private fun handleJumpRopeResult(jumper: Jumper) {
+    private fun handleJumpRopeResult(singleJumper: Jumper) {
+// 实时更新运动数据
+//        setCount(singleJumper.score, SportConstant.SPORT_PERFECT)
+        count++
+        //处理combo
+        if (System.currentTimeMillis() - upComboTime < comboTimeThreshold) {
+            mBinding.layoutCombo.visible()
+            mBinding.tvCombo.text = "x$comboCount"
+            comboCount += count
+        } else {
+            maxComboCount = maxComboCount.coerceAtLeast(comboCount)
+            mBinding.layoutCombo.gone()
+            comboCount = 1
+        }
+        upComboTime = System.currentTimeMillis()
 
+        val speedQ = singleJumper.ropeSkipOnce.speed
+        mBinding.waveLine.insert(speedQ)
+        val exceptionList = arrayListOf<String>().apply {
+            addAll(singleJumper.ropeSkipOnce.exceptionList)
+        }
+//        count = singleJumper.score
+        mBinding.tvCount.text = count.toString()
+        mBinding.tvSpeed.text =
+            getString(
+                R.string.trick_jump_speed,
+                speedQ
+            )
+        if (exceptionList.isNotEmpty()) {
+            mBinding.tvNoException.visibility = View.GONE
+            mBinding.svException.visibility = View.VISIBLE
+            mBinding.tvException.text = ""
+            exceptionList.forEach {
+                mBinding.tvException.append(
+                    "${(System.currentTimeMillis() - viewModel.startSportTime).toMs()} $it\n"
+                )
+                mBinding.svException.fullScroll(View.FOCUS_DOWN)
+            }
+
+        }
     }
 
     private fun modelInitSuccessful() {
@@ -559,6 +619,34 @@ class SkipLikeEightSportActivity :
 
         viewModel.countDownFinishLD.observe(this) {
             viewModel.toStatusSportEnd()
+        }
+    }
+
+    private fun setupGradientText() {
+        applyTextGradient(mBinding.tvCount, "#FFFFFF", "#D1ECFD", 0.2962f, 0.7231f)
+        applyTextGradient(mBinding.tvUnit, "#FFFFFF", "#D1ECFD", 0.2962f, 0.7231f)
+        applyTextGradient(mBinding.tvCombo, "#FFEE00", "#FFCC00", 0.2931f, 0.7931f)
+        applyTextGradient(mBinding.tvComboText, "#FFEE00", "#FFCC00", 0.2931f, 0.7931f)
+    }
+
+    private fun applyTextGradient(
+        textView: android.widget.TextView,
+        startColor: String,
+        endColor: String,
+        startPos: Float,
+        endPos: Float
+    ) {
+        textView.post {
+            textView.setTextColor(Color.WHITE)
+            val height = textView.textSize
+            val shader = LinearGradient(
+                0f, 0f, 0f, height,
+                intArrayOf(Color.parseColor(startColor), Color.parseColor(endColor)),
+                floatArrayOf(startPos, endPos),
+                Shader.TileMode.CLAMP
+            )
+            textView.paint.shader = shader
+            textView.invalidate()
         }
     }
 

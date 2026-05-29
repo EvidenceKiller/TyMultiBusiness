@@ -118,4 +118,5 @@
     <string name="busi_base_search_by_name">按姓名搜索</string>
 
     <string name="busi_base_energe">能量</string>
+    <string name="trick_jump_speed">瞬时速度：%d个/分钟</string>
 </resources>
