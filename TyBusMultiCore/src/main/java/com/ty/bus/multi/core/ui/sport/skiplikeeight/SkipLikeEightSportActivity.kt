@@ -56,7 +56,7 @@ class SkipLikeEightSportActivity :
     private var rightAnimRunnable: Runnable? = null
     private var leftAnimFrame = 0
     private var rightAnimFrame = 0
-    private val animInterval = 300L // 300毫秒
+    private val animInterval = 1000L // 区域提示框动画时间
 
     private val config by lazy { JumpConfig() }
     private var jumpRopeProcessor: JumpRopeProcessor? = null
@@ -223,21 +223,19 @@ class SkipLikeEightSportActivity :
     }
 
     private fun checkPersonState(frame: TsSportFrameDouble?) {
-        if (frame == null || (isLeftPrepared && isRightPrepared)) return
-        frame.left?.skeleton?.let {
-            runOnUiThread {
+        runOnUiThread {
+            frame?.left?.skeleton?.let {
                 leftPrepared()
             }
-        }
 
-        frame.right?.skeleton?.let {
-            runOnUiThread {
+            frame?.right?.skeleton?.let {
                 rightPrepared()
             }
         }
     }
 
     private fun leftPrepared() {
+        if (isLeftPrepared) return
         isLeftPrepared = true
         ToastUtil.getInstance(this, "左边准备好了").show()
         // 切换到准备状态图片
@@ -248,6 +246,7 @@ class SkipLikeEightSportActivity :
     }
 
     private fun rightPrepared() {
+        if (isRightPrepared) return
         isRightPrepared = true
         ToastUtil.getInstance(this, "右边准备好了").show()
         // 切换到准备状态图片
@@ -285,9 +284,11 @@ class SkipLikeEightSportActivity :
         val rightCenterY = rightRegion?.centerY() ?: 0
 
         // 获取图片控件的宽高
-        val imageWidth = mBinding.ivLeftRegion.measuredWidth.takeIf { it > 0 } ?: resources.getDimensionPixelSize(com.ty.bus.multi.R.dimen.dp_303)
-        val imageHeight = mBinding.ivLeftRegion.measuredHeight.takeIf { it > 0 } ?: resources.getDimensionPixelSize(com.ty.bus.multi.R.dimen.dp_87)
-        
+        val imageWidth = mBinding.ivLeftRegion.measuredWidth.takeIf { it > 0 }
+            ?: resources.getDimensionPixelSize(R.dimen.dp_303)
+        val imageHeight = mBinding.ivLeftRegion.measuredHeight.takeIf { it > 0 }
+            ?: resources.getDimensionPixelSize(R.dimen.dp_87)
+
         // 计算偏移量（图片宽高的一半）
         val offsetX = imageWidth / 2
         val offsetY = imageHeight / 2
@@ -420,10 +421,11 @@ class SkipLikeEightSportActivity :
         viewModel.startCountDown(totalSeconds)
     }
 
-    private fun setCountTime(time: Long){
+    private fun setCountTime(time: Long) {
         val min = time / 60
         val sec = time % 60
-        mBinding.tvTime.text = "${viewModel.toTwoStr(min.toInt())}:${viewModel.toTwoStr(sec.toInt())}"
+        mBinding.tvTime.text =
+            "${viewModel.toTwoStr(min.toInt())}:${viewModel.toTwoStr(sec.toInt())}"
     }
 
     override fun onStatusEnd() {

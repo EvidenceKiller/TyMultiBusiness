@@ -20,7 +20,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-
     <com.adl.base.overlay.SportOverlayMultiRegion
         android:id="@+id/overlay"
         android:layout_width="match_parent"
@@ -56,11 +55,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_40"
         android:layout_marginTop="@dimen/dp_50"
+
+        android:background="@mipmap/skip_eight_user_avataer_bg"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_header"
+            android:layout_gravity="center_vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -74,6 +76,7 @@
         android:background="@mipmap/skip_eight_sports_name_bg"
         android:paddingHorizontal="@dimen/dp_24"
         android:paddingVertical="@dimen/dp_12"
+        android:layout_marginTop="@dimen/dp_12"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/header_content">
 
