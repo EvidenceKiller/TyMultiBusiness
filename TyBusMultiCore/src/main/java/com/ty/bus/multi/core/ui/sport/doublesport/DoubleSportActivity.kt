@@ -175,6 +175,10 @@ class DoubleSportActivity :
         mBinding.overLayout.warnTime()
     }
 
+    override fun enableSmooth(): Boolean {
+        return viewModel.sportInfo?.sportItemCode != SportConstant.SPORT_SKIP_ROPE
+    }
+
     private fun onLeftComplete(result: SportDetectResult) {
         viewModel.refreshLeftValue(result.sportAchievement, result.singleSportLevel)
         leftLevelAnimal?.setLevel(result.singleSportLevel)

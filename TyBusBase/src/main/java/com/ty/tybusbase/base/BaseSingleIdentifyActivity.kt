@@ -173,7 +173,8 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
             setConfig(tsConfig)
             setBodyTracker(singleTracker)
             setPoseType(if (DeviceUtil.isTsRk3588()) SportModelType.TS else SportModelType.KunL)
-            setSmooth(false)
+            singleTracker.setEnableSmooth(enableSmooth())
+            setSmooth(enableSmooth())
             setAutoDeleteFrame(false)
         }
         processorSingle.open(overlayVessel)
@@ -183,6 +184,8 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
             sportInit()
         }
     }
+
+    open fun enableSmooth() = false
 
     fun removeProcessorSingle() {
         mBaseBinding.cameraView.removeProcessor(processorSingle)

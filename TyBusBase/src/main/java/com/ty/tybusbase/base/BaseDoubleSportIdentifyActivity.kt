@@ -306,7 +306,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                 )
             }
             tsConfig.leftTracker.setBodyMultiFilter(createLeftBodyFilter())
-            tsConfig.leftTracker.setEnableSmooth(openSmooth())
+            tsConfig.leftTracker.setEnableSmooth(enableSmooth())
 
             tsConfig.rightTracker = SingleTracker().apply {
                 setInitPointF(
@@ -315,7 +315,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
                 )
             }
             tsConfig.rightTracker.setBodyMultiFilter(createRightBodyFilter())
-            tsConfig.rightTracker.setEnableSmooth(openSmooth())
+            tsConfig.rightTracker.setEnableSmooth(enableSmooth())
 
         }
     }
@@ -447,7 +447,7 @@ abstract class BaseDoubleSportIdentifyActivity<VB : ViewBinding, VM : BaseDouble
 
     abstract fun warningTime()
 
-    open fun openSmooth() = false
+    open fun enableSmooth() = false
 
     open fun createLeftBodyFilter(): TsTaskBodyMultiFilter? = null
     open fun createRightBodyFilter(): TsTaskBodyMultiFilter? = null
