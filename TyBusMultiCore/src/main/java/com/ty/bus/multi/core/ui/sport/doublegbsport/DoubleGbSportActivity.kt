@@ -337,9 +337,6 @@ class DoubleGbSportActivity :
 
     private fun modelInitSuccessful() {
         viewModel.toStatusIdentifyFace()
-        runOnUiThread {
-            initFaceRec()
-        }
     }
 
 
