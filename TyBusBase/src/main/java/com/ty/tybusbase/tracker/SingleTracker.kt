@@ -45,10 +45,11 @@ open class SingleTracker(val pointCallback: PointCallback? = null) : TsBodyTrack
             )
             if (distance < min) {
                 val smoothFlag = if (lastBody == null) 0 else 1
+                val personId = if (lastBody == null) getPersonId() else personId
                 min = distance
                 lastBody = it
                 if (enableSmooth) {
-                    lastBody.smoothId = getPersonId()
+                    lastBody.smoothId = personId
                     lastBody.smoothFlag = smoothFlag
                 } else {
                     lastBody.smoothId = -1
