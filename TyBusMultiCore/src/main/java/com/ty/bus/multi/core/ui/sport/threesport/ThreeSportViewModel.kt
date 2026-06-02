@@ -619,6 +619,7 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
                 sportResult.perfectScore = multiResult.count
                 sportResult.goodScore = 0
                 sportResult.comeOnScore = 0
+                sportResult.sportNo = (multiResult.number + 1).toString()
                 sportResult.userId = multiResult.accountInfo.studentEntity?.accountId
                 sportResult.startTime = startTime
                 sportResult.endTime = endTime

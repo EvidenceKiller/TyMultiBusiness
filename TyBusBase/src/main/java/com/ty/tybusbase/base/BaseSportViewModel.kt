@@ -401,6 +401,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             sportNatureCodes = sportInfo?.sportNatureCodes
             sportTypeCode = sportInfo?.sportTypeCode
             sportResult = result.sportResult
+            sportNo = result.sportNo
             if (result.getTotalScore() > 0) {
                 sportScore = result.getTotalScore().toString()
             }

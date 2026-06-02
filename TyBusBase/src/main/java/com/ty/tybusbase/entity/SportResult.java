@@ -125,6 +125,8 @@ public class SportResult {
 
     private int energyPoint;
 
+    private String sportNo = "1";
+
     public Long getStartTime() {
         return startTime;
     }
@@ -344,6 +346,14 @@ public class SportResult {
 
     public void setEnergyPoint(int energyPoint) {
         this.energyPoint = energyPoint;
+    }
+
+    public String getSportNo() {
+        return sportNo;
+    }
+
+    public void setSportNo(String sportNo) {
+        this.sportNo = sportNo;
     }
 
     @Override

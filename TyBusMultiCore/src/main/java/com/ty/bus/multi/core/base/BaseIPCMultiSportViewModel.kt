@@ -970,6 +970,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 sportResult.multiPersonIndex = personIndex
                 sportResult.multiPersonId = multiId
                 sportResult.sportResult = multiResult.count.toString()
+                sportResult.sportNo = (multiResult.number + 1).toString()
                 sportResult.videoCover = videoCover
                 sportResult.videoFile = videoFile
                 sportResult.reportVersion = BusiBaseConfig.getReportVersion()

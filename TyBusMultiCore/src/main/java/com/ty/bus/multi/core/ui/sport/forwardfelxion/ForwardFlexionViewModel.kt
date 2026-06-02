@@ -548,6 +548,7 @@ class ForwardFlexionViewModel(application: Application) : BaseMultiSportViewMode
             sportResult.perfectScore = 0
             sportResult.goodScore = 0
             sportResult.comeOnScore = 0
+            sportResult.sportNo = value.number.toString()
             sportResult.userId = value.accountInfo.studentEntity?.accountId
             sportResult.startTime = startSportTime
             sportResult.endTime = endSportTime

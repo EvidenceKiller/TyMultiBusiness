@@ -98,6 +98,7 @@ object RecordUploadHelper {
         type: Int,
     ): Pair<String, String> {
         uploadResFileInfoMap.getOrDefault(localFilePath, null)?.get()?.let {
+            LogUtil.d("已存在上传记录，直接返回 localPath:${localFilePath} remotePath: ${it.second}")
             return it
         }
         val remoteFileName =

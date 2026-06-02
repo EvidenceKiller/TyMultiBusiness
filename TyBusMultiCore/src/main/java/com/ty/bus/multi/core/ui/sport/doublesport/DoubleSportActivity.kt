@@ -155,12 +155,12 @@ class DoubleSportActivity :
         //todo 停止录像
         viewModel.sportEngine.stopRecorder {
             viewModel.uploadSportResult(
-                SceneConstants.PK,
+                sceneId ?: SceneConstants.PK,
                 viewModel.rightSportResult,
                 viewModel.rightAccountInfo.value?.studentEntity?.accountId
             )
             viewModel.uploadSportResult(
-                SceneConstants.PK,
+                sceneId ?: SceneConstants.PK,
                 viewModel.leftSportResult,
                 viewModel.leftAccountInfo.value?.studentEntity?.accountId
             )
