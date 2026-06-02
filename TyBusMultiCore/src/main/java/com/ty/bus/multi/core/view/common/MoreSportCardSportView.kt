@@ -236,7 +236,6 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     fun enterStandby() {
         //只有NOBODY和IDENTIFYING状态才能切换到STANDBY状态
         if (state != MultiSportCardViewState.NOBODY && state != MultiSportCardViewState.IDENTIFYING) return
-        state = MultiSportCardViewState.STANDBY
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_ready_more)
         mBinding.tvNotice.text =
             getString(R.string.prompt_get_ready_by_raising_hand)
@@ -265,6 +264,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     private fun exitPrepared() {
         mBinding.groupPrepared.gone()
         mBinding.ivHeaderBg.gone()
+        mBinding.tvNotice.gone()
     }
 
     /**

@@ -605,7 +605,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 }
 
                 GroupSportsBaseChannelStatus.standBy -> {
-                    if (getSportModel() == SportModel.NORMAL && skipRoseState != MultiSportState.SPORTING) {
+                    if (getSportModel() == SportModel.NORMAL
+                        && skipRoseState != MultiSportState.SPORTING
+                        && roseMultiResult == null
+                    ) {
                         changeMultiIdentityCardState(
                             skipMan.positionNum,
                             MultiSportCardViewState.STANDBY
