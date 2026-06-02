@@ -527,6 +527,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 str = "$str -- ${it.score} -- ${it.positionNum} /////"
                 skipPersonArray[it.positionNum]?.count = it.score
             }
+//            LogUtil.d("成绩：$str")
             resultLD.postValue(result)
         }
     }

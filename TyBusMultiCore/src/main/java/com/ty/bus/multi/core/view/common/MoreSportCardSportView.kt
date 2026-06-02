@@ -37,8 +37,6 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     //上一次的状态
     private var preState = MultiSportCardViewState.IDLE
 
-    private var state: MultiSportCardViewState = MultiSportCardViewState.NOBODY
-
     init {
         mBinding.tvNumber.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
         mBinding.tvPrepared.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
@@ -215,7 +213,6 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      * 可从，standby，identifying,prepared,切换过来
      */
     fun enterNobody() {
-        state = MultiSportCardViewState.NOBODY
         mBinding.tvNotice.text = getString(R.string.prompt_move_to_sport_area)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.tvSkipState.visible()
@@ -235,7 +232,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     fun enterStandby() {
         //只有NOBODY和IDENTIFYING状态才能切换到STANDBY状态
-        if (state != MultiSportCardViewState.NOBODY && state != MultiSportCardViewState.IDENTIFYING) return
+//        if (preState != MultiSportCardViewState.NOBODY && preState != MultiSportCardViewState.IDENTIFYING) return
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_ready_more)
         mBinding.tvNotice.text =
             getString(R.string.prompt_get_ready_by_raising_hand)
@@ -254,7 +251,6 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      * 切换到识别中，由准备 ==》识别中
      */
     fun enterIdentifying() {
-        state = MultiSportCardViewState.IDENTIFYING
         mBinding.rlIdentityNotice.visibility = View.VISIBLE
         mBinding.progressView.setProgress(10f)
         tickTimes = 0f
@@ -271,7 +267,6 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      * 切换到识别已准备状态
      */
     fun enterPrepared() {
-        state = MultiSportCardViewState.PREPARED
         //设置头像和名字
         mBinding.groupPrepared.visibility = View.VISIBLE
         //更换背景
@@ -434,8 +429,13 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      * 更新成绩
      */
     override fun updateScore(score: Int) {
-        if (state != MultiSportCardViewState.SPORTING && state != MultiSportCardViewState.INTERFERENCE) return
-        mBinding.tvCount.text = score.toString()
+//        if (preState != MultiSportCardViewState.SPORTING && preState != MultiSportCardViewState.INTERFERENCE){
+//            LogUtil.d("updateScore error state:${preState.name}")
+//            return
+//        }
+        if (score.toString() != mBinding.tvCount.text) {
+            mBinding.tvCount.text = score.toString()
+        }
     }
 
     /**
