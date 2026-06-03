@@ -1,5 +1,8 @@
 package com.ty.tybusbase.helper
 
+import android.os.Handler
+import android.os.Looper
+import android.text.TextUtils
 import com.adl.auth.core.AdlAuthFactory
 import com.adl.service.entity.RecordResEntity
 import com.adl.service.entity.SceneSportInfoEntity
@@ -11,19 +14,51 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.getFileExtension
 import com.ty.tybusbase.utils.ApplicationUtil
 import com.ty.tybusbase.utils.LogUtil
-import org.beetl.core.util.TextUtils
 import java.io.File
 import java.lang.ref.SoftReference
 import java.util.Calendar
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.Executors
 
 object RecordUploadHelper {
     val uploadResMap = ConcurrentHashMap<String, SoftReference<String>?>()
     val uploadResFileInfoMap = ConcurrentHashMap<String, SoftReference<Pair<String, String>>?>()
+    val handler = Handler(Looper.getMainLooper())
+    val executor = Executors.newSingleThreadExecutor()
 
+    //成绩上传后，延时传资源，防止多人成绩上传，资源重复上传问题，很多异步问题，加锁效率太低，故延时处理
+    val UPLOAD_RES_DELAY_TIME = 2000L
     fun getCacheUploadResFileInfo(filePath: String): Pair<String, String>? =
         uploadResFileInfoMap.getOrDefault(filePath, null)?.get()
+
+    fun cacheUploadResFileInfo(filePath: String, filePrefix: String, remoteFileName: String) {
+        LogUtil.d("缓存文件远端地址，localPath:${filePath} remotePath: ${filePrefix}/${remoteFileName}")
+        uploadResFileInfoMap[filePath] = SoftReference(filePrefix to remoteFileName)
+    }
+
+    fun getCacheUploadResUrl(
+        localFilePath: String,
+        filePrefix: String,
+        remoteFileName: String
+    ): String? {
+        val hhh =
+            uploadResMap.getOrDefault("${localFilePath}_${filePrefix}_${remoteFileName}", null)
+                ?.get()
+        LogUtil.d("当前记录：${localFilePath}_${filePrefix}_${remoteFileName} -- ${if (hhh != null) "已存在" else "不存在"}")
+        return hhh
+    }
+
+    fun cacheUploadResUrl(
+        localFilePath: String,
+        filePrefix: String,
+        remoteFileName: String,
+        url: String?
+    ) {
+        if (url.isNullOrEmpty()) return
+        LogUtil.d("缓存上传成功的地址记录，localPath:${localFilePath} remotePath: ${url}")
+        uploadResMap["${localFilePath}_${filePrefix}_${remoteFileName}"] = SoftReference(url)
+    }
 
     /**
      * 存储资源信息到数据库
@@ -97,7 +132,7 @@ object RecordUploadHelper {
         sportTypeCode: String,
         type: Int,
     ): Pair<String, String> {
-        uploadResFileInfoMap.getOrDefault(localFilePath, null)?.get()?.let {
+        getCacheUploadResFileInfo(localFilePath)?.let {
             LogUtil.d("已存在上传记录，直接返回 localPath:${localFilePath} remotePath: ${it.second}")
             return it
         }
@@ -109,12 +144,12 @@ object RecordUploadHelper {
             3 -> "PTE/sport/indicator/videos/${sportNatureCodes}/${sportTypeCode}"
             else -> "PTE/sport/indicator/images/${sportNatureCodes}/${sportTypeCode}"
         }
-        uploadResFileInfoMap[localFilePath] = SoftReference(filePrefix to remoteFileName)
+        cacheUploadResFileInfo(localFilePath, filePrefix, remoteFileName)
         return filePrefix to remoteFileName
     }
 
     fun syncUploadRes(filePath: String, filePrefix: String, remoteFileName: String): String? {
-        val cacheUrl = uploadResMap.getOrDefault(filePath, null)?.get()
+        val cacheUrl = getCacheUploadResUrl(filePath, filePrefix, remoteFileName)
         if (cacheUrl.isNullOrEmpty().not()) {
             return cacheUrl
         }
@@ -133,14 +168,14 @@ object RecordUploadHelper {
             );
             LogUtil.d(logMsg)
             if (uploadResult.fileUrl.isNullOrEmpty().not()) {
-                uploadResMap[filePath] = SoftReference(uploadResult.fileUrl)
+                cacheUploadResUrl(filePath, filePrefix, remoteFileName, uploadResult.fileUrl)
             }
             uploadResult.fileUrl
         } else {
             val logMsg = String.format(
                 "[失败] 错误: %s\n  耗时: %s",
-                uploadResult.getErrorMessage(),
-                uploadResult.getFormattedUploadTime()
+                uploadResult.errorMessage,
+                uploadResult.formattedUploadTime
             );
             LogUtil.d(logMsg)
             null
@@ -172,11 +207,11 @@ object RecordUploadHelper {
         type: Int,
     ): String? {
         //有缓存直接从缓存里面取
-        val cacheUrl = uploadResMap.getOrDefault(filePath, null)?.get()
+        val fileInfo = createRemoteFileName(filePath, sportNatureCodes, sportTypeCode, type)
+        val cacheUrl = getCacheUploadResUrl(filePath, fileInfo.first, fileInfo.second)
         if (cacheUrl.isNullOrEmpty().not()) {
             return cacheUrl
         }
-        val fileInfo = createRemoteFileName(filePath, sportNatureCodes, sportTypeCode, type)
         return syncUploadRes(filePath, fileInfo.first, fileInfo.second)
     }
 
@@ -258,7 +293,8 @@ object RecordUploadHelper {
                                 Calendar.YEAR
                             )
                         }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}"
-                val videoName = cacheUploadFileInfo?.second ?: "${System.currentTimeMillis()}.mp4"
+                val videoName = cacheUploadFileInfo?.second ?: "${UUID.randomUUID()}.mp4"
+                cacheUploadResFileInfo(it.videoUrl, videoPrefix, videoName)
                 it.videoUrl = handleUploadResUrl(
                     sportRecordEntity,
                     it.videoUrl,
@@ -276,8 +312,8 @@ object RecordUploadHelper {
                             Calendar.YEAR
                         )
                     }/${calendar.get(Calendar.MONTH) + 1}/${calendar.get(Calendar.DAY_OF_MONTH)}"
-                val coverName = cacheUploadFileInfo?.second ?: "${System.currentTimeMillis()}.png"
-
+                val coverName = cacheUploadFileInfo?.second ?: "${UUID.randomUUID()}.png"
+                cacheUploadResFileInfo(it.videoCover, coverPrefix, coverName)
                 it.videoCover = handleUploadResUrl(
                     sportRecordEntity,
                     it.videoCover,
@@ -293,14 +329,29 @@ object RecordUploadHelper {
         if (uploadRecord?.isOk == true || uploadRecord?.msg?.contains("记录id重复") == true) {
             AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
         }
-        //补传资源
-        AdlService.getService().recordResDao.queryNotUploadRecordRes().forEach {
-            val url = syncUploadRes(it.localPath, it.uploadFilePrefix, it.uploadFileName)
-            if (!TextUtils.isEmpty(url)) {
-                //上传成功，删除资源数据
-                AdlService.getService().recordResDao.clear(it)
+        handler.removeCallbacksAndMessages(null)
+        handler.postDelayed({
+            executor.execute {
+                //补传资源
+                AdlService.getService().recordResDao.queryNotUploadRecordRes()
+                    .filter { it.uploadFlag == 0 }
+                    .map {
+                        AdlService.getService().recordResDao.insert(it.apply {
+                            uploadFlag = 1
+                            startUploadTime = System.currentTimeMillis().toString()
+                        })
+                        it
+                    }.forEach {
+                        val url =
+                            syncUploadRes(it.localPath, it.uploadFilePrefix, it.uploadFileName)
+                        if (!TextUtils.isEmpty(url)) {
+                            //上传成功，删除资源数据
+                            AdlService.getService().recordResDao.clear(it)
+                        }
+                    }
             }
-        }
+        }, UPLOAD_RES_DELAY_TIME)
+
     }
 
     fun saveSportResultToDB(sportRecordEntity: SportRecordEntity) {
