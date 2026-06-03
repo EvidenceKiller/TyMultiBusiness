@@ -21,6 +21,6 @@ class DemoApp : AdlApp() {
         MMKV.initialize(this)
 
         BusiCoreEngine.init(this)
-        BusiCoreEngine.setResultCallback(DefaultUploadCallback())
+//        BusiCoreEngine.setResultCallback(DefaultUploadCallback())
     }
 }
