@@ -225,9 +225,12 @@ object RecordUploadHelper {
          * /{端标识（1001、1002）}/video/{业务标识（体测、体锻等）}/{项目编码}/{年}/{月}/{日}/{视频文件}
          * 七牛云图片文件命名规则：
          * /{端标识（1001、1002）}/image/{业务标识（体测、体锻等）}/{项目编码}/{年}/{月}/{日}/{视频文件}
-         *
+         * //第一个条件为运动会集体赛，集体赛以班级为单位，只传一个成绩，表示为classId,accountId可为空
          */
-        if (TextUtils.isEmpty(sportRecordEntity.accountId) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+        if ((sportRecordEntity.sportMeet?.meetGroupType != "1") && (TextUtils.isEmpty(
+                sportRecordEntity.accountId
+            ) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID)
+        ) {
             LogUtil.d("游客模式，不进行上传")
             AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
             return
