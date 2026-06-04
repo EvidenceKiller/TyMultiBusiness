@@ -49,6 +49,7 @@ import com.ty.bus.multi.R
 import com.ty.tybusbase.expand.toMs
 import com.ty.tybusbase.expand.toRaceTiming
 import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.utils.LogUtil
 
 class SkipLikeEightSportActivity :
     BaseMultiSportActivity<ActivitySkipLikeEightExerciseBinding, SkipLikeEightViewModel>() {
@@ -92,8 +93,8 @@ class SkipLikeEightSportActivity :
 
     override fun initData() {
         super.initData()
-        viewModel.studentList =
-            intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
+        viewModel.meetGroupDetailsEntity =
+            intent.getSerializableExtra("student") as? MeetGroupDetailsEntity
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -101,9 +102,23 @@ class SkipLikeEightSportActivity :
         initSportEngine()
         initDoubleOverlay()
         initCamera()
-        observeViewModel()
         viewModel.loadPerson()
         setupGradientText()
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+        viewModel.avatarListLD.observe(this) { items ->
+            initAvatarList(items)
+        }
+
+        viewModel.countDownSecondsLD.observe(this) { seconds ->
+            setCountTime(seconds)
+        }
+
+        viewModel.countDownFinishLD.observe(this) {
+            viewModel.toStatusSportEnd()
+        }
     }
 
 
@@ -249,7 +264,7 @@ class SkipLikeEightSportActivity :
     private fun checkPersonState(frame: TsSportFrameDouble?) {
         runOnUiThread {
             frame?.left?.skeleton?.let {
-//                leftPrepared()
+                leftPrepared()
             }
 
             frame?.right?.skeleton?.let {
@@ -472,26 +487,8 @@ class SkipLikeEightSportActivity :
         stopJumping()
         // 停止录像,上传成绩
         viewModel.stopRecord()
-        uploadResult()
+        viewModel.uploadResult(count)
         showResultView()
-    }
-
-    private fun uploadResult() {
-        //结束上传成绩
-//        viewModel.recordMeet?.let {
-//            it.meetNumberCode = meetGroupDetail!!.numberCode
-//            it.meetRunwayCode = meetGroupDetail!!.runwayCode
-//            it.serialNumber = meetGroupDetail!!.serialCode
-//        }
-//        viewModel.uploadSportResult(
-//            sceneId ?: SceneConstants.FREE,
-//            sportResult,
-//            modelId,
-//            matchId,
-//            matchSportId,
-//            matchName,
-//            recordMeet
-//        )
     }
 
     private fun showResultView() {
@@ -504,9 +501,11 @@ class SkipLikeEightSportActivity :
     }
 
     private fun closeDoubleProcessor() {
+        mBinding.cameraView.removeProcessor(processorDouble)
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
-        mBinding.cameraView.removeProcessor(processorDouble)
+        processorDouble.onRelease()
+        sportLifecycleDouble.onRelease()
         mBinding.overlay.clearScreen()
         mBinding.overlay.gone()
     }
@@ -654,20 +653,6 @@ class SkipLikeEightSportActivity :
         jumpRopeProcessor?.setStart(true)
     }
 
-    private fun observeViewModel() {
-        viewModel.avatarListLD.observe(this) { items ->
-            initAvatarList(items)
-        }
-
-        viewModel.countDownSecondsLD.observe(this) { seconds ->
-            setCountTime(seconds)
-        }
-
-        viewModel.countDownFinishLD.observe(this) {
-            viewModel.toStatusSportEnd()
-        }
-    }
-
     private fun setupGradientText() {
         applyTextGradient(mBinding.tvCount, "#FFFFFF", "#D1ECFD", 0.2962f, 0.7231f)
         applyTextGradient(mBinding.tvUnit, "#FFFFFF", "#D1ECFD", 0.2962f, 0.7231f)
@@ -708,7 +693,7 @@ class SkipLikeEightSportActivity :
     }
 
     fun stopJumping() {
-        jumpRopeProcessor?.changeStatus(BaseSportState.Standby)
+        jumpRopeProcessor?.changeStatus(BaseSportState.Down)
         jumpRopeProcessor?.setStart(false)
         jumpRopeProcessor?.onRelease()
     }
@@ -733,7 +718,6 @@ class SkipLikeEightSportActivity :
         processorDouble.onRelease()
         sportLifecycleDouble.onRelease()
         jumpRopeProcessor?.onRelease()
-        viewModel.onRelease()
         SpeechWrapper.stop()
         // 清理动画资源
         stopRegionAnimation()

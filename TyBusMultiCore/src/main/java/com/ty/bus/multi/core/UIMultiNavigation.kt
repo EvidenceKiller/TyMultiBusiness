@@ -177,10 +177,12 @@ object UIMultiNavigation : BaseNavigation() {
     fun goSkipEightSport(
         context: Context,
         config: UINavConfig?,
-        sportConfig: SkipEightSportConfig? = null
+        sportConfig: SkipEightSportConfig? = null,
+        preCallback: Action1<Intent>? = null
     ) {
         val intent = Intent(context, SkipLikeEightSportActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
         startActivity(context, intent, config)
     }
 

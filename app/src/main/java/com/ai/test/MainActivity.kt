@@ -114,13 +114,14 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     .setSupportReport(true)
                     .setSportModel(SportModel.MEETING)
                     .build()
-            ){
+            ) {
                 val list = arrayListOf<MeetGroupDetailsEntity>()
-                for (index in 1..10){
+                for (index in 1..10) {
                     list.add(MeetGroupDetailsEntity().apply {
                         accountName = "张$index"
                         accountId = "123456$index"
-                        accountAvatar = "V2/busi/userFaceImgUrl/2025-12-11/1765450309969_7c033eb3.png"
+                        accountAvatar =
+                            "V2/busi/userFaceImgUrl/2025-12-11/1765450309969_7c033eb3.png"
                     })
                 }
                 it.putExtra("student_list", list)
@@ -371,14 +372,19 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sceneId = SceneConstants.FREE
                 }
                 energyPoint = 10
-            })
+            }) {
+                it.putExtra("student", MeetGroupDetailsEntity().apply {
+                    classId = "1995771139539406848"
+                    serialCode = "01"
+                })
+            }
         }
 
         initDouble()
 
     }
 
-    private fun initDouble(){
+    private fun initDouble() {
         mBinding.btnSkipGb.setOnClickListener {
             UIMultiNavigation.goDoubleGbSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
