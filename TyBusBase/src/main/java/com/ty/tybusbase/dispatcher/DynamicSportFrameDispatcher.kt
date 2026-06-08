@@ -220,6 +220,7 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
                             val var14: Iterator<*> = processors.iterator()
                             while (var14.hasNext()) {
                                 val processor = var14.next() as AdlCameraFrameProcessor
+                                correctNano(info)
                                 processor.onFrame(yuv, info)
                             }
                         }
@@ -236,6 +237,26 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
             }
             queue.clear()
             fixCache.forceRecycle()
+        }
+    }
+
+    /**
+     * 校正纳秒
+     */
+    private var preFrameTime = 0L
+    private var isNus = false
+    fun correctNano(info: AdlCameraPreviewInfo?){
+        if (info == null) return
+        if (preFrameTime != 0L) {
+            if (info.frameTimestamp - preFrameTime > 1000_000) {
+                isNus = true
+            }
+        } else {
+            preFrameTime = info.frameTimestamp
+        }
+        if (isNus) {
+            info.frameTimestamp = info.frameTimestamp / 1000_000
+            info.imageId = (info.imageId.toLong() / 1000_000).toString()
         }
     }
 }
