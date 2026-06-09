@@ -504,8 +504,8 @@ class SkipLikeEightSportActivity :
         mBinding.cameraView.removeProcessor(processorDouble)
         processorDouble.changeTo(SportProcessorStatus.Idle)
         sportLifecycleDouble.toIdle()
-        processorDouble.onRelease()
-        sportLifecycleDouble.onRelease()
+//        processorDouble.onRelease()
+//        sportLifecycleDouble.onRelease()
         mBinding.overlay.clearScreen()
         mBinding.overlay.gone()
     }
