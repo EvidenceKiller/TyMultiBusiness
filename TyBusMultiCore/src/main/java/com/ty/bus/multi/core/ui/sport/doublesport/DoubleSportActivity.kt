@@ -8,7 +8,6 @@ import com.adl.mount.impl.TsDoubleProcessor
 import com.adl.mount.sport.TsSportChannel
 import com.ty.bus.multi.core.callback.DoubleBaseCallback
 import com.ty.bus.multi.core.config.DoubleSportConfig
-import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.factory.DoubleSportDetector
 import com.ty.bus.multi.databinding.ActivityDoubleSportBinding
 import com.ty.tybusbase.base.BaseDoubleSportIdentifyActivity

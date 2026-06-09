@@ -105,15 +105,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
                     energyPoint = 10
-                }, TenSportConfig.builder()
-                    .setCountdownText("开始倒计时")
-                    .setResultPageText("测试结束")
-                    .setSportStartedText("开始咯，开始咯")
-                    .setVoiceBroadcastSupported(true)
-                    .setSupportNextGroup(false)
-                    .setSupportReport(true)
-                    .setSportModel(SportModel.MEETING)
-                    .build()
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                    setSupportReport(true)
+                    setSportModel(SportModel.MEETING)
+                }
             ) {
                 val list = arrayListOf<MeetGroupDetailsEntity>()
                 for (index in 1..10) {
@@ -138,13 +138,13 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sportSkuName = "十人开合跳"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
-                }, TenSportConfig.builder()
-                    .setCountdownText("开始倒计时")
-                    .setResultPageText("测试结束")
-                    .setSportStartedText("开始咯，开始咯")
-                    .setVoiceBroadcastSupported(true)
-                    .setSupportNextGroup(false)
-                    .build()
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
             )
         }
 
@@ -158,13 +158,13 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sportSkuName = "十人下蹲"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
-                }, TenSportConfig.builder()
-                    .setCountdownText("开始倒计时")
-                    .setResultPageText("测试结束")
-                    .setSportStartedText("开始咯，开始咯")
-                    .setVoiceBroadcastSupported(true)
-                    .setSupportNextGroup(false)
-                    .build()
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
             )
         }
 
@@ -367,7 +367,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportItemCode = SportConstant.SPORT_SKIP_EIGHT_JUMP
                     sportSkuId = sportItemCode + "0001"
                     sportSkuName = "八字跳绳"
-                    endValue = "20000"
+                    endValue = "120000"
                     endType = SportConstant.END_TYPE_TIME
                     sceneId = SceneConstants.FREE
                 }

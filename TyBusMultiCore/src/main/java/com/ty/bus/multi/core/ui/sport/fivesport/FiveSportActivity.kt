@@ -25,7 +25,6 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.base.BaseMultiSportResultView
 import com.ty.bus.multi.core.base.BaseMultiSportView
 import com.ty.bus.multi.core.config.FiveSportConfig
-import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.view.fivesport.MultiSport5ResultView
 import com.ty.bus.multi.core.view.fivesport.MultiSport5SportView

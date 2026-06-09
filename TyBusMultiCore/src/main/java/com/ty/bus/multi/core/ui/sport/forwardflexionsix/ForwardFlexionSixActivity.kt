@@ -32,7 +32,6 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
-import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.core.view.sixforwardflexion.SixForwardFlexionResultView
