@@ -79,4 +79,5 @@
     <string name="no_exception_record">暂无记录</string>
     <string name="exception_record">异常记录</string>
     <string name="skip_like_a_eight">8字跳绳</string>
+    <string name="jump_with_rope">请持绳跳</string>
 </resources>

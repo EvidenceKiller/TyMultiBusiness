@@ -3,6 +3,8 @@ package com.ty.bus.multi.core.ui.sport.doublegbsport
 import android.annotation.SuppressLint
 import android.graphics.Point
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.TextUtils
 import android.view.View
 import com.adl.base.bean.Quadrilateral
@@ -35,6 +37,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.sport.bean.SportDetectResult
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
@@ -66,6 +69,16 @@ class DoubleGbSportActivity :
     private var countFrame = 0
 
     private var isStop = false
+
+    private val mHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val skipTipsTime = 5 * 1000L
+    private val skipRunnable = Runnable {
+        mBinding.llTips.visible()
+    }
+
+    private val skipRunnableRight = Runnable {
+        mBinding.llTipsRight.visible()
+    }
 
     override fun initData() {
         super.initData()
@@ -107,20 +120,17 @@ class DoubleGbSportActivity :
             uiConfig.targetRegion =
                 "[{\"x\":0,\"y\":0},{\"x\":10,\"y\":0},{\"x\":0,\"y\":10},{\"x\":10,\"y\":10}]"
         }
-        val isDebug: Boolean =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.MODEL_DEBUG,
-                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
-            )
-        val skeleton =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.SKELETON_ABLE,
-                BusiBaseConstantsValue.DEFAULT_SKELETON
-            )
+        val isDebug: Boolean = BusiBaseConfig.getDebugEnable()
+        val skeleton = BusiBaseConfig.getSkeletonEnable()
         mBinding.sportOverlay.apply {
             enableDebug(isDebug)
             enableDrawBox(false)
             enableDrawSkeleton(skeleton)
+            setListener {
+                sportRegion.setDrawing(isDebug)
+                sportRegionLeft.setDrawing(isDebug)
+                sportRegionRight.setDrawing(isDebug)
+            }
         }
         mBinding.sportOverlay.isMultiPerson = true
         mBinding.sportOverlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
@@ -277,20 +287,9 @@ class DoubleGbSportActivity :
 
                 // TODO 针对国标跳绳，帧率控制在25帧， add by 南山, 2026/05/27
                 countFrame++
-                if (countFrame % 5 == 0) return@onFrame
+                if (countFrame % 3 == 0) return
 
                 previewInfo?.let {
-                    if (preFrameTime != 0L) {
-                        if (it.frameTimestamp - preFrameTime > 1000_000) {
-                            isNus = true
-                        }
-                    } else {
-                        preFrameTime = it.frameTimestamp
-                    }
-                    if (isNus) {
-                        previewInfo.frameTimestamp = previewInfo.frameTimestamp / 1000_000
-                        previewInfo.imageId = (previewInfo.imageId.toLong() / 1000_000).toString()
-                    }
                     jumpRopeProcessor?.onFrame(yuv, previewInfo)
                 }
             }
@@ -304,15 +303,23 @@ class DoubleGbSportActivity :
         val leftJumper = jumpers.firstOrNull { it.indexNum == 0 }
         val rightJumper = jumpers.firstOrNull { it.indexNum == 2 }
         if ((leftJumper?.score ?: 0) != viewModel.leftValue) {
+            mBinding.llTips.gone()
+            mHandler.removeCallbacks(skipRunnable)
             onLeftComplete(leftJumper?.score ?: 0)
+            mHandler.postDelayed(skipRunnable, skipTipsTime)
         }
         if ((rightJumper?.score ?: 0) != viewModel.rightValue) {
+            mBinding.llTipsRight.gone()
+            mHandler.removeCallbacks(skipRunnableRight)
             onRightComplete(rightJumper?.score ?: 0)
+            mHandler.postDelayed(skipRunnableRight, skipTipsTime)
         }
         checkArea(leftJumper?.skeleton, rightJumper?.skeleton)
     }
 
     fun startJumping() {
+        mHandler.postDelayed(skipRunnable, skipTipsTime)
+        mHandler.postDelayed(skipRunnableRight, skipTipsTime)
         config.sportRegion = TsSportRegion(mBinding.sportOverlay.sportRegion.previewPoints)
         config.sportRegionLeft = TsSportRegion(mBinding.sportOverlay.sportRegionLeft.previewPoints)
         config.sportRegionRight =
@@ -325,6 +332,9 @@ class DoubleGbSportActivity :
         jumpRopeProcessor?.changeStatus(BaseSportState.Standby)
         jumpRopeProcessor?.setStart(false)
         jumpRopeProcessor?.onRelease()
+        mHandler.removeCallbacksAndMessages(null)
+        mBinding.llTips.gone()
+        mBinding.llTipsRight.gone()
     }
 
 
@@ -402,6 +412,7 @@ class DoubleGbSportActivity :
     override fun onDestroy() {
         super.onDestroy()
         stopJumping()
+        mHandler.removeCallbacksAndMessages(null)
         mBinding.surfaceOverlay.stop()
         AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }

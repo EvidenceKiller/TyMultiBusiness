@@ -245,11 +245,13 @@ class DynamicSportFrameDispatcher @JvmOverloads constructor(private var fpsCount
      */
     private var preFrameTime = 0L
     private var isNus = false
-    fun correctNano(info: AdlCameraPreviewInfo?){
+    fun correctNano(info: AdlCameraPreviewInfo?) {
         if (info == null) return
         if (preFrameTime != 0L) {
             if (info.frameTimestamp - preFrameTime > 1000_000) {
                 isNus = true
+            } else {
+                isNus = false
             }
         } else {
             preFrameTime = info.frameTimestamp
