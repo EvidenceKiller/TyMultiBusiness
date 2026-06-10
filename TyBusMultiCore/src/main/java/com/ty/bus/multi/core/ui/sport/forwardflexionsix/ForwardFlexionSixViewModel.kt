@@ -48,8 +48,6 @@ import kotlin.math.max
 
 class ForwardFlexionSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
-    val streamType = 1 //1:摄像头播放，2:视频播放
-
     var ffSportConfig: ForwardFlexionConfig? = null
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存

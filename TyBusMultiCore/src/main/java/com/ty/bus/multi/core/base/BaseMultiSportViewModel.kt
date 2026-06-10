@@ -23,6 +23,7 @@ open class BaseMultiSportViewModel(application: Application) : BaseSportViewMode
     val bestRankLD = MutableLiveData<BestRankTopEntity>()
     val timeOutLD = MutableLiveData<Boolean>()
     var measureUnit: String = getString(R.string.ge)
+    var streamType = 1 //1:摄像头播放，2:视频播放
 
 
     val timeOutHelper = TimeOutHelper({

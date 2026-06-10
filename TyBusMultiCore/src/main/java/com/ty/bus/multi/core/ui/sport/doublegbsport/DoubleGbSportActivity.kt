@@ -290,6 +290,17 @@ class DoubleGbSportActivity :
                 if (countFrame % 3 == 0) return
 
                 previewInfo?.let {
+                    if (preFrameTime != 0L) {
+                        if (it.frameTimestamp - preFrameTime > 1000_000) {
+                            isNus = true
+                        }
+                    } else {
+                        preFrameTime = it.frameTimestamp
+                    }
+                    if (isNus) {
+                        previewInfo.frameTimestamp = previewInfo.frameTimestamp / 1000_000
+                        previewInfo.imageId = (previewInfo.imageId.toLong() / 1000_000).toString()
+                    }
                     jumpRopeProcessor?.onFrame(yuv, previewInfo)
                 }
             }

@@ -42,6 +42,9 @@ import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.service.entity.MeetGroupDetailsEntity
@@ -85,6 +88,15 @@ class SkipLikeEightSportActivity :
 
     private var isStop = false
 
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/8字较连续.mp4"
+
+    /***************************视频播放调试*************************/
+
     override fun onStatusIdentify() {
     }
 
@@ -95,15 +107,23 @@ class SkipLikeEightSportActivity :
         super.initData()
         viewModel.meetGroupDetailsEntity =
             intent.getSerializableExtra("student") as? MeetGroupDetailsEntity
+//        viewModel.streamType = 2
     }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initSportEngine()
         initDoubleOverlay()
-        initCamera()
         viewModel.loadPerson()
         setupGradientText()
+        if (viewModel.streamType == 1) {
+            initCamera()
+        } else {
+            mBinding.layout.visible()
+            mBinding.llBtn.visible()
+            initVideoView()
+            initVideo()
+        }
     }
 
     override fun initObserver() {
@@ -215,6 +235,57 @@ class SkipLikeEightSportActivity :
                     "[{\"x\":215,\"y\":587},{\"x\":514,\"y\":582},{\"x\":210,\"y\":782},{\"x\":533,\"y\":774},{\"x\":1345,\"y\":590},{\"x\":1665,\"y\":581},{\"x\":1332,\"y\":789},{\"x\":1676,\"y\":785}]"
             }
         }
+    }
+
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray?, width: Int, height: Int, time: Long) {
+                frameTime += 33
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+                jumpRopeProcessor?.onFrame(yuv, info)
+                processorDouble.onFrame(yuv, info)
+            }
+
+            override fun onComplete() {
+
+            }
+        })
     }
 
     fun initSportEngine() {
@@ -700,7 +771,9 @@ class SkipLikeEightSportActivity :
 
     override fun onResume() {
         super.onResume()
-        mBinding.cameraView.onResume()
+        if (viewModel.streamType == 1) {
+            mBinding.cameraView.onResume()
+        }
     }
 
     override fun onPause() {

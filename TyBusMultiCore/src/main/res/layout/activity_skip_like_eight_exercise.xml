@@ -14,16 +14,80 @@
         app:layout_constraintEnd_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <FrameLayout
+        android:id="@+id/layout"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
     <!--  SportOverlayRopeSkipEx  -->
     <com.adl.sport.standard.ui.SportOverlayRopeSkipEx
         android:id="@+id/gb_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
     <com.adl.base.overlay.SportOverlayMultiRegion
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout"
+        android:layout_marginBottom="@dimen/dp_88"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/bnt_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="重置"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一帧"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+
+    </LinearLayout>
 
     <!-- 左侧区域动画图片 -->
     <ImageView

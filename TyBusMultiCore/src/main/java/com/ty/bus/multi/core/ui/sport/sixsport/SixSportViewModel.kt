@@ -54,8 +54,6 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
     //记录开始和结束时间
     var tsConfig: SixSportConfig? = null
 
-    val streamType = 1 //1:摄像头播放，2:视频播放
-
     var startTime: Long = 0
     var endTime: Long = 0
     private var sportState: MultiSportState = MultiSportState.IDLE //记录当前比赛的状态
