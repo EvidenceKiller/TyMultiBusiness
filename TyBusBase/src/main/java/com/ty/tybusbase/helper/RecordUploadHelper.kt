@@ -325,7 +325,14 @@ object RecordUploadHelper {
         }
         //更新哈数据库,存储已上传的资源
         saveSportResultToDB(sportRecordEntity)
-        val uploadRecord = SportRecordService.uploadRecord(sportRecordEntity)
+        //游客使用游客接口上传成绩
+        val uploadRecord =
+            if (TextUtils.isEmpty(sportRecordEntity.accountId) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
+                sportRecordEntity.sportCount = sportRecordEntity.sportResult
+                SportRecordService.uploadCustomRecord(sportRecordEntity)
+            } else {
+                SportRecordService.uploadRecord(sportRecordEntity)
+            }
         LogUtil.d("成绩上传完成：accountId = ${sportRecordEntity.accountId} 上传结果：${if (uploadRecord?.isOk == true) "成功" else "失败"}")
         if (uploadRecord?.isOk == true || uploadRecord?.msg?.contains("记录id重复") == true) {
             AdlService.getService()?.recordUploadDao?.clearById(sportRecordEntity.id)
