@@ -108,13 +108,13 @@ class SkipLikeEightSportActivity :
         viewModel.meetGroupDetailsEntity =
             intent.getSerializableExtra("student") as? MeetGroupDetailsEntity
 //        viewModel.streamType = 2
+        viewModel.getMeetUserList()
     }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initSportEngine()
         initDoubleOverlay()
-        viewModel.loadPerson()
         setupGradientText()
         if (viewModel.streamType == 1) {
             initCamera()
@@ -758,7 +758,7 @@ class SkipLikeEightSportActivity :
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             setHasFixedSize(true)
             this.adapter = adapter
-            addItemDecoration(OverlapDecoration(20))
+            addItemDecoration(OverlapDecoration(6))
             clipToPadding = false
         }
     }
