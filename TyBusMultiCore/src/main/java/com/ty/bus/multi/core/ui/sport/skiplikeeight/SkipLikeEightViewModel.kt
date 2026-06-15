@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.outer.AdlService
+import com.adl.service.web.SportMeetingService
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.SceneConstants
@@ -25,37 +26,10 @@ class SkipLikeEightViewModel(application: Application) : BaseMultiSportViewModel
     val countDownFinishLD = MutableLiveData<Unit>()
 
     /** 头像列表数据 */
-    val avatarListLD = MutableLiveData<List<AvatarItem>>()
+    val avatarListLD = MutableLiveData<MutableList<AvatarItem>>()
 
     var meetGroupDetailsEntity: MeetGroupDetailsEntity? = null
 
-
-    /**
-     * 加载头像列表数据
-     */
-    fun loadPerson() {
-        viewModelScope.launch(Dispatchers.IO) {
-            meetGroupDetailsEntity?.let { meet ->
-                val students = AdlService.getService().studentDao.queryStudentByClassIds(
-                    mutableListOf(
-                        meet.classId
-                    )
-                )
-                val totalCount = students.size // 实际总数，可从接口获取
-                val items = mutableListOf<AvatarItem>()
-
-                // 前9个固定显示头像
-                repeat(kotlin.math.min(totalCount, 10)) {
-                    items.add(AvatarItem(url = AdlService.getService().facePrefix + students[it].userFaceImgUrl))
-                }
-                // 超出10个时，最后一个显示+X
-                if (totalCount > 10) {
-                    items.add(AvatarItem(showMore = true, moreCount = totalCount - 10))
-                }
-                avatarListLD.postValue(items)
-            }
-        }
-    }
 
     /**
      * 开始倒计时
@@ -89,6 +63,28 @@ class SkipLikeEightViewModel(application: Application) : BaseMultiSportViewModel
         }
     }
 
+    fun getMeetUserList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val userList = SportMeetingService.getSportMeetUserList(
+                meetGroupDetailsEntity?.classId,
+                recordMeet?.meetSportSkuId,
+                recordMeet?.meetId
+            )
+            if (userList.isNullOrEmpty().not()) {
+                // 前9个固定显示头像
+                val items = mutableListOf<AvatarItem>()
+                val totalCount = userList.size
+                repeat(kotlin.math.min(totalCount, 10)) {
+                    items.add(AvatarItem(url = AdlService.getService().facePrefix + userList[it].accountAvatar))
+                }
+                // 超出10个时，最后一个显示+X
+                if (totalCount > 10) {
+                    items.add(AvatarItem(showMore = true, moreCount = totalCount - 10))
+                }
+                avatarListLD.postValue(items)
+            }
+        }
+    }
 
     fun stopRecord() {
         videoRecorder.onStop()
