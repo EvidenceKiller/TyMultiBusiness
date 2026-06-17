@@ -7,6 +7,7 @@ import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.sport.standard.ui.SportOverlayRopeSkipEx
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.entity.IpcCameraConfig
 import com.ty.tybusbase.utils.MMKVUtil
 
 object BusiBaseConfig {
@@ -205,5 +206,39 @@ object BusiBaseConfig {
             "[{\"x\":1229,\"y\":697},{\"x\":1632,\"y\":698},{\"x\":1157,\"y\":1055},{\"x\":1746,\"y\":1059}]"
         AdlUIConfig.instance().saveConfig(configLeft)
         AdlUIConfig.instance().saveConfig(configRight)
+    }
+
+
+    fun getSkipTSCJEnable(): Boolean {
+        return MMKVUtil.decodeBoolean(MMKVBusiKey.PARAM_SKIP_TSJC, true)
+    }
+
+    fun updateSkipTSCJEnable(enable: Boolean) {
+        MMKVUtil.encode(MMKVBusiKey.PARAM_SKIP_TSJC, enable)
+    }
+
+    /**
+     * 读取存储的IPC摄像头配置
+     */
+    fun readIpcCameraConfig(key: String): IpcCameraConfig {
+        return MMKVUtil.decodeParcelable<IpcCameraConfig>(
+            key,
+            IpcCameraConfig::class.java
+        ) ?: IpcCameraConfig("172.16.30.200", "admin", "zy132456")
+    }
+
+    /**
+     * 更新IPC摄像头配置
+     */
+    fun saveIpcCameraConfig(key: String, config: IpcCameraConfig) {
+        MMKVUtil.encode(key, config)
+    }
+
+    fun readPingPangBluetoothAddress(): String? {
+        return MMKVUtil.decodeString(MMKVBusiKey.PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY)
+    }
+
+    fun savePingPangBluetoothAddress(address: String) {
+        MMKVUtil.encode(MMKVBusiKey.PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY, address)
     }
 }

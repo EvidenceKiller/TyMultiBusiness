@@ -14,7 +14,6 @@ object MMKVBusiKey {
     const val DEVICE_NAME = "device_name"
 
 
-
     /*布尔——SKELETON_ABLE(骨骼开关)
     布尔——SKELETON_MIRROR(骨骼镜像)
     布尔——SURFACE_MIRROR(相机镜像)*/
@@ -108,4 +107,11 @@ object MMKVBusiKey {
     const val ORGANIZE_PULL_UP_CONFIG = "ORGANIZE_PULL_UP_CONFIG"
 
     const val PARAM_FREE_SPORT_SITE_UP = "base_param_free_site_up" //自主测试仰卧起坐参数
+
+    const val PARAM_SKIP_TSJC = "PARAM_FREE_ROPE" //跳绳抬手检测
+
+    const val BASKETBALL_IPC_CAMERA_CONFIG_KEY = "basketball_ipc_camera_config_key" //篮球IPC摄像头参数KEY
+    const val BASKETBALL_LED_CONFIG_KEY = "basketball_led_config_key" //篮球LED参数KEY
+    const val PINGPANG_IPC_CAMERA_CONFIG_KEY = "pingpang_ipc_camera_config_key" //兵乓球IPC摄像头参数KEY
+    const val PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY = "pingpang_bluetooth_address_config_key" //兵乓球IPC摄像头参数KEY
 }
