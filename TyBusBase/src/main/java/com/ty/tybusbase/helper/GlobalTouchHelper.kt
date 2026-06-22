@@ -9,6 +9,7 @@ object GlobalTouchHelper {
     private val mHandler = Handler(Looper.getMainLooper())
     private var mTimeOut: Long = 5 * 60 * 1000L //分钟
     var enable = false //是否使能此功能
+        get() = field
         set(value) {
             field = value
             //如果使能则开始超时回调
@@ -25,8 +26,15 @@ object GlobalTouchHelper {
         noTouchListener = listener
     }
 
+    /**
+     * 设置超时时间
+     * 设置了时间就重新更新时间
+     * @param timeOut
+     */
     fun setTimeOut(timeOut: Long) {
+        pause()
         mTimeOut = timeOut
+        restart()
     }
 
     @Synchronized
