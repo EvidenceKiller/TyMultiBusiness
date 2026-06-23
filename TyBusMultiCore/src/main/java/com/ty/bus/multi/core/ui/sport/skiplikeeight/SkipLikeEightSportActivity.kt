@@ -93,7 +93,11 @@ class SkipLikeEightSportActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/8字较连续.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/8字较连续.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/9014080001_1782202800063.mp4"
+
+    private val defaultDoubleRegion = "[{\"x\":215,\"y\":727},{\"x\":514,\"y\":722},{\"x\":210,\"y\":922},{\"x\":533,\"y\":914}," +
+            "{\"x\":1345,\"y\":730},{\"x\":1665,\"y\":721},{\"x\":1332,\"y\":929},{\"x\":1676,\"y\":925}]"
 
     /***************************视频播放调试*************************/
 
@@ -107,7 +111,7 @@ class SkipLikeEightSportActivity :
         super.initData()
         viewModel.meetGroupDetailsEntity =
             intent.getSerializableExtra("student") as? MeetGroupDetailsEntity
-//        viewModel.streamType = 2
+        viewModel.streamType = 2
         viewModel.getMeetUserList()
     }
 
@@ -231,8 +235,7 @@ class SkipLikeEightSportActivity :
             RoleConfigMulti::class.java
         ).apply {
             if (targetRegion == null) {
-                targetRegion =
-                    "[{\"x\":215,\"y\":587},{\"x\":514,\"y\":582},{\"x\":210,\"y\":782},{\"x\":533,\"y\":774},{\"x\":1345,\"y\":590},{\"x\":1665,\"y\":581},{\"x\":1332,\"y\":789},{\"x\":1676,\"y\":785}]"
+                targetRegion = defaultDoubleRegion
             }
         }
     }
