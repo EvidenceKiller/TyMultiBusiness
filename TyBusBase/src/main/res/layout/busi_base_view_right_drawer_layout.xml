@@ -6,10 +6,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_drawer"
-        android:layout_width="@dimen/dp_440"
+        android:layout_width="0dp"
         android:layout_height="match_parent"
         android:background="@mipmap/bg_right_info"
-        app:layout_constraintEnd_toEndOf="parent">
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_side_toggle">
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -21,6 +22,7 @@
         android:layout_gravity="center"
         android:background="@mipmap/pic_setting_more"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/cl_drawer"
         app:layout_constraintTop_toTopOf="parent" />
 

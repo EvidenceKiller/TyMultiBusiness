@@ -1,18 +1,18 @@
-package com.ty.bus.multi.core.view.common
+package com.ty.tybusbase.view
 
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.ty.bus.multi.databinding.ViewRightDrawerLayoutBinding
+import com.ty.tybusbase.databinding.BusiBaseViewRightDrawerLayoutBinding
 
 class RightDrawerLayoutView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    val mBinding: ViewRightDrawerLayoutBinding =
-        ViewRightDrawerLayoutBinding.inflate(LayoutInflater.from(context), this, true)
+    val mBinding: BusiBaseViewRightDrawerLayoutBinding =
+        BusiBaseViewRightDrawerLayoutBinding.inflate(LayoutInflater.from(context), this, true)
 
     private var drawerLayoutWidth = 0
 

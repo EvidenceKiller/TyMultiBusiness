@@ -47,8 +47,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.ty.bus.multi.core.view.common.RightDrawerLayoutView
-        android:layout_width="wrap_content"
+    <com.ty.tybusbase.view.RightDrawerLayoutView
+        android:layout_width="@dimen/dp_498"
         android:layout_height="match_parent"
         app:layout_constraintRight_toRightOf="parent">
 
@@ -222,7 +222,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-    </com.ty.bus.multi.core.view.common.RightDrawerLayoutView>
+    </com.ty.tybusbase.view.RightDrawerLayoutView>
 
     <View
         android:layout_width="@dimen/dp_3"
