@@ -124,4 +124,17 @@ object BusiBaseConstantsValue {
     const val CHINA_MOBILE_CARD_TYPE = "1" //移动卡类型
 
     const val AUTO_BACK_TIME = 15_000L //运动完自动退出的时间
+
+    /***********************
+     * 投篮运动摄像头选择
+     * 1:USB；2：IPC
+     */
+    const val BASKETBALL_CAMERA_USB: Int = 0
+    const val BASKETBALL_CAMERA_IPC: Int = 1
+
+    const val BASKETBALL_DEFAULT_COUNT_DOWN: Int = 3
+
+    const val BASKETBALL_SHOOT_POINT_L1_SUFFIX: String = "_l1"
+    const val BASKETBALL_SHOOT_POINT_L2_SUFFIX: String = "_l2"
+    const val BASKETBALL_SHOOT_POINT_L3_SUFFIX: String = "_l3"
 }

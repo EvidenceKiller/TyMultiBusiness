@@ -114,4 +114,7 @@ object MMKVBusiKey {
     const val BASKETBALL_LED_CONFIG_KEY = "basketball_led_config_key" //篮球LED参数KEY
     const val PINGPANG_IPC_CAMERA_CONFIG_KEY = "pingpang_ipc_camera_config_key" //兵乓球IPC摄像头参数KEY
     const val PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY = "pingpang_bluetooth_address_config_key" //兵乓球IPC摄像头参数KEY
+
+    const val BASKETBALL_CAMERA_CHOOSE: String = "basketball_camera_choose"
+    const val BASKETBALL_COUNT_DOWN: String = "basketball_count_down"
 }
