@@ -63,6 +63,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var ptPlanId: String? = null
     var ptStandardId: String? = null
     var energyPoint: Int = 0
+    var streamType = 1 //1:摄像头播放，2:视频播放
 
     protected var uiHandler: Handler = AdlHandlerThread.getUIHandler()
 
