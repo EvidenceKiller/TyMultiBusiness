@@ -533,7 +533,6 @@ class SkipLikeEightSportActivity :
         super.onStatusSport()
         mBinding.llCountdown.visible()
         mBinding.rlSpeed.visible()
-        mBinding.llException.visible()
         mBinding.tvCount.visible()
         mBinding.tvUnit.visible()
         viewModel.startSportTime = System.currentTimeMillis()
