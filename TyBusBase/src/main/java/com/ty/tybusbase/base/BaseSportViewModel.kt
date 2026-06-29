@@ -65,6 +65,8 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var energyPoint: Int = 0
     var streamType = 1 //1:摄像头播放，2:视频播放
 
+    val sportResult: SportResult by lazy { SportResult() }
+
     protected var uiHandler: Handler = AdlHandlerThread.getUIHandler()
 
     private val playerHandler: AdlHandlerThread = AdlHandlerThread("#Player")
