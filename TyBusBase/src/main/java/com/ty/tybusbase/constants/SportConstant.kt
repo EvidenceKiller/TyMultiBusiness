@@ -226,6 +226,18 @@ object SportConstant {
     //体重
     const val SPORT_WEIGHT: String = "000201"
 
+    /*
+    乒乓球正手攻球
+    乒乓球1分钟左推右攻
+    乒乓球正手攻反手推挡
+    4801010001
+    4802010001
+    4803010001
+  */
+    const val SPORT_PING_PONG_FOREHAND_ATTACK = "480101"
+    const val SPORT_PING_PONG_PUSH_LEFT_ATTACK_RIGHT = "480201"
+    const val SPORT_PING_PONG_FOREHAND_ATTACK_BACKHAND_BLOCK = "480301"
+
     /**
      * @hide
      */
