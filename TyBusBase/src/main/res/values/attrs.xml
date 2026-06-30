@@ -118,4 +118,9 @@
         <attr name="tl_textDirectionV" format="boolean"/>
     </declare-styleable>
 
+    <declare-styleable name="ArcCircleGradientProgressView">
+        <attr name="acgp_textSize" format="dimension" />
+        <attr name="acgp_text" format="string" />
+    </declare-styleable>
+
 </resources>

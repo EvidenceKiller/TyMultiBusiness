@@ -134,7 +134,13 @@ object BusiBaseConstantsValue {
 
     const val BASKETBALL_DEFAULT_COUNT_DOWN: Int = 3
 
-    const val BASKETBALL_SHOOT_POINT_L1_SUFFIX: String = "_l1"
-    const val BASKETBALL_SHOOT_POINT_L2_SUFFIX: String = "_l2"
-    const val BASKETBALL_SHOOT_POINT_L3_SUFFIX: String = "_l3"
+    const val BASKETBALL_SHOOT_POINT: String = "basketball_shoot_point"
+
+    const val BASKETBALL_SHOOT_POINT_L1: Int = 0
+    const val BASKETBALL_SHOOT_POINT_L2: Int = 1
+    const val BASKETBALL_SHOOT_POINT_L3: Int = 2
+
+    const val BASKETBALL_SHOOT_POINT_L1_NAME: String = "L1"
+    const val BASKETBALL_SHOOT_POINT_L2_NAME: String = "L2"
+    const val BASKETBALL_SHOOT_POINT_L3_NAME: String = "L3"
 }
