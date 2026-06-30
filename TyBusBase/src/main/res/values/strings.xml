@@ -50,6 +50,7 @@
     <string name="save_setting">保存设置</string>
     <string name="reset">重置</string>
     <string name="save">保存</string>
+    <string name="exit">退出</string>
     <string name="save_successful">保存成功</string>
     <string name="reset_successful">重置成功</string>
     <string name="no_report">暂无报告</string>
