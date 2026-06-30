@@ -16,6 +16,7 @@ import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
 import com.ai.ui.facetest2.FaceTest2Activity
+import com.ai.ui.facetest3.FaceTest3Activity
 import com.ai.ui.gesture.GestureActivity
 import com.ai.ui.glframe.OpenGlFrameActivity
 import com.ai.ui.multiface.MultiFaceTestActivity
@@ -290,6 +291,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         mBinding.btnPicIdentify.setOnClickListener {
             startActivity(Intent(this, PicFaceTestActivity::class.java))
+        }
+
+        mBinding.btnProcessorIdentify.setOnClickListener {
+            startActivity(Intent(this, FaceTest3Activity::class.java))
         }
 
         mBinding.btnBmiSetting.setOnClickListener {

@@ -77,7 +77,7 @@ class MultiIdentityEngine {
                 }
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?,type: FailType) {
+            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
 
             }
 
@@ -261,6 +261,7 @@ class MultiIdentityEngine {
                 rectF = RectF(l, t, r, b)
             }
             if (rectF == null) return
+            if (rectF.width() < 40 || rectF.height() < 40) return
             FaceDetectorHelper.getInstance().detectFace(imageId, yuv, w, h, rectF)
         }
     }

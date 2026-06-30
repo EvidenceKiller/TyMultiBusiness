@@ -112,6 +112,9 @@
         <activity
             android:name="com.ai.ui.gesture.GestureActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ai.ui.facetest3.FaceTest3Activity"
+            android:exported="true" />
     </application>
 
 </manifest>
