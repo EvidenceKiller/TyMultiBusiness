@@ -17,6 +17,8 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
+import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.DeviceUtil
 
@@ -27,6 +29,7 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
     protected lateinit var tsSportLifecycle: TsSportLifecycle<*>
     protected val singleTracker by lazy { SingleTracker() }
     private var mIdentityListener: IdentifyMachineListener? = null
+    private var overlay: SportOverlay? = null
     private val identityEngine by lazy {
         MultiIdentityEngine()
     }
@@ -57,7 +60,7 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
         tsConfig.poseModelId = ModelIdConstants.COMMON_POSE_MODEL_ID // 骨骼
         tsConfig.drawSkeleton = true
         tsConfig.drawSingleBody = isDebug
-
+        this.overlay = overlay
         val tsSportLifecycleSingle = object : TsSportLifecycleSingle(null) {
             override fun onIdAuth(frame: TsSportFrameSingle) {
                 frame.skeleton?.let {
@@ -109,12 +112,15 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
 
     fun start() {
         isStarting = true
+        overlay?.visible()
         tsSportLifecycle.toIdAuth()
         processorSingle.changeTo(SportProcessorStatus.Sporting)
     }
 
     fun pause() {
         isStarting = false
+        overlay?.clearScreen()
+        overlay?.gone()
         tsSportLifecycle.toIdle()
         processorSingle.changeTo(SportProcessorStatus.Idle)
     }
