@@ -111,6 +111,7 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
     }
 
     fun start() {
+        identityEngine.reset()
         isStarting = true
         overlay?.visible()
         tsSportLifecycle.toIdAuth()
