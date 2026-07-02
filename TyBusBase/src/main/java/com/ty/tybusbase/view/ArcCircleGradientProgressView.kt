@@ -9,7 +9,6 @@ import android.graphics.RectF
 import android.graphics.SweepGradient
 import android.util.AttributeSet
 import android.view.View
-import com.adl.auth.core.AdlAuthImpl.getString
 import kotlin.math.min
 
 class ArcCircleGradientProgressView @JvmOverloads constructor(
@@ -57,15 +56,16 @@ class ArcCircleGradientProgressView @JvmOverloads constructor(
         val defaultTextSize = resources.getDimension(com.ty.tybusbase.R.dimen.sp_24)
         context.obtainStyledAttributes(attrs, com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView)
             .apply {
-                textPaint.textSize = getDimension(
-                    com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView_acgp_textSize,
-                    defaultTextSize)
+                textPaint.textSize = getDimension(com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView_acgp_textSize, defaultTextSize)
+                defaultText = getString(com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView_acgp_text) ?: ""
                 recycle()
             }
-        context.obtainStyledAttributes(attrs, com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView)
-            .apply {
-                defaultText = getString(com.ty.tybusbase.R.styleable.ArcCircleGradientProgressView_acgp_text, "")
-            }
+    }
+
+    fun resetStatus() {
+        defaultStatus = true
+        progress = 0f
+        invalidate()
     }
 
     /** 设置百分比 0~100 */

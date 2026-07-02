@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dp_1496"
+    android:layout_height="@dimen/dp_920"
+    android:focusableInTouchMode="true"
+    android:focusable="true"
+    android:background="@drawable/bg_round_r20_256dcf">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="@string/select_tester"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/iv_close"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_25"
+        android:layout_marginRight="@dimen/dp_40"
+        android:background="@mipmap/dialog_close"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/v_line1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_marginTop="@dimen/dp_90"
+        android:background="@color/white_40"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <View
+        android:id="@+id/v_line2"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_marginTop="@dimen/dp_188"
+        android:background="@color/white_40"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_class"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:text="@string/busi_base_class"
+        android:textColor="@color/white_60"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintBottom_toTopOf="@+id/v_line2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/v_line1" />
+
+    <Spinner
+        android:id="@+id/sp_class"
+        android:layout_width="@dimen/dp_350"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:background="@drawable/bg_sp_choose_student"
+        android:popupBackground="@drawable/bg_2858aa_round_20"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_class"
+        app:layout_constraintLeft_toRightOf="@+id/tv_class"
+        app:layout_constraintTop_toTopOf="@+id/tv_class"
+        tools:listitem="@layout/item_spinner_bk" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_class"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="sp_class,tv_class"/>
+
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/input_card"
+        android:layout_width="@dimen/dp_436"
+        android:layout_height="@dimen/dp_50"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:cardBackgroundColor="#4D7EB5FF"
+        app:cardCornerRadius="@dimen/dp_50"
+        app:cardElevation="0dp"
+        app:cardUseCompatPadding="false"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_class"
+        app:layout_constraintLeft_toRightOf="@+id/sp_class"
+        app:layout_constraintTop_toTopOf="@+id/tv_class">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginLeft="@dimen/dp_30"
+                android:background="@drawable/ic_search" />
+
+            <EditText
+                android:id="@+id/et_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="@dimen/dp_18"
+                android:background="@null"
+                android:hint="@string/busi_base_input_name_code_search"
+                android:imeOptions="flagNoExtractUi"
+                android:maxLength="20"
+                android:singleLine="true"
+                android:textColor="@color/white"
+                android:textColorHint="#66FFFFFF"
+                android:textSize="@dimen/sp_20" />
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/btn_search"
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:background="@drawable/bg_btn_gradient_r100_w"
+        android:text="@string/busi_base_search"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_class"
+        app:layout_constraintLeft_toRightOf="@+id/input_card"
+        app:layout_constraintTop_toTopOf="@+id/tv_class"
+        tools:text="搜索" />
+
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_student"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_24"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/v_line2"
+        app:layout_constraintBottom_toTopOf="@+id/ll_btn"
+        tools:listitem="@layout/item_choose_student" />
+
+
+    <View
+        android:id="@+id/v_line3"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_marginBottom="@dimen/dp_100"
+        android:background="@color/white_40"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/v_line3">
+
+        <TextView
+            android:id="@+id/tv_cancel"
+            android:layout_width="@dimen/dp_214"
+            android:layout_height="@dimen/dp_74"
+            android:background="@mipmap/moving_target_cancle_bg"
+            android:gravity="center"
+            android:text="@string/cancel"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_28" />
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="@dimen/dp_200"
+            android:layout_height="@dimen/dp_60"
+            android:layout_marginLeft="@dimen/dp_40"
+            android:background="@drawable/bg_round_r50_c4c4c4"
+            android:enabled="false"
+            android:gravity="center"
+            android:text="@string/confirm"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_28" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

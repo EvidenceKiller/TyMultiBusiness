@@ -71,6 +71,7 @@
   <string name="record">录制</string>
   <string name="count_compensation">计数补偿</string>
   <string name="sure">确认</string>
+  <string name="select_tester">選擇測試人員</string>
 
   <string name="prompt_stand_rect_hand_up">请站到框内\n并保持右手举起</string>
   <string name="move_to_rect">请移动到识别区</string>
@@ -102,6 +103,7 @@
   <string name="prompt_card_or_hand_up">请刷卡或者保持右手举起站到框内</string>
   <string name="player_exist">选手已存在，以游客身份加入</string>
   <string name="retest_once">再测一次</string>
+  <string name="next">下一位</string>
   <string name="perfect">完美</string>
   <string name="great">真棒</string>
   <string name="keep_it_up">加油</string>
@@ -112,7 +114,11 @@
   <string name="busi_base_input_name_search">请输入学生姓名/首字母搜索</string>
   <string name="busi_base_search_by_grade">按班级查找</string>
   <string name="busi_base_search_by_name">按姓名搜索</string>
+  <string name="busi_base_input_name_code_search">請輸入學生姓名/學號搜索</string>
+  <string name="busi_base_search">搜索</string>
   <string name="busi_base_energe">能量</string>
+
+  <string name="busi_base_class">班級</string>
 
   <string name="trick_jump_speed">瞬时速度：%d个/分钟</string>
   <string name="sport_result">运动成绩</string>
