@@ -15,6 +15,7 @@ import com.adl.lib.AdlCameraPreviewView.OnViewStatusListener
 import com.adl.lib.camera.uvc.NsUVCCameraSource
 import com.adl.lib.camera.uvc.NsUVCCameraSource.UVCModel
 import com.ty.tybusbase.R
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -39,7 +40,7 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     init {
         context.obtainStyledAttributes(attrs, R.styleable.BSCameraPreview)
             .apply {
-                previewFps  = getInteger(R.styleable.BSCameraPreview_preview_fps, 30)
+                previewFps = getInteger(R.styleable.BSCameraPreview_preview_fps, 30)
                 callbackFps = getInteger(R.styleable.BSCameraPreview_callback_fps, 30)
                 recycle()
             }
@@ -53,13 +54,13 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
         addView(cameraView, params)
         var cameraId = AdlCameraConfig.CameraId.Front
         val anInt =
-            MMKVUtil.decodeInt(MMKVBusiKey.CAMERA_CHOOSE, BusiBaseConstantsValue.CAMERA_FRONT)
+            decodeInt(MMKVBusiKey.CAMERA_CHOOSE, BusiBaseConstantsValue.CAMERA_FRONT)
         if (anInt == BusiBaseConstantsValue.CAMERA_BACK) {
             cameraId = AdlCameraConfig.CameraId.Back
         }
         var cameraType = AdlCameraConfig.CameraType.UVC
         val tempType =
-            MMKVUtil.decodeInt(
+            decodeInt(
                 MMKVBusiKey.CAMERA_TYPE_CHOOSE,
                 BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
             )
@@ -78,7 +79,6 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
             )
             .setPreviewFps(previewFps)
             .setCallbackFps(callbackFps)
-            .setPreviewFps(BusiBaseConstantsValue.PREVIEW_FPS)
             .setDisplayOrientation(0)
             .build()
 //         摄像头FPS 统计
@@ -114,6 +114,13 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     fun setMirror(isMirror: Boolean) {
         (zyCamera as? NsUVCCameraSource)?.setMirror(isMirror) ?: cameraDispatcher?.setMirror(
             isMirror
+        )
+    }
+
+    fun toggleMirror() {
+        val skeleton = BusiBaseConfig.getSkeletonMirror().not()
+        (zyCamera as? NsUVCCameraSource)?.setMirror(skeleton) ?: cameraDispatcher?.setMirror(
+            skeleton
         )
     }
 
