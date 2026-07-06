@@ -37,14 +37,13 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     private var callbackFps = 30
 
     init {
-        loadView(context)
-        val defaultTextSize = resources.getDimension(com.ty.tybusbase.R.dimen.sp_24)
         context.obtainStyledAttributes(attrs, R.styleable.BSCameraPreview)
             .apply {
                 previewFps  = getInteger(R.styleable.BSCameraPreview_preview_fps, 30)
                 callbackFps = getInteger(R.styleable.BSCameraPreview_callback_fps, 30)
                 recycle()
             }
+        loadView(context)
     }
 
     fun loadView(context: Context?) {
