@@ -25,7 +25,7 @@ import com.ty.tybusbase.utils.MMKVUtil.decodeInt
 /**
  * 摄像头统一配置
  */
-class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
+class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     context!!, attrs
 ) {
     private var zyCamera: AdlCamera? = null
@@ -33,9 +33,18 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
     var cameraFpsCounter: ElementFpsCounter? = null
     private var cameraDispatcher: DynamicSportFrameDispatcher? = null
     private var onCameraOpenListener: Action? = null
+    private var previewFps = 30
+    private var callbackFps = 30
 
     init {
         loadView(context)
+        val defaultTextSize = resources.getDimension(com.ty.tybusbase.R.dimen.sp_24)
+        context.obtainStyledAttributes(attrs, R.styleable.BSCameraPreview)
+            .apply {
+                previewFps  = getInteger(R.styleable.BSCameraPreview_preview_fps, 30)
+                callbackFps = getInteger(R.styleable.BSCameraPreview_callback_fps, 30)
+                recycle()
+            }
     }
 
     fun loadView(context: Context?) {
@@ -68,10 +77,11 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
                 BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH,
                 BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT
             )
+            .setPreviewFps(previewFps)
+            .setCallbackFps(callbackFps)
             .setPreviewFps(BusiBaseConstantsValue.PREVIEW_FPS)
             .setDisplayOrientation(0)
             .build()
-
 //         摄像头FPS 统计
         cameraFpsCounter = ElementFpsCounter("Camera")
         cameraFpsCounter!!.setPosition(20f, 270f) //设置camera fps，最大时间间隔，yuv预处理的显示位置
@@ -80,7 +90,7 @@ class BSCameraPreview(context: Context?, attrs: AttributeSet?) : FrameLayout(
         cameraDispatcher = DynamicSportFrameDispatcher(cameraFpsCounter)
         cameraDispatcher!!.enableDebug(false)
         cameraDispatcher!!.setEnableDiscard(true)
-        cameraDispatcher!!.setFps(30)
+        cameraDispatcher!!.setFps(callbackFps)
         setMirror(
             MMKVUtil.decodeBoolean(
                 MMKVBusiKey.SKELETON_MIRROR,
