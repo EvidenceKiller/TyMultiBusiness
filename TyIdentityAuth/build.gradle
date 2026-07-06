@@ -16,7 +16,7 @@ android {
             android.libraryVariants.all { variant ->
                 variant.outputs.all {
                     def date = new Date().format('yyyy-MM-dd')
-                    outputFileName = "ZDZ-Identify-${date}.aar"
+                    outputFileName = "ZDZ-Identify-${android.defaultConfig.versionName}-${date}.aar"
                 }
             }
         }
