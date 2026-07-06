@@ -3,6 +3,7 @@ package com.ty.tybusbase.identify
 import com.adl.base.overlay.SportOverlay
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.mount.impl.TsSportFrameSingle
 import com.adl.mount.impl.TsSportLifecycleSingle
 import com.adl.mount.sport.TsSportLifecycle
@@ -17,23 +18,41 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.ModelIdConstants
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
+import com.ty.tybusbase.expand.Action
+import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.DeviceUtil
 
-class SingleIdentityProcessor : AdlCameraFrameProcessor {
+open class SingleIdentityProcessor : AdlCameraFrameProcessor {
     private val mFrameProcessors by lazy { ArrayList<AdlCameraFrameProcessor>() }
     private val yuvData by lazy { TsYuvFrame() }
     protected lateinit var processorSingle: SportProcessorSingle
     protected lateinit var tsSportLifecycle: TsSportLifecycle<*>
     protected val singleTracker by lazy { SingleTracker() }
     private var mIdentityListener: IdentifyMachineListener? = null
+    private var startGestureDetection: IStartGestureDetection? = null
+    private var startGestureDetectCallback: Action? = null
+
+    //人脸识别是否OK
+    private var identityOk = false
+
+    //举手的回调
+    private var handUpRaiseCallback: Action1<Int>? = null
+
+    //0:右手，1：左手：2：左右手皆可 3:不检测举手
+    private var handUpType = HAND_UP_TYPE_LEFT
+
+    // 定义全局变量，默认为null表示未确定
+    var handRaised = HAND_UP_TYPE_LEFT
     private var overlay: SportOverlay? = null
     private val identityEngine by lazy {
         MultiIdentityEngine()
     }
+
     private var isStarting = false
+
     var enableSmooth = true
         set(value) {
             singleTracker.setEnableSmooth(value)
@@ -64,12 +83,21 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
         val tsSportLifecycleSingle = object : TsSportLifecycleSingle(null) {
             override fun onIdAuth(frame: TsSportFrameSingle) {
                 frame.skeleton?.let {
-                    identityEngine.identify(
-                        frame.skeleton,
-                        yuvData.yuv,
-                        yuvData.width,
-                        yuvData.height
-                    )
+                    if (judgeHandUp(it)) {
+                        identityEngine.identify(
+                            frame.skeleton,
+                            yuvData.yuv,
+                            yuvData.width,
+                            yuvData.height
+                        )
+                    }
+                    if (identityOk && startGestureDetection != null && startGestureDetection?.startGestureDetection(
+                            it,
+                            handRaised
+                        ) == true
+                    ) {
+                        startGestureDetectCallback?.invoke()
+                    }
                 }
             }
         }.apply { tsSportLifecycle = this }
@@ -95,6 +123,9 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
             }
 
             override fun onIdentityOk(accountInfo: AccountInfo?) {
+                if (identityOk) return
+                identityOk = true
+                handUpRaiseCallback?.invoke(handRaised)
                 mIdentityListener?.onIdentityOk(accountInfo)
             }
 
@@ -110,8 +141,75 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
         mIdentityListener = listener
     }
 
+    fun setHandUpRaiseCallback(callback: Action1<Int>) {
+        handUpRaiseCallback = callback
+    }
+
+    fun setHandUpType(handUpType: Int) {
+        this.handUpType = handUpType
+    }
+
+    fun setStartGestureDetection(startGestureDetection: IStartGestureDetection) {
+        this.startGestureDetection = startGestureDetection
+    }
+
+    fun setStartGestureDetectCallback(callback: Action) {
+        startGestureDetectCallback = callback
+    }
+
+    private fun judgeHandUp(skeleton: AdlPoseSkeleton?): Boolean {
+        if (skeleton == null) return false
+        return when (handUpType) {
+            0 -> {
+                // 判断左手
+                if (skeleton.lWrist == null || skeleton.lShoulder == null) return false
+                val isLeftHandUp = skeleton.lWrist.y < skeleton.lShoulder.y
+                if (isLeftHandUp) {
+                    handRaised = HAND_UP_TYPE_LEFT
+                }
+                isLeftHandUp
+            }
+
+            1 -> {
+                // 判断右手
+                if (skeleton.rWrist == null || skeleton.rShoulder == null) return false
+                val isRightHandUp = skeleton.rWrist.y < skeleton.rShoulder.y
+                if (isRightHandUp) {
+                    handRaised = HAND_UP_TYPE_RIGHT
+                }
+                isRightHandUp
+            }
+
+            2 -> {
+                // 判断左右手皆可
+                val leftHandUp = if (skeleton.lWrist != null && skeleton.lShoulder != null) {
+                    skeleton.lWrist.y < skeleton.lShoulder.y
+                } else {
+                    false
+                }
+                val rightHandUp = if (skeleton.rWrist != null && skeleton.rShoulder != null) {
+                    skeleton.rWrist.y < skeleton.rShoulder.y
+                } else {
+                    false
+                }
+                val anyHandUp = leftHandUp || rightHandUp
+                if (leftHandUp) {
+                    handRaised = HAND_UP_TYPE_LEFT
+                } else if (rightHandUp) {
+                    handRaised = HAND_UP_TYPE_RIGHT
+                }
+                anyHandUp
+            }
+
+            else -> {
+                false
+            }
+        }
+    }
+
     fun start() {
         identityEngine.reset()
+        identityOk = false
         isStarting = true
         overlay?.visible()
         tsSportLifecycle.toIdAuth()
@@ -124,6 +222,11 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
         overlay?.gone()
         tsSportLifecycle.toIdle()
         processorSingle.changeTo(SportProcessorStatus.Idle)
+    }
+
+    fun reset(){
+        identityOk = false
+        startGestureDetection?.reset()
     }
 
     fun release() {
@@ -150,4 +253,10 @@ class SingleIdentityProcessor : AdlCameraFrameProcessor {
         )
     }
 
+    companion object {
+        const val HAND_UP_TYPE_LEFT = 0
+        const val HAND_UP_TYPE_RIGHT = 1
+        const val HAND_UP_TYPE_BOTH = 2
+        const val HAND_UP_TYPE_NONE = 3
+    }
 }

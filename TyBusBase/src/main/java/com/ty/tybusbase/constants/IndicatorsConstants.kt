@@ -133,4 +133,21 @@ object IndicatorsConstants {
     const val MEDICINE_BALL_OFFSET = "07010020" //偏移情况
     const val MEDICINE_BALL_OFFSET_S = "0701002001" //偏移情况
     /**************************************实心球**********************************/
+
+    /**************************乒乓球正手攻反手推挡指标参数*******************************/
+    const val PING_PONG_HC_BALL_LANDING_POINT_DISTRIBUTION = "0130001" // 回球落点分布
+    const val PING_PONG_HC_SINGLE_BALL_RETURN_TIME_DISTRIBUTION = "0130003" // 单个回球时间分布
+    const val PING_PONG_HC_INTERRUPTED_TIME_AREA_DISTRIBUTION = "0130004" // 中断时间区域分布
+    const val PING_PONG_HC_MAXIMUM_CONSECUTIVE_HITS = "0130005" // 最大连击数
+    const val PING_PONG_HC_SAFE_ZONE_SIZE = "0130006" // 安全区大小
+    const val PING_PONG_HC_TABLE_SIZE = "0130002" // 台面大小
+    const val PING_PONG_HC_LANDING_POINT_LEFT_ZONE_RATIO = "0130007" // 落点分布左区占比
+    const val PING_PONG_HC_LANDING_POINT_RIGHT_ZONE_RATIO = "0130008" // 落点分布右区占比
+    const val PING_PONG_HC_LANDING_POINT_LEFT_SAFE_ZONE_RATIO = "0130009" // 落点分布左安全区占比
+    const val PING_PONG_HC_LANDING_POINT_RIGHT_SAFE_ZONE_RATIO = "0130010" // 落点分布右安全区占比
+    const val PING_PONG_HC_HIGHEST_PARABOLA = "0130015" // 最高抛物线
+    const val PING_PONG_HC_LOWEST_PARABOLA = "0130016" // 最低抛物线
+    const val PING_PONG_HC_FASTEST_BALL_SPEED_PARABOLA = "0130017" // 球速最快抛物线
+    const val PING_PONG_HC_SLOWEST_BALL_SPEED_PARABOLA = "0130018" // 球速最慢抛物线
+    /**************************乒乓球正手攻反手推挡指标参数*******************************/
 }
