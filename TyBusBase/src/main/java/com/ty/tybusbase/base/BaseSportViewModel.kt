@@ -117,6 +117,11 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         statusLD.postValue(SportStatusEnum.IDENTIFY_FACE_SUCCESS)
     }
 
+    //  切换运动结算状态
+    open fun toStatusSportCountDown() {
+        statusLD.postValue(SportStatusEnum.SPORT_COUNTDOWN)
+    }
+
     //  切换运动开始状态
     open fun toStatusSportStart() {
         startSportTime = System.currentTimeMillis()
@@ -134,6 +139,16 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         endSportTime = System.currentTimeMillis()
         statusLD.postValue(SportStatusEnum.SPORT_END)
         stopPlayBgm()
+    }
+
+    //  切换运动结算状态
+    open fun toStatusSportSettlement() {
+        statusLD.postValue(SportStatusEnum.SPORT_SETTLEMENT)
+    }
+
+    //  切换运动结果状态
+    open fun toStatusSportResult() {
+        statusLD.postValue(SportStatusEnum.SPORT_RESULT)
     }
 
 

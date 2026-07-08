@@ -27,6 +27,11 @@ enum class SportStatusEnum {
     IDENTIFY_FACE_SUCCESS,
 
     /**
+     * 运动倒计时
+     */
+    SPORT_COUNTDOWN,
+
+    /**
      * 运动开始
      */
     SPORT_START,
@@ -34,5 +39,15 @@ enum class SportStatusEnum {
     /**
      * 运动结束
      */
-    SPORT_END
+    SPORT_END,
+
+    /**
+     * 运动结算
+     */
+    SPORT_SETTLEMENT,
+
+    /**
+     * 运动结果
+     */
+    SPORT_RESULT
 }
