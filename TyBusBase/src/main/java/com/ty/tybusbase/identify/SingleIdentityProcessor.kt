@@ -158,10 +158,6 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
         mIdentityListener?.onIdentityOk(accountInfo)
     }
 
-    fun setMirror(isMirror: Boolean) {
-        this.isMirror = isMirror
-    }
-
     // 抽离计算逻辑
     private fun calculateHandUpType(value: Int): Int {
         return if (isMirror) {
@@ -181,10 +177,6 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
 
     fun setHandUpRaiseCallback(callback: Action1<Int>) {
         handUpRaiseCallback = callback
-    }
-
-    fun setHandUpType(handUpType: Int) {
-        this.handUpType = handUpType
     }
 
     fun setStartGestureDetection(startGestureDetection: IStartGestureDetection) {
