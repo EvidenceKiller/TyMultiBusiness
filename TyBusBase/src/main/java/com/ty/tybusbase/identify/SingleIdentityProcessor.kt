@@ -38,11 +38,21 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
     //人脸识别是否OK
     private var identityOk = false
 
+    //是否镜像，默认是镜像写法
+    var isMirror = false
+        set(value) {
+            field = value
+            calculateHandUpType(handUpType)
+        }
+
     //举手的回调
     private var handUpRaiseCallback: Action1<Int>? = null
 
     //0:右手，1：左手：2：左右手皆可 3:不检测举手
-    private var handUpType = HAND_UP_TYPE_LEFT
+    var handUpType = HAND_UP_TYPE_LEFT
+        set(value) {
+            field = calculateHandUpType(value)
+        }
 
     // 定义全局变量，默认为null表示未确定
     var handRaised = HAND_UP_TYPE_LEFT
@@ -123,10 +133,7 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
             }
 
             override fun onIdentityOk(accountInfo: AccountInfo?) {
-                if (identityOk) return
-                identityOk = true
-                handUpRaiseCallback?.invoke(handRaised)
-                mIdentityListener?.onIdentityOk(accountInfo)
+                handleIdentityOk(accountInfo)
             }
 
             override fun onIdentityTimeFail() {
@@ -135,6 +142,37 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
 
         })
         setIdentityRound(1)
+    }
+
+    fun handleIdentityOk(accountInfo: AccountInfo?) {
+        if (identityOk) return
+        identityOk = true
+        if (isMirror) {
+            handRaised = if (handRaised == HAND_UP_TYPE_RIGHT) {
+                HAND_UP_TYPE_LEFT
+            } else {
+                HAND_UP_TYPE_RIGHT
+            }
+        }
+        handUpRaiseCallback?.invoke(handRaised)
+        mIdentityListener?.onIdentityOk(accountInfo)
+    }
+
+    fun setMirror(isMirror: Boolean) {
+        this.isMirror = isMirror
+    }
+
+    // 抽离计算逻辑
+    private fun calculateHandUpType(value: Int): Int {
+        return if (isMirror) {
+            when (value) {
+                HAND_UP_TYPE_LEFT -> HAND_UP_TYPE_RIGHT
+                HAND_UP_TYPE_RIGHT -> HAND_UP_TYPE_LEFT
+                else -> value
+            }
+        } else {
+            value
+        }
     }
 
     fun setIdentityListener(listener: IdentifyMachineListener) {
@@ -224,7 +262,7 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
         processorSingle.changeTo(SportProcessorStatus.Idle)
     }
 
-    fun reset(){
+    fun reset() {
         identityOk = false
         startGestureDetection?.reset()
     }
