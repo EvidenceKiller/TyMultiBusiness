@@ -110,11 +110,11 @@ object MMKVBusiKey {
 
     const val PARAM_SKIP_TSJC = "PARAM_FREE_ROPE" //跳绳抬手检测
 
-    const val BASKETBALL_IPC_CAMERA_CONFIG_KEY = "basketball_ipc_camera_config_key" //篮球IPC摄像头参数KEY
-    const val BASKETBALL_LED_CONFIG_KEY = "basketball_led_config_key" //篮球LED参数KEY
+    const val SHOTBALL_IPC_CAMERA_CONFIG_KEY = "shotball_ipc_camera_config_key" //篮球IPC摄像头参数KEY
+    const val SHOTBALL_LED_CONFIG_KEY = "shotball_led_config_key" //篮球LED参数KEY
     const val PINGPANG_IPC_CAMERA_CONFIG_KEY = "pingpang_ipc_camera_config_key" //兵乓球IPC摄像头参数KEY
     const val PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY = "pingpang_bluetooth_address_config_key" //兵乓球IPC摄像头参数KEY
 
-    const val BASKETBALL_CAMERA_CHOOSE: String = "basketball_camera_choose"
-    const val BASKETBALL_COUNT_DOWN: String = "basketball_count_down"
+    const val SHOTBALL_CAMERA_CHOOSE: String = "shotball_camera_choose"
+    const val SHOTBALL_COUNT_DOWN: String = "shotball_count_down"
 }
