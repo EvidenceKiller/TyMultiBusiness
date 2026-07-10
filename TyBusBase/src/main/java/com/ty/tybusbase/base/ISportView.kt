@@ -7,8 +7,11 @@ interface ISportView {
     fun onStatusPrepare() {}
     fun onStatusIdentify()
     fun onStatusIdentifySuccess()
+    fun onStatusCountDown()
     fun onStatusSport()
     fun onStatusEnd()
+    fun onStatusSettlement()
+    fun onStatusResult()
     fun onCheckArea()
     fun onStatusIdentifyMat() {}
     fun createEuBase():TsSingleProcessor

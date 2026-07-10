@@ -131,4 +131,14 @@ public class NumberUtil {
         }
         return "-";
     }
+
+    private static final String[] DIGITS = {"零", "一", "二", "三", "四", "五", "六", "七", "八", "九", "十"};
+
+    public static String toChinessNum(int num) {
+        if (num >= 0 && num < DIGITS.length) {
+            return DIGITS[num];
+        } else {
+            return String.valueOf(num);
+        }
+    }
 }

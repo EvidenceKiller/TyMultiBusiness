@@ -242,11 +242,11 @@ object BusiBaseConfig {
         MMKVUtil.encode(MMKVBusiKey.PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY, address)
     }
 
-    fun readBasketballLedIp(): String? {
-        return MMKVUtil.decodeString(MMKVBusiKey.BASKETBALL_LED_CONFIG_KEY)
+    fun readShotBallLedIp(): String? {
+        return MMKVUtil.decodeString(MMKVBusiKey.SHOTBALL_LED_CONFIG_KEY)
     }
 
-    fun saveBasketballLedIp(ip: String) {
-        MMKVUtil.encode(MMKVBusiKey.BASKETBALL_LED_CONFIG_KEY, ip)
+    fun saveShotBallLedIp(ip: String) {
+        MMKVUtil.encode(MMKVBusiKey.SHOTBALL_LED_CONFIG_KEY, ip)
     }
 }

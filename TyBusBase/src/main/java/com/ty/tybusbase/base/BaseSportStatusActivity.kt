@@ -34,11 +34,17 @@ abstract class BaseSportStatusActivity<VB : ViewBinding, VM : BaseSportViewModel
                 SportStatusEnum.IDENTIFY_MAT -> onStatusIdentifyMat()
                 SportStatusEnum.IDENTIFY_FACE_SUCCESS -> onStatusIdentifySuccess()
                 SportStatusEnum.CHECK_AREA -> {}
+                SportStatusEnum.SPORT_COUNTDOWN -> onStatusCountDown()
                 SportStatusEnum.SPORT_START -> onStatusSport()
                 SportStatusEnum.SPORT_END -> onStatusEnd()
+                SportStatusEnum.SPORT_SETTLEMENT -> onStatusSettlement()
+                SportStatusEnum.SPORT_RESULT -> onStatusResult()
                 else -> {}
             }
         }
+    }
+
+    override fun onStatusCountDown() {
     }
 
     override fun onStatusSport() {
@@ -49,6 +55,12 @@ abstract class BaseSportStatusActivity<VB : ViewBinding, VM : BaseSportViewModel
     override fun onStatusEnd() {
         GlobalTouchHelper.restart()
         GestureProcessor.getInstance().restart()
+    }
+
+    override fun onStatusSettlement() {
+    }
+
+    override fun onStatusResult() {
     }
 
 
