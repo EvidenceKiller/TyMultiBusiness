@@ -136,6 +136,8 @@ object BusiBaseConstantsValue {
 
     const val SHOTBALL_SPORT_TYPE: String = "shotball_sport_type"
 
+    const val SHOTBALL_SPORT_VISITOR_ABLE: String = "shotball_sport_visitor_able"
+
     const val SHOTBALL_FREE_POINT: Int = 0
     const val SHOTBALL_SET_POINT_L1: Int = 1
     const val SHOTBALL_SET_POINT_L2: Int = 2
