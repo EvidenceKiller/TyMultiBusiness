@@ -6,6 +6,7 @@ import android.graphics.Shader
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.view.View
 import android.view.animation.AlphaAnimation
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -53,6 +54,8 @@ import com.ty.tybusbase.expand.toMs
 import com.ty.tybusbase.expand.toRaceTiming
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.utils.LogUtil
+import java.util.Date
+import kotlin.text.append
 
 class SkipLikeEightSportActivity :
     BaseMultiSportActivity<ActivitySkipLikeEightExerciseBinding, SkipLikeEightViewModel>() {
@@ -93,9 +96,16 @@ class SkipLikeEightSportActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/8字较连续.mp4"
+
+        val videoFilePath = "/sdcard/zy.sport.cache/resCollect/8字较连续.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/9014080001_1782202800063.mp4"
 
     /***************************视频播放调试*************************/
+
+    private val defaultDoubleRegion =
+        "[{\"x\":215,\"y\":727},{\"x\":514,\"y\":722},{\"x\":210,\"y\":922},{\"x\":533,\"y\":914}," +
+                "{\"x\":1345,\"y\":730},{\"x\":1665,\"y\":721},{\"x\":1332,\"y\":929},{\"x\":1676,\"y\":925}]"
+    private var isInterrupt = false
 
     override fun onStatusIdentify() {
     }
@@ -231,8 +241,7 @@ class SkipLikeEightSportActivity :
             RoleConfigMulti::class.java
         ).apply {
             if (targetRegion == null) {
-                targetRegion =
-                    "[{\"x\":215,\"y\":587},{\"x\":514,\"y\":582},{\"x\":210,\"y\":782},{\"x\":533,\"y\":774},{\"x\":1345,\"y\":590},{\"x\":1665,\"y\":581},{\"x\":1332,\"y\":789},{\"x\":1676,\"y\":785}]"
+                targetRegion = defaultDoubleRegion
             }
         }
     }
@@ -524,7 +533,6 @@ class SkipLikeEightSportActivity :
         super.onStatusSport()
         mBinding.llCountdown.visible()
         mBinding.rlSpeed.visible()
-        mBinding.llException.visible()
         mBinding.tvCount.visible()
         mBinding.tvUnit.visible()
         viewModel.startSportTime = System.currentTimeMillis()
@@ -535,7 +543,10 @@ class SkipLikeEightSportActivity :
             }
         })
         viewModel.startRecord()
-
+        mBinding.waveLine.start(
+            (viewModel.getEndValue() / 1000).toInt(),
+            System.currentTimeMillis()
+        )
         startJumping()
         startCountDown()
     }
@@ -691,8 +702,21 @@ class SkipLikeEightSportActivity :
 
         val speedQ = singleJumper.ropeSkipOnce.speed
         mBinding.waveLine.insert(speedQ)
-        val exceptionList = arrayListOf<String>().apply {
-            addAll(singleJumper.ropeSkipOnce.exceptionList)
+        if (singleJumper.ropeSkipOnce.interrupt && isInterrupt.not()) {
+            mBinding.tvNoException.visibility = View.GONE
+            mBinding.svException.visibility = View.VISIBLE
+            isInterrupt = true
+            mBinding.tvException.append(
+                "${
+                    ((viewModel.getEndValue() - (viewModel.countDownSecondsLD.value ?: (0L * 1000)))).toMs()
+                } 中断异常\n"
+            )
+        }
+
+        //清除中断标识
+        if (singleJumper.ropeSkipOnce.interrupt.not() && isInterrupt) {
+            LogUtil.d("清除中断标识")
+            isInterrupt = false
         }
         count = singleJumper.score
         mBinding.tvCount.text = count.toString()
@@ -701,17 +725,15 @@ class SkipLikeEightSportActivity :
                 R.string.trick_jump_speed,
                 speedQ
             )
-        if (exceptionList.isNotEmpty()) {
+        if (TextUtils.isEmpty(singleJumper.ropeSkipOnce.exception).not()) {
             mBinding.tvNoException.visibility = View.GONE
             mBinding.svException.visibility = View.VISIBLE
-            mBinding.tvException.text = ""
-            exceptionList.forEach {
-                mBinding.tvException.append(
-                    "${(System.currentTimeMillis() - viewModel.startSportTime).toMs()} $it\n"
-                )
-                mBinding.svException.fullScroll(View.FOCUS_DOWN)
-            }
-
+            mBinding.tvException.append(
+                "${
+                    ((viewModel.getEndValue() - (viewModel.countDownSecondsLD.value ?: (0L * 1000)))).toMs()
+                } ${singleJumper.ropeSkipOnce.exception}\n"
+            )
+            mBinding.svException.fullScroll(View.FOCUS_DOWN)
         }
     }
 

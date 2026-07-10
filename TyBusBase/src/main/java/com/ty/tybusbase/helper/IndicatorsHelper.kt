@@ -16,6 +16,7 @@ import com.adl.sport.standard.ExercisePrescription
 import com.ty.tybusbase.entity.IndicatorSportStartTimeInvalid
 import com.ty.tybusbase.entity.IndicatorSportTimeInvalid
 import com.alibaba.fastjson.JSON
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.IndicatorInterrupt
@@ -72,7 +73,9 @@ object IndicatorsHelper {
                 list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
             }
 
-            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat().roundToInt()
+            val sportTime =
+                NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat()
+                    .roundToInt()
             //补齐时间线
             while (time < sportTime) {
                 time += 3
@@ -85,7 +88,7 @@ object IndicatorsHelper {
             val count = NumberUtil.formatHalfUp(sportTime / 3f).toFloat().roundToInt()
 
             var size = list.size
-            while(size > count){
+            while (size > count) {
                 list.removeAt(list.lastIndex)
                 size--
             }
@@ -314,7 +317,9 @@ object IndicatorsHelper {
                 list.add(IndicatorXY(time.toFloat(), NumberUtil.formatHalfUp(it / 60f).toFloat()))
             }
 
-            val sportTime = NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat().roundToInt()
+            val sportTime =
+                NumberUtil.formatHalfUp((endSportTime - startSportTime) / 1000f).toFloat()
+                    .roundToInt()
             //补齐时间线
             while (time < sportTime) {
                 time += 3
@@ -327,7 +332,7 @@ object IndicatorsHelper {
             val count = NumberUtil.formatHalfUp(sportTime / 3f).toFloat().roundToInt()
 
             var size = list.size
-            while(size > count){
+            while (size > count) {
                 list.removeAt(list.lastIndex)
                 size--
             }
@@ -795,6 +800,7 @@ object IndicatorsHelper {
             this.sportTestTime = format.format(Date(startSportTime))
             this.sportTime = (endSportTime - startSportTime).toString()
             this.sportResult = "$count"
+            this.version = BusiBaseConfig.getReportVersion()
             this.sportVideos = mutableListOf()
             val videoList = mutableListOf<SportVideo>()
             videoFile?.absolutePath?.let {

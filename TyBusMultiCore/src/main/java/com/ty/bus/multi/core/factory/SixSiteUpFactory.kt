@@ -25,6 +25,7 @@ class SixSiteUpFactory : AbstractMultiSportFactory() {
     override fun getParser(): MultiSportParser<*> {
         val par = BusiBaseConfig.getSiteUpParamBean()
         val rule = EuSiteRule()
+        rule.setNumberOfPerson(6)
         rule.setEnableAutoEnd(false)
         rule.setEnableHandOk(par.enableHandOk) // 双手抱头
         rule.setEnableKneeAngleOk(par.enableKneeAngleOk) // 屈膝呈90

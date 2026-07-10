@@ -32,7 +32,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-    api 'adl.ssp:ssp-common-report:2.1.0-20260324.110759-12'
+    api 'adl.ssp:ssp-common-report:2.1.0-20260616.064257-34'
 
     //rx管理View的生命周期
     api(rootProject.ext.dependencies["rxlifecycle-components"]) {
@@ -59,9 +59,9 @@ dependencies {
     api(name: 'NzWebSerivce-2026-06-15', ext: 'aar')
     api(name: 'NzAuthCore-v2.0.1-2026-04-28', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
-    api(name: 'NzSportGeneral-v1.1.0-2026-04-30', ext: 'aar')
+    api(name: 'NzSportGeneral-v1.1.0-2026-07-06', ext: 'aar')
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')
-    api(name: 'AdlRopeSkipLite-2026-06-11', ext: 'aar')
+    api(name: 'AdlRopeSkipLite-2026-06-15', ext: 'aar')
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 
