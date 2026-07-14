@@ -123,6 +123,10 @@
         <attr name="acgp_text" format="string" />
     </declare-styleable>
 
+    <declare-styleable name="CapsuleGradientProgressView">
+        <attr name="cgp_progress" format="float" />
+    </declare-styleable>
+
     <declare-styleable name="BSCameraPreview">
         <attr name="preview_fps" format="integer" />
         <attr name="callback_fps" format="integer" />
