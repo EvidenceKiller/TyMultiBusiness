@@ -108,6 +108,8 @@ public class SportResult {
 
     private String sportResult = "0";
 
+    private String sportCount;
+
     //  是否违规 0：正常 1：违规
     private int sportViolationStatus = 0;
 
@@ -354,6 +356,14 @@ public class SportResult {
 
     public void setSportNo(String sportNo) {
         this.sportNo = sportNo;
+    }
+
+    public String getSportCount() {
+        return sportCount;
+    }
+
+    public void setSportCount(String sportCount) {
+        this.sportCount = sportCount;
     }
 
     @Override
