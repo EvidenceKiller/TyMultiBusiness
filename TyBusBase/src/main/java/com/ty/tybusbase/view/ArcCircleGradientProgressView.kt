@@ -1,5 +1,6 @@
 package com.ty.tybusbase.view
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -9,6 +10,7 @@ import android.graphics.RectF
 import android.graphics.SweepGradient
 import android.util.AttributeSet
 import android.view.View
+import android.view.animation.DecelerateInterpolator
 import kotlin.math.min
 
 class ArcCircleGradientProgressView @JvmOverloads constructor(
@@ -34,6 +36,9 @@ class ArcCircleGradientProgressView @JvmOverloads constructor(
 
     private var defaultText: String = ""
     private var defaultStatus: Boolean = true
+
+    private val animDuration = 300L
+    private var progressAnimator: ValueAnimator? = null
 
     private val trackPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
@@ -63,23 +68,39 @@ class ArcCircleGradientProgressView @JvmOverloads constructor(
     }
 
     fun resetStatus() {
+        progressAnimator?.cancel()
         defaultStatus = true
         progress = 0f
         invalidate()
     }
 
     /** 设置百分比 0~100 */
-    fun setPercent(percent: Int) {
-        defaultStatus = false
-        progress = percent.coerceIn(0, 100).toFloat()
-        invalidate()
-    }
-
-    /** 设置百分比 0~100 */
-    fun setPercent(percent: Float) {
+    fun setPercentImmediately(percent: Float) {
+        progressAnimator?.cancel()
         defaultStatus = false
         progress = percent.coerceIn(0f, 100f)
         invalidate()
+    }
+
+    fun setPercent(percent: Float) {
+        defaultStatus = false
+        val target = percent.coerceIn(0f, 100f)
+        progressAnimator?.cancel()
+        progressAnimator = ValueAnimator.ofFloat(progress, target).apply {
+            duration = animDuration
+            interpolator = DecelerateInterpolator()
+            addUpdateListener { anim ->
+                progress = anim.animatedValue as Float
+                invalidate()
+            }
+            start()
+        }
+    }
+
+    override fun onDetachedFromWindow() {
+        progressAnimator?.cancel()
+        progressAnimator = null
+        super.onDetachedFromWindow()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
