@@ -266,6 +266,18 @@ abstract class BaseSingleIdentifyActivity<VB : ViewBinding, VM : BaseSportViewMo
         tsSportLifecycle.toIdAuth()
     }
 
+    override fun onStatusSettlement() {
+
+    }
+
+    override fun onStatusResult() {
+
+    }
+
+    override fun onStatusCountDown() {
+
+    }
+
     open fun getIdentifyType() = 0
 
     override fun initViewDataBinding() {
