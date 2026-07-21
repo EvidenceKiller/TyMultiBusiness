@@ -369,13 +369,17 @@ object RecordUploadHelper {
     /**
      * 校验访客
      * 访客是否上传
-     *  如果为游客，锻炼和自主测试可以上传成绩
+     *  如果为游客，锻炼,趣味，微球场，竞技场和自主测试可以上传成绩
      */
     private fun visitorIfUpload(entity: SportRecordEntity): Boolean {
         //集体赛
         val isTeam = entity.sportMeet?.meetGroupType == "1"
         val visitorCanUpload =
-            entity.sportSceneCode in setOf(SceneConstants.FREE, SceneConstants.INDEPENDENT_TEST)
+            entity.sportSceneCode in setOf(
+                SceneConstants.FREE,
+                SceneConstants.INDEPENDENT_TEST, SceneConstants.PK,
+                SceneConstants.FUN, SceneConstants.MICRO_COURT
+            )
         val isVisitor =
             TextUtils.isEmpty(entity.accountId) || entity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID
 
