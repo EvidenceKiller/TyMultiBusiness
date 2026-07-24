@@ -311,4 +311,8 @@ class MultiIdentityEngine {
     fun clearCountMap() {
         identifyMap.clear()
     }
+
+    fun clearCountMapCurrentNum(number: Int) {
+        identifyMap[number] = 0
+    }
 }
