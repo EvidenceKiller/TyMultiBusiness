@@ -75,7 +75,7 @@ abstract class BaseActivity<DB : ViewBinding, VM : BaseViewModel> : RxAppCompatA
         registerLive()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         initData()
