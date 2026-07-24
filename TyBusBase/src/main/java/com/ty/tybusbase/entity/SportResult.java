@@ -110,6 +110,8 @@ public class SportResult {
 
     private String sportCount;
 
+    private String sportTotalCount;
+
     //  是否违规 0：正常 1：违规
     private int sportViolationStatus = 0;
 
@@ -366,13 +368,55 @@ public class SportResult {
         this.sportCount = sportCount;
     }
 
+    public String getSportTotalCount() {
+        return sportTotalCount;
+    }
+
+    public void setSportTotalCount(String sportTotalCount) {
+        this.sportTotalCount = sportTotalCount;
+    }
+
     @Override
     public String toString() {
         return "SportResult{" +
                 "sportDuration=" + sportDuration +
                 ", sportAchievement=" + sportAchievement +
+                ", perfectCount=" + perfectCount +
+                ", goodCount=" + goodCount +
+                ", comeOnCount=" + comeOnCount +
+                ", maxComboCount=" + maxComboCount +
+                ", interruptCount=" + interruptCount +
+                ", goodScore=" + goodScore +
+                ", comeOnScore=" + comeOnScore +
+                ", perfectScore=" + perfectScore +
+                ", totalScore=" + totalScore +
                 ", userName='" + userName + '\'' +
+                ", videoLocalPath='" + videoLocalPath + '\'' +
                 ", headUrl='" + headUrl + '\'' +
+                ", userId='" + userId + '\'' +
+                ", correctCount=" + correctCount +
+                ", errorCount=" + errorCount +
+                ", location='" + location + '\'' +
+                ", checkTime=" + checkTime +
+                ", rank=" + rank +
+                ", multiPersonIndex=" + multiPersonIndex +
+                ", sportSkuSubType='" + sportSkuSubType + '\'' +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", multiPersonId='" + multiPersonId + '\'' +
+                ", sportResult='" + sportResult + '\'' +
+                ", sportCount='" + sportCount + '\'' +
+                ", sportTotalCount='" + sportTotalCount + '\'' +
+                ", sportViolationStatus=" + sportViolationStatus +
+                ", sportViolationNumber='" + sportViolationNumber + '\'' +
+                ", reportVersion='" + reportVersion + '\'' +
+                ", reportCode='" + reportCode + '\'' +
+                ", videoFile=" + videoFile +
+                ", videoCover='" + videoCover + '\'' +
+                ", cardType='" + cardType + '\'' +
+                ", energyPoint=" + energyPoint +
+                ", sportNo='" + sportNo + '\'' +
+                ", rankEntityList=" + rankEntityList +
                 '}';
     }
 }
