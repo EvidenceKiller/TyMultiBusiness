@@ -88,6 +88,7 @@ object BusiBaseConstantsValue {
     const val CAMERA_TYPE_CAMERA = 1
     const val CAMERA_TYPE_CAMERAX = 2
     const val CAMERA_TYPE_CAMERA_UVC = 3
+    const val CAMERA_TYPE_V4L2 = 4
     const val CAMERA_TYPE_DEFAULT: Int = CAMERA_TYPE_CAMERAX
 
     const val DEFAULT_CAMERA_MIRROR = false //骨骼镜像
