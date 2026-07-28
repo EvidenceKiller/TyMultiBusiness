@@ -249,4 +249,18 @@ object BusiBaseConfig {
     fun saveShotBallLedIp(ip: String) {
         MMKVUtil.encode(MMKVBusiKey.SHOTBALL_LED_CONFIG_KEY, ip)
     }
+
+    fun saveCameraTypeChoose(cameraType: Int) {
+        MMKVUtil.encode(
+            MMKVBusiKey.CAMERA_TYPE_CHOOSE,
+            cameraType
+        )
+    }
+
+    fun readCameraTypeChoose(): Int {
+        return MMKVUtil.decodeInt(
+            MMKVBusiKey.CAMERA_TYPE_CHOOSE,
+            BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
+        )
+    }
 }
