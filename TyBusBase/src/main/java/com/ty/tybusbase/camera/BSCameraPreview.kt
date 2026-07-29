@@ -116,16 +116,20 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     }
 
     fun setMirror(isMirror: Boolean) {
-        (zyCamera as? NsUVCCameraSource)?.setMirror(isMirror) ?: cameraDispatcher?.setMirror(
-            isMirror
-        )
+        when (zyCamera) {
+            is NsUVCCameraSource -> (zyCamera as NsUVCCameraSource).setMirror(isMirror)
+            is NsV4L2CameraSource -> (zyCamera as NsV4L2CameraSource).setMirror(isMirror)
+            else -> cameraDispatcher?.setMirror(isMirror)
+        }
     }
 
     fun toggleMirror() {
-        val skeleton = BusiBaseConfig.getSkeletonMirror().not()
-        (zyCamera as? NsUVCCameraSource)?.setMirror(skeleton) ?: cameraDispatcher?.setMirror(
-            skeleton
-        )
+        val isMirror = BusiBaseConfig.getSkeletonMirror().not()
+        when (zyCamera) {
+            is NsUVCCameraSource -> (zyCamera as NsUVCCameraSource).setMirror(isMirror)
+            is NsV4L2CameraSource -> (zyCamera as NsV4L2CameraSource).setMirror(isMirror)
+            else -> cameraDispatcher?.setMirror(isMirror)
+        }
     }
 
     fun setRotate(rotate: Int) {
