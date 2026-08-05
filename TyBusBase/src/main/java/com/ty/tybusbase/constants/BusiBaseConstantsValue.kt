@@ -135,6 +135,8 @@ object BusiBaseConstantsValue {
 
     const val SHOTBALL_DEFAULT_COUNT_DOWN: Int = 3
 
+    const val SHOTBALL_DEFAULT_MULTI_PERSON_DETECTION: Boolean = false
+
     const val SHOTBALL_SPORT_TYPE: String = "shotball_sport_type"
 
     const val SHOTBALL_FREE_POINT: Int = 0
