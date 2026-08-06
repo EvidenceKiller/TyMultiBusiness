@@ -45,21 +45,28 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.ty.bus.multi.core.view.common.RightDrawerLayoutView
-        android:layout_width="wrap_content"
+    <com.ty.tybusbase.view.RightDrawerLayoutView
+        android:layout_width="@dimen/dp_588"
         android:layout_height="match_parent"
         app:layout_constraintRight_toRightOf="parent">
+
+        <View
+            android:id="@+id/line"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/dp_58"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <TextView
             android:id="@+id/tv_sport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/dp_50"
-            android:layout_marginEnd="@dimen/dp_50"
             android:text="@string/forward_flexion"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_68"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/line"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -67,7 +74,6 @@
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
             android:layout_marginTop="@dimen/dp_40"
-            android:layout_marginEnd="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_24"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
@@ -75,6 +81,7 @@
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/line"
             app:layout_constraintTop_toBottomOf="@+id/tv_sport_name" />
 
         <LinearLayout
@@ -82,11 +89,11 @@
             android:layout_width="@dimen/dp_232"
             android:layout_height="@dimen/dp_80"
             android:layout_marginTop="@dimen/dp_40"
-            android:layout_marginEnd="@dimen/dp_40"
             android:background="@drawable/bg_zwtqq_number_set"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_number_desc"
             app:layout_constraintTop_toBottomOf="@+id/tv_auto_mat">
 
             <ImageView
@@ -124,6 +131,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tv_number_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_32"
@@ -132,6 +140,8 @@
             android:textSize="@dimen/sp_24"
             app:layout_constraintBottom_toBottomOf="@+id/ll_number"
             app:layout_constraintEnd_toStartOf="@+id/ll_number"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@+id/line"
             app:layout_constraintTop_toTopOf="@+id/ll_number" />
 
 
@@ -140,11 +150,11 @@
             android:layout_width="@dimen/dp_232"
             android:layout_height="@dimen/dp_80"
             android:layout_marginTop="@dimen/dp_40"
-            android:layout_marginEnd="@dimen/dp_40"
             android:background="@drawable/bg_zwtqq_number_set"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/tv_test_count_desc"
             app:layout_constraintTop_toBottomOf="@+id/ll_number">
 
             <ImageView
@@ -182,6 +192,7 @@
         </LinearLayout>
 
         <TextView
+            android:id="@+id/tv_test_count_desc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_32"
@@ -190,13 +201,14 @@
             android:textSize="@dimen/sp_24"
             app:layout_constraintBottom_toBottomOf="@+id/ll_time"
             app:layout_constraintEnd_toStartOf="@+id/ll_time"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="@+id/line"
             app:layout_constraintTop_toTopOf="@+id/ll_time" />
 
         <TextView
             android:id="@+id/tv_reset"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
-            android:layout_marginEnd="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_24"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
@@ -204,13 +216,13 @@
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
             app:layout_constraintBottom_toTopOf="@+id/tv_confirm"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/line" />
 
         <TextView
             android:id="@+id/tv_confirm"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
-            android:layout_marginEnd="@dimen/dp_40"
             android:layout_marginBottom="@dimen/dp_80"
             android:background="@drawable/bg_round_r50_gradient_red"
             android:gravity="center"
@@ -218,9 +230,10 @@
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/line" />
 
-    </com.ty.bus.multi.core.view.common.RightDrawerLayoutView>
+    </com.ty.tybusbase.view.RightDrawerLayoutView>
 
     <View
         android:layout_width="@dimen/dp_3"

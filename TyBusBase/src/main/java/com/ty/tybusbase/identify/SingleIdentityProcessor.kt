@@ -238,7 +238,6 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
     }
 
     fun start() {
-        identityEngine.reset()
         identityOk = false
         isStarting = true
         overlay?.visible()
@@ -256,6 +255,7 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
 
     fun reset() {
         identityOk = false
+        identityEngine.reset()
         startGestureDetection?.reset()
     }
 

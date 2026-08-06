@@ -88,6 +88,7 @@ object BusiBaseConstantsValue {
     const val CAMERA_TYPE_CAMERA = 1
     const val CAMERA_TYPE_CAMERAX = 2
     const val CAMERA_TYPE_CAMERA_UVC = 3
+    const val CAMERA_TYPE_V4L2 = 4
     const val CAMERA_TYPE_DEFAULT: Int = CAMERA_TYPE_CAMERAX
 
     const val DEFAULT_CAMERA_MIRROR = false //骨骼镜像
@@ -134,9 +135,9 @@ object BusiBaseConstantsValue {
 
     const val SHOTBALL_DEFAULT_COUNT_DOWN: Int = 3
 
-    const val SHOTBALL_SPORT_TYPE: String = "shotball_sport_type"
+    const val SHOTBALL_DEFAULT_MULTI_PERSON_DETECTION: Boolean = false
 
-    const val SHOTBALL_SPORT_VISITOR_ABLE: String = "shotball_sport_visitor_able"
+    const val SHOTBALL_SPORT_TYPE: String = "shotball_sport_type"
 
     const val SHOTBALL_FREE_POINT: Int = 0
     const val SHOTBALL_SET_POINT_L1: Int = 1

@@ -14,6 +14,7 @@ import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.AdlCameraPreviewView.OnViewStatusListener
 import com.adl.lib.camera.uvc.NsUVCCameraSource
 import com.adl.lib.camera.uvc.NsUVCCameraSource.UVCModel
+import com.adl.lib.camera.v4l2.NsV4L2CameraSource
 import com.ty.tybusbase.R
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -59,15 +60,18 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
             cameraId = AdlCameraConfig.CameraId.Back
         }
         var cameraType = AdlCameraConfig.CameraType.UVC
-        val tempType =
-            decodeInt(
-                MMKVBusiKey.CAMERA_TYPE_CHOOSE,
-                BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
-            )
-        if (tempType == BusiBaseConstantsValue.CAMERA_TYPE_CAMERA) {
-            cameraType = AdlCameraConfig.CameraType.Old
-        } else if (tempType == BusiBaseConstantsValue.CAMERA_TYPE_CAMERAX) {
-            cameraType = AdlCameraConfig.CameraType.CameraX
+        when (BusiBaseConfig.readCameraTypeChoose()) {
+            BusiBaseConstantsValue.CAMERA_TYPE_CAMERA -> {
+                cameraType = AdlCameraConfig.CameraType.Old
+            }
+
+            BusiBaseConstantsValue.CAMERA_TYPE_CAMERAX -> {
+                cameraType = AdlCameraConfig.CameraType.CameraX
+            }
+
+            BusiBaseConstantsValue.CAMERA_TYPE_V4L2 -> {
+                cameraType = AdlCameraConfig.CameraType.V4L2
+            }
         }
         // 摄像头配置
         zyCamera = AdlCameraConfig.builder()
@@ -112,16 +116,20 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     }
 
     fun setMirror(isMirror: Boolean) {
-        (zyCamera as? NsUVCCameraSource)?.setMirror(isMirror) ?: cameraDispatcher?.setMirror(
-            isMirror
-        )
+        when (zyCamera) {
+            is NsUVCCameraSource -> (zyCamera as NsUVCCameraSource).setMirror(isMirror)
+            is NsV4L2CameraSource -> (zyCamera as NsV4L2CameraSource).setMirror(isMirror)
+            else -> cameraDispatcher?.setMirror(isMirror)
+        }
     }
 
     fun toggleMirror() {
-        val skeleton = BusiBaseConfig.getSkeletonMirror().not()
-        (zyCamera as? NsUVCCameraSource)?.setMirror(skeleton) ?: cameraDispatcher?.setMirror(
-            skeleton
-        )
+        val isMirror = BusiBaseConfig.getSkeletonMirror().not()
+        when (zyCamera) {
+            is NsUVCCameraSource -> (zyCamera as NsUVCCameraSource).setMirror(isMirror)
+            is NsV4L2CameraSource -> (zyCamera as NsV4L2CameraSource).setMirror(isMirror)
+            else -> cameraDispatcher?.setMirror(isMirror)
+        }
     }
 
     fun setRotate(rotate: Int) {
@@ -144,6 +152,11 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
             override fun onCameraOpen() {
                 if (cameraType == AdlCameraConfig.CameraType.UVC) {
                     configUVCModel()
+                }
+                when (cameraType) {
+                    AdlCameraConfig.CameraType.UVC -> configUVCModel()
+                    AdlCameraConfig.CameraType.V4L2 -> configV4L2Model()
+                    else -> {}
                 }
                 onCameraOpenListener?.invoke()
             }
@@ -178,6 +191,12 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
         cameraView!!.addFrameProcessor(cameraDispatcher)
         AdlLogger.d("打开相机耗时:" + (System.currentTimeMillis() - start))
 
+    }
+
+    private fun configV4L2Model() {
+        if (zyCamera is NsV4L2CameraSource) {
+            (zyCamera as NsV4L2CameraSource).control.autoExposure = true
+        }
     }
 
     fun configUVCModel() {

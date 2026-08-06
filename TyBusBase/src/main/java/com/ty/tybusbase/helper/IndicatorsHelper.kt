@@ -788,7 +788,8 @@ object IndicatorsHelper {
         videoCover: String?,
         accountName: String?,
         accountSex: Int?,
-        accountAvatar: String?
+        accountAvatar: String?,
+        sportVersion:String = BusiBaseConfig.getReportVersion()
     ): IndicatorsResultDto? {
         if (indicatorsList == null) return null
         val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -800,7 +801,7 @@ object IndicatorsHelper {
             this.sportTestTime = format.format(Date(startSportTime))
             this.sportTime = (endSportTime - startSportTime).toString()
             this.sportResult = "$count"
-            this.version = BusiBaseConfig.getReportVersion()
+            this.version = sportVersion
             this.sportVideos = mutableListOf()
             val videoList = mutableListOf<SportVideo>()
             videoFile?.absolutePath?.let {
