@@ -226,6 +226,9 @@ object SportConstant {
     //体重
     const val SPORT_WEIGHT: String = "000201"
 
+    // 篮球对抗
+    const val SPORT_BASKET_BALL_BATTLE = "100701"
+
     // 自由投篮
     const val SPORT_SHOT_BALL_FREE = "100403"
 
