@@ -117,4 +117,5 @@ object MMKVBusiKey {
 
     const val SHOTBALL_CAMERA_CHOOSE: String = "shotball_camera_choose"
     const val SHOTBALL_COUNT_DOWN: String = "shotball_count_down"
+    const val SHOTBALL_MULTI_PERSON_DETECTION: String = "shotball_multi_person_detection"
 }
