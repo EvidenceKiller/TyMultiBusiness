@@ -106,6 +106,8 @@ public class SportResult {
 
     private String multiPersonId;
 
+    private String multiTeamId;
+
     private String sportResult = "0";
 
     private String sportCount;
@@ -153,6 +155,14 @@ public class SportResult {
 
     public void setMultiPersonId(String multiPersonId) {
         this.multiPersonId = multiPersonId;
+    }
+
+    public String getMultiTeamId() {
+        return multiTeamId;
+    }
+
+    public void setMultiTeamId(String multiTeamId) {
+        this.multiTeamId = multiTeamId;
     }
 
     public String getSportResult() {
