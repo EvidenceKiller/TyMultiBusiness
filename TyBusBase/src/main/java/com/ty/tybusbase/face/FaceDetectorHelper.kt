@@ -175,6 +175,8 @@ class FaceDetectorHelper private constructor() {
             if (userId == null && livingModel.failType == FailType.NONE) {
                 livingModel.failType = FailType.NO_SEARCH
             }
+            //回调识别到的ID
+            mFaceCallback?.onFindUserId(userId, livingModel.faceInfo?.score ?: 0f)
             val verify = verifyStrategy.verifyUser(
                 userId ?: "",
                 livingModel.faceInfo?.score ?: 0f
@@ -201,10 +203,10 @@ class FaceDetectorHelper private constructor() {
                     }
                 }
             } else {
-                if (livingModel.failType == FailType.NONE){
+                if (livingModel.failType == FailType.NONE) {
                     livingModel.failType = FailType.NO_VERIFY
                 }
-                mFaceCallback?.onFindFail(livingModel.faceInfo,livingModel.failType)
+                mFaceCallback?.onFindFail(livingModel.faceInfo, livingModel.failType)
             }
             isIsDetecting = false
         }
@@ -321,6 +323,11 @@ class FaceDetectorHelper private constructor() {
     fun setVerifyStrategy(strategy: IVerifyStrategy) {
         verifyStrategy = strategy
     }
+
+    /**
+     * 获取当前的校验策略类
+     */
+    fun getVerifyStrategy(): IVerifyStrategy = verifyStrategy
 
     /**
      * 获取默认人脸检验策略类
