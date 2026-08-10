@@ -564,6 +564,11 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             public void onFindTeacher(@Nullable TeacherEntity user) {
                 identity(user);
             }
+
+            @Override
+            public void onFindUserId(@Nullable String userId, float score) {
+
+            }
         });
     }
 

@@ -49,8 +49,6 @@ import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.helper.SpeechWrapper
-import com.ty.tybusbase.identify.IdentifyMachineListener
-import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.ApplicationUtil.getContext
 import com.ty.tybusbase.utils.MMKVUtil
@@ -87,7 +85,7 @@ import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 
 open class BaseIPCMultiSportViewModel(application: Application) :
-    BaseMultiSportViewModel(application) {
+    BaseMultiPipelineIdentifyViewModel(application) {
     private var createTime: Long = 0
     private val bsSkipRoseMultiProcessor by lazy { OnceCacheProcessor() } //五人跳绳代理帧数据处理类
     private val cameraDispatcher by lazy {
@@ -104,7 +102,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private lateinit var multiSportProcessor: MultiSportProcessor
     private lateinit var multiSportParser: MultiSportParser<*>
 
-    protected val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
     val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
@@ -188,7 +185,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         countDownTime = getDefaultCountDownTime()
         initProcess()
         initCamera()
-        initFaceIdentify()
+        //目前只有常规模式，才需要人脸识别，运动会模式不需要
+        if (getSportModel() == SportModel.NORMAL) {
+            initFaceIdentify()
+        }
         //如果是赛事，请求运动详情数据，用于上传数据
         matchId?.let {
 //            getFreeModelSportDetail(MatchMultiListActivity.uploadSportDetail!!.sportsDetailUid)
@@ -341,38 +341,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, re, 27, frameRate)
     }
 
-    open fun initFaceIdentify() {
-        //目前只有常规模式，才需要人脸识别，运动会模式不需要
-        if (getSportModel() != SportModel.NORMAL) return
-        /**
-         * 人脸识别回调
-         */
-        var visitor: Boolean =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.VISITOR_ABLE,
-                BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
-            ) && matchId == null
-        multiIdentityEngine.visitorAble = visitor
-        FaceDetectorHelper.getInstance().setFrameInterval(2)
-        multiIdentityEngine.openMachine(object : IdentifyMachineListener {
-            override fun onIdentityMachineInit(initResult: Boolean) {
-
-            }
-
-            override fun onIdentityTimeOn() {
-
-            }
-
-            override fun onIdentityOk(accountInfo: AccountInfo) {
-                handleIdentityOk(accountInfo)
-            }
-
-            override fun onIdentityTimeFail() {
-                handleIdentityTimeFail()
-            }
-        })
-    }
-
     fun openTsProcess() {
 //        tsProcessor.combineRegions()
 //        tsProcessor.toSporting()
@@ -387,8 +355,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         multiSportProcessor.onInit()
     }
 
-    @Synchronized
-    private fun handleIdentityTimeFail() {
+    override fun identifyFail(index: Int) {
         changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
         //处理下一道是否有人
         var tempNumber = currentIdentifyNumber + 1
@@ -405,7 +372,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFYING
                 )
-                multiIdentityEngine.reset()
                 findOk = true
                 break
             }
@@ -418,11 +384,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     }
 
-    @Synchronized
-    private fun handleIdentityOk(accountInfo: AccountInfo) {
+    override fun identifyOk(accountIndex: Int, accountInfo: AccountInfo) {
         //正在运动，不处理识别
         if (skipRoseState != MultiSportState.IDENTIFYING) {
-            AdlLogger.d("识别到人脸：但已不是识别状态 $currentIdentifyNumber")
+            AdlLogger.d("识别到人脸：但已不是识别状态 $accountIndex")
             return
         }
 
@@ -434,7 +399,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 accountInfo.studentEntity!!.accountName
             )
         )
-        val identifyNumber = currentIdentifyNumber
         synchronized(this) {
             viewModelScope.launch(Dispatchers.Main) {
                 //处理结果加锁，post到主线程执行时，子线程可能会改变currentIdentifyNumber的值，或其他状态
@@ -464,18 +428,18 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                     //识别到人，且有效时，取消倒计时再处理显示逻辑
                     startCountDownTimer.cancel()
                     skipPersonArray.put(
-                        identifyNumber,
-                        MultiSportResult(accountInfo, identifyNumber)
+                        accountIndex,
+                        MultiSportResult(accountInfo, accountIndex)
                     )
-                    AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $identifyNumber")
-                    identifiedLD.value = Pair(identifyNumber, accountInfo)
+                    AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
+                    identifiedLD.value = Pair(accountIndex, accountInfo)
                     //给accountInfo赋值，用来获取存储视频的地址
                     if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                         accountInfoLD.postValue(accountInfo)
                     }
-                    LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $identifyNumber 切换到准备状态")
+                    LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName};道数 $accountIndex 切换到准备状态")
                     changeMultiIdentityCardState(
-                        identifyNumber,
+                        accountIndex,
                         MultiSportCardViewState.PREPARED
                     )
 
@@ -680,7 +644,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = bsSkipRoseMultiProcessor.getCurrentYuvData()
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(
                         skipRopeMan,
                         currentYuvData.width,
@@ -696,7 +660,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             return
         }
         //如果正在识别，则等待识别完再处理下一个人脸识别
-        if (multiIdentityEngine.isIdentifying()) {
+        if (isIdentifying()) {
             LogUtil.d("处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
             return
         }
@@ -708,10 +672,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 ) == null
             ) {
                 currentIdentifyNumber = it.positionNum
-                multiIdentityEngine.reset()
                 skipRoseState = MultiSportState.IDENTIFYING
                 val currentYuvData = bsSkipRoseMultiProcessor.getCurrentYuvData()
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(
                         it,
                         currentYuvData.width,
@@ -747,7 +710,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         countDownFinishLD.postValue(true)
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
-        multiIdentityEngine.closeMachine()
         //处理开始后摄像头分辨率
         handleStartCameraResolution()
     }
@@ -1075,7 +1037,6 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         toDone()
         bsSkipRoseMultiProcessor.onRelease()
         skipRoseState = MultiSportState.IDLE
-        multiIdentityEngine.closeMachine()
         cameraDispatcher.quit()
         uiHandler.removeCallbacksAndMessages(null)
         focalHandler.removeCallbacksAndMessages(null)

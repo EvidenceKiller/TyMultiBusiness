@@ -460,6 +460,11 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
             }
 
             @Override
+            public void onFindUserId(@org.jetbrains.annotations.Nullable String userId, float score) {
+
+            }
+
+            @Override
             public void onFindFail(@Nullable TyFaceInfo<?> tyFaceInfo, FailType failType) {
             }
         });

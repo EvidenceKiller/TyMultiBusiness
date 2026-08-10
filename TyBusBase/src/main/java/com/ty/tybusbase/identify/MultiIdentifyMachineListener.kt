@@ -10,7 +10,7 @@ interface MultiIdentifyMachineListener {
 
     fun onIdentityTimeOn() {}
 
-    fun onIdentityOk(index: Int, accountInfo: AccountInfo?)
+    fun onIdentityOk(index: Int, accountInfo: AccountInfo)
 
     fun onIdentityTimeFail(index: Int)
 }

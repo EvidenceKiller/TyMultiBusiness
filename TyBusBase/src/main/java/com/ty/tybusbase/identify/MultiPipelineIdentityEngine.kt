@@ -50,18 +50,14 @@ class MultiPipelineIdentityEngine {
      */
     var visitorAble = true
 
-    private val identifyMap by lazy { HashMap<Int, Int>() }
-
     private val identifyConfigMap by lazy { HashMap<Int, PipelineFaceIdentifyConfig>() } //每个位置单独设置的识别配置
 
     private val identifiedMap by lazy { HashMap<Int, PipelineIdentifyInfo>() } //记录每个位置已识别的信息
 
     private val verifyStrategy = FaceDetectorHelper.getInstance().getVerifyStrategy()
 
-    private var isOK = false
 
     private fun identityFinish(index: Int, user: StudentEntity) {
-        isOK = true
         identityListener?.onIdentityOk(index, AccountInfo().apply {
             studentEntity =
                 user.apply { userFaceImgUrl = AdlService.getService().facePrefix + userFaceImgUrl }
@@ -89,7 +85,7 @@ class MultiPipelineIdentityEngine {
             }
 
             override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
-
+                identityListener?.onIdentityTimeFail(currentIndex)
             }
 
             override fun onFindUserId(userId: String?, score: Float) {
@@ -108,11 +104,47 @@ class MultiPipelineIdentityEngine {
         val identifyInfo = identifiedMap.getOrDefault(index, PipelineIdentifyInfo())
         //已识别成功
         if (identifyInfo.isOk) return
-        identifyInfo.identifiedList.add(index, userId!! to score)
+        identifyInfo.identifiedList.add(userId!! to score)
         val config = identifyConfigMap.getOrDefault(index, PipelineFaceIdentifyConfig())
         //累计帧数达到，判断帧总数，计算是否识别成功
         if (identifyInfo.identifiedList.size >= minFrameCount) {
             val group = identifyInfo.identifiedList.groupBy { it.first }
+            var matchUserId: String? = null
+            for ((uid, list) in group) {
+                // 同一userId数量超过4
+                if (list.size >= 4) {
+                    LogUtil.d("开始计算人脸识别结果,道次：$index")
+                    // 分数累计2次大于等于config.minScoreThreshold
+                    val highScoreCount = list.count { it.second >= config.minScoreThreshold }
+                    if (highScoreCount >= 2) {
+                        matchUserId = uid
+                        break
+                    }
+                }
+            }
+            if (matchUserId != null) {
+                identifyInfo.isOk = true
+                val studentEntity =
+                    AdlService.getService().studentDao.queryStudentByAccountId(userId)
+                if (studentEntity != null) {
+                    identityFinish(index, studentEntity)
+                }
+            }
+        }
+        // 没有识别到人，累计识别帧数超过阈值，判断为游客
+        identifyInfo.frameCount++
+        if (!identifyInfo.isOk && identifyInfo.frameCount >= config.visitorRoundCount * config.verifyRoundCount) {
+            //如果支持游客
+            if (visitorAble) {
+                identifyInfo.isOk = true
+                createVisitor(index)
+            } else {
+                identifyInfo.frameCount = 0
+            }
+        }
+        //一轮次清零累计
+        if (identifyInfo.identifiedList.size >= config.verifyRoundCount) {
+            identifyInfo.identifiedList.clear()
         }
     }
 
@@ -134,7 +166,6 @@ class MultiPipelineIdentityEngine {
 
     fun identify(rectF: Rect?, data: ByteArray?, w: Int, h: Int, index: Int = 0) {
         //已识别完成，不往下走了
-        if (isOK) return
         if (rectF == null) {
             LogUtil.d("裁剪框为空，人脸识别失败")
             return
@@ -142,26 +173,10 @@ class MultiPipelineIdentityEngine {
         if (identityStartTime == 0L) {
             identityStartTime = System.currentTimeMillis()
         }
-        val faceRecTime: Long = System.currentTimeMillis() - identityStartTime
-
-        //获取每一道的人脸识别配置
-        val faceIdentifyConfig = identifyConfigMap.getOrDefault(index, FaceIdentifyConfig())
-
-        //当没有正在识别人脸和达到超时要求就判断为游客
-//        if (!FaceDetectorHelper.getInstance().isDetecting() && faceRecTime >= VISITOR_TIME) {
-//            val identifyCount = identifyMap.getOrDefault(number, 0) + 1
-//            identifyMap[number] = identifyCount
-//            if (visitorAble && identifyCount >= faceIdentifyConfig.visitorRetryNum) {
-//                createVisitor()
-//            } else {
-//                finishWithFail()
-//            }
-//            return
-//        }
-        //        bodyInfo = body;
         if (!FaceDetectorHelper.getInstance().isDetecting()) {
             if (data == null) return
             currentIndex = index
+            LogUtil.d("开始识别人脸：索引：$currentIndex")
             val rect = RectF(
                 rectF.left.toFloat(),
                 rectF.top.toFloat(),
@@ -180,23 +195,19 @@ class MultiPipelineIdentityEngine {
 
 
     private fun finishWithFail() {
-        isOK = true
         identityListener?.onIdentityTimeFail(0)
     }
 
-    private fun createVisitor() {
-        val accountInfo = AccountInfo().apply {
-            studentEntity = StudentEntity().apply {
-                accountId = BusiBaseConstantsValue.VISITOR_USER_ID
-                accountName = getString(R.string.visitor)
-            }
+    private fun createVisitor(index: Int) {
+        val studentEntity = StudentEntity().apply {
+            accountId = BusiBaseConstantsValue.VISITOR_USER_ID
+            accountName = getString(R.string.visitor)
         }
-//        identityFinish(accountInfo)
-        isOK = true
+        identityFinish(index, studentEntity)
     }
 
     fun closeMachine() {
-        identifyMap.clear()
+        identifiedMap.clear()
         identifyConfigMap.clear()
         identityListener = null
         FaceDetectorHelper.getInstance().setVerifyStrategy(verifyStrategy)
@@ -209,11 +220,7 @@ class MultiPipelineIdentityEngine {
     fun isIdentifying() = FaceDetectorHelper.getInstance().isDetecting()
 
     fun reset() {
-        isOK = false
-        identityStartTime = 0
+        identifiedMap.clear()
     }
 
-    fun clearCountMap() {
-        identifyMap.clear()
-    }
 }
