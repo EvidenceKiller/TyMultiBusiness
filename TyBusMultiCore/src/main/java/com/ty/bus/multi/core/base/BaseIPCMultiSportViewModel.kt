@@ -184,7 +184,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
         countDownTime = getDefaultCountDownTime()
         initProcess()
-        initCamera()
+        if (streamType == 1) {
+            initCamera()
+        } else {
+            cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
+        }
         //目前只有常规模式，才需要人脸识别，运动会模式不需要
         if (getSportModel() == SportModel.NORMAL) {
             initFaceIdentify()
@@ -426,7 +430,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                 if (checkResult) {
                     //存已识别的人信息
                     //识别到人，且有效时，取消倒计时再处理显示逻辑
-                    startCountDownTimer.cancel()
+//                    startCountDownTimer.cancel()
                     skipPersonArray.put(
                         accountIndex,
                         MultiSportResult(accountInfo, accountIndex)
@@ -711,7 +715,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
         //处理开始后摄像头分辨率
-        handleStartCameraResolution()
+        if (streamType == 1) {
+            handleStartCameraResolution()
+        }
     }
 
     /**
@@ -759,38 +765,40 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     override fun onResume() {
         super.onResume()
-        ipcHik.login(object : AdlCameraListener {
+        if (streamType == 1) {
+            ipcHik.login(object : AdlCameraListener {
 
-            override fun onOpenSucceed(p0: Boolean) {
+                override fun onOpenSucceed(p0: Boolean) {
 
-            }
+                }
 
-            override fun onLoginSucceed() {
-                setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
-                SystemClock.sleep(100)
-                cameraLoginStateLD.postValue(true)
-                startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
-            }
+                override fun onLoginSucceed() {
+                    setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
+                    SystemClock.sleep(100)
+                    cameraLoginStateLD.postValue(true)
+                    startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+                }
 
-            override fun onLoginFail() {
-                cameraLoginStateLD.postValue(false)
-            }
+                override fun onLoginFail() {
+                    cameraLoginStateLD.postValue(false)
+                }
 
-            override fun onOpenStatus(p0: String?) {
+                override fun onOpenStatus(p0: String?) {
 
-            }
+                }
 
-            override fun onError(p0: Exception?) {
-                cameraLoginStateLD.postValue(false)
-            }
+                override fun onError(p0: Exception?) {
+                    cameraLoginStateLD.postValue(false)
+                }
 
-            override fun onStreamLoss() {
-            }
+                override fun onStreamLoss() {
+                }
 
-            override fun onOpenFail() {
-            }
-        })
-        timeOutHelper.start()
+                override fun onOpenFail() {
+                }
+            })
+            timeOutHelper.start()
+        }
     }
 
     override fun toStatusSportStart() {
@@ -1145,6 +1153,10 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 //            openTsProcess()
 //        }
 
+    }
+
+    fun onFrame(yuv: ByteArray, info: AdlCameraPreviewInfo) {
+        cameraDispatcher.onFrame(yuv, info)
     }
 
     open fun isSupportReport(): Boolean {

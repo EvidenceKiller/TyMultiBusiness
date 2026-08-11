@@ -1,34 +1,22 @@
 package com.ty.tybusbase.identify
 
-import android.graphics.Bitmap
 import android.graphics.Rect
 import android.graphics.RectF
-import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
-import com.adl.service.outer.UserCaller
-import com.adl.sport.general.EuHelper
 import com.ty.identifty.base.FailType
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.entity.AccountInfo
-import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import com.ty.tybusbase.entity.PipelineIdentifyInfo
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.face.OnFaceCallback
 import com.ty.tybusbase.face.strategy.IVerifyStrategy
-import com.ty.tybusbase.helper.SportHelper
 import com.ty.tybusbase.utils.LogUtil
 import org.beetl.core.util.TextUtils
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
-import java.util.concurrent.Executors
-
 
 class MultiPipelineIdentityEngine {
 
@@ -44,6 +32,9 @@ class MultiPipelineIdentityEngine {
 
     //最小多少帧开始判断人脸是否识别成功
     private val minFrameCount = 4
+
+    //大于等于此值，直接识别成功
+    private val successThresholds = 0.9f
 
     /**
      * 游客模式
@@ -100,11 +91,22 @@ class MultiPipelineIdentityEngine {
      * 判断人脸识别是否成功
      */
     private fun verifyUserId(index: Int, userId: String?, score: Float) {
-        if (TextUtils.isEmpty(userId)) return
-        val identifyInfo = identifiedMap.getOrDefault(index, PipelineIdentifyInfo())
+//        if (TextUtils.isEmpty(userId)) return
+        val identifyInfo = identifiedMap.getOrDefault(index, null)
+            ?: PipelineIdentifyInfo().apply { identifiedMap.put(index, this) }
         //已识别成功
         if (identifyInfo.isOk) return
-        identifyInfo.identifiedList.add(userId!! to score)
+        //如果阈值大于设定的靠谱值，直接返回成功
+        if (score >= successThresholds) {
+            identifyInfo.isOk = true
+            val studentEntity =
+                AdlService.getService().studentDao.queryStudentByAccountId(userId)
+            if (studentEntity != null) {
+                identityFinish(index, studentEntity)
+            }
+            return
+        }
+        identifyInfo.identifiedList.add(userId to score)
         val config = identifyConfigMap.getOrDefault(index, PipelineFaceIdentifyConfig())
         //累计帧数达到，判断帧总数，计算是否识别成功
         if (identifyInfo.identifiedList.size >= minFrameCount) {

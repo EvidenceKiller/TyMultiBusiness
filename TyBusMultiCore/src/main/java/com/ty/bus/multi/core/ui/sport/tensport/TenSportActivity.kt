@@ -9,11 +9,15 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
+import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlHandlerThread
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.OnRenderScene
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.entity.MeetGroupDetailsEntity
@@ -37,6 +41,7 @@ import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.utils.LogUtil
@@ -44,13 +49,24 @@ import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
 class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewModel>() {
-    private var top1Count = 0
 
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/0201010016_177691236skip_ten.mp4"
+
+    /***************************视频播放调试*************************/
+
+    private var top1Count = 0
     private lateinit var srrvResult: TenSportResultView
     private val number = 10
     private var startDialog: CommonTipDialog? = null
     override fun initData() {
         super.initData()
+        viewModel.streamType = 2
+        timeOutHelper.cancel()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
         viewModel.personIndex = intent.getIntExtra("person_index", 0)
@@ -135,6 +151,60 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING) {
             mBinding.sportView.visibilityStartBtn(View.VISIBLE)
         }
+        if (viewModel.streamType == 2) {
+            mBinding.groupVideo.visible()
+            initVideo()
+            initVideoView()
+        }
+    }
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray, width: Int, height: Int, time: Long) {
+                frameTime += 66
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+                viewModel.onFrame(yuv, info)
+            }
+
+            override fun onComplete() {
+
+            }
+        })
     }
 
     //模拟
