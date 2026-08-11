@@ -57,6 +57,17 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         }
     }
 
+    //点号动画
+    private var dotCount = 0
+    private var dotsRunning = false
+    private val dotsTimer = object : CountDownTimer(Long.MAX_VALUE, 500) {
+        override fun onTick(millisUntilFinished: Long) {
+            dotCount = (dotCount % 3) + 1
+            mBinding.tvNotice.text = "识别中${".".repeat(dotCount)}"
+        }
+        override fun onFinish() {}
+    }
+
     /**
      * 设置卡片Number
      */
@@ -157,6 +168,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.clGr.visibility = INVISIBLE
 
         mBinding.ivHeaderBg.gone()
+        stopDots()
     }
 
     /**
@@ -167,11 +179,11 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         if (state != MultiSportCardViewState.NOBODY && state != MultiSportCardViewState.IDENTIFYING) return
         state = MultiSportCardViewState.STANDBY
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_ready)
-        mBinding.tvNotice.text = getString(R.string.prompt_get_ready_by_raising_hand)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
         identifyingTimer.cancel()
+        startDots()
     }
 
     /**
@@ -184,6 +196,20 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         tickTimes = 0f
         identifyingTimer.start()
         mBinding.clGr.visibility = INVISIBLE
+        startDots()
+    }
+
+    private fun startDots() {
+        if (dotsRunning) return
+        dotsRunning = true
+        dotCount = 0
+        dotsTimer.start()
+    }
+
+    private fun stopDots() {
+        dotsTimer.cancel()
+        dotsRunning = false
+        dotCount = 0
     }
 
     /**
@@ -206,6 +232,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.rlIdentityNotice.visibility = GONE
         mBinding.tvSkipState.visibility = GONE
         identifyingTimer.cancel()
+        stopDots()
     }
 
     /**
@@ -227,6 +254,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.groupSport.visibility = GONE
         mBinding.tvLeaveNotice.visibility = GONE
         identifyingTimer.cancel()
+        stopDots()
     }
 
     fun toPrecastPrepare() {
@@ -236,6 +264,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
+        stopDots()
     }
 
     fun toPrecastPerson() {
@@ -253,6 +282,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.groupPrepared.visibility = VISIBLE
 
         mBinding.clGr.visibility = INVISIBLE
+        stopDots()
     }
 
     /**
@@ -294,6 +324,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.gone()
         mBinding.tvLeaveNotice.gone()
         mBinding.ivHeaderBg.gone()
+        stopDots()
     }
 
     /**
@@ -310,6 +341,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNumber.setTextColor(resources.getColor(R.color.white_60))
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_start_nobody)
         mBinding.clGr.visibility = INVISIBLE
+        stopDots()
     }
 
 
@@ -360,7 +392,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     fun toIdentifyFail() {
         toStandby()
         state = MultiSportCardViewState.IDENTIFY_FAIL
-        mBinding.clGr.visibility = VISIBLE
+//        mBinding.clGr.visibility = VISIBLE
         mBinding.tvGr.text = getString(R.string.rec_face_fail)
     }
 
@@ -384,6 +416,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         super.onDetachedFromWindow()
         handler.removeCallbacksAndMessages(null)
         identifyingTimer.cancel()
+        dotsTimer.cancel()
     }
 
     override fun setTimeBackground(res: Int) {
