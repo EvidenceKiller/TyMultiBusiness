@@ -426,6 +426,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                 sportScore = result.getTotalScore().toString()
             }
             multiPersonId = result.multiPersonId
+            multiTeamId = result.multiTeamId
             multiPersonRank = result.rank
             multiPersonIndex = result.multiPersonIndex
             sportSkuSubType = result.sportSkuSubType
