@@ -78,6 +78,10 @@ class MultiIFrameCountIdentityEngine {
 
             }
 
+            override fun onFindUserId(userId: String?, score: Float) {
+
+            }
+
         })
     }
 

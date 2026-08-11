@@ -81,6 +81,10 @@ class MultiIdentityEngine {
 
             }
 
+            override fun onFindUserId(userId: String?, score: Float) {
+
+            }
+
         })
     }
 

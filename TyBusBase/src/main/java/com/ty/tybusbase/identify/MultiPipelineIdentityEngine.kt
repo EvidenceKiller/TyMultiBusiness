@@ -80,7 +80,6 @@ class MultiPipelineIdentityEngine {
             }
 
             override fun onFindUserId(userId: String?, score: Float) {
-                super.onFindUserId(userId, score)
                 verifyUserId(currentIndex, userId, score)
             }
 

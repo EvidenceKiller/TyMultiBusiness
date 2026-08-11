@@ -55,6 +55,9 @@ class PicFaceTestActivity : BaseActivity<ActivityPicFaceTestBinding, BaseViewMod
                 }
             }
 
+            override fun onFindUserId(userId: String?, score: Float) {
+            }
+
             override fun onFindFail(info: TyFaceInfo<*>?,type: FailType) {
                 LogUtil.d("onFindFail: ${info?.faceIconData?.size} --type: ${type.name}")
             }
