@@ -20,7 +20,7 @@ import kotlin.math.min
 class TenSportViewModel(application: Application) : BaseIPCMultiSportViewModel(application) {
 
     var tenSportConfig: TenSportConfig? = null
-    override fun getDefaultCountDownTime(): Long = 1500
+    override fun getDefaultCountDownTime(): Long = 15
 
     override fun getCountDownBgmUri(): Uri =
         ("android.resource://" + ApplicationUtil.getContext().packageName + "/" + R.raw.bgm_15_prepare).toUri()
