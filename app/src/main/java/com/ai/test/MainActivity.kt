@@ -65,6 +65,8 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
         AdlTextSpeaker.init(this)
 
+        BusiBaseConfig.setCameraType(BusiBaseConstantsValue.CAMERA_TYPE_V4L2)
+        BusiBaseConfig.setSkeletonMirror(true)
         MMKVUtil.encode(
             MMKVBusiKey.IDENTITY_TYPE,
             BusiBaseConstantsValue.IDENTITY_TYPE_FACE
