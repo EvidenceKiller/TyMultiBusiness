@@ -37,6 +37,17 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     //上一次的状态
     private var preState = MultiSportCardViewState.IDLE
 
+    //点号动画
+    private var dotCount = 0
+    private var dotsRunning = false
+    private val dotsTimer = object : CountDownTimer(Long.MAX_VALUE, 500) {
+        override fun onTick(millisUntilFinished: Long) {
+            dotCount = (dotCount % 3) + 1
+            mBinding.tvNotice.text = "识别中${".".repeat(dotCount)}"
+        }
+        override fun onFinish() {}
+    }
+
     init {
         mBinding.tvNumber.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
         mBinding.tvPrepared.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(context)
@@ -79,7 +90,10 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     override fun changeState(state: MultiSportCardViewState) {
         LogUtil.d("changeState:道次：${mBinding.tvNumber.text} ${state.name}")
-
+        if (state == preState) {
+            LogUtil.d("MoreSportCardSportView changeState 状态未改变")
+            return
+        }
         when (preState) {
             MultiSportCardViewState.NOBODY -> {
                 exitNobody()
@@ -221,10 +235,24 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         //已准备
 
         mBinding.ivHeaderBg.gone()
+        stopDots()
 
     }
 
     private fun exitStandby() {
+    }
+
+    private fun startDots() {
+        if (dotsRunning) return
+        dotsRunning = true
+        dotCount = 0
+        dotsTimer.start()
+    }
+
+    private fun stopDots() {
+        dotsTimer.cancel()
+        dotsRunning = false
+        dotCount = 0
     }
 
     /**
@@ -234,27 +262,23 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         //只有NOBODY和IDENTIFYING状态才能切换到STANDBY状态
 //        if (preState != MultiSportCardViewState.NOBODY && preState != MultiSportCardViewState.IDENTIFYING) return
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_ready_more)
-        mBinding.tvNotice.text =
-            getString(R.string.prompt_get_ready_by_raising_hand)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
-        mBinding.tvSkipState.visibility = View.GONE
-        mBinding.rlIdentityNotice.visibility = View.GONE
-        identifyingTimer.cancel()
+        mBinding.tvSkipState.visibility = GONE
+        mBinding.rlIdentityNotice.visibility = GONE
+        startDots()
     }
 
     private fun exitIdentifying() {
         //识别中
-        mBinding.rlIdentityNotice.gone()
+//        identifyingTimer.cancel()
+//        mBinding.rlIdentityNotice.gone()
     }
 
     /**
      * 切换到识别中，由准备 ==》识别中
      */
     fun enterIdentifying() {
-        mBinding.rlIdentityNotice.visibility = View.VISIBLE
-        mBinding.progressView.setProgress(10f)
-        tickTimes = 0f
-        identifyingTimer.start()
+        startDots()
     }
 
     private fun exitPrepared() {
@@ -277,7 +301,8 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.rlIdentityNotice.visibility = View.GONE
         mBinding.tvSkipState.visibility = View.GONE
-        identifyingTimer.cancel()
+        stopDots()
+//        identifyingTimer.cancel()
     }
 
     private fun exitPrecastPrepare() {
@@ -291,6 +316,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
+        stopDots()
     }
 
     private fun exitPrecastPerson() {
@@ -304,6 +330,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvSkipState.visibility = GONE
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_nobody_more)
         mBinding.tvPresetName.visible()
+        stopDots()
     }
 
     /**
@@ -357,6 +384,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      */
     fun enterNobodySport() {
         //隐藏空闲状态提示
+        stopDots()
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
         mBinding.tvNotice.text =
@@ -447,7 +475,8 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         handler.removeCallbacksAndMessages(null)
-        identifyingTimer.cancel()
+        stopDots()
+//        identifyingTimer.cancel()
     }
 
     override fun setTimeBackground(res: Int) {

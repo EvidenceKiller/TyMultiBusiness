@@ -194,7 +194,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             }
 
             override fun onFrame(yuv: ByteArray, width: Int, height: Int, time: Long) {
-                frameTime += 66
+                frameTime += 43
                 val info = AdlCameraPreviewInfo(width, height)
                 info.frameTimestamp = frameTime
                 info.imageId = frameTime.toString()

@@ -455,10 +455,13 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         return@launch
                     }
                     //重新复位倒计时时间
-                    countDownTime = getDefaultCountDownTime()
-                    countDownNoticeLD.value =
-                        "${getString(R.string.race_start_countdown)}：${countDownTime}"
-                    startCountDownTimer.start()
+//                    countDownTime = getDefaultCountDownTime()
+//                    countDownNoticeLD.value =
+//                        "${getString(R.string.race_start_countdown)}：${countDownTime}"
+                    //第一个人识别成功，则开始倒计时
+                    if (skipPersonArray.size == 1) {
+                        startCountDownTimer.start()
+                    }
                     playCutDown()
                     //识别到人，取消超时机制
                     timeOutHelper.cancel()

@@ -8,6 +8,6 @@ data class PipelineFaceIdentifyConfig(
     var minScoreThreshold: Float = 0.5f,
 
     //一轮多少帧
-    var verifyRoundCount: Int = 7
+    var verifyRoundCount: Int = 6
 
 )
