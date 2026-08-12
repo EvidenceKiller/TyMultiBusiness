@@ -25,6 +25,9 @@ buildscript {
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.kezong:fat-aar:1.3.6'
+        //手动升级R8/D8版本，修复D8处理JDK21编译class时的NPE bug（grpclib相关依赖触发）
+        //注意：8.1.44未同步到阿里云google镜像，使用同系列已同步的8.1.56
+        classpath 'com.android.tools:r8:8.1.56'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
