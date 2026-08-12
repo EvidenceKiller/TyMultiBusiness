@@ -182,7 +182,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
-        identifyingTimer.cancel()
+//        identifyingTimer.cancel()
         startDots()
     }
 
@@ -194,7 +194,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.rlIdentityNotice.visibility = VISIBLE
         mBinding.progressView.setProgress(10f)
         tickTimes = 0f
-        identifyingTimer.start()
+//        identifyingTimer.start()
         mBinding.clGr.visibility = INVISIBLE
         startDots()
     }
@@ -231,7 +231,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.rlIdentityNotice.visibility = GONE
         mBinding.tvSkipState.visibility = GONE
-        identifyingTimer.cancel()
+//        identifyingTimer.cancel()
         stopDots()
     }
 
@@ -253,7 +253,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
         mBinding.tvSkipState.visibility = GONE
         mBinding.groupSport.visibility = GONE
         mBinding.tvLeaveNotice.visibility = GONE
-        identifyingTimer.cancel()
+//        identifyingTimer.cancel()
         stopDots()
     }
 
@@ -415,7 +415,7 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         handler.removeCallbacksAndMessages(null)
-        identifyingTimer.cancel()
+//        identifyingTimer.cancel()
         dotsTimer.cancel()
     }
 
