@@ -103,6 +103,11 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     private lateinit var multiSportProcessor: MultiSportProcessor
     private lateinit var multiSportParser: MultiSportParser<*>
+    private val recordProcess = object : AdlCameraFrameProcessor {
+        override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
+            videoRecorder.inputNv21(p0, System.currentTimeMillis().toString())
+        }
+    }
 
     protected val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
 
@@ -876,11 +881,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         viewModelScope.launch(Dispatchers.IO) {
             val size = getCameraSize()
             videoRecorder.onStart(videoFile, size.first, size.second)
-            cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
-                override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-                    videoRecorder.inputNv21(p0)
-                }
-            })
+            cameraDispatcher.addFrameProcessor(recordProcess)
         }
     }
 
