@@ -31,6 +31,7 @@ import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
@@ -388,7 +389,30 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         initDouble()
+        initThirty()
+    }
 
+    private fun initThirty() {
+        mBinding.btnThirtySkip.setOnClickListener {
+            UIMultiNavigation.goThirtySport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    endValue = "20000"
+                    sportSkuName = "30人跳绳"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+                energyPoint = 10
+            }, ThirtySportConfig.builder {
+                setCountdownText("开始倒计时")
+                setResultPageText("测试结束")
+                setSportStartText("开始咯，开始咯")
+                setVoiceBroadcastSupported(true)
+                setSupportNextGroup(false)
+                setSupportReport(true)
+            }
+            )
+        }
     }
 
     private fun initDouble() {

@@ -9,6 +9,7 @@ import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SkipEightSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
@@ -25,6 +26,7 @@ import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
+import com.ty.bus.multi.core.ui.sport.thirtysport.ThirtySportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.base.BaseNavigation
 import com.ty.tybusbase.config.UINavConfig
@@ -37,6 +39,20 @@ import com.ty.tybusbase.expand.Action1
  * Describe   : 类描述
  */
 object UIMultiNavigation : BaseNavigation() {
+
+    @JvmStatic
+    fun goThirtySport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: ThirtySportConfig? = null,
+        preCallback: Action1<Intent>? = null
+    ) {
+        val intent = Intent(context, ThirtySportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
+
     @JvmStatic
     fun goTenSport(
         context: Context,
