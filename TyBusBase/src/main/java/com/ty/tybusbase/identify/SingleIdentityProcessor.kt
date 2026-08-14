@@ -28,6 +28,7 @@ import com.ty.tybusbase.utils.DeviceUtil
 open class SingleIdentityProcessor : AdlCameraFrameProcessor {
     private val mFrameProcessors by lazy { ArrayList<AdlCameraFrameProcessor>() }
     private val yuvData by lazy { TsYuvFrame() }
+    private val tsConfig by lazy { SportConfigSingle() }
     protected lateinit var processorSingle: SportProcessorSingle
     protected lateinit var tsSportLifecycle: TsSportLifecycle<*>
     protected val singleTracker by lazy { SingleTracker() }
@@ -83,7 +84,6 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
     fun initSportEngine(overlay: SportOverlay, sportRegion: TsSportRegion) {
         val isDebug: Boolean = BusiBaseConfig.getDebugEnable()
         // 运动配置
-        val tsConfig = SportConfigSingle()
         tsConfig.debug = isDebug
         tsConfig.bodyModelId = ModelIdConstants.COMMON_BODY_MODEL_ID // 人框
         tsConfig.poseModelId = ModelIdConstants.COMMON_POSE_MODEL_ID // 骨骼
@@ -142,6 +142,10 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
 
         })
         setIdentityRound(1)
+    }
+
+    fun resetSportRegion(sportRegion: TsSportRegion) {
+        tsConfig.sportRegion = sportRegion
     }
 
     fun handleIdentityOk(accountInfo: AccountInfo?) {
