@@ -735,18 +735,34 @@ class ThirtySportViewModel(application: Application) :
      */
     private fun handleStartCameraResolution() {
         viewModelScope.launch(Dispatchers.IO) {
-            /********************切换分辨率********************/
-            ipcHik.pauseProcessor()
-            setResolution(ipcHik, getSportResolution())
-            SystemClock.sleep(100)
-            stopPreviewLD.postValue(true)
-            SystemClock.sleep(100)
-            ipcHik.restartProcessor()
-            startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
-            SystemClock.sleep(200)
-            /********************切换分辨率********************/
-            multiSportProcessor.clearTransform()
+            changeTo4K()
         }
+    }
+
+    private fun changeTo4K(){
+        ipcHik.pauseProcessor()
+        setResolution(ipcHik, getSportResolution())
+        SystemClock.sleep(100)
+        stopPreviewLD.postValue(true)
+        SystemClock.sleep(100)
+        ipcHik.restartProcessor()
+        startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+        SystemClock.sleep(200)
+        /********************切换分辨率********************/
+        multiSportProcessor.clearTransform()
+    }
+
+    private fun changeTo2K(){
+        ipcHik.pauseProcessor()
+        setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
+        SystemClock.sleep(100)
+        stopPreviewLD.postValue(true)
+        SystemClock.sleep(100)
+        ipcHik.restartProcessor()
+        startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+        SystemClock.sleep(200)
+        /********************切换分辨率********************/
+        multiSportProcessor.clearTransform()
     }
 
     private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
@@ -1074,6 +1090,7 @@ class ThirtySportViewModel(application: Application) :
 
     fun getIdentifyResolution(): Byte =
         if (getSportModel() == SportModel.NORMAL) 64 else getSportResolution()
+
     fun getSportResolution(): Byte = 70
 
     fun getCameraSize(): Pair<Int, Int> = 2560 to 1440
@@ -1219,11 +1236,12 @@ class ThirtySportViewModel(application: Application) :
         //重置人脸识别
         initFaceIdentify()
 
-        //切换摄像头分辨率
-        initCamera()
         multiSportProcessor.onReset()
         openTsProcess()
-        onResume()
+        //切换摄像头分辨率
+        if (streamType == 1) {
+            changeTo2K()
+        }
 //        viewModelScope.launch(Dispatchers.IO) {
 //            /********************切换分辨率********************/
 //            ipcHik.pauseProcessor()

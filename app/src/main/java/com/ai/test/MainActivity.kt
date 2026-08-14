@@ -6,6 +6,7 @@ import android.text.TextUtils
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.speech.AdlTextSpeaker
+import com.adl.mount.core.TsModelResCaller
 import com.adl.service.entity.FaceDataEntity
 import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
@@ -74,6 +75,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         )
 //        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
         BusiBaseConfig.setDoubleSkipGbDefaultRegion(this)
+        TsModelResCaller.setSoLog(false)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -408,7 +410,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 setResultPageText("测试结束")
                 setSportStartText("开始咯，开始咯")
                 setVoiceBroadcastSupported(true)
-                setSupportNextGroup(false)
+                setSupportNextGroup(true)
                 setSupportReport(true)
             }
             )

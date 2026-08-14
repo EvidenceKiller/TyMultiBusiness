@@ -231,7 +231,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.tvSkipState.visible()
         mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_nobody_more)
-
+        mBinding.groupSport.gone()
         //已准备
 
         mBinding.ivHeaderBg.gone()
@@ -265,7 +265,9 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white))
         mBinding.tvSkipState.visibility = GONE
         mBinding.rlIdentityNotice.visibility = GONE
+        mBinding.tvNotice.visible()
         startDots()
+
     }
 
     private fun exitIdentifying() {

@@ -57,6 +57,7 @@ class MultiPipelineIdentityEngine {
 
     fun openMachine(listener: MultiIdentifyMachineListener? = null) {
         this.identityListener = listener
+        identifiedMap.clear()
         initFaceDetect()
     }
 
