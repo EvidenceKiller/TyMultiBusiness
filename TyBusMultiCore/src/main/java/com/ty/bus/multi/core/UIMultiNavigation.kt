@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.DoubleSportConfig
+import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
@@ -21,6 +22,7 @@ import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
 import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
+import com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
@@ -39,6 +41,19 @@ import com.ty.tybusbase.expand.Action1
  * Describe   : 类描述
  */
 object UIMultiNavigation : BaseNavigation() {
+
+    @JvmStatic
+    fun goEtTenSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: EtTenSportConfig? = null,
+        preCallback: Action1<Intent>? = null
+    ) {
+        val intent = Intent(context, EtTenSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
 
     @JvmStatic
     fun goThirtySport(

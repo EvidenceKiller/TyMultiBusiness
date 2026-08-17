@@ -736,7 +736,7 @@ class ThirtySportViewModel(application: Application) :
      */
     private fun handleStartCameraResolution() {
         viewModelScope.launch(Dispatchers.IO) {
-            changeTo4K()
+            changeTo2K()
         }
     }
 
@@ -1241,7 +1241,7 @@ class ThirtySportViewModel(application: Application) :
         openTsProcess()
         //切换摄像头分辨率
         if (streamType == 1) {
-            changeTo2K()
+            changeTo4K()
         }
 //        viewModelScope.launch(Dispatchers.IO) {
 //            /********************切换分辨率********************/

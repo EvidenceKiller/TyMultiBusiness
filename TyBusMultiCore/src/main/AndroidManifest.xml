@@ -54,5 +54,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.thirtysport.ThirtySportActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity"
+            android:exported="true" />
     </application>
 </manifest>

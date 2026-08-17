@@ -28,6 +28,7 @@ import com.google.gson.reflect.TypeToken
 import com.ty.bus.multi.core.UIMultiNavigation
 import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.BluetoothSportConfig
+import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
@@ -406,6 +407,26 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 }
                 energyPoint = 10
             }, ThirtySportConfig.builder {
+                setCountdownText("开始倒计时")
+                setResultPageText("测试结束")
+                setSportStartText("开始咯，开始咯")
+                setVoiceBroadcastSupported(true)
+                setSupportNextGroup(true)
+                setSupportReport(true)
+            }
+            )
+        }
+        mBinding.btnEtTenSkip.setOnClickListener {
+            UIMultiNavigation.goEtTenSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    endValue = "20000"
+                    sportSkuName = "30人跳绳"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+                energyPoint = 10
+            }, EtTenSportConfig.builder {
                 setCountdownText("开始倒计时")
                 setResultPageText("测试结束")
                 setSportStartText("开始咯，开始咯")

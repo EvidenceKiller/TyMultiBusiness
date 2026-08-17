@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/dp_96">
+
+    <ImageView
+        android:id="@+id/iv_best"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:background="@mipmap/ic_exe_cpt_5jp_top1"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_8"
+        android:text="@string/the_best_today"
+        android:textColor="#FDD401"
+        android:textFontWeight="600"
+        android:textSize="@dimen/sp_22"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/iv_best"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:constraint_referenced_ids="iv_best,tv_best" />
+
+    <TextView
+        android:id="@+id/tv_rank"
+        android:layout_width="@dimen/dp_98"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_41"
+        android:gravity="center"
+        android:text="4"
+        android:textColor="@color/white_80"
+        android:textSize="@dimen/sp_48"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/tv_best"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_rank"
+        android:layout_width="@dimen/dp_57"
+        android:layout_height="@dimen/dp_57"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/tv_best"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_header"
+        android:layout_width="@dimen/dp_72"
+        android:layout_height="@dimen/dp_72"
+        android:layout_marginLeft="@dimen/dp_160"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/tv_best"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_header_bg"
+        android:layout_width="@dimen/dp_108"
+        android:layout_height="@dimen/dp_108"
+        android:background="@mipmap/icon_header_bg_vip"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+        app:layout_constraintEnd_toEndOf="@+id/iv_header"
+        app:layout_constraintStart_toStartOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="@+id/iv_header" />
+
+
+    <include
+        android:id="@+id/layout_energy"
+        layout="@layout/base_layout_energy_icon"
+        android:layout_width="@dimen/dp_87"
+        android:layout_height="@dimen/dp_32"
+        android:layout_marginStart="@dimen/dp_48"
+        android:layout_marginTop="@dimen/dp_2"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:ellipsize="end"
+        android:maxEms="5"
+        android:singleLine="true"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="王强" />
+
+    <TextView
+        android:id="@+id/tv_visitor_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_12"
+        android:background="@drawable/pk_result_visitor_number_bg"
+        android:paddingHorizontal="@dimen/dp_12"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toRightOf="@+id/tv_name"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="5道" />
+
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_251"
+        android:layout_marginRight="@dimen/dp_140"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="857个" />
+
+    <Button
+        android:id="@+id/btn_report"
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_56"
+        android:background="@drawable/pk_bg_btn_gradient_blue"
+        android:text="@string/sport_report"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_20"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
