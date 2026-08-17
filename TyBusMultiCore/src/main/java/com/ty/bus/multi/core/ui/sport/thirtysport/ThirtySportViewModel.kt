@@ -89,6 +89,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import androidx.core.net.toUri
+import com.ty.tybusbase.entity.DisplayType
 
 class ThirtySportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
@@ -129,14 +130,14 @@ class ThirtySportViewModel(application: Application) :
 
     val startPreviewLD = MutableLiveData<Pair<AdlCamera, AdlCameraFrameProcessor>>() //开启预览LD
     val stopPreviewLD = MutableLiveData<Boolean>() //停止预览LD
-    val resultLD = MutableLiveData<MutableList<GroupSportBaseMan>>() //成绩结果LD
+    val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
     val countDownFinishLD = MutableLiveData<Boolean>() //竞技开始倒计时完成LD
     val toDoneLD = MutableLiveData<MutableList<MultiSportResult>>() //比赛结束LD
     val changeSportViewStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>() //切换运动卡片状态
 //    val indicatorLD = MutableLiveData<IndicatorsResultDto?>()
 
     //已识别人员
-    val identifiedLD = MutableLiveData<Pair<Int, AccountInfo>>()
+    val identifiedLD = MutableLiveData<Pair<DisplayType,Pair<Int, AccountInfo>>>()
     val changeTimeTextBgLD = MutableLiveData<Int>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
@@ -443,7 +444,7 @@ class ThirtySportViewModel(application: Application) :
                         MultiSportResult(accountInfo, accountIndex)
                     )
                     AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
-                    identifiedLD.value = Pair(accountIndex, accountInfo)
+                    identifiedLD.value = DisplayType.MAIN to Pair(accountIndex, accountInfo)
                     //给accountInfo赋值，用来获取存储视频的地址
                     if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                         accountInfoLD.postValue(accountInfo)
@@ -506,7 +507,7 @@ class ThirtySportViewModel(application: Application) :
                 skipPersonArray[it.positionNum]?.count = it.score
             }
 //            LogUtil.d("成绩：$str")
-            resultLD.postValue(result)
+            resultLD.postValue(DisplayType.MAIN to result)
         }
     }
 
@@ -739,7 +740,7 @@ class ThirtySportViewModel(application: Application) :
         }
     }
 
-    private fun changeTo4K(){
+    private fun changeTo4K() {
         ipcHik.pauseProcessor()
         setResolution(ipcHik, getSportResolution())
         SystemClock.sleep(100)
@@ -752,7 +753,7 @@ class ThirtySportViewModel(application: Application) :
         multiSportProcessor.clearTransform()
     }
 
-    private fun changeTo2K(){
+    private fun changeTo2K() {
         ipcHik.pauseProcessor()
         setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
         SystemClock.sleep(100)
@@ -774,7 +775,7 @@ class ThirtySportViewModel(application: Application) :
 
     private fun identified(index: Int, accountInfo: AccountInfo) {
         uiHandler.post {
-            identifiedLD.value = Pair(index, accountInfo)
+            identifiedLD.value = DisplayType.MAIN to Pair(index, accountInfo)
         }
     }
 

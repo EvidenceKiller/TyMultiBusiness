@@ -22,7 +22,6 @@ import com.adl.lib.AdlCameraPreviewView
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
-import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
@@ -38,9 +37,8 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
-import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.dialog.CommonTipDialog
-import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
@@ -64,11 +62,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private val number = 10
     private var startDialog: CommonTipDialog? = null
 
-    private enum class DisplayArea {
-        LEFT, MAIN, RIGHT
-    }
-
-    private var currentArea = DisplayArea.MAIN
+    private var currentArea = DisplayType.MAIN
     private var leftIdentifiedCount = 0
     private var mainIdentifiedCount = 0
     private var rightIdentifiedCount = 0
@@ -82,7 +76,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.personIndex = intent.getIntExtra("person_index", 0)
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
-        viewModel.thirtySportConfig = intent.getSerializableExtra("sport_config") as? ThirtySportConfig
+        viewModel.thirtySportConfig =
+            intent.getSerializableExtra("sport_config") as? ThirtySportConfig
         if (viewModel.sportInfo == null) {
             viewModel.sportInfo = SceneSportInfoEntity().apply {
                 sportSkuId = "0201010001"
@@ -177,26 +172,29 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private fun initAreaViews() {
         // 左副屏、右副屏的 UI 与主屏一致，后续收到 gRPC 消息再分别渲染
         listOf(mBinding.sportViewMain, mBinding.sportViewLeft, mBinding.sportViewRight)
-            .forEach { it.setTestCount(number) }
+//            .forEach { it.updateScore(number) }
 
         updateAreaTabs()
-        mBinding.tvTabLeft.setOnClickListener { switchArea(DisplayArea.LEFT) }
-        mBinding.tvTabMain.setOnClickListener { switchArea(DisplayArea.MAIN) }
-        mBinding.tvTabRight.setOnClickListener { switchArea(DisplayArea.RIGHT) }
+        mBinding.tvTabLeft.setOnClickListener { switchArea(DisplayType.LEFT) }
+        mBinding.tvTabMain.setOnClickListener { switchArea(DisplayType.MAIN) }
+        mBinding.tvTabRight.setOnClickListener { switchArea(DisplayType.RIGHT) }
 
-        switchArea(DisplayArea.MAIN)
+        switchArea(DisplayType.MAIN)
     }
 
-    private fun switchArea(area: DisplayArea) {
+    private fun switchArea(area: DisplayType) {
         currentArea = area
-        mBinding.sportViewMain.visibility = if (area == DisplayArea.MAIN) View.VISIBLE else View.GONE
-        mBinding.sportViewLeft.visibility = if (area == DisplayArea.LEFT) View.VISIBLE else View.GONE
-        mBinding.sportViewRight.visibility = if (area == DisplayArea.RIGHT) View.VISIBLE else View.GONE
+        mBinding.sportViewMain.visibility =
+            if (area == DisplayType.MAIN) View.VISIBLE else View.GONE
+        mBinding.sportViewLeft.visibility =
+            if (area == DisplayType.LEFT) View.VISIBLE else View.GONE
+        mBinding.sportViewRight.visibility =
+            if (area == DisplayType.RIGHT) View.VISIBLE else View.GONE
 
         mBinding.tvAreaName.text = when (area) {
-            DisplayArea.LEFT -> getString(R.string.area_left)
-            DisplayArea.MAIN -> getString(R.string.area_main)
-            DisplayArea.RIGHT -> getString(R.string.area_right)
+            DisplayType.LEFT -> getString(R.string.area_left)
+            DisplayType.MAIN -> getString(R.string.area_main)
+            DisplayType.RIGHT -> getString(R.string.area_right)
         }
 
         updateAreaTabs()
@@ -207,9 +205,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         mBinding.tvTabMain.text = getString(R.string.area_main_identified, mainIdentifiedCount)
         mBinding.tvTabRight.text = getString(R.string.area_right_identified, rightIdentifiedCount)
 
-        mBinding.tvTabLeft.isSelected = currentArea == DisplayArea.LEFT
-        mBinding.tvTabMain.isSelected = currentArea == DisplayArea.MAIN
-        mBinding.tvTabRight.isSelected = currentArea == DisplayArea.RIGHT
+        mBinding.tvTabLeft.isSelected = currentArea == DisplayType.LEFT
+        mBinding.tvTabMain.isSelected = currentArea == DisplayType.MAIN
+        mBinding.tvTabRight.isSelected = currentArea == DisplayType.RIGHT
     }
 
     private fun initVideoView() {
@@ -261,54 +259,6 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         })
     }
 
-    //模拟
-    fun mockResult() {
-        srrvResult = ThirtySportResultView(this).apply { measureUnit = viewModel.measureUnit }
-
-        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-            srrvResult.setReportOnclickListener {
-                viewReport(viewModel.getIndicatorsResultDto(it))
-            }
-        }
-
-        val params =
-            ConstraintLayout.LayoutParams(
-                RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
-            )
-        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
-            srrvResult,
-            params
-        )
-        srrvResult.setConfirmOnclickListener {
-            finish()
-        }
-        srrvResult.setNextOnclickListener {
-            mBinding.clSkipSportViewContainer.removeView(srrvResult)
-        }
-        doResultViewTranslateAnimation(srrvResult)
-        srrvResult.setResult(
-            mutableListOf(
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "张三"
-                        userFaceImgUrl = ""
-                    }
-                }, 1, 100, 1),
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "王五"
-                        userFaceImgUrl = ""
-                    }
-                }, 3, 10, 2)
-            ),
-            if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.thirtySportConfig?.isVoiceBroadcastSupported == true,
-            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
-        )
-    }
-
     override fun initObserver() {
         super.initObserver()
         viewModel.startPreviewLD.observe(this) {
@@ -353,17 +303,17 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.resultLD.observe(this) {
-            currentAreaSportView().updateScore(it)
+            getAreaSportViewByDisplay(it.first).updateScore(it.second)
         }
 
         viewModel.identifiedLD.observe(this) {
-            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity!!.accountName}")
-            currentAreaSportView().setUserInfo(it)
+            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.second.studentEntity!!.accountName}")
+            getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
             timeOutHelper.cancel()
         }
 
         viewModel.changeSportViewStateLD.observe(this) {
-            currentAreaSportView().changeState(it.first, it.second)
+            getAreaSportViewByDisplay().changeState(it.first, it.second)
         }
 
         viewModel.countDownNoticeLD.observe(this) {
@@ -373,19 +323,19 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
                     R.string.race_start_countdown
                 )
             }：$it"
-            currentAreaSportView().setCountDownNotice(str)
+            getAreaSportViewByDisplay().setCountDownNotice(str)
         }
 
         viewModel.countDownFinishLD.observe(this) {
             startDialog?.dismiss()
-            currentAreaSportView().readyGo {
+            getAreaSportViewByDisplay().readyGo {
                 //比赛开始
                 viewModel.toStatusSportStart()
             }
         }
 
         viewModel.sportCountDownLD.observe(this) {
-            currentAreaSportView().updateTime(it)
+            getAreaSportViewByDisplay().updateTime(it)
         }
 
         viewModel.toDoneLD.observe(this) {
@@ -395,7 +345,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
-            currentAreaSportView().changeTimeTextBg(it)
+            getAreaSportViewByDisplay().changeTimeTextBg(it)
         }
 
         viewModel.timeOutLD.observe(this) {
@@ -484,11 +434,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.reset()
     }
 
-    private fun currentAreaSportView() = when (currentArea) {
-        DisplayArea.LEFT -> mBinding.sportViewLeft
-        DisplayArea.MAIN -> mBinding.sportViewMain
-        DisplayArea.RIGHT -> mBinding.sportViewRight
-    }
+    private fun getAreaSportViewByDisplay(displayType: DisplayType = DisplayType.MAIN) =
+        when (displayType) {
+            DisplayType.LEFT -> mBinding.sportViewLeft
+            DisplayType.MAIN -> mBinding.sportViewMain
+            DisplayType.RIGHT -> mBinding.sportViewRight
+        }
 
     /**
      * 初始化今日最佳
