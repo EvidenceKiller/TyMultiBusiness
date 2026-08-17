@@ -14,7 +14,7 @@ class ShakeHandDetection : IStartGestureDetection {
     private var shakeCount = 0
 
     // 配置的挥动次数阈值
-    private var requiredShakeCount = 4
+    private var requiredShakeCount = 3
 
     // 记录举的是哪只手
     private var handRaised: String? = null
@@ -23,7 +23,7 @@ class ShakeHandDetection : IStartGestureDetection {
     private var hasRecordedShake = false
 
     //判断是正还是负
-    private var isPositive = false
+    private var isPositive = true
 
     //检测手是否挥动
     override fun startGestureDetection(skeleton: AdlPoseSkeleton?, handType: Int): Boolean {
@@ -40,33 +40,28 @@ class ShakeHandDetection : IStartGestureDetection {
         return checkShake(skeleton, handType)
     }
 
-
+    private var preWristX = 0f
     private fun checkShake(skeleton: AdlPoseSkeleton, handType: Int): Boolean {
-        var wristX = 0f
-        val leftShoulder = skeleton.lShoulder
-        val rightShoulder = skeleton.rShoulder
-        var shoulderX = 0f
-        //肩宽，挥动以肩点，左右正负交替到达肩宽的值就累计计数
-        val shoulderWidth = abs(leftShoulder.x - rightShoulder.x) / 2f
-        when (handType) {
+        val wristX = when (handType) {
             0 -> {
-                wristX = skeleton.lWrist.x
-                shoulderX = skeleton.lShoulder.x
+                skeleton.lWrist.x
             }
 
             1 -> {
-                wristX = skeleton.rWrist.x
-                shoulderX = skeleton.rShoulder.x
+                skeleton.rWrist.x
             }
+
+            else -> 0f
         }
+        val dx = wristX - preWristX
 
         //以肩膀中间点为中点，检测是否挥动
-        if (isPositive && wristX - shoulderX <= -shoulderWidth) {
+        if (isPositive && dx < 0) {
             isPositive = false
             shakeCount++
         }
 
-        if (!isPositive && wristX - shoulderX >= shoulderWidth) {
+        if (!isPositive && dx > 0) {
             isPositive = true
             shakeCount++
         }
@@ -75,9 +70,47 @@ class ShakeHandDetection : IStartGestureDetection {
             isDetected = true
             return true
         }
-
+        preWristX = wristX
         return false
     }
+
+//    private fun checkShake(skeleton: AdlPoseSkeleton, handType: Int): Boolean {
+//        var wristX = 0f
+//        val leftShoulder = skeleton.lShoulder
+//        val rightShoulder = skeleton.rShoulder
+//        var shoulderX = 0f
+//        //肩宽，挥动以肩点，左右正负交替到达肩宽的值就累计计数
+//        val shoulderWidth = abs(leftShoulder.x - rightShoulder.x) / 3.5f
+//        when (handType) {
+//            0 -> {
+//                wristX = skeleton.lWrist.x
+//                shoulderX = skeleton.lShoulder.x
+//            }
+//
+//            1 -> {
+//                wristX = skeleton.rWrist.x
+//                shoulderX = skeleton.rShoulder.x
+//            }
+//        }
+//
+//        //以肩膀中间点为中点，检测是否挥动
+//        if (isPositive && wristX - shoulderX <= -shoulderWidth) {
+//            isPositive = false
+//            shakeCount++
+//        }
+//
+//        if (!isPositive && wristX - shoulderX >= shoulderWidth) {
+//            isPositive = true
+//            shakeCount++
+//        }
+//
+//        if (shakeCount >= requiredShakeCount) {
+//            isDetected = true
+//            return true
+//        }
+//
+//        return false
+//    }
 
     private fun judgeHandUp(skeleton: AdlPoseSkeleton, handUpType: Int): Boolean {
         return when (handUpType) {

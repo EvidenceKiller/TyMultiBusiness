@@ -203,9 +203,14 @@ class StFaceDetectorImp : FaceDetectorInterface {
     }
 
     override fun getUserId(livingModel: TyLivingModel?): String? {
+<<<<<<< HEAD
         if (livingModel == null) return null
         val faceInfo = livingModel.faceInfo
         return faceIdMap[faceInfo?.id]
+=======
+        if (livingModel == null || livingModel.faceInfo == null) return null
+        return faceIdMap[livingModel.faceInfo.id]
+>>>>>>> Feature-V2.2.0.0
     }
 
     override fun isDetecting(): Boolean = isIsDetecting
