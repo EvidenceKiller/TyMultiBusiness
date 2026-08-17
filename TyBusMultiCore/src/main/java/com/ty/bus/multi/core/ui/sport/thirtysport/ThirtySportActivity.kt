@@ -313,39 +313,39 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.changeSportViewStateLD.observe(this) {
-            getAreaSportViewByDisplay().changeState(it.first, it.second)
+            getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
         }
 
         viewModel.countDownNoticeLD.observe(this) {
             val configText = viewModel.thirtySportConfig?.countdownText
-            val str = if (!TextUtils.isEmpty(configText)) "${configText}: $it" else "${
+            val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${it.second}" else "${
                 com.ty.tybusbase.expand.getString(
                     R.string.race_start_countdown
                 )
-            }：$it"
-            getAreaSportViewByDisplay().setCountDownNotice(str)
+            }：${it.second}"
+            getAreaSportViewByDisplay(it.first).setCountDownNotice(str)
         }
 
         viewModel.countDownFinishLD.observe(this) {
             startDialog?.dismiss()
-            getAreaSportViewByDisplay().readyGo {
+            getAreaSportViewByDisplay(it.first).readyGo {
                 //比赛开始
                 viewModel.toStatusSportStart()
             }
         }
 
         viewModel.sportCountDownLD.observe(this) {
-            getAreaSportViewByDisplay().updateTime(it)
+            getAreaSportViewByDisplay(it.first).updateTime(it.second)
         }
 
         viewModel.toDoneLD.observe(this) {
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
-            addResultView(it)
+            addResultView(it.second)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
-            getAreaSportViewByDisplay().changeTimeTextBg(it)
+            getAreaSportViewByDisplay(it.first).changeTimeTextBg(it.second)
         }
 
         viewModel.timeOutLD.observe(this) {

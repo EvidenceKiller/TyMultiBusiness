@@ -131,19 +131,19 @@ class ThirtySportViewModel(application: Application) :
     val startPreviewLD = MutableLiveData<Pair<AdlCamera, AdlCameraFrameProcessor>>() //开启预览LD
     val stopPreviewLD = MutableLiveData<Boolean>() //停止预览LD
     val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
-    val countDownFinishLD = MutableLiveData<Boolean>() //竞技开始倒计时完成LD
-    val toDoneLD = MutableLiveData<MutableList<MultiSportResult>>() //比赛结束LD
-    val changeSportViewStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>() //切换运动卡片状态
+    val countDownFinishLD = MutableLiveData<Pair<DisplayType, Boolean>>() //竞技开始倒计时完成LD
+    val toDoneLD = MutableLiveData<Pair<DisplayType, MutableList<MultiSportResult>>>() //比赛结束LD
+    val changeSportViewStateLD = MutableLiveData<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>() //切换运动卡片状态
 //    val indicatorLD = MutableLiveData<IndicatorsResultDto?>()
 
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<DisplayType,Pair<Int, AccountInfo>>>()
-    val changeTimeTextBgLD = MutableLiveData<Int>() //改变时间显示UI的背景色LD
+    val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
 
     var countDownTime: Long = 10 //竞技倒计时10S，单位秒
-    var countDownNoticeLD = MutableLiveData<String>() //竞技倒计时过程中更新UI的LD
+    var countDownNoticeLD = MutableLiveData<Pair<DisplayType, String>>() //竞技倒计时过程中更新UI的LD
 
     //记录每个位置状态
     private val currentPersonState =
@@ -160,7 +160,7 @@ class ThirtySportViewModel(application: Application) :
     //X秒竞技倒计时的Timer任务
     val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
-            countDownNoticeLD.postValue("${countDownTime--}")
+            countDownNoticeLD.postValue(DisplayType.MAIN to "${countDownTime--}")
         }
 
         override fun onFinish() {
@@ -176,7 +176,7 @@ class ThirtySportViewModel(application: Application) :
 
     val simpleFormat = SimpleDateFormat("m:ss")
     var sportCountDownTime = 60L // 比赛时间 S
-    val sportCountDownLD = MutableLiveData<String>()//更新倒计时的LD
+    val sportCountDownLD = MutableLiveData<Pair<DisplayType, String>>()//更新倒计时的LD
 
     private lateinit var factory: AbstractMultiSportFactory
 
@@ -722,7 +722,7 @@ class ThirtySportViewModel(application: Application) :
         //停止倒计时音效
         stopPlayCutDown()
         startCountDownTimer.cancel()
-        countDownFinishLD.postValue(true)
+        countDownFinishLD.postValue(DisplayType.MAIN to true)
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
         //处理开始后摄像头分辨率
@@ -769,7 +769,7 @@ class ThirtySportViewModel(application: Application) :
     private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
         uiHandler.post {
             LogUtil.d("changeMultiIdentityCardState: index $index state ${state.name}")
-            changeSportViewStateLD.value = Pair(index, state)
+            changeSportViewStateLD.value = DisplayType.MAIN to Pair(index, state)
         }
     }
 
@@ -841,15 +841,15 @@ class ThirtySportViewModel(application: Application) :
                     SoundPlayUtils.play(25 + soundIndex++ % soundCount)
                 }
                 if (sportCountDownTime == 10L) {
-                    changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_warning_shape)
+                    changeTimeTextBgLD.postValue(DisplayType.MAIN to R.drawable.pk_skip_rose_time_warning_shape)
                 }
 
-                sportCountDownLD.postValue(simpleFormat.format(Date((sportCountDownTime) * 1000)))
+                sportCountDownLD.postValue(DisplayType.MAIN to simpleFormat.format(Date((sportCountDownTime) * 1000)))
             }
 
             override fun onFinish() {
                 //比赛结束
-                sportCountDownLD.postValue("0:00")
+                sportCountDownLD.postValue(DisplayType.MAIN to "0:00")
                 sportFinish()
             }
 
@@ -936,7 +936,7 @@ class ThirtySportViewModel(application: Application) :
             preScore = skipRoseMultiResult.count
             skipRoseMultiResult.rank = rank
         }
-        toDoneLD.postValue(resultList)
+        toDoneLD.postValue(DisplayType.MAIN to resultList)
         handleUploadResult(resultList)
     }
 
