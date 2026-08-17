@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/bg_exe_cpt_5jumprope"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:background="@mipmap/bg_exe_cpt_5jumprope">
 
     <com.adl.lib.AdlCameraPreviewView
         android:id="@+id/camera_view"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_marginTop="-1px"
         android:layout_width="1px"
-        android:layout_height="1px"/>
+        android:layout_height="1px"
+        android:layout_marginTop="-1px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <FrameLayout
         android:id="@+id/layout"
@@ -28,6 +28,7 @@
         android:id="@+id/overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
     <TextView
         android:id="@+id/tv_enter"
         android:layout_width="@dimen/dp_240"
@@ -37,9 +38,9 @@
         android:background="@drawable/bg_round_r50_gradient_red"
         android:gravity="center"
         android:text="@string/start_competition"
-        android:visibility="gone"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
+        android:visibility="gone"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -47,111 +48,219 @@
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_45"
         android:layout_marginLeft="@dimen/dp_40"
-        android:textSize="@dimen/dp_56"
+        android:layout_marginTop="@dimen/dp_45"
         android:textColor="@color/white"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"/>
+        android:textSize="@dimen/dp_56"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 顶部区域标签：左区/中区/右区 -->
+    <LinearLayout
+        android:id="@+id/ll_area_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_32"
+        android:background="@drawable/bg_area_indicator"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintLeft_toRightOf="@+id/tv_title"
+        app:layout_constraintTop_toTopOf="@+id/tv_title">
+
+        <View
+            android:layout_width="@dimen/dp_12"
+            android:layout_height="@dimen/dp_12"
+            android:background="@drawable/shape_area_dot" />
+
+        <TextView
+            android:id="@+id/tv_area_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_8"
+            android:text="@string/area_center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24"
+            android:textStyle="bold" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_top1_icon"
-        app:layout_constraintRight_toLeftOf="@+id/ll_top1_info"
-        app:layout_constraintTop_toTopOf="@+id/ll_top1_info"
-        app:layout_constraintBottom_toBottomOf="@+id/ll_top1_info"
-        android:layout_marginRight="@dimen/dp_38"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp_38"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/ll_top1_info"
+        app:layout_constraintRight_toLeftOf="@+id/ll_top1_info"
+        app:layout_constraintTop_toTopOf="@+id/ll_top1_info">
+
         <ImageView
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
-            android:background="@mipmap/ic_exe_cpt_5jp_top1"/>
+            android:background="@mipmap/ic_exe_cpt_5jp_top1" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/sp_20"
+            android:text="@string/the_best_today"
             android:textColor="#FDD401"
-            android:text="@string/the_best_today"/>
+            android:textSize="@dimen/sp_20" />
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_top1_info"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_80"
         android:layout_marginTop="@dimen/dp_40"
         android:layout_marginRight="@dimen/dp_40"
         android:background="@drawable/pk_rank_top_1_bg_5jum"
-        android:paddingHorizontal="@dimen/dp_32"
         android:gravity="center_vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/dp_80">
+        android:paddingHorizontal="@dimen/dp_32"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
         <com.ty.tybusbase.view.CircleImageView
             android:id="@+id/civ_header"
             android:layout_width="@dimen/dp_48"
             android:layout_height="@dimen/dp_48"
-            android:background="@mipmap/ic_exe_cpt_5jp_nobody"/>
+            android:background="@mipmap/ic_exe_cpt_5jp_nobody" />
+
         <TextView
             android:id="@+id/tv_name"
-            android:textSize="@dimen/sp_24"
-            android:textColor="@color/white"
-            android:layout_marginLeft="@dimen/dp_18"
-            android:text="@string/no_one_on_list"
-            android:maxEms="5"
-            android:ellipsize="end"
-            android:singleLine="true"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_18"
+            android:ellipsize="end"
+            android:maxEms="5"
+            android:singleLine="true"
+            android:text="@string/no_one_on_list"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24" />
+
         <TextView
             android:id="@+id/tv_count"
-            android:textSize="@dimen/dp_48"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_20"
             android:text="260"
-            android:visibility="gone"
             android:textColor="@color/white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:textSize="@dimen/dp_48"
+            android:visibility="gone" />
+
         <TextView
             android:id="@+id/tv_unit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            android:textSize="@dimen/sp_24"
-            android:visibility="gone"
+            android:text="@string/ge"
             android:textColor="@color/white_80"
-            android:text="@string/ge"/>
+            android:textSize="@dimen/sp_24"
+            android:visibility="gone" />
     </LinearLayout>
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_today_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:constraint_referenced_ids="ll_top1_info,ll_top1_icon"/>
+        app:constraint_referenced_ids="ll_top1_info,ll_top1_icon" />
 
-
+    <!-- 中部：三个区域运动面板，默认只显示主区 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_skip_sport_view_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginBottom="@dimen/dp_24"
+        app:layout_constraintBottom_toTopOf="@+id/ll_area_tabs"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
         <com.ty.bus.multi.core.view.thirtysport.ThirtySportSportView
-            android:id="@+id/sport_view"
+            android:id="@+id/sport_view_main"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
+
+        <com.ty.bus.multi.core.view.thirtysport.ThirtySportSportView
+            android:id="@+id/sport_view_left"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <com.ty.bus.multi.core.view.thirtysport.ThirtySportSportView
+            android:id="@+id/sport_view_right"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <TextView
         android:id="@+id/tv_camera_tips"
-        android:textSize="@dimen/sp_28"
-        android:textColor="@color/white"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="@dimen/dp_60"
+        android:text="@string/ipc_camera_fail_tip"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        android:visibility="gone"
-        android:text="@string/ipc_camera_fail_tip"
-        android:layout_marginTop="@dimen/dp_60"/>
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 底部区域切换 Tab -->
+    <LinearLayout
+        android:id="@+id/ll_area_tabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_32"
+        android:background="@drawable/bg_area_tab_container"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/tv_tab_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_left_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_12"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_main_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_right_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_btn"
@@ -160,6 +269,7 @@
         android:layout_below="@id/layout"
         android:layout_marginBottom="@dimen/dp_88"
         android:orientation="horizontal"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <Button
@@ -203,11 +313,12 @@
             android:textSize="@dimen/sp_12" />
 
     </LinearLayout>
+
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_video"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="layout,ll_btn"/>
+        app:constraint_referenced_ids="layout,ll_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

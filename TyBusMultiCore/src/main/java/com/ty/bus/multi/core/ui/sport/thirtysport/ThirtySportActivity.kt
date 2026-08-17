@@ -63,6 +63,16 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private lateinit var srrvResult: ThirtySportResultView
     private val number = 10
     private var startDialog: CommonTipDialog? = null
+
+    private enum class DisplayArea {
+        LEFT, MAIN, RIGHT
+    }
+
+    private var currentArea = DisplayArea.MAIN
+    private var leftIdentifiedCount = 0
+    private var mainIdentifiedCount = 0
+    private var rightIdentifiedCount = 0
+
     override fun initData() {
         super.initData()
         viewModel.streamType = 2
@@ -129,12 +139,14 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
         mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
 
-        mBinding.sportView.startNowCallback = {
+        initAreaViews()
+
+        mBinding.sportViewMain.startNowCallback = {
             startDialog = CommonTipDialog().setCallback {
                 //如果是运动会模式，则切到准备状态
                 if (viewModel.thirtySportConfig?.sportModel == SportModel.MEETING) {
                     viewModel.skipPersonArray.forEach { key, value ->
-                        mBinding.sportView.changeState(
+                        mBinding.sportViewMain.changeState(
                             value.number,
                             MultiSportCardViewState.PREPARED
                         )
@@ -146,16 +158,58 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             startDialog?.show(supportFragmentManager, "tips")
         }
 
-        mBinding.sportView.setSportStartedText(viewModel.thirtySportConfig?.sportStartText)
+        mBinding.sportViewMain.setSportStartedText(viewModel.thirtySportConfig?.sportStartText)
+        mBinding.sportViewLeft.setSportStartedText(viewModel.thirtySportConfig?.sportStartText)
+        mBinding.sportViewRight.setSportStartedText(viewModel.thirtySportConfig?.sportStartText)
 
         if (viewModel.thirtySportConfig?.sportModel == SportModel.MEETING) {
-            mBinding.sportView.visibilityStartBtn(View.VISIBLE)
+            mBinding.sportViewMain.visibilityStartBtn(View.VISIBLE)
+            mBinding.sportViewLeft.visibilityStartBtn(View.VISIBLE)
+            mBinding.sportViewRight.visibilityStartBtn(View.VISIBLE)
         }
         if (viewModel.streamType == 2) {
             mBinding.groupVideo.visible()
             initVideo()
             initVideoView()
         }
+    }
+
+    private fun initAreaViews() {
+        // 左副屏、右副屏的 UI 与主屏一致，后续收到 gRPC 消息再分别渲染
+        listOf(mBinding.sportViewMain, mBinding.sportViewLeft, mBinding.sportViewRight)
+            .forEach { it.setTestCount(number) }
+
+        updateAreaTabs()
+        mBinding.tvTabLeft.setOnClickListener { switchArea(DisplayArea.LEFT) }
+        mBinding.tvTabMain.setOnClickListener { switchArea(DisplayArea.MAIN) }
+        mBinding.tvTabRight.setOnClickListener { switchArea(DisplayArea.RIGHT) }
+
+        switchArea(DisplayArea.MAIN)
+    }
+
+    private fun switchArea(area: DisplayArea) {
+        currentArea = area
+        mBinding.sportViewMain.visibility = if (area == DisplayArea.MAIN) View.VISIBLE else View.GONE
+        mBinding.sportViewLeft.visibility = if (area == DisplayArea.LEFT) View.VISIBLE else View.GONE
+        mBinding.sportViewRight.visibility = if (area == DisplayArea.RIGHT) View.VISIBLE else View.GONE
+
+        mBinding.tvAreaName.text = when (area) {
+            DisplayArea.LEFT -> getString(R.string.area_left)
+            DisplayArea.MAIN -> getString(R.string.area_main)
+            DisplayArea.RIGHT -> getString(R.string.area_right)
+        }
+
+        updateAreaTabs()
+    }
+
+    private fun updateAreaTabs() {
+        mBinding.tvTabLeft.text = getString(R.string.area_left_identified, leftIdentifiedCount)
+        mBinding.tvTabMain.text = getString(R.string.area_main_identified, mainIdentifiedCount)
+        mBinding.tvTabRight.text = getString(R.string.area_right_identified, rightIdentifiedCount)
+
+        mBinding.tvTabLeft.isSelected = currentArea == DisplayArea.LEFT
+        mBinding.tvTabMain.isSelected = currentArea == DisplayArea.MAIN
+        mBinding.tvTabRight.isSelected = currentArea == DisplayArea.RIGHT
     }
 
     private fun initVideoView() {
@@ -299,17 +353,17 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.resultLD.observe(this) {
-            mBinding.sportView.updateScore(it)
+            currentAreaSportView().updateScore(it)
         }
 
         viewModel.identifiedLD.observe(this) {
             AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity!!.accountName}")
-            mBinding.sportView.setUserInfo(it)
+            currentAreaSportView().setUserInfo(it)
             timeOutHelper.cancel()
         }
 
         viewModel.changeSportViewStateLD.observe(this) {
-            mBinding.sportView.changeState(it.first, it.second)
+            currentAreaSportView().changeState(it.first, it.second)
         }
 
         viewModel.countDownNoticeLD.observe(this) {
@@ -319,19 +373,19 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
                     R.string.race_start_countdown
                 )
             }：$it"
-            mBinding.sportView.setCountDownNotice(str)
+            currentAreaSportView().setCountDownNotice(str)
         }
 
         viewModel.countDownFinishLD.observe(this) {
             startDialog?.dismiss()
-            mBinding.sportView.readyGo {
+            currentAreaSportView().readyGo {
                 //比赛开始
                 viewModel.toStatusSportStart()
             }
         }
 
         viewModel.sportCountDownLD.observe(this) {
-            mBinding.sportView.updateTime(it)
+            currentAreaSportView().updateTime(it)
         }
 
         viewModel.toDoneLD.observe(this) {
@@ -341,7 +395,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
-            mBinding.sportView.changeTimeTextBg(it)
+            currentAreaSportView().changeTimeTextBg(it)
         }
 
         viewModel.timeOutLD.observe(this) {
@@ -424,8 +478,16 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     }
 
     fun reset() {
-        mBinding.sportView.reset()
+        mBinding.sportViewMain.reset()
+        mBinding.sportViewLeft.reset()
+        mBinding.sportViewRight.reset()
         viewModel.reset()
+    }
+
+    private fun currentAreaSportView() = when (currentArea) {
+        DisplayArea.LEFT -> mBinding.sportViewLeft
+        DisplayArea.MAIN -> mBinding.sportViewMain
+        DisplayArea.RIGHT -> mBinding.sportViewRight
     }
 
     /**
@@ -477,7 +539,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         super.onDestroy()
         LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面关闭")
         mBinding.cameraView.release()
-        mBinding.sportView.release()
+        mBinding.sportViewMain.release()
+        mBinding.sportViewLeft.release()
+        mBinding.sportViewRight.release()
         mBinding.overlay.release()
         AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }

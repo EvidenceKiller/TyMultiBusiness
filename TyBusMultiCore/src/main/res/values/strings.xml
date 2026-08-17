@@ -87,4 +87,10 @@
     <string name="exception_record">异常记录</string>
     <string name="skip_like_a_eight">8字跳绳</string>
     <string name="jump_with_rope">请持绳跳</string>
+    <string name="area_left">左区</string>
+    <string name="area_main">中区</string>
+    <string name="area_right">右区</string>
+    <string name="area_left_identified">左区 | %d人已识别</string>
+    <string name="area_main_identified">中区 | %d人已识别</string>
+    <string name="area_right_identified">右区 | %d人已识别</string>
 </resources>
