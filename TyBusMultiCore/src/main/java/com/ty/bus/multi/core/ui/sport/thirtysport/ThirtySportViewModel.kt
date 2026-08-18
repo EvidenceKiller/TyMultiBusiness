@@ -89,10 +89,17 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import androidx.core.net.toUri
+import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
+import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.grpc.GrpcCmdCode
+import com.ty.tybusbase.grpc.GrpcSportCardStatus
+import com.ty.tybusbase.grpc.GrpcSportStatus
 
 class ThirtySportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
+
+    private val GRPC_KEY = "ThirtySportViewModel" //注册Grpc消息的ID
     var thirtySportConfig: ThirtySportConfig? = null
     private var createTime: Long = 0
     private val bsSkipRoseMultiProcessor by lazy { OnceCacheProcessor() } //五人跳绳代理帧数据处理类
@@ -133,11 +140,12 @@ class ThirtySportViewModel(application: Application) :
     val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
     val countDownFinishLD = MutableLiveData<Pair<DisplayType, Boolean>>() //竞技开始倒计时完成LD
     val toDoneLD = MutableLiveData<Pair<DisplayType, MutableList<MultiSportResult>>>() //比赛结束LD
-    val changeSportViewStateLD = MutableLiveData<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>() //切换运动卡片状态
+    val changeSportViewStateLD =
+        MutableLiveData<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>() //切换运动卡片状态
 //    val indicatorLD = MutableLiveData<IndicatorsResultDto?>()
 
     //已识别人员
-    val identifiedLD = MutableLiveData<Pair<DisplayType,Pair<Int, AccountInfo>>>()
+    val identifiedLD = MutableLiveData<Pair<DisplayType, Pair<Int, AccountInfo>>>()
     val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
@@ -790,6 +798,11 @@ class ThirtySportViewModel(application: Application) :
         }
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        initGrpcCmd()
+    }
+
     override fun onResume() {
         super.onResume()
         if (streamType == 1) {
@@ -1065,22 +1078,6 @@ class ThirtySportViewModel(application: Application) :
         asyncPlayer.stop()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        sportingCountDownTimer?.cancel()
-        startCountDownTimer.cancel()
-        toDone()
-        bsSkipRoseMultiProcessor.onRelease()
-        skipRoseState = MultiSportState.IDLE
-        cameraDispatcher.quit()
-        uiHandler.removeCallbacksAndMessages(null)
-        focalHandler.removeCallbacksAndMessages(null)
-        videoRecorder.onStop()
-        videoRecorder.onRelease()
-        asyncPlayer.stop()
-        config.unloadModel()
-        multiSportProcessor.onRelease()
-    }
 
     fun getDefaultCountDownTime(): Long = 15
 
@@ -1268,5 +1265,35 @@ class ThirtySportViewModel(application: Application) :
 
     fun isSupportReport(): Boolean {
         return thirtySportConfig?.isSupportReport != false
+    }
+
+    fun initGrpcCmd() {
+        GrpcManager.registerClientHandler(GrpcCmdCode.CMD_SPORT_CARD_STATUS, GRPC_KEY) {
+            LogUtil.d(
+                "收到客户端消息：${it.commandCode},payload:${
+                    it.payload.toObject<GrpcSportCardStatus>().toString()
+                }"
+            )
+        }
+
+
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        sportingCountDownTimer?.cancel()
+        startCountDownTimer.cancel()
+        toDone()
+        bsSkipRoseMultiProcessor.onRelease()
+        skipRoseState = MultiSportState.IDLE
+        cameraDispatcher.quit()
+        uiHandler.removeCallbacksAndMessages(null)
+        focalHandler.removeCallbacksAndMessages(null)
+        videoRecorder.onStop()
+        videoRecorder.onRelease()
+        asyncPlayer.stop()
+        config.unloadModel()
+        multiSportProcessor.onRelease()
+        GrpcManager.unregisterHandler(GRPC_KEY)
     }
 }
