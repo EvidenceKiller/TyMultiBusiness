@@ -250,6 +250,34 @@ object BusiBaseConfig {
         MMKVUtil.encode(MMKVBusiKey.SHOTBALL_LED_CONFIG_KEY, ip)
     }
 
+    /**
+     * 读取左副屏IP地址
+     */
+    fun readLeftSubScreenIp(): String? {
+        return MMKVUtil.decodeString(MMKVBusiKey.LEFT_SUB_SCREEN_IP)
+    }
+
+    /**
+     * 存储左副屏IP地址
+     */
+    fun saveLeftSubScreenIp(ip: String) {
+        MMKVUtil.encode(MMKVBusiKey.LEFT_SUB_SCREEN_IP, ip)
+    }
+
+    /**
+     * 读取右副屏IP地址
+     */
+    fun readRightSubScreenIp(): String? {
+        return MMKVUtil.decodeString(MMKVBusiKey.RIGHT_SUB_SCREEN_IP)
+    }
+
+    /**
+     * 存储右副屏IP地址
+     */
+    fun saveRightSubScreenIp(ip: String) {
+        MMKVUtil.encode(MMKVBusiKey.RIGHT_SUB_SCREEN_IP, ip)
+    }
+
     fun saveCameraTypeChoose(cameraType: Int) {
         MMKVUtil.encode(
             MMKVBusiKey.CAMERA_TYPE_CHOOSE,
@@ -263,4 +291,5 @@ object BusiBaseConfig {
             BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
         )
     }
+    
 }

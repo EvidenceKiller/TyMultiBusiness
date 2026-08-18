@@ -256,6 +256,22 @@
                     android:text="30人跳绳客户端"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_left_screen_ip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="左副屏IP"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_right_screen_ip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="右副屏IP"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <LinearLayout

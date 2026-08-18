@@ -44,6 +44,7 @@ import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.config.UINavConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.dialog.CommonInputDialog
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
@@ -459,6 +460,32 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             }
             )
         }
+        mBinding.btnLeftScreenIp.setOnClickListener {
+            showSubScreenIpDialog(
+                "设置左副屏IP",
+                BusiBaseConfig.readLeftSubScreenIp().orEmpty()
+            ) { ip ->
+                BusiBaseConfig.saveLeftSubScreenIp(ip)
+            }
+        }
+        mBinding.btnRightScreenIp.setOnClickListener {
+            showSubScreenIpDialog(
+                "设置右副屏IP",
+                BusiBaseConfig.readRightSubScreenIp().orEmpty()
+            ) { ip ->
+                BusiBaseConfig.saveRightSubScreenIp(ip)
+            }
+        }
+    }
+
+    private fun showSubScreenIpDialog(title: String, content: String, onConfirm: (String) -> Unit) {
+        CommonInputDialog()
+            .setTitle(title)
+            .setLabel("IP地址")
+            .setHint("请输入IP地址")
+            .setContent(content)
+            .setCallback(onConfirm)
+            .show(supportFragmentManager, "sub_screen_ip_dialog")
     }
 
     private fun initDouble() {
