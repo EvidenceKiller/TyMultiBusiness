@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import com.google.gson.Gson
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
 import com.ty.tybusbase.utils.ApplicationUtil
@@ -203,4 +204,62 @@ fun Long.toRaceTiming(): String {
         }
     }
     return dateTimes
+}
+
+/**
+ * JSON字符串转对象
+ * @param clazz 目标对象类型
+ * @return 解析后的对象，解析失败或字符串为空时返回 null
+ */
+fun String.toObject(clazz: Class<*>): Any? {
+    if (isBlank()) return null
+    return try {
+        Gson().fromJson(this, clazz)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * JSON字符串转对象（泛型版本）
+ * 用法：val bean = jsonStr.toObject<MyBean>()
+ * @return 解析后的对象，解析失败或字符串为空时返回 null
+ */
+inline fun <reified T> String.toObject(): T? {
+    if (isBlank()) return null
+    return try {
+        Gson().fromJson(this, T::class.java)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 对象转JSON字符串
+ * @param obj 要转换的对象
+ * @return JSON字符串，转换失败或对象为 null 时返回 null
+ */
+fun Any.toJson(): String {
+    return try {
+        Gson().toJson(this)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
+}
+
+/**
+ * 对象转JSON字符串（nullable 版本，可安全处理 null 对象）
+ * @return JSON字符串，转换失败时返回 null，对象为 null 时返回 null
+ */
+fun Any?.toJsonOrNull(): String {
+    if (this == null) return ""
+    return try {
+        Gson().toJson(this)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        ""
+    }
 }
