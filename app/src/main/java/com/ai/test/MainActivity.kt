@@ -3,6 +3,7 @@ package com.ai.test
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
+import androidx.lifecycle.viewModelScope
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.speech.AdlTextSpeaker
@@ -37,6 +38,7 @@ import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
+import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
@@ -45,7 +47,11 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
@@ -77,6 +83,23 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 //        MMKVUtil.encode(MMKVBusiKey.NFC_READER_TYPE, BusiBaseConstantsValue.DEFAULT_NFC_READER_TYPE)
         BusiBaseConfig.setDoubleSkipGbDefaultRegion(this)
         TsModelResCaller.setSoLog(false)
+        startAsServer()
+    }
+
+    /** 服务端：启动 gRPC 服务并监听客户端连接 */
+    private fun startAsServer() {
+        GlobalScope.launch(Dispatchers.IO) {
+            try {
+                GrpcManager.startServer(50051)
+//                registerAccountInfoHandler()
+                GrpcManager.connectedClientList.collect {
+                    it.forEach { cId ->
+                        LogUtil.d("有客户端连上,${GrpcManager.getClientIp(cId)}")
+                    }
+                }
+            } catch (e: Exception) {
+            }
+        }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
