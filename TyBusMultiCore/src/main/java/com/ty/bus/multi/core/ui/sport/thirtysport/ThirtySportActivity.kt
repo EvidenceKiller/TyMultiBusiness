@@ -306,6 +306,10 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             getAreaSportViewByDisplay(it.first).updateScore(it.second)
         }
 
+        viewModel.singleResultLD.observe(this) {
+            getAreaSportViewByDisplay(it.first).updateScore(it.second.first,it.second.second)
+        }
+
         viewModel.identifiedLD.observe(this) {
             AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.second.studentEntity!!.accountName}")
             getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
@@ -330,6 +334,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             startDialog?.dismiss()
             getAreaSportViewByDisplay(it.first).readyGo {
                 //比赛开始
+                getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
                 viewModel.toStatusSportStart()
             }
         }

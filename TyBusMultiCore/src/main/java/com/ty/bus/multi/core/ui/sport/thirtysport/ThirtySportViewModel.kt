@@ -86,10 +86,12 @@ import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import androidx.core.net.toUri
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
+import com.ty.tybusbase.expand.getDisplayType
 import com.ty.tybusbase.expand.toObject
 import com.ty.tybusbase.grpc.GrpcAccountInfo
 import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
+import com.ty.tybusbase.grpc.GrpcSportResult
 
 class ThirtySportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
@@ -136,6 +138,7 @@ class ThirtySportViewModel(application: Application) :
     val startPreviewLD = MutableLiveData<Pair<AdlCamera, AdlCameraFrameProcessor>>() //开启预览LD
     val stopPreviewLD = MutableLiveData<Boolean>() //停止预览LD
     val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
+    val singleResultLD = MutableLiveData<Pair<DisplayType, Pair<Int, Int>>>() //成绩结果LD
     val countDownFinishLD = MutableLiveData<Pair<DisplayType, Boolean>>() //竞技开始倒计时完成LD
     val toDoneLD = MutableLiveData<Pair<DisplayType, MutableList<MultiSportResult>>>() //比赛结束LD
     val changeSportViewStateLD =
@@ -231,7 +234,7 @@ class ThirtySportViewModel(application: Application) :
                 index,
                 MultiSportResult(accountInfo, index, meetGroup = meetGroupDetailsEntity)
             )
-            identified(index, accountInfo)
+            identified(DisplayType.MAIN, index, accountInfo)
             changeMultiIdentityCardState(
                 index,
                 MultiSportCardViewState.PRECAST_PERSON
@@ -744,9 +747,9 @@ class ThirtySportViewModel(application: Application) :
         }
     }
 
-    private fun identified(index: Int, accountInfo: AccountInfo) {
+    private fun identified(type: DisplayType, index: Int, accountInfo: AccountInfo) {
         uiHandler.post {
-            identifiedLD.value = DisplayType.MAIN to Pair(index, accountInfo)
+            identifiedLD.value = type to Pair(index, accountInfo)
         }
     }
 
@@ -1233,17 +1236,39 @@ class ThirtySportViewModel(application: Application) :
     fun registerGrpcCmd() {
         registerSportCardStatus()
         registerAccountInfo()
+        registerResult()
+    }
 
+    /**
+     * 注册成绩指令接收
+     */
+    private fun registerResult() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_RESULT, GRPC_KEY) { data ->
+            val result = data.payload.toObject<GrpcSportResult>()
+            result?.let {
+                uiHandler.post {
+                    singleResultLD.value =
+                        data.from.getDisplayType() to (result.index to result.sportResult.toInt())
+                }
+            }
+        }
     }
 
     /**
      * 注册用户消息
      */
-    fun registerAccountInfo(){
+    fun registerAccountInfo() {
         //注册人员消息
         GrpcManager.registerServerHandler(GrpcCmdCode.CMD_ACCOUNT_INFO, GRPC_KEY) {
             val accountInfo = it.payload.toObject<GrpcAccountInfo>()
-
+            accountInfo?.let {
+                identified(DisplayType.LEFT, accountInfo.index, AccountInfo().apply {
+                    studentEntity = StudentEntity().apply {
+                        accountName = it.name
+                        userFaceImgUrl = it.avatar
+                    }
+                })
+            }
         }
     }
 

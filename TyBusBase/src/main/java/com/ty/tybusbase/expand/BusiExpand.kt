@@ -9,6 +9,7 @@ import androidx.annotation.StringRes
 import com.google.gson.Gson
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
+import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.utils.ApplicationUtil
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -262,4 +263,8 @@ fun Any?.toJsonOrNull(): String {
         e.printStackTrace()
         ""
     }
+}
+
+fun String.getDisplayType(): DisplayType{
+    return DisplayType.LEFT
 }

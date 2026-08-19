@@ -435,7 +435,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 setResultPageText("测试结束")
                 setSportStartText("开始咯，开始咯")
                 setVoiceBroadcastSupported(true)
-                setSupportNextGroup(true)
+                setSupportNextGroup(false)
                 setSupportReport(true)
             }
             )
@@ -455,7 +455,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 setResultPageText("测试结束")
                 setSportStartText("开始咯，开始咯")
                 setVoiceBroadcastSupported(true)
-                setSupportNextGroup(true)
+                setSupportNextGroup(false)
                 setSupportReport(true)
             }
             )

@@ -27,7 +27,7 @@ abstract class BaseMultiSportViewNoAnimation(
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    protected val cardMap = HashMap<Int, ISportCardView>()
+    val cardMap = HashMap<Int, ISportCardView>()
     protected val bottomShadowViewMap = HashMap<Int, View>()
     protected val preparedMap by lazy { SparseArray<Int>() }
 
@@ -140,6 +140,12 @@ abstract class BaseMultiSportViewNoAnimation(
             if (skipMan.score != 0) {
                 cardMap[skipMan.positionNum]?.updateScore(skipMan.score)
             }
+        }
+    }
+
+    fun updateScore(index: Int, score: Int) {
+        if (score != 0) {
+            cardMap[index]?.updateScore(score)
         }
     }
 
