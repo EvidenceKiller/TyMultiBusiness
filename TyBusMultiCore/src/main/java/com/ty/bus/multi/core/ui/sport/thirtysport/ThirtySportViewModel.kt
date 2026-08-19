@@ -119,6 +119,8 @@ class ThirtySportViewModel(application: Application) :
 
 
     val skipPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
+    val leftPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
+    val rightPersonArray by lazy { SparseArray<MultiSportResult>() } //存储已识别的位置和人员信息
 
     private val indicatorsMap by lazy {
         ConcurrentHashMap<Int, IndicatorsResultDto>()
@@ -147,6 +149,7 @@ class ThirtySportViewModel(application: Application) :
 
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<DisplayType, Pair<Int, AccountInfo>>>()
+    val sportStartedLD = MutableLiveData<Boolean>() //运动开始事件，用于UI切换底部导航栏文案
     val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
@@ -810,6 +813,7 @@ class ThirtySportViewModel(application: Application) :
     override fun toStatusSportStart() {
         super.toStatusSportStart()
         skipRoseState = MultiSportState.SPORTING
+        sportStartedLD.postValue(true)
         startTime = System.currentTimeMillis()
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
         sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
@@ -1246,9 +1250,16 @@ class ThirtySportViewModel(application: Application) :
         GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_RESULT, GRPC_KEY) { data ->
             val result = data.payload.toObject<GrpcSportResult>()
             result?.let {
+                val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+                val score = result.sportResult.toIntOrNull() ?: 0
                 uiHandler.post {
-                    singleResultLD.value =
-                        data.from.getDisplayType() to (result.index to result.sportResult.toInt())
+                    //参考主屏postResult，将成绩存储到对应区域人员数组的count中
+                    when (displayType) {
+                        DisplayType.LEFT -> leftPersonArray[result.index]?.count = score
+                        DisplayType.RIGHT -> rightPersonArray[result.index]?.count = score
+                        else -> {}
+                    }
+                    singleResultLD.value = displayType to (result.index to score)
                 }
             }
         }
@@ -1259,15 +1270,28 @@ class ThirtySportViewModel(application: Application) :
      */
     fun registerAccountInfo() {
         //注册人员消息
-        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_ACCOUNT_INFO, GRPC_KEY) {
-            val accountInfo = it.payload.toObject<GrpcAccountInfo>()
-            accountInfo?.let {
-                identified(DisplayType.LEFT, accountInfo.index, AccountInfo().apply {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_ACCOUNT_INFO, GRPC_KEY) { data ->
+            val accountInfo = data.payload.toObject<GrpcAccountInfo>()
+            accountInfo?.let { info ->
+                val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+                val account = AccountInfo().apply {
                     studentEntity = StudentEntity().apply {
-                        accountName = it.name
-                        userFaceImgUrl = it.avatar
+                        accountName = info.name
+                        userFaceImgUrl = info.avatar
                     }
-                })
+                }
+                when (displayType) {
+                    //存储到对应区域的人员数组，供成绩存储/底部导航栏统计使用
+                    DisplayType.LEFT -> {
+                        leftPersonArray.put(info.index, MultiSportResult(account, info.index))
+                        identified(DisplayType.LEFT, info.index, account)
+                    }
+                    DisplayType.RIGHT -> {
+                        rightPersonArray.put(info.index, MultiSportResult(account, info.index))
+                        identified(DisplayType.RIGHT, info.index, account)
+                    }
+                    else -> LogUtil.d("收到未知区域用户消息：clientId=${data.from}")
+                }
             }
         }
     }

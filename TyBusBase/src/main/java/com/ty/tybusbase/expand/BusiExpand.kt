@@ -7,6 +7,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import com.google.gson.Gson
+import com.ty.grpclib.GrpcManager
 import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
 import com.ty.tybusbase.entity.DisplayType
@@ -265,6 +266,11 @@ fun Any?.toJsonOrNull(): String {
     }
 }
 
-fun String.getDisplayType(): DisplayType{
-    return DisplayType.LEFT
+fun String.getDisplayType(leftSubScreenIp: String?, rightSubScreenIp: String?): DisplayType{
+    val ip = GrpcManager.getClientIp(this)
+    return when (ip) {
+        leftSubScreenIp -> DisplayType.LEFT
+        rightSubScreenIp -> DisplayType.RIGHT
+        else -> DisplayType.OTHER
+    }
 }

@@ -93,4 +93,7 @@
     <string name="area_left_identified">左区 | %d人已识别</string>
     <string name="area_main_identified">中区 | %d人已识别</string>
     <string name="area_right_identified">右区 | %d人已识别</string>
+    <string name="area_left_sporting">左区 | %d人运动中</string>
+    <string name="area_main_sporting">中区 | %d人运动中</string>
+    <string name="area_right_sporting">右区 | %d人运动中</string>
 </resources>

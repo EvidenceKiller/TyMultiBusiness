@@ -195,15 +195,32 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             DisplayType.LEFT -> getString(R.string.area_left)
             DisplayType.MAIN -> getString(R.string.area_main)
             DisplayType.RIGHT -> getString(R.string.area_right)
+            DisplayType.OTHER -> "Other"
         }
 
         updateAreaTabs()
     }
 
     private fun updateAreaTabs() {
-        mBinding.tvTabLeft.text = getString(R.string.area_left_identified, leftIdentifiedCount)
-        mBinding.tvTabMain.text = getString(R.string.area_main_identified, mainIdentifiedCount)
-        mBinding.tvTabRight.text = getString(R.string.area_right_identified, rightIdentifiedCount)
+        //已识别人数从各区域人员数组中实时统计，避免重复计数
+        leftIdentifiedCount = viewModel.leftPersonArray.size()
+        mainIdentifiedCount = viewModel.skipPersonArray.size()
+        rightIdentifiedCount = viewModel.rightPersonArray.size()
+
+        //运动开始后，底部导航栏文案切换为"x人运动中"
+        val sporting = viewModel.sportStartedLD.value == true
+        mBinding.tvTabLeft.text = getString(
+            if (sporting) R.string.area_left_sporting else R.string.area_left_identified,
+            leftIdentifiedCount
+        )
+        mBinding.tvTabMain.text = getString(
+            if (sporting) R.string.area_main_sporting else R.string.area_main_identified,
+            mainIdentifiedCount
+        )
+        mBinding.tvTabRight.text = getString(
+            if (sporting) R.string.area_right_sporting else R.string.area_right_identified,
+            rightIdentifiedCount
+        )
 
         mBinding.tvTabLeft.isSelected = currentArea == DisplayType.LEFT
         mBinding.tvTabMain.isSelected = currentArea == DisplayType.MAIN
@@ -314,6 +331,13 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.second.studentEntity!!.accountName}")
             getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
             timeOutHelper.cancel()
+            //识别到人员，刷新底部导航栏"已识别x人"文案
+            updateAreaTabs()
+        }
+
+        viewModel.sportStartedLD.observe(this) {
+            //运动开始，底部导航栏切换为"x人运动中"文案
+            updateAreaTabs()
         }
 
         viewModel.changeSportViewStateLD.observe(this) {
@@ -444,6 +468,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             DisplayType.LEFT -> mBinding.sportViewLeft
             DisplayType.MAIN -> mBinding.sportViewMain
             DisplayType.RIGHT -> mBinding.sportViewRight
+            DisplayType.OTHER -> {mBinding.sportViewMain}
         }
 
     /**

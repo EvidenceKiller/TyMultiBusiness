@@ -86,4 +86,7 @@
     <string name="area_left_identified">左區 | %d人已識別</string>
     <string name="area_main_identified">中區 | %d人已識別</string>
     <string name="area_right_identified">右區 | %d人已識別</string>
+    <string name="area_left_sporting">左區 | %d人運動中</string>
+    <string name="area_main_sporting">中區 | %d人運動中</string>
+    <string name="area_right_sporting">右區 | %d人運動中</string>
 </resources>
