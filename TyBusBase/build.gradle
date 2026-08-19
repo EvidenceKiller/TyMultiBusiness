@@ -62,7 +62,7 @@ dependencies {
     api(name: 'NzSportGeneral-v1.1.0-2026-07-06', ext: 'aar')
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')
     api(name: 'AdlRopeSkipLite-2026-06-15', ext: 'aar')
-    api(name: 'grpclib-1.0.0-2026-07-30', ext: 'aar')
+    api(name: 'grpclib-1.0.0-2026-08-18', ext: 'aar')
 
     //grpclib 依赖
     api 'io.grpc:grpc-netty-shaded:1.68.1'
