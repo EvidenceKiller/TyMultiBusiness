@@ -26,13 +26,10 @@ import com.adl.mount.core.TsTaskBodyFilter
 import com.adl.mount.sport.TsSportChannel
 import com.adl.processor.SportProcessorStatus
 import com.adl.service.entity.SportIndicatorsEntity
-import com.adl.sport.general.groupjumpingjack.GroupJumpingJackParser
 import com.adl.sport.general.groupskippingremix.GroupSkippingLRemixParser
 import com.adl.sport.general.groupskippingremix.GroupSkippingRemixParser
 import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
-import com.adl.sport.general.groupsquat.GroupSquatParser
-import com.adl.sport.general.multi.MultiSportCallback
 import com.adl.sport.general.multi.MultiSportConfig
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
@@ -67,12 +64,10 @@ import com.adl.sport.general.RegionFilter
 import com.adl.sport.general.groupskippingremix.GroupSkippingManLRemix
 import com.adl.sport.general.groupskippingremix.GroupSkippingManRemix
 import com.adl.sport.general.multi.MultiSportCallbackImpl
-import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.IndicatorsConstants
-import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -92,14 +87,17 @@ import androidx.core.net.toUri
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.grpc.GrpcAccountInfo
 import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
-import com.ty.tybusbase.grpc.GrpcSportStatus
 
 class ThirtySportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
 
     private val GRPC_KEY = "ThirtySportViewModel" //注册Grpc消息的ID
+    private val leftSubScreenIp by lazy { BusiBaseConfig.readLeftSubScreenIp() }
+    private val rightSubScreenIp by lazy { BusiBaseConfig.readRightSubScreenIp() }
+
     var thirtySportConfig: ThirtySportConfig? = null
     private var createTime: Long = 0
     private val bsSkipRoseMultiProcessor by lazy { OnceCacheProcessor() } //五人跳绳代理帧数据处理类
@@ -181,7 +179,6 @@ class ThirtySportViewModel(application: Application) :
 
     //总音效数
     val soundCount = 5
-
     val simpleFormat = SimpleDateFormat("m:ss")
     var sportCountDownTime = 60L // 比赛时间 S
     val sportCountDownLD = MutableLiveData<Pair<DisplayType, String>>()//更新倒计时的LD
@@ -250,15 +247,12 @@ class ThirtySportViewModel(application: Application) :
         } else {
             handlePersonState(groupSkippingManList)
         }
-
         when (skipRoseState) {
-
             MultiSportState.PREPARING, MultiSportState.IDENTIFYING -> {
                 handleIdentify(groupSkippingManList)
             }
 
             MultiSportState.COUNTDOWN -> {
-
             }
 
             MultiSportState.SPORTING -> {
@@ -266,7 +260,6 @@ class ThirtySportViewModel(application: Application) :
             }
 
             MultiSportState.IDLE -> {
-
             }
         }
     }
@@ -299,34 +292,6 @@ class ThirtySportViewModel(application: Application) :
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
-        val ip =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_IP,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
-            )
-        val account = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
-        )
-        val psw =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_PSW,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
-            )
-        val hikSubConfig = AdlCameraConfig.builder()
-        hikSubConfig.isPreviewEnable = false
-        ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-            ip,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-            account,
-            psw
-        ).setStreamType(0).build() as NsCameraHKSource
-    }
-
-    /**
-     * 切分辨率
-     */
-    private fun changeResolution() {
         val ip =
             MMKVUtil.decodeString(
                 MMKVBusiKey.HTTP_CAMERA_IP,
@@ -410,8 +375,6 @@ class ThirtySportViewModel(application: Application) :
             AdlLogger.d("识别到人脸：但已不是识别状态 $accountIndex")
             return
         }
-
-
         stopPlayCutDown()
         SpeechWrapper.speech(
             getString(
@@ -800,7 +763,7 @@ class ThirtySportViewModel(application: Application) :
 
     override fun onCreate() {
         super.onCreate()
-        initGrpcCmd()
+        registerGrpcCmd()
     }
 
     override fun onResume() {
@@ -1267,16 +1230,42 @@ class ThirtySportViewModel(application: Application) :
         return thirtySportConfig?.isSupportReport != false
     }
 
-    fun initGrpcCmd() {
-        GrpcManager.registerClientHandler(GrpcCmdCode.CMD_SPORT_CARD_STATUS, GRPC_KEY) {
+    fun registerGrpcCmd() {
+        registerSportCardStatus()
+        registerAccountInfo()
+
+    }
+
+    /**
+     * 注册用户消息
+     */
+    fun registerAccountInfo(){
+        //注册人员消息
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_ACCOUNT_INFO, GRPC_KEY) {
+            val accountInfo = it.payload.toObject<GrpcAccountInfo>()
+
+        }
+    }
+
+    /**
+     * 注册卡片状态消息
+     */
+    fun registerSportCardStatus() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_CARD_STATUS, GRPC_KEY) {
+            val sportCardStatus = it.payload.toObject<GrpcSportCardStatus>()
             LogUtil.d(
                 "收到客户端消息：${it.commandCode},payload:${
                     it.payload.toObject<GrpcSportCardStatus>().toString()
                 }"
             )
+            sportCardStatus?.let { card ->
+                MultiSportCardViewState.fromValue(card.status)?.let { state ->
+                    uiHandler.post {
+                        changeSportViewStateLD.value = DisplayType.LEFT to Pair(card.index, state)
+                    }
+                }
+            }
         }
-
-
     }
 
     override fun onDestroy() {

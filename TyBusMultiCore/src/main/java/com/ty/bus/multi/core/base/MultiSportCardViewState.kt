@@ -79,4 +79,12 @@ enum class MultiSportCardViewState {
      * 运动结束
      */
     FINISH,
+    ;
+
+    companion object {
+        /**
+         * 根据原始值(ordinal)获取对应的卡片状态，越界返回null
+         */
+        fun fromValue(value: Int): MultiSportCardViewState? = values().getOrNull(value)
+    }
 }
