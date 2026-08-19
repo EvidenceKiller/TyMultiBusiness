@@ -268,6 +268,8 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
             MultiSportState.IDLE -> {
 
             }
+
+            MultiSportState.WAITING_START -> {}
         }
     }
 

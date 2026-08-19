@@ -259,6 +259,8 @@ class EtTenSportViewModel(application: Application) :
             MultiSportState.IDLE -> {
 
             }
+
+            MultiSportState.WAITING_START -> {}
         }
     }
 

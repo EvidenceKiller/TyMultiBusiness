@@ -240,9 +240,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             MultiSportState.PREPARING, MultiSportState.IDENTIFYING -> {
                 handleIdentify(groupSkippingManList)
             }
-
             MultiSportState.COUNTDOWN -> {
-
             }
 
             MultiSportState.SPORTING -> {
@@ -250,8 +248,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             }
 
             MultiSportState.IDLE -> {
-
             }
+
+            MultiSportState.WAITING_START -> {}
         }
     }
 

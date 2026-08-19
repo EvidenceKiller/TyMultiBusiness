@@ -299,6 +299,8 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
             MultiSportState.IDLE -> {
 
             }
+
+            MultiSportState.WAITING_START -> {}
         }
     }
 

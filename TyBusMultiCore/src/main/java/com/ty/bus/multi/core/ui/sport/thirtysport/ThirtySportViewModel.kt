@@ -267,6 +267,9 @@ class ThirtySportViewModel(application: Application) :
 
             MultiSportState.IDLE -> {
             }
+
+            MultiSportState.WAITING_START -> {
+            }
         }
     }
 
@@ -1286,10 +1289,12 @@ class ThirtySportViewModel(application: Application) :
                         leftPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.LEFT, info.index, account)
                     }
+
                     DisplayType.RIGHT -> {
                         rightPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.RIGHT, info.index, account)
                     }
+
                     else -> LogUtil.d("收到未知区域用户消息：clientId=${data.from}")
                 }
             }

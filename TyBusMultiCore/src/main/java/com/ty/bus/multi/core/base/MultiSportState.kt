@@ -22,6 +22,11 @@ enum class MultiSportState {
     COUNTDOWN,
 
     /**
+     * 等待发起开始，协同模式
+     */
+    WAITING_START,
+
+    /**
      * 运动中
      */
     SPORTING

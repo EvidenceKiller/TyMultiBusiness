@@ -13,6 +13,9 @@ object GrpcCmdCode {
     //协同运动 payload = CollaborationSportInfo
     const val CMD_COLLABORATION_SPORT = 0x23
 
+    //协同状态回复 payload = CollaborationStatus
+    const val CMD_COLLABORATION_STATUS = 0x24
+
     //运动卡片状态 payload = SportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x30
 }
