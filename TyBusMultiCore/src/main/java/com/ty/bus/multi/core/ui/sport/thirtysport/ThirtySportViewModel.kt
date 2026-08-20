@@ -1533,6 +1533,7 @@ class ThirtySportViewModel(application: Application) :
                     studentEntity = StudentEntity().apply {
                         accountName = info.name
                         userFaceImgUrl = info.avatar
+                        accountId = info.accountId
                     }
                 }
                 when (displayType) {

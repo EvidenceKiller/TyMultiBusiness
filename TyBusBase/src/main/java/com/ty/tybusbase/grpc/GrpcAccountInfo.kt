@@ -6,5 +6,6 @@ package com.ty.tybusbase.grpc
 data class GrpcAccountInfo(
     val index: Int = 1,       // 道次
     val name: String = "",    // 用户名
+    val accountId: String = "", //用户ID
     val avatar: String = ""   // 头像 URL
 )
