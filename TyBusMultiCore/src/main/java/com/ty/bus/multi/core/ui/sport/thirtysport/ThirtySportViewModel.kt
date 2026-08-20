@@ -33,8 +33,8 @@ import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
 import com.adl.sport.general.multi.MultiSportConfig
 import com.adl.sport.general.multi.MultiSportParser
 import com.adl.sport.general.multi.MultiSportProcessor
-import com.ty.tybusbase.expand.getString
 import com.hcnetsdk.control.DevConfigGuider
+import com.ty.tybusbase.expand.getString
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
@@ -87,11 +87,30 @@ import androidx.core.net.toUri
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.getDisplayType
+import com.ty.tybusbase.expand.toJson
 import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.grpc.CollaborationCmdEnum
+import com.ty.tybusbase.grpc.CollaborationStatusEnum
 import com.ty.tybusbase.grpc.GrpcAccountInfo
 import com.ty.tybusbase.grpc.GrpcCmdCode
+import com.ty.tybusbase.grpc.GrpcCollaborationSportInfo
+import com.ty.tybusbase.grpc.GrpcCollaborationStatus
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
 import com.ty.tybusbase.grpc.GrpcSportResult
+
+/**
+ * 导航区协同状态
+ */
+enum class CollaborationAreaState {
+    /** 正常，可点击 */
+    NORMAL,
+
+    /** 未连接 */
+    UNCONNECTED,
+
+    /** 设备占用中 */
+    OCCUPIED,
+}
 
 class ThirtySportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
@@ -150,6 +169,8 @@ class ThirtySportViewModel(application: Application) :
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<DisplayType, Pair<Int, AccountInfo>>>()
     val sportStartedLD = MutableLiveData<Boolean>() //运动开始事件，用于UI切换底部导航栏文案
+    //导航区协同状态：未连接/设备占用中/正常，用于UI显示
+    val collaborationStateLD = MutableLiveData<Pair<DisplayType, CollaborationAreaState>>()
     val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
@@ -1244,6 +1265,68 @@ class ThirtySportViewModel(application: Application) :
         registerSportCardStatus()
         registerAccountInfo()
         registerResult()
+        registerCollaborationStatus()
+    }
+
+    /**
+     * 进入项目：检查左右屏连接状态，已连接的发送协同运动开始指令
+     */
+    fun initCollaboration() {
+        checkSubScreen(DisplayType.LEFT, leftSubScreenIp)
+        checkSubScreen(DisplayType.RIGHT, rightSubScreenIp)
+    }
+
+    private fun checkSubScreen(displayType: DisplayType, ip: String?) {
+        val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
+        if (clientId == null) {
+            LogUtil.d("${displayType.name}副屏未连接：$ip")
+            collaborationStateLD.postValue(displayType to CollaborationAreaState.UNCONNECTED)
+            return
+        }
+        //已连接，发送协同运动开始指令
+        sendCollaborationCommand(clientId, CollaborationCmdEnum.START)
+    }
+
+    /**
+     * 发送协同指令
+     */
+    private fun sendCollaborationCommand(clientId: String, cmd: CollaborationCmdEnum) {
+        val payload = GrpcCollaborationSportInfo(
+            cmd = cmd.ordinal,
+            sportSkuId = sportInfo?.sportSkuId ?: ""
+        )
+        GrpcManager.sendToClient(clientId, GrpcCmdCode.CMD_COLLABORATION_SPORT, payload.toJson(), false, null, null)
+    }
+
+    /**
+     * 页面关闭：向已连接左右屏发送协同结束指令
+     */
+    fun sendCollaborationFinish() {
+        leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.FINISH)
+        }
+        rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.FINISH)
+        }
+    }
+
+    /**
+     * 注册协同状态回复指令
+     */
+    private fun registerCollaborationStatus() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_COLLABORATION_STATUS, GRPC_KEY) { data ->
+            val status = data.payload.toObject<GrpcCollaborationStatus>()?.status
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            val state = when (CollaborationStatusEnum.fromCode(status ?: -1)) {
+                //运动中、已有已识别人员 → 不能加入协同，设备占用中
+                CollaborationStatusEnum.SPORTING,
+                CollaborationStatusEnum.JOIN_WITH_IDENTIFIED -> CollaborationAreaState.OCCUPIED
+                //其余状态可加入协同
+                else -> CollaborationAreaState.NORMAL
+            }
+            LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
+            collaborationStateLD.postValue(displayType to state)
+        }
     }
 
     /**
@@ -1324,6 +1407,8 @@ class ThirtySportViewModel(application: Application) :
 
     override fun onDestroy() {
         super.onDestroy()
+        //页面关闭，发送协同运动结束指令
+        sendCollaborationFinish()
         sportingCountDownTimer?.cancel()
         startCountDownTimer.cancel()
         toDone()

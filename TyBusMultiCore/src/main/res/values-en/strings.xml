@@ -89,4 +89,8 @@
     <string name="area_left_sporting">Left Area | %d exercising</string>
     <string name="area_main_sporting">Center Area | %d exercising</string>
     <string name="area_right_sporting">Right Area | %d exercising</string>
+    <string name="area_left_unconnected">Left Area | Not Connected</string>
+    <string name="area_right_unconnected">Right Area | Not Connected</string>
+    <string name="area_left_occupied">Left Area | Occupied</string>
+    <string name="area_right_occupied">Right Area | Occupied</string>
 </resources>

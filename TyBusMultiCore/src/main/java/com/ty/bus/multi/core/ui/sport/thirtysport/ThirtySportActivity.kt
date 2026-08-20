@@ -3,10 +3,13 @@ package com.ty.bus.multi.core.ui.sport.thirtysport
 import adl.ssp.common.report.model.IndicatorsResultDto
 import android.animation.ObjectAnimator
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.util.forEach
 import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlAvReader
@@ -67,6 +70,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private var mainIdentifiedCount = 0
     private var rightIdentifiedCount = 0
 
+    /** 导航区协同异常状态字体颜色 */
+    private val AREA_TAB_RED = "#F44134"
+
     override fun initData() {
         super.initData()
         viewModel.streamType = 2
@@ -90,6 +96,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
         viewModel.loadPerson(studentList)
+        //检查左右屏连接并发送协同运动开始指令
+        viewModel.initCollaboration()
     }
 
 
@@ -209,22 +217,72 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         //运动开始后，底部导航栏文案切换为"x人运动中"
         val sporting = viewModel.sportStartedLD.value == true
-        mBinding.tvTabLeft.text = getString(
-            if (sporting) R.string.area_left_sporting else R.string.area_left_identified,
-            leftIdentifiedCount
+        updateAreaTab(
+            mBinding.tvTabLeft,
+            DisplayType.LEFT,
+            leftIdentifiedCount,
+            sporting,
+            R.string.area_left_identified,
+            R.string.area_left_sporting,
+            R.string.area_left_unconnected,
+            R.string.area_left_occupied
         )
         mBinding.tvTabMain.text = getString(
             if (sporting) R.string.area_main_sporting else R.string.area_main_identified,
             mainIdentifiedCount
         )
-        mBinding.tvTabRight.text = getString(
-            if (sporting) R.string.area_right_sporting else R.string.area_right_identified,
-            rightIdentifiedCount
+        updateAreaTab(
+            mBinding.tvTabRight,
+            DisplayType.RIGHT,
+            rightIdentifiedCount,
+            sporting,
+            R.string.area_right_identified,
+            R.string.area_right_sporting,
+            R.string.area_right_unconnected,
+            R.string.area_right_occupied
         )
 
         mBinding.tvTabLeft.isSelected = currentArea == DisplayType.LEFT
         mBinding.tvTabMain.isSelected = currentArea == DisplayType.MAIN
         mBinding.tvTabRight.isSelected = currentArea == DisplayType.RIGHT
+    }
+
+    /**
+     * 更新单个区域Tab：协同异常状态（未连接/设备占用中）显示红色且不可点击
+     */
+    private fun updateAreaTab(
+        tvTab: TextView,
+        displayType: DisplayType,
+        count: Int,
+        sporting: Boolean,
+        identifiedRes: Int,
+        sportingRes: Int,
+        unconnectedRes: Int,
+        occupiedRes: Int
+    ) {
+        val state = viewModel.collaborationStateLD.value?.takeIf { it.first == displayType }?.second
+        when (state) {
+            CollaborationAreaState.UNCONNECTED -> {
+                tvTab.text = getString(unconnectedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+            CollaborationAreaState.OCCUPIED -> {
+                tvTab.text = getString(occupiedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+            else -> {
+                tvTab.text = getString(
+                    if (sporting) sportingRes else identifiedRes,
+                    count
+                )
+                tvTab.setTextColor(
+                    ContextCompat.getColorStateList(this, R.color.selector_area_tab_text)
+                )
+                tvTab.isEnabled = true
+            }
+        }
     }
 
     private fun initVideoView() {
@@ -337,6 +395,11 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         viewModel.sportStartedLD.observe(this) {
             //运动开始，底部导航栏切换为"x人运动中"文案
+            updateAreaTabs()
+        }
+
+        viewModel.collaborationStateLD.observe(this) {
+            //协同状态变化，刷新导航区（未连接/设备占用中红字不可点击）
             updateAreaTabs()
         }
 

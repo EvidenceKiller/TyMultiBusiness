@@ -207,6 +207,8 @@ open class BaseVideoFaceViewModel(application: Application) :
             MultiSportState.IDLE -> {
 
             }
+
+            MultiSportState.WAITING_START -> {}
         }
     }
 

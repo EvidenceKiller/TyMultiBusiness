@@ -89,4 +89,8 @@
     <string name="area_left_sporting">左區 | %d人運動中</string>
     <string name="area_main_sporting">中區 | %d人運動中</string>
     <string name="area_right_sporting">右區 | %d人運動中</string>
+    <string name="area_left_unconnected">左區 | 未連接</string>
+    <string name="area_right_unconnected">右區 | 未連接</string>
+    <string name="area_left_occupied">左區 | 設備佔用中</string>
+    <string name="area_right_occupied">右區 | 設備佔用中</string>
 </resources>
