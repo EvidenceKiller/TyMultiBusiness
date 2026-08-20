@@ -760,8 +760,12 @@ class ThirtySportViewModel(application: Application) :
      * 条件3：任一块屏（主屏或副屏）识别满员，或所有屏都倒计时结束
      */
     private fun canStartCollaborationSport(): Boolean {
-        //条件1/3：任一屏识别满员（含"所有屏都满员"的子集）
         val connectedSubScreens = connectedSubScreenTypes()
+        //前提：主屏和所有已连接副屏都必须识别到至少1人，任一屏为0则不能开始
+        if (skipPersonArray.size <= 0) return false
+        if (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size <= 0) return false
+        if (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size <= 0) return false
+        //条件1/3：任一屏识别满员（含"所有屏都满员"的子集）
         val anyScreenFull = skipPersonArray.size >= skipManCount ||
                 (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size >= skipManCount) ||
                 (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size >= skipManCount)
