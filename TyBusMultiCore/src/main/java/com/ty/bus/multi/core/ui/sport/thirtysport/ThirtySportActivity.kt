@@ -96,6 +96,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.initEngine(number)
         viewModel.getBestRankTop()
         viewModel.loadPerson(studentList)
+        //注册Grpc指令
+        viewModel.registerGrpcCmd()
         //检查左右屏连接并发送协同运动开始指令
         viewModel.initCollaboration()
     }
@@ -260,7 +262,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         unconnectedRes: Int,
         occupiedRes: Int
     ) {
-        val state = viewModel.collaborationStateLD.value?.takeIf { it.first == displayType }?.second
+        val state = viewModel.collaborationStateLD.value?.get(displayType)
         when (state) {
             CollaborationAreaState.UNCONNECTED -> {
                 tvTab.text = getString(unconnectedRes)

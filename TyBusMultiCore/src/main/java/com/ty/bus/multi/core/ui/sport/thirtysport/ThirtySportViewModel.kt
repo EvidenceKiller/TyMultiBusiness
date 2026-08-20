@@ -169,14 +169,28 @@ class ThirtySportViewModel(application: Application) :
     //已识别人员
     val identifiedLD = MutableLiveData<Pair<DisplayType, Pair<Int, AccountInfo>>>()
     val sportStartedLD = MutableLiveData<Boolean>() //运动开始事件，用于UI切换底部导航栏文案
-    //导航区协同状态：未连接/设备占用中/正常，用于UI显示
-    val collaborationStateLD = MutableLiveData<Pair<DisplayType, CollaborationAreaState>>()
+
+    //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示
+    private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
+    val collaborationStateLD = MutableLiveData<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+
+    /**
+     * 更新单个区域协同状态，保留其他区域已有状态，避免互相覆盖
+     */
+    private fun updateCollaborationState(displayType: DisplayType, state: CollaborationAreaState) {
+        collaborationStateMap[displayType] = state
+        uiHandler.post { collaborationStateLD.value = collaborationStateMap.toMap() }
+    }
+
     //协同开始条件跟踪：主屏倒计时是否结束
     private var mainCountDownEnded = false
+
     //协同开始条件跟踪：已倒计时结束的副屏
     private val subScreenCountDownEnded = mutableSetOf<DisplayType>()
+
     //协同开始条件跟踪：主屏是否真正开始
     private var mainSportStarted = false
+
     //协同开始条件跟踪：开始运动指令是否已发送
     private var startCommandSent = false
     val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
@@ -749,8 +763,8 @@ class ThirtySportViewModel(application: Application) :
         //条件1/3：任一屏识别满员（含"所有屏都满员"的子集）
         val connectedSubScreens = connectedSubScreenTypes()
         val anyScreenFull = skipPersonArray.size >= skipManCount ||
-            (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size >= skipManCount) ||
-            (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size >= skipManCount)
+                (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size >= skipManCount) ||
+                (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size >= skipManCount)
         if (anyScreenFull) return true
         //条件2/3：所有屏（主屏+已连接副屏）都倒计时结束
         if (!mainCountDownEnded) return false
@@ -838,10 +852,6 @@ class ThirtySportViewModel(application: Application) :
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        registerGrpcCmd()
-    }
 
     override fun onResume() {
         super.onResume()
@@ -1327,7 +1337,7 @@ class ThirtySportViewModel(application: Application) :
         val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
         if (clientId == null) {
             LogUtil.d("${displayType.name}副屏未连接：$ip")
-            collaborationStateLD.postValue(displayType to CollaborationAreaState.UNCONNECTED)
+            updateCollaborationState(displayType, CollaborationAreaState.UNCONNECTED)
             return
         }
         //已连接，发送协同运动开始指令
@@ -1342,7 +1352,14 @@ class ThirtySportViewModel(application: Application) :
             cmd = cmd.ordinal,
             sportSkuId = sportInfo?.sportSkuId ?: ""
         )
-        GrpcManager.sendToClient(clientId, GrpcCmdCode.CMD_COLLABORATION_SPORT, payload.toJson(), false, null, null)
+        GrpcManager.sendToClient(
+            clientId,
+            GrpcCmdCode.CMD_COLLABORATION_SPORT,
+            payload.toJson(),
+            false,
+            null,
+            null
+        )
     }
 
     /**
@@ -1378,7 +1395,7 @@ class ThirtySportViewModel(application: Application) :
                 checkCollaborationSportStart()
             }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
-            collaborationStateLD.postValue(displayType to state)
+            updateCollaborationState(displayType, state)
         }
     }
 
