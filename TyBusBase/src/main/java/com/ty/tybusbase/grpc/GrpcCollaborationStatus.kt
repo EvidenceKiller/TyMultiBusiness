@@ -25,6 +25,9 @@ enum class CollaborationStatusEnum {
     /** 可加入但不是当前运动 */
     JOINABLE,
 
+    /** 倒计时结束 */
+    COUNTDOWN_END,
+
     ;
 
     companion object {

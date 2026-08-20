@@ -171,6 +171,14 @@ class ThirtySportViewModel(application: Application) :
     val sportStartedLD = MutableLiveData<Boolean>() //运动开始事件，用于UI切换底部导航栏文案
     //导航区协同状态：未连接/设备占用中/正常，用于UI显示
     val collaborationStateLD = MutableLiveData<Pair<DisplayType, CollaborationAreaState>>()
+    //协同开始条件跟踪：主屏倒计时是否结束
+    private var mainCountDownEnded = false
+    //协同开始条件跟踪：已倒计时结束的副屏
+    private val subScreenCountDownEnded = mutableSetOf<DisplayType>()
+    //协同开始条件跟踪：主屏是否真正开始
+    private var mainSportStarted = false
+    //协同开始条件跟踪：开始运动指令是否已发送
+    private var startCommandSent = false
     val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
     val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
 
@@ -197,6 +205,8 @@ class ThirtySportViewModel(application: Application) :
         }
 
         override fun onFinish() {
+            //主屏倒计时结束，统一检查协同开始条件
+            mainCountDownEnded = true
             readyGo()
         }
     }
@@ -713,9 +723,46 @@ class ThirtySportViewModel(application: Application) :
     }
 
     /**
-     * 准备开始赛，321倒计时
+     * 主屏触发准备开始（倒计时结束/满员），统一检查协同开始条件
      */
     fun readyGo() {
+        checkCollaborationSportStart()
+    }
+
+    /**
+     * 协同开始条件变化时统一调用：
+     * 满足条件则开始主屏3-2-1倒计时，并向已连接副屏发送开始运动指令
+     */
+    private fun checkCollaborationSportStart() {
+        if (!canStartCollaborationSport()) return
+        tryStartSport()
+        sendSportCommand()
+    }
+
+    /**
+     * 协同运动开始条件（任一满足即可开始）：
+     * 条件1：所有屏（主屏+副屏）都识别满员
+     * 条件2：所有屏（主屏+副屏）都倒计时结束
+     * 条件3：任一块屏（主屏或副屏）识别满员，或所有屏都倒计时结束
+     */
+    private fun canStartCollaborationSport(): Boolean {
+        //条件1/3：任一屏识别满员（含"所有屏都满员"的子集）
+        val connectedSubScreens = connectedSubScreenTypes()
+        val anyScreenFull = skipPersonArray.size >= skipManCount ||
+            (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size >= skipManCount) ||
+            (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size >= skipManCount)
+        if (anyScreenFull) return true
+        //条件2/3：所有屏（主屏+已连接副屏）都倒计时结束
+        if (!mainCountDownEnded) return false
+        return connectedSubScreens.all { it in subScreenCountDownEnded }
+    }
+
+    /**
+     * 检查并真正开始主屏3-2-1倒计时，只执行一次
+     */
+    private fun tryStartSport() {
+        if (mainSportStarted) return
+        mainSportStarted = true
         if (factory.isSupportPrescription()) {
             config.checkExercisePrescription = true
             config.fileDir = getVideoPath(sportInfo?.sportSkuId).parentFile
@@ -1317,15 +1364,50 @@ class ThirtySportViewModel(application: Application) :
         GrpcManager.registerServerHandler(GrpcCmdCode.CMD_COLLABORATION_STATUS, GRPC_KEY) { data ->
             val status = data.payload.toObject<GrpcCollaborationStatus>()?.status
             val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
-            val state = when (CollaborationStatusEnum.fromCode(status ?: -1)) {
+            val statusEnum = CollaborationStatusEnum.fromCode(status ?: -1)
+            val state = when (statusEnum) {
                 //运动中、已有已识别人员 → 不能加入协同，设备占用中
                 CollaborationStatusEnum.SPORTING,
                 CollaborationStatusEnum.JOIN_WITH_IDENTIFIED -> CollaborationAreaState.OCCUPIED
                 //其余状态可加入协同
                 else -> CollaborationAreaState.NORMAL
             }
+            //副屏倒计时结束，记录状态并统一检查协同开始条件
+            if (displayType != DisplayType.OTHER && statusEnum == CollaborationStatusEnum.COUNTDOWN_END) {
+                subScreenCountDownEnded.add(displayType)
+                checkCollaborationSportStart()
+            }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
             collaborationStateLD.postValue(displayType to state)
+        }
+    }
+
+    /**
+     * 当前已连接副屏类型列表
+     */
+    private fun connectedSubScreenTypes(): List<DisplayType> {
+        val result = mutableListOf<DisplayType>()
+        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            result.add(DisplayType.LEFT)
+        }
+        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            result.add(DisplayType.RIGHT)
+        }
+        return result
+    }
+
+    /**
+     * 向已连接副屏发送开始运动指令，保证只发送一次
+     */
+    private fun sendSportCommand() {
+        if (startCommandSent) return
+        startCommandSent = true
+        LogUtil.d("协同开始条件满足：向左右副屏发送开始运动指令")
+        leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.SPORT)
+        }
+        rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.SPORT)
         }
     }
 
@@ -1371,11 +1453,15 @@ class ThirtySportViewModel(application: Application) :
                     DisplayType.LEFT -> {
                         leftPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.LEFT, info.index, account)
+                        //副屏识别到人，统一检查协同开始条件
+                        checkCollaborationSportStart()
                     }
 
                     DisplayType.RIGHT -> {
                         rightPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.RIGHT, info.index, account)
+                        //副屏识别到人，统一检查协同开始条件
+                        checkCollaborationSportStart()
                     }
 
                     else -> LogUtil.d("收到未知区域用户消息：clientId=${data.from}")

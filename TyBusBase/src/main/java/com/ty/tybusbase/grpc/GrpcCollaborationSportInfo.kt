@@ -21,6 +21,9 @@ enum class CollaborationCmdEnum {
     /** 准备 */
     PREPARE,
 
+    /** 开始运动  */
+    SPORT,
+
     /** 结束 */
     FINISH,
 
