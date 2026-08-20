@@ -37,6 +37,7 @@ import com.hcnetsdk.control.DevConfigGuider
 import com.ty.tybusbase.expand.getString
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
 import com.ty.bus.multi.core.factory.MultiSportProduceFactory
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -161,7 +162,7 @@ class ThirtySportViewModel(application: Application) :
     val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
     val singleResultLD = MutableLiveData<Pair<DisplayType, Pair<Int, Int>>>() //成绩结果LD
     val countDownFinishLD = MutableLiveData<Pair<DisplayType, Boolean>>() //竞技开始倒计时完成LD
-    val toDoneLD = MutableLiveData<Pair<DisplayType, MutableList<MultiSportResult>>>() //比赛结束LD
+    val toDoneLD = MutableLiveData<List<ThirtySportResultItem>>() //比赛结束LD
     val changeSportViewStateLD =
         MutableLiveData<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>() //切换运动卡片状态
 //    val indicatorLD = MutableLiveData<IndicatorsResultDto?>()
@@ -979,7 +980,7 @@ class ThirtySportViewModel(application: Application) :
     }
 
     /**
-     * 处理成绩，处理名次，成绩结果页显示，成绩上传
+     * 处理成绩：合并主屏与已连接副屏成绩，按高优排序，计算名次，并生成结果页统一数据
      */
     private fun handleResult(skipPersonArray: SparseArray<MultiSportResult>) {
         if (sportInfo == null || skipPersonArray.isEmpty()) {
@@ -1004,8 +1005,73 @@ class ThirtySportViewModel(application: Application) :
             preScore = skipRoseMultiResult.count
             skipRoseMultiResult.rank = rank
         }
-        toDoneLD.postValue(DisplayType.MAIN to resultList)
+        //合并主屏+副屏成绩，供结果页统一展示
+        val mergedItems = mergeAllAreaResults(resultList)
+        toDoneLD.postValue(mergedItems)
         handleUploadResult(resultList)
+    }
+
+    /**
+     * 合并主屏与已连接副屏成绩，生成结果页统一数据项，按成绩高优排序并重新计算总排名
+     */
+    private fun mergeAllAreaResults(mainResults: MutableList<MultiSportResult>): List<ThirtySportResultItem> {
+        val areaNameMap = mapOf(
+            DisplayType.MAIN to getString(R.string.area_main),
+            DisplayType.LEFT to getString(R.string.area_left),
+            DisplayType.RIGHT to getString(R.string.area_right)
+        )
+        val merged = mutableListOf<ThirtySportResultItem>()
+        //主屏成绩
+        mainResults.forEach { result ->
+            merged.add(
+                ThirtySportResultItem(
+                    result = result,
+                    displayType = DisplayType.MAIN,
+                    areaName = areaNameMap[DisplayType.MAIN] ?: "",
+                    isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                    trackNumber = result.number
+                )
+            )
+        }
+        //左副屏成绩
+        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            leftPersonArray.forEach { _, result ->
+                merged.add(
+                    ThirtySportResultItem(
+                        result = result,
+                        displayType = DisplayType.LEFT,
+                        areaName = areaNameMap[DisplayType.LEFT] ?: "",
+                        isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                        trackNumber = result.number
+                    )
+                )
+            }
+        }
+        //右副屏成绩
+        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            rightPersonArray.forEach { _, result ->
+                merged.add(
+                    ThirtySportResultItem(
+                        result = result,
+                        displayType = DisplayType.RIGHT,
+                        areaName = areaNameMap[DisplayType.RIGHT] ?: "",
+                        isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                        trackNumber = result.number
+                    )
+                )
+            }
+        }
+        //按成绩高优排序，并列同排名
+        merged.sortWith(compareBy { -it.count })
+        var preRank = 0
+        var preScore = -1
+        merged.forEachIndexed { index, item ->
+            val rank = if (item.count == preScore) preRank else preRank + 1
+            preRank = rank
+            preScore = item.count
+            item.result.rank = rank
+        }
+        return merged
     }
 
 

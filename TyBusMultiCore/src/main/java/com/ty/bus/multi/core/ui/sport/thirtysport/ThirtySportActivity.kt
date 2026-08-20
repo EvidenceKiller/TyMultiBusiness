@@ -33,7 +33,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.ThirtySportConfig
-import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.view.thirtysport.ThirtySportResultView
 import com.ty.bus.multi.databinding.AcThirtySportBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -435,7 +435,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.toDoneLD.observe(this) {
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
-            addResultView(it.second)
+            addResultView(it)
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
@@ -452,7 +452,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
     }
 
-    private fun addResultView(resultList: MutableList<MultiSportResult>) {
+    private fun addResultView(resultList: List<ThirtySportResultItem>) {
         //创建结果页，并添加到页面中
         srrvResult = ThirtySportResultView(this).apply {
             measureUnit = viewModel.measureUnit
@@ -490,8 +490,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         srrvResult.setResult(
             resultList,
             if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.thirtySportConfig?.isVoiceBroadcastSupported == true,
-            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
+            viewModel.thirtySportConfig?.isVoiceBroadcastSupported == true
         )
     }
 

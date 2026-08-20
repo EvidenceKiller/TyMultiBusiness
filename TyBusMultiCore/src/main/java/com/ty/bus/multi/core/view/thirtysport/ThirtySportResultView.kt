@@ -1,31 +1,27 @@
 package com.ty.bus.multi.core.view.thirtysport
 
 import android.content.Context
-import android.icu.util.TimeUnit
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.ty.tybusbase.expand.Action1
-import com.ty.tybusbase.expand.getString
+import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.constants.MultiCoreConstant
-import com.ty.bus.multi.core.entity.MultiSportResult
-import com.ty.bus.multi.databinding.ItemThirtySportResult2Binding
-import com.ty.bus.multi.databinding.ItemThirtySportResultBinding
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
+import com.ty.bus.multi.databinding.ItemThirtySportResultGridBinding
 import com.ty.bus.multi.databinding.ThirtySportResultViewBinding
 import com.ty.tybusbase.base.BaseBindingAdapter
 import com.ty.tybusbase.base.VBViewHolder
-import com.ty.tybusbase.base.getContext
-import com.ty.tybusbase.base.getResources
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.expand.Action1
+import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.helper.GridSpaceDecoration
 import com.ty.tybusbase.helper.SpeechWrapper
-import com.ty.tybusbase.utils.DisplayUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +40,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     var top1Count: Int = Int.MAX_VALUE
 
     protected var reportClickListener: Action1<Int>? = null
-    private var resultList: MutableList<MultiSportResult>? = null
+    private var resultList: List<ThirtySportResultItem>? = null
 
     //倒计时
     private var timer: CountDownTimer? = null
@@ -72,104 +68,63 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun initView() {
-        mBinding.rvResult1.layoutManager = LinearLayoutManager(context)
-        mBinding.rvResult1.adapter =
-            object : BaseBindingAdapter<ItemThirtySportResultBinding, MultiSportResult>() {
+        mBinding.rvResult.layoutManager = GridLayoutManager(context, 2)
+        mBinding.rvResult.addItemDecoration(GridSpaceDecoration(12,56))
+        mBinding.rvResult.adapter =
+            object : BaseBindingAdapter<ItemThirtySportResultGridBinding, ThirtySportResultItem>() {
                 override fun convert(
-                    holder: VBViewHolder<ItemThirtySportResultBinding>,
-                    item: MultiSportResult
+                    holder: VBViewHolder<ItemThirtySportResultGridBinding>,
+                    item: ThirtySportResultItem
                 ) {
-                    holder.vb.tvVisitorNumber.text =
-                        getString(
-                            R.string.visitor_number,
-                            item.number + 1
-                        )
-                    holder.vb.tvVisitorNumber.visibility = VISIBLE
-
+                    holder.vb.tvRank.text = item.rank.toString()
+                    holder.vb.tvName.text = item.name
+                    holder.vb.tvResult.text = "${item.count}$measureUnit"
+                    holder.vb.ivRank.visibility = GONE
+                    holder.vb.tvRank.visibility = GONE
                     when (item.rank) {
                         1 -> {
-                            if (top1Count < item.count) {
-                                holder.vb.groupBest.visibility = VISIBLE
-                            }
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no1)
+                            holder.vb.ivRank.visibility = VISIBLE
                         }
 
                         2 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no2)
+                            holder.vb.ivRank.visibility = VISIBLE
                         }
 
                         3 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no3)
+                            holder.vb.ivRank.visibility = VISIBLE
+                        }
+
+                        else -> {
+                            holder.vb.tvRank.visibility = VISIBLE
                         }
                     }
-                    holder.vb.tvResult.text = "${item.count}$measureUnit"
-                    holder.vb.tvRank.text = "${item.rank}"
-                    holder.vb.tvName.text = item.accountInfo.studentEntity?.accountName
                     Glide.with(context)
-                        .load(item.accountInfo.studentEntity?.userFaceImgUrl)
+                        .load(item.faceUrl)
                         .placeholder(R.mipmap.ic_head_default)
                         .error(R.mipmap.ic_head_default)
                         .into(holder.vb.ivHeader)
-                    if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+                    if (item.result.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
                         holder.vb.ivHeaderBg.visible()
                     }
-                    if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
-                        holder.vb.layoutEnergy.root.visible()
-                        holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
-                        holder.vb.layoutEnergy.tvEnergyNumber.textSize = DisplayUtil.px2dp(
-                            holder.getContext(),
-                            holder.getResources().getDimension(R.dimen.sp_20)
-                        ).toFloat()
-                        holder.vb.layoutEnergy.tvEnergyDes.textSize =DisplayUtil.px2dp(
-                            holder.getContext(),
-                            holder.getResources().getDimension(R.dimen.sp_16)
-                        ).toFloat()
+                    if (item.isVisitor) {
+                        holder.vb.tvVisitorNumber.text =
+                            getString(
+                                R.string.visitor_number_with_area,
+                                item.areaName,
+                                item.trackNumber + 1
+                            )
+                        holder.vb.tvVisitorNumber.visibility = VISIBLE
+                    } else {
+                        holder.vb.tvVisitorNumber.visibility = GONE
                     }
                     if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
-                        holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.number) }
-                    }
-                }
-            }
-        mBinding.rvResult2.layoutManager = LinearLayoutManager(context)
-        mBinding.rvResult2.adapter =
-            object : BaseBindingAdapter<ItemThirtySportResult2Binding, MultiSportResult>() {
-                override fun convert(
-                    holder: VBViewHolder<ItemThirtySportResult2Binding>,
-                    item: MultiSportResult
-                ) {
-                    holder.vb.tvVisitorNumber.text =
-                        getString(
-                            R.string.visitor_number,
-                            item.number + 1
-                        )
-                    holder.vb.tvVisitorNumber.visibility = VISIBLE
-                    holder.vb.tvResult.text = "${item.count}$measureUnit"
-                    holder.vb.tvRank.text = "${item.rank}"
-                    holder.vb.tvName.text = item.accountInfo.studentEntity?.accountName
-                    Glide.with(context)
-                        .load(item.accountInfo.studentEntity?.userFaceImgUrl)
-                        .placeholder(R.mipmap.ic_head_default)
-                        .error(R.mipmap.ic_head_default)
-                        .into(holder.vb.ivHeader)
-                    if (item.accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
-                        holder.vb.ivHeaderBg.visible()
-                    }
-                    if (energyPoint > 0 && item.accountInfo.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
-                        holder.vb.layoutEnergy.root.visible()
-                        holder.vb.layoutEnergy.tvEnergyNumber.text = "+${energyPoint}"
-                        holder.vb.layoutEnergy.tvEnergyNumber.textSize = DisplayUtil.px2dp(
-                            holder.getContext(),
-                            holder.getResources().getDimension(R.dimen.sp_20)
-                        ).toFloat()
-                        holder.vb.layoutEnergy.tvEnergyDes.textSize =DisplayUtil.px2dp(
-                            holder.getContext(),
-                            holder.getResources().getDimension(R.dimen.sp_16)
-                        ).toFloat()
-                    }
-                    if (isSupportReport) {
-                        holder.vb.btnReport.visibility = VISIBLE
-                        holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.number) }
+                        holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.trackNumber) }
+                    } else {
+                        holder.vb.btnReport.visibility = GONE
                     }
                 }
             }
@@ -248,31 +203,18 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     /**
-     * 设置结果，需要先取出结果进行成绩排序，再设置卡片结果值
+     * 设置结果，传入主屏+副屏合并排序后的列表
      */
     fun setResult(
-        resultList: MutableList<MultiSportResult>,
+        resultList: List<ThirtySportResultItem>,
         top1Count: Int,
-        speech: Boolean = false,
-        isLargeScreen: Boolean = true
+        speech: Boolean = false
     ) {
         this.resultList = resultList
         this.top1Count = top1Count
-        if (resultList.size > 5 && isLargeScreen) {
-            val list = resultList.subList(0, 5)
-            (mBinding.rvResult1.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
-                list
-            )
-            val list2 = resultList.subList(5, resultList.size)
-            (mBinding.rvResult2.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
-                list2
-            )
-            mBinding.rvResult2.visibility = VISIBLE
-        } else {
-            (mBinding.rvResult1.adapter as BaseBindingAdapter<*, MultiSportResult>).setNewInstance(
-                resultList
-            )
-        }
+        (mBinding.rvResult.adapter as BaseBindingAdapter<*, ThirtySportResultItem>).setNewInstance(
+            resultList.toMutableList()
+        )
 
         //播报语音
         if (speech) {
@@ -287,7 +229,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
         }
     }
 
-    private fun resultSpeech(resultList: MutableList<MultiSportResult>) {
+    private fun resultSpeech(resultList: List<ThirtySportResultItem>) {
         isSpeech = true
         currentSpeechIndex = 0
         mBinding.llSpeech.visibility = VISIBLE
@@ -296,7 +238,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
         speakNext(resultList)
     }
 
-    private fun speakNext(resultList: MutableList<MultiSportResult>) {
+    private fun speakNext(resultList: List<ThirtySportResultItem>) {
         if (!isSpeech || isDetached) return
         if (currentSpeechIndex >= resultList.size) {
             speechEnd()
@@ -317,7 +259,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
             }
         }
         SpeechWrapper.speech2(
-            "${value.accountInfo.studentEntity?.accountName}，${value.count}$measureUnit}",
+            "${value.name}，${value.count}$measureUnit}",
             endCallback
         )
     }
