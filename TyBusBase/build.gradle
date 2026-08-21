@@ -63,6 +63,7 @@ dependencies {
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')
     api(name: 'AdlRopeSkipLite-2026-06-15', ext: 'aar')
     api(name: 'AiPowerSpecial-v2.0.0-2026-08-21', ext: 'aar')
+    api(name: 'TyInference-ClassicAlgoJ-2026-08-19', ext: 'aar')
 
     annotationProcessor rootProject.ext.dependencies["glide-compiler"]
 

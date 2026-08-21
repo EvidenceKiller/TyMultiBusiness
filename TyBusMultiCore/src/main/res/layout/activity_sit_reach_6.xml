@@ -24,10 +24,14 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <com.ty.forwardflexion.processor.ForwardFlexionSportOverlay
-        android:id="@+id/overlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <com.adl.sport.controllers.sitandreach.SitAndReachLayout
+        android:id="@+id/sit_and_reach_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/ll_btn"
@@ -135,9 +139,9 @@
 
     <com.ty.bus.multi.core.view.sixsitreach.SixSitReachSportView
         android:id="@+id/sport_view"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tv_title"

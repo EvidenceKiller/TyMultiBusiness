@@ -1,19 +1,19 @@
 package com.ty.bus.multi.core.ui.sport.sitreachsix
 
 import android.graphics.ImageFormat
-import android.graphics.Rect
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.view.View
+import android.widget.Toast
 import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlExecutor
 import com.adl.base.common.AdlVideoReader
 import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.log.AdlLogger
-import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraListener
@@ -25,22 +25,23 @@ import com.adl.mount.core.TsModelResGroup
 import com.adl.mount.core.TsModelResPool
 import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
 import com.adl.processor.SportProcessorStatus
+import com.adl.sport.ballBase.ResultCodeType
+import com.adl.sport.controllers.sitandreach.SitAndReachCallBack
+import com.adl.sport.controllers.sitandreach.SitAndReachController
+import com.adl.sport.controllers.sitandreach.SitAndReachControllerConfig
+import com.adl.sport.sitandreach.SitAndReachConfig
+import com.adl.sport.sitandreach.SitAndReachObject
+import com.adl.sport.sitandreach.SitAndReachType
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
-import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.databinding.ActivitySitReach6Binding
-import com.ty.forwardflexion.callback.FFlexionSportCb
 import com.ty.forwardflexion.config.FFlexionRoleConfig
-import com.ty.forwardflexion.config.FFlexionSportResult
-import com.ty.forwardflexion.informCode.InformCode
-import com.ty.forwardflexion.processor.ForwardFlexionProcessor
-import com.ty.sport.common.basic.bean.Point
-import com.ty.sport.common.sport.processor.SportConfig
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -60,15 +61,14 @@ class SitReachSixActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/1.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
 
     /***************************视频播放调试*************************/
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
-    private var forwardFlexionProcessor: ForwardFlexionProcessor = ForwardFlexionProcessor()
-    private var sportConfig: SportConfig? = null
-    val isDebug =
-        MMKVUtil.decodeBoolean(MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE)
+    private lateinit var controller: SitAndReachController
+
+    val isDebug = BusiBaseConfig.getDebugEnable()
     private val pointElement by lazy { PointElement() } // 调试用的点绘制
     private var preFrameTime = 0L //上一帧的时间，用于判断是纳秒还是毫秒时间戳
     private var checkTimeOk = false //校验时间是否OK
@@ -104,6 +104,7 @@ class SitReachSixActivity :
 
     override fun initData() {
         super.initData()
+        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.ffSportConfig =
@@ -149,7 +150,7 @@ class SitReachSixActivity :
         mainHandler.postDelayed(tipRunnable, 1000)
 
         initOverlay()
-        initProcessor()
+        initConfigAndController()
         if (viewModel.streamType == 1) {
             mBinding.layout.visibility = View.GONE
             mBinding.llBtn.visibility = View.GONE
@@ -157,6 +158,83 @@ class SitReachSixActivity :
         } else {
             initVideoView()
             initVideo()
+        }
+    }
+
+    private fun initConfigAndController() {
+        val diskNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
+        )
+        showLoadingDialog(getString(R.string.model_loding))
+        val config = SitAndReachControllerConfig()
+        config.drawSkeleton = true
+        config.inputSource = SitAndReachControllerConfig.InputSource.VIDEO
+        config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
+        val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
+        sitAndReachType.setNum(diskNum)
+        sitAndReachType.setBoardNum(8)
+        config.sitAndReachType = sitAndReachType
+        config.debug = true
+        config.enableRecordVideo = false
+        config.needSetUI = true
+        controller = SitAndReachController(config, mBinding.sitAndReachLayout)
+        controller.callBack = object : SitAndReachCallBack {
+            override fun onInitPlayGround(isSuccess: Boolean, msg: String?) {
+                AdlExecutor.postUI(Runnable {
+                    Toast.makeText(
+                        this@SitReachSixActivity,
+                        msg, Toast.LENGTH_SHORT
+                    ).show()
+                })
+
+            }
+
+            override fun onModelState(isSuccess: Boolean) {
+                AdlExecutor.postUI(Runnable {
+                    Toast.makeText(
+                        this@SitReachSixActivity,
+                        "模型加载: " + (if (isSuccess) "成功" else "失败"), Toast.LENGTH_LONG
+                    ).show()
+                })
+                hideLoadingDialog()
+            }
+
+            override fun onResult(sitAndReachObjectList: MutableList<SitAndReachObject>?) {
+                if (sitAndReachObjectList == null || sitAndReachObjectList.isEmpty()) {
+                    return
+                }
+
+                val sb = StringBuilder()
+                for (obj in sitAndReachObjectList) {
+                    sb.append("道次: ").append(obj.getIndexNum())
+                        .append("  方向: ").append(obj.getDirection())
+                        .append("  成绩: ").append(obj.getDistanceMax())
+                        .append("  成绩Live: ").append(obj.getDistanceLive())
+                        .append("  手部: ").append(obj.getFingerDistance())
+                        .append("  双手水平: ")
+                        .append(if (obj.getHandParallel()) "达标" else "未水平")
+                        .append("  腿部位置: ")
+                        .append(if (obj.getFootPosition()) "达标" else "未在指定位置")
+                        .append("  双腿伸直: ")
+                        .append(if (obj.getLegParallel()) "达标" else "未伸直")
+                        .append("\n")
+                }
+
+                AdlExecutor.postUI(Runnable {
+                    //                    resultInfoText.setText(
+                    //                        sb.toString().trim { it <= ' ' })
+                })
+            }
+
+            override fun onMessage(resultCodeType: ResultCodeType?) {
+                AdlExecutor.postUI(Runnable {
+                    Toast.makeText(
+                        this@SitReachSixActivity,
+                        "消息: " + resultCodeType, Toast.LENGTH_SHORT
+                    ).show()
+                })
+            }
         }
     }
 
@@ -169,6 +247,8 @@ class SitReachSixActivity :
         }
         mBinding.bntNext.setOnClickListener {
             videoReader?.nextFrame()
+            controller.initPlayGround()
+            controller.start()
         }
 
         mBinding.bntChange.setOnClickListener {
@@ -200,14 +280,7 @@ class SitReachSixActivity :
                 val info = AdlCameraPreviewInfo(width, height)
                 info.frameTimestamp = frameTime
                 info.imageId = frameTime.toString()
-                forwardFlexionProcessor.onFrame(
-                    1,
-                    yuv,
-                    info.width,
-                    info.height,
-                    info.frameTimestamp,
-                    0
-                )
+                controller.onFrame(yuv, info)
             }
 
             override fun onComplete() {
@@ -230,19 +303,17 @@ class SitReachSixActivity :
             startRecording()
             if (it == 1) {
                 if (isDebug) {
-                    mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
+//                    mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportDoing)
                 }
                 mBinding.sportView.sportStarted()
             }
-            forwardFlexionProcessor.changeTo(SportProcessorStatus.Sporting)
             frameTime = System.currentTimeMillis()
             LogUtil.d("开始运动")
         }
 
+        //一次测试完毕
         viewModel.testOnceFinishLD.observe(this) {
-            forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
-            forwardFlexionProcessor.onReset()
-            forwardFlexionProcessor.stopRecord()
+
             viewModel.uploadResult()
         }
 
@@ -273,14 +344,7 @@ class SitReachSixActivity :
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
         cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
-                forwardFlexionProcessor.onFrame(
-                    1,
-                    yuv,
-                    previewInfo.width,
-                    previewInfo.height,
-                    previewInfo.frameTimestamp,
-                    1
-                )
+
             }
         })
         val ip =
@@ -408,193 +472,27 @@ class SitReachSixActivity :
     }
 
     private fun initOverlay() {
-        val isDebug = MMKVUtil.decodeBoolean(
-            MMKVBusiKey.MODEL_DEBUG,
-            BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
-        )
-        mBinding.overlay.enableDebug(isDebug)
-        mBinding.overlay.enableDrawBox(false)
-        mBinding.overlay.enableFace(true)
-        val debug = MMKVUtil.decodeBoolean(
-            MMKVBusiKey.SKELETON_ABLE,
-            BusiBaseConstantsValue.DEFAULT_SKELETON
-        )
-        mBinding.overlay.skeletonDrawer.enableMarker(debug)
-        mBinding.overlay.skeletonDrawer.enableLine(debug)
-        mBinding.overlay.enableDrawSkeleton(debug)
+        val isDebug = BusiBaseConfig.getDebugEnable()
+        val skeletonAble = BusiBaseConfig.getSkeletonEnable()
         uiConfig = AdlUIConfig.instance()
             .readConfig(
                 MultiCoreConstant.FORWARD_FLEXION_SIX_UI_KEY,
                 FFlexionRoleConfig::class.java
             )
-        mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        mBinding.overlay.enableTouch(false)
-        if (isDebug) {
-            pointElement.setPreviewSize(
-                BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH,
-                BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT
-            )
-            mBinding.overlay.addElement(pointElement)
-        }
-    }
-
-    private fun initProcessor() {
-        val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
-        )
-        MultiCoreConfig
-        val param = MultiCoreConfig.getForwardFlexionParam()
-        // 运动配置
-        sportConfig = SportConfig.builder()
-            .debug(isDebug)
-            .record(true)
-            .videoDevice(2)
-            .videoFps(15)
-            .screenWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH)
-            .screenHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT)
-            .videoWidth(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_WIDTH)
-            .videoHeight(BusiBaseConstantsValue.CAMERA_PREVIEW_4K_HEIGHT)
-            .valueInt(intArrayOf(diskNum, 60, 20, param.getAngle(), param.getSsdqThVaule()))
-            .valueBool(booleanArrayOf(param.checkLeg, param.checkFoot, param.checkHand))
-//            .valueBool(booleanArrayOf(false, false, false))
-            .build()
-        mBinding.overlay.setMarkerAreaNum(diskNum)
-        forwardFlexionProcessor.setConfig(sportConfig)
-        forwardFlexionProcessor.setSportCallBack(object : FFlexionSportCb {
-            override fun onResult(result: FFlexionSportResult) {
-                runOnUiThread {
-                    //显示成绩
-                    result.grade.forEach {
-                        LogUtil.d("${it.key}号成绩为${it.value}")
-                        showDesc("${it.key}号成绩为${it.value}\n")
-                        mBinding.sportView.addScore(it.key, it.value)
-                    }
-                }
-                viewModel.handleResult(result)
-            }
-
-            override fun onInform(code: InformCode?, error: String?) {
-                LogUtil.d("$code:$error")
-                if (code == InformCode.LANDMARKFINSIH || code == InformCode.LANDMARKFINSIHERR) {
-                    ToastUtil.getInstance(
-                        this@SitReachSixActivity,
-                        if (code == InformCode.LANDMARKFINSIH) getString(R.string.forward_flexion_auto_mat_success) else getString(
-                            R.string.forward_flexion_auto_mat_fail
-                        )
-                    ).show()
-                    viewModel.toStatusIdentifyFace()
-//                    mBinding.overlay.saveConfig()
-                }
-            }
-
-            override fun onPostureStatus(status: MutableMap<Int, InformCode>) {
-                viewModel.onPostureStatus(status)
-                for (entry in status.entries) {
-                    if (entry.value == InformCode.PREPAREFINSIH || entry.value == InformCode.PREPAREERR || entry.value == InformCode.NOTCHECKIN) {
-                        if (entry.value == InformCode.PREPAREFINSIH) {
-                            LogUtil.d(entry.key.toString() + "号准备完成")
-                            showDesc("${entry.key}号准备完成\n")
-                        } else if (entry.value == InformCode.PREPAREERR) {
-                            LogUtil.d(entry.key.toString() + "号准备异常")
-                            showDesc("${entry.key}号准备异常\n")
-                        } else if (entry.value == InformCode.NOTCHECKIN) {
-                            LogUtil.d(entry.key.toString() + "号未检录")
-                            showDesc("${entry.key}号未检录\n")
-                        }
-                    } else if (entry.value == InformCode.LEGUNCURLERR) {
-                        showDesc("${entry.key}号腿未伸直\n")
-                        LogUtil.d(entry.key.toString() + "号腿未伸直")
-                    } else if (entry.value == InformCode.FOOTLOCATIONERR) {
-                        LogUtil.d(entry.key.toString() + "号脚位置不对")
-                        showDesc("${entry.key}号脚位置不对\n")
-                    } else if (entry.value == InformCode.HANDALIGNERR) {
-                        LogUtil.d(entry.key.toString() + "号双手未对齐")
-                        showDesc("${entry.key}号双手未对齐\n")
-                    }
-                }
-            }
-
-            override fun onBonePoints(body: Map<Int, FFlexionSportCb.FFlexionBody>?) {
-                if (isDebug) {
-                    val points = mutableListOf<Point>()
-                    val rects = mutableListOf<Rect>()
-                    body?.forEach {
-                        it.value.body?.forEach { po ->
-                            points.add(Point(po.x, po.y))
-                        }
-                        rects.add(viewModel.getIdentityRect(it.value))
-                        mBinding.overlay.refreshNow()
-                    }
-                    pointElement.setPoints(points)
-                    pointElement.setRects(rects)
-                }
-                viewModel.onBonePoints(body)
-            }
-        })
-        forwardFlexionProcessor.onInit()
-        loadModel()
     }
 
     override fun onStatusIdentify() {
         LogUtil.d("开始人脸识别")
-        mBinding.overlay.post {
-            mBinding.sportView.visibility = View.VISIBLE
-            hideBackBtn()
-            forwardFlexionProcessor.open(mBinding.overlay)
-            forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
-        }
+//        mBinding.overlay.post {
+//            mBinding.sportView.visibility = View.VISIBLE
+//            hideBackBtn()
+//            forwardFlexionProcessor.open(mBinding.overlay)
+//            forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
+//        }
     }
 
     override fun onStatusPrepare() {
         processorPrepare()
-    }
-
-    private fun loadModel() {
-        val tsModelRes = forwardFlexionProcessor.tsModels
-        TsModelResPool.instance()
-            .loadModelGroup(
-                listOf(
-                    TsModelResGroup(
-                        false,
-                        0L,
-                        MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME
-                    ).addModelRes(tsModelRes)
-                ), object :
-                    OnLoadModelCallbackSample() {
-
-                    override fun onStart() {
-                        if (DeviceUtil.isTsRk3588()) {
-                            runOnUiThread {
-                                showLoadingDialog(getString(R.string.model_loding))
-                            }
-                        }
-                    }
-
-                    override fun onSucceed(list: MutableList<TsModelInfo>?) {
-                        isModelOk = true
-                        startMatDetect()
-                    }
-
-                    override fun onFinish(
-                        list: List<TsModelInfo?>?,
-                        errrorList: List<TsModelInfo?>?
-                    ) {
-                        runOnUiThread {
-                            errrorList?.size?.let {
-                                if (it > 0) {
-                                    ToastUtil.getInstance(
-                                        this@SitReachSixActivity,
-                                        getString(R.string.model_load_error)
-                                    ).show()
-                                }
-                            }
-                            hideLoadingDialog()
-                        }
-                    }
-
-                })
-
     }
 
     private fun releaseModel() {
@@ -611,8 +509,6 @@ class SitReachSixActivity :
     override fun onStatusEnd() {
         super.onStatusEnd()
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
-        forwardFlexionProcessor.onReset()
         mBinding.sportView.sportFinish()
     }
 
@@ -635,8 +531,8 @@ class SitReachSixActivity :
         if (viewModel.streamType == 1) {
             viewModel.toStatusIdentifyFace()
         } else {
-            forwardFlexionProcessor.open(mBinding.overlay)
-            forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
+//            forwardFlexionProcessor.open(mBinding.overlay)
+//            forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
         }
     }
 
@@ -660,9 +556,6 @@ class SitReachSixActivity :
 
     protected fun processorPrepare() {
         timeOutHelper.cancel()
-        forwardFlexionProcessor.updateCheckIn(viewModel.checkMap)
-        forwardFlexionProcessor.onReset()
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Prepare)
     }
 
     /**
@@ -672,13 +565,11 @@ class SitReachSixActivity :
         if (viewModel.streamType == 1) {
             viewModel.videoFile = null
             val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
-            forwardFlexionProcessor.startRecording(file)
         }
     }
 
     override fun onPause() {
         super.onPause()
-        forwardFlexionProcessor.changeTo(SportProcessorStatus.Idle)
         mBinding.cameraView.stopPreview()
     }
 
@@ -686,12 +577,7 @@ class SitReachSixActivity :
         super.onDestroy()
         SpeechWrapper.stop()
         hideLoadingDialog()
-        Thread {
-            forwardFlexionProcessor.stopRecord()
-            forwardFlexionProcessor.onRelease();
-        }.start()
         mBinding.cameraView.release()
-        mBinding.overlay.release()
         cameraDispatcher.quit()
         videoReader?.release()
         releaseModel()
