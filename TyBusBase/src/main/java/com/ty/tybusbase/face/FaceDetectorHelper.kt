@@ -151,23 +151,25 @@ class FaceDetectorHelper private constructor() {
         rectF: RectF?,
         type: Int = 0
     ) {
-
-        /***************************连续一次识别中，隔三帧检测一次*******************************/
-        //重置检测帧数和
-        if (System.currentTimeMillis() - preDetectTime > resetFrameCountTime) {
-            detectCount = 0
-        }
-        preDetectTime = System.currentTimeMillis()
-        //帧数检测，连续识别隔3帧检测一次
-        detectCount++
-        if (detectCount % frameInterval != 0) {
-            return
-        }
-        //如果在识别，则返回
-        if (isIsDetecting) return
-        isIsDetecting = true
-        /***************************连续一次识别中，隔三帧检测一次*******************************/
         faceHandler?.post {
+            /***************************连续一次识别中，隔三帧检测一次*******************************/
+            //重置检测帧数和
+            if (System.currentTimeMillis() - preDetectTime > resetFrameCountTime) {
+                detectCount = 0
+            }
+            preDetectTime = System.currentTimeMillis()
+            //帧数检测，连续识别隔3帧检测一次
+            detectCount++
+            if (detectCount % frameInterval != 0) {
+                return@post
+            }
+            //如果在识别，则返回
+            if (isIsDetecting){
+                LogUtil.d("人脸识别中...返回")
+                return@post
+            }
+            isIsDetecting = true
+            /***************************连续一次识别中，隔三帧检测一次*******************************/
             val livingModel =
                 faceDetector?.detectFace(key, yuv, width, height, rectF, type) ?: TyLivingModel()
             val userId = faceDetector?.getUserId(livingModel)
