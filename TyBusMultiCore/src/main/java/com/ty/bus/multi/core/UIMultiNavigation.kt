@@ -23,6 +23,7 @@ import com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
+import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
@@ -71,6 +72,17 @@ object UIMultiNavigation : BaseNavigation() {
         ffConfig: ForwardFlexionConfig? = null
     ) {
         val intent = Intent(context, ForwardFlexionSixActivity::class.java)
+        intent.putExtra("sport_config", ffConfig)
+        startActivity(context, intent, config)
+    }
+
+    @JvmStatic
+    fun goSitReachSix(
+        context: Context,
+        config: UINavConfig?,
+        ffConfig: ForwardFlexionConfig? = null
+    ) {
+        val intent = Intent(context, SitReachSixActivity::class.java)
         intent.putExtra("sport_config", ffConfig)
         startActivity(context, intent, config)
     }

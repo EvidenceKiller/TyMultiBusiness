@@ -25,6 +25,9 @@
             android:name="com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity"
             android:exported="true" />
         <activity
+            android:name="com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity"
+            android:exported="true" />
+        <activity
             android:name="com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity"
             android:exported="true" />
         <activity

@@ -287,6 +287,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             })
         }
 
+        mBinding.btnSitReach6.setOnClickListener {
+            UIMultiNavigation.goSitReachSix(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
+                    sportSkuName = "坐位体前屈"
+                }
+            })
+        }
+
         mBinding.btnForward6Set.setOnClickListener {
             UIMultiNavigation.goForwardFlexionSixSetting(this)
         }

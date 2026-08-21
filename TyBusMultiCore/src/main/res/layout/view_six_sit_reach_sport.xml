@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/tv_sporting_tips"
+        android:layout_width="@dimen/dp_1162"
+        android:layout_height="@dimen/dp_120"
+        android:layout_marginTop="@dimen/dp_24"
+        android:background="@drawable/bg_forward_flexion_sport_tips"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_72"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/line_h_center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_40"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_3"
+        app:layout_constraintEnd_toStartOf="@+id/line_h_center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:pk_index="1" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_5"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_1"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_1"
+        app:pk_index="3" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_5"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_1"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_3"
+        app:pk_index="5" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_40"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_4"
+        app:layout_constraintStart_toEndOf="@+id/line_h_center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed"
+        app:pk_index="2" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toTopOf="@+id/ffs_sport_6"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_2"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_2"
+        app:pk_index="4" />
+
+    <com.ty.bus.multi.core.view.sixsitreach.SitReachSportCardView
+        android:id="@+id/ffs_sport_6"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_32"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/ffs_sport_2"
+        app:layout_constraintTop_toBottomOf="@+id/ffs_sport_4"
+        app:pk_index="6" />
+
+    <TextView
+        android:id="@+id/tv_begin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="确定" />
+
+    <TextView
+        android:id="@+id/tv_finish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/end_test"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@id/ffs_sport_1" />
+
+
+    <TextView
+        android:id="@+id/tv_retest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_border_r50_white_shape"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/retest_once"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_next" />
+
+    <TextView
+        android:id="@+id/tv_next"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_40"
+        android:background="@drawable/bg_border_r50_white_shape"
+        android:paddingHorizontal="@dimen/dp_88"
+        android:paddingVertical="@dimen/dp_19"
+        android:text="@string/next_group"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/ffs_sport_2" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

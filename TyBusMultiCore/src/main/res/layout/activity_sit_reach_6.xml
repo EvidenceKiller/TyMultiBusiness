@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_exe_cpt_5jumprope">
+
+    <com.adl.lib.AdlCameraPreviewView
+        android:id="@+id/camera_view"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        android:layout_marginTop="-1px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <com.ty.forwardflexion.processor.ForwardFlexionSportOverlay
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/ll_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout"
+        android:layout_marginBottom="@dimen/dp_88"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/bnt_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="重置"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一帧"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--  提示  -->
+    <ImageView
+        android:id="@+id/iv_in_tip_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_50" />
+
+    <TextView
+        android:id="@+id/tv_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_180"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_80"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_in_tip"
+        android:layout_width="@dimen/dp_1200"
+        android:layout_height="@dimen/dp_330"
+        android:layout_marginTop="@dimen/dp_80"
+        android:background="@mipmap/pic_6rzwtqq_tips"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/tv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/tv_in_tip" />
+
+    <Button
+        android:id="@+id/btn_in_tip_confirm"
+        android:layout_width="@dimen/dp_232"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_120"
+        android:background="@drawable/pk_border_white_r50_bg"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/iv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/iv_in_tip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btn_in_tip_confirm,iv_in_tip,tv_in_tip,iv_in_tip_bg" />
+    <!--  提示  -->
+
+    <com.ty.bus.multi.core.view.sixsitreach.SixSitReachSportView
+        android:id="@+id/sport_view"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_45"
+        android:text="@string/forward_flexion"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_56"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_des"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_camera_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_60"
+        android:text="@string/ipc_camera_fail_tip"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
