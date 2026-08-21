@@ -76,7 +76,7 @@ class MultiPipelineIdentityEngine {
             }
 
             override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
-                identityListener?.onIdentityTimeFail(currentIndex)
+
             }
 
             override fun onFindUserId(userId: String?, score: Float) {
@@ -102,8 +102,8 @@ class MultiPipelineIdentityEngine {
                 AdlService.getService().studentDao.queryStudentByAccountId(userId)
             if (studentEntity != null) {
                 identityFinish(index, studentEntity)
+                return
             }
-            return
         }
         identifyInfo.identifiedList.add(userId to score)
         val config = identifyConfigMap.getOrDefault(index, PipelineFaceIdentifyConfig())
@@ -114,7 +114,7 @@ class MultiPipelineIdentityEngine {
             for ((uid, list) in group) {
                 // 同一userId数量超过4
                 if (list.size >= 4) {
-                    LogUtil.d("开始计算人脸识别结果,道次：$index")
+                    LogUtil.d("开始计算人脸识别结果,道次：$index --total:${config.visitorRoundCount}--cucount:${list.size} -- curound:${identifyInfo.frameCount}")
                     // 分数累计2次大于等于config.minScoreThreshold
                     val highScoreCount = list.count { it.second >= config.minScoreThreshold }
                     if (highScoreCount >= 2) {
@@ -129,6 +129,7 @@ class MultiPipelineIdentityEngine {
                     AdlService.getService().studentDao.queryStudentByAccountId(userId)
                 if (studentEntity != null) {
                     identityFinish(index, studentEntity)
+                    return
                 }
             }
         }
@@ -139,6 +140,7 @@ class MultiPipelineIdentityEngine {
             if (visitorAble) {
                 identifyInfo.isOk = true
                 createVisitor(index)
+                return
             } else {
                 identifyInfo.frameCount = 0
             }
@@ -147,6 +149,7 @@ class MultiPipelineIdentityEngine {
         if (identifyInfo.identifiedList.size >= config.verifyRoundCount) {
             identifyInfo.identifiedList.clear()
         }
+        identityListener?.onIdentityTimeFail(currentIndex)
     }
 
 
