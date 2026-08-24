@@ -51,6 +51,10 @@ import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 class SitReachSixActivity :
@@ -159,6 +163,7 @@ class SitReachSixActivity :
             initVideoView()
             initVideo()
         }
+
     }
 
     private fun initConfigAndController() {
@@ -187,6 +192,9 @@ class SitReachSixActivity :
                         msg, Toast.LENGTH_SHORT
                     ).show()
                 })
+                controller.prepare()
+//                    controller.start()
+                viewModel.toStatusIdentifyFace()
 
             }
 
@@ -202,9 +210,12 @@ class SitReachSixActivity :
 
             override fun onResult(sitAndReachObjectList: MutableList<SitAndReachObject>?) {
                 if (sitAndReachObjectList == null || sitAndReachObjectList.isEmpty()) {
+                    LogUtil.d("sitAndReachObjectList 为空")
                     return
                 }
-
+                viewModel.onHandleIdentity(sitAndReachObjectList)
+                viewModel.onPostureStatus(sitAndReachObjectList)
+                viewModel.handleResult(sitAndReachObjectList)
                 val sb = StringBuilder()
                 for (obj in sitAndReachObjectList) {
                     sb.append("道次: ").append(obj.getIndexNum())
@@ -222,8 +233,7 @@ class SitReachSixActivity :
                 }
 
                 AdlExecutor.postUI(Runnable {
-                    //                    resultInfoText.setText(
-                    //                        sb.toString().trim { it <= ' ' })
+                    LogUtil.d(sb.toString().trim { it <= ' ' })
                 })
             }
 
@@ -247,8 +257,7 @@ class SitReachSixActivity :
         }
         mBinding.bntNext.setOnClickListener {
             videoReader?.nextFrame()
-            controller.initPlayGround()
-            controller.start()
+
         }
 
         mBinding.bntChange.setOnClickListener {
@@ -262,6 +271,13 @@ class SitReachSixActivity :
 
         mBinding.bntReset.setOnClickListener {
             videoReader?.onReset()
+        }
+        mBinding.btnSaveLayout.setOnClickListener {
+            controller.saveOverlay()
+        }
+        mBinding.btnStartSport.setOnClickListener {
+            controller.initPlayGround()
+
         }
     }
 
@@ -307,18 +323,24 @@ class SitReachSixActivity :
                 }
                 mBinding.sportView.sportStarted()
             }
+            controller.start()
             frameTime = System.currentTimeMillis()
             LogUtil.d("开始运动")
         }
 
         //一次测试完毕
         viewModel.testOnceFinishLD.observe(this) {
-
+            controller.reset()
             viewModel.uploadResult()
         }
 
         viewModel.sportTipsInfoLD.observe(this) {
             mBinding.sportView.sportingTips(it)
+        }
+
+        viewModel.sportResultLd.observe(this) {
+            LogUtil.d("最终成绩：${it.first} -- ${it.second}")
+            mBinding.sportView.addScore(it.first, it.second)
         }
 
     }
@@ -483,12 +505,8 @@ class SitReachSixActivity :
 
     override fun onStatusIdentify() {
         LogUtil.d("开始人脸识别")
-//        mBinding.overlay.post {
-//            mBinding.sportView.visibility = View.VISIBLE
-//            hideBackBtn()
-//            forwardFlexionProcessor.open(mBinding.overlay)
-//            forwardFlexionProcessor.changeTo(SportProcessorStatus.IdAuth)
-//        }
+        mBinding.sportView.visibility = View.VISIBLE
+        hideBackBtn()
     }
 
     override fun onStatusPrepare() {
@@ -504,6 +522,7 @@ class SitReachSixActivity :
 
     override fun onStatusSport() {
         super.onStatusSport()
+        controller.start()
     }
 
     override fun onStatusEnd() {
@@ -525,14 +544,12 @@ class SitReachSixActivity :
         if (isInit || tipsHide.not()) return
         isInit = true
         hideLoadingDialog()
-        runOnUiThread {
-            mBinding.bntStart.performClick()
-        }
+//        runOnUiThread {
+//            mBinding.bntStart.performClick()
+//        }
         if (viewModel.streamType == 1) {
+            controller.initPlayGround()
             viewModel.toStatusIdentifyFace()
-        } else {
-//            forwardFlexionProcessor.open(mBinding.overlay)
-//            forwardFlexionProcessor.changeTo(SportProcessorStatus.MatDetect)
         }
     }
 

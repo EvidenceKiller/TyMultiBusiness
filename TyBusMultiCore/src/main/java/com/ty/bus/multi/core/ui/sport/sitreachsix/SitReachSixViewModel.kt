@@ -12,7 +12,9 @@ import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.adl.lib.AdlYUVUtil
+import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.SportRecordEntity
+import com.adl.sport.sitandreach.SitAndReachObject
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewModel
 import com.ty.bus.multi.core.base.MultiSportState
@@ -28,6 +30,7 @@ import com.ty.sport.common.basic.bean.Point
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
@@ -45,6 +48,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 
 class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
@@ -92,6 +96,9 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     val testOnceFinishLD = MutableLiveData<Boolean>()//成绩OK
 
     val sportTipsInfoLD = MutableLiveData<String>() //运动提示信息
+
+    //成绩
+    val sportResultLd = MutableLiveData<Pair<Int, Int>>()
 
     //运动卡片的状态
     var sportCardStateLD = MutableLiveData<Pair<Int, ForwardFlexionCardState>>()
@@ -259,24 +266,24 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         //处理下一道是否有人
         var tempNumber = currentIdentifyNumber + 1
         var findOk = false
-        while (tempNumber < sportManCount) {
-            //找到下一道，状态为checkDown且还没有识别的位置
-            if (statusMap[tempNumber] == InformCode.PREPARECHECKINFINSIH && sportPersonArray.get(
-                    tempNumber,
-                    null
-                ) == null
-            ) {
-                currentIdentifyNumber = tempNumber
-                changeSportCardState(
-                    currentIdentifyNumber,
-                    ForwardFlexionCardState.IDENTIFYING
-                )
-                multiIdentityEngine.reset()
-                findOk = true
-                break
-            }
-            tempNumber++
-        }
+//        while (tempNumber < sportManCount) {
+//            //找到下一道，状态为checkDown且还没有识别的位置
+//            if (statusMap[tempNumber] == InformCode.PREPARECHECKINFINSIH && sportPersonArray.get(
+//                    tempNumber,
+//                    null
+//                ) == null
+//            ) {
+//                currentIdentifyNumber = tempNumber
+//                changeSportCardState(
+//                    currentIdentifyNumber,
+//                    ForwardFlexionCardState.IDENTIFYING
+//                )
+//                multiIdentityEngine.reset()
+//                findOk = true
+//                break
+//            }
+//            tempNumber++
+//        }
         //没有找到下一道，置为-1，再从头开始识别
         if (!findOk) {
             currentIdentifyNumber = -1
@@ -290,8 +297,8 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         }
     }
 
-    fun onPostureStatus(map: MutableMap<Int, InformCode>) {
-        statusMap = map
+    fun onPostureStatus(map: MutableList<SitAndReachObject>) {
+        if (statusLD.value != SportStatusEnum.PREPARE) return
         viewModelScope.launch(Dispatchers.IO) {
             handlePrepareStatus(map)
         }
@@ -301,28 +308,24 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
      * 处理姿态状态
      */
     @Synchronized
-    private fun handlePrepareStatus(map: MutableMap<Int, InformCode>) {
+    private fun handlePrepareStatus(map: MutableList<SitAndReachObject>) {
         if (sportState == MultiSportState.SPORTING) return
         var prepareCount = 0
-        map.forEach {
-            if (it.value == InformCode.PREPAREFINSIH) {
-                changeSportCardState(it.key, ForwardFlexionCardState.PREPARED)
-                prepareCount++
-                prepareStatusList[it.key - 1] = true
-            } else if (it.value == InformCode.PREPAREERR) {
-                //准备异常，需要重新准备
-                testOnceFinishLD.postValue(true)
-                SystemClock.sleep(100)
-                toStatusPrepare()
-            }
-        }
+//        map.forEach {
+//            if (it.footPosition) {
+//                changeSportCardState(it.indexNum, ForwardFlexionCardState.PREPARED)
+//                prepareCount++
+//                prepareStatusList[it.indexNum] = true
+//            }
+//        }
         //全部准备完成，开始运动
-        val prepareList = prepareStatusList.filter { it }
+//        val prepareList = prepareStatusList.filter { it }
         //没有人准备，则返回
-        if (prepareList.isEmpty()) return
-        val checkPerson = checkMap.filter { it.value }
-        LogUtil.d("准备完成人数：${prepareList.size} 开始运动 ${sportState.name}")
-        if (prepareList.size == checkPerson.size && sportState != MultiSportState.SPORTING) {
+//        if (prepareList.isEmpty()) return
+//        val checkPerson = checkMap.filter { it.value }
+//        LogUtil.d("准备完成人数：${prepareList.size} 开始运动 ${sportState.name}")
+//        if (prepareList.size == checkPerson.size && sportState != MultiSportState.SPORTING) {
+        if (sportState != MultiSportState.SPORTING) {
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
             }
@@ -356,43 +359,20 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             }
 
             sportState = MultiSportState.SPORTING
+//            toStatusSportStart()
         }
     }
 
-    /**************************************************************************
-
-    skeleton.setHeadTop(toPoint(value[offset], value[offset + 1], value[offset + 2], "HeadTop"));
-    skeleton.setChin(toPoint(value[offset + 3], value[offset + 4], value[offset + 5], "Chin"));
-    skeleton.setLShoulder(toPoint(value[offset + 6], value[offset + 7], value[offset + 8], "LShoulder"));
-    skeleton.setRShoulder(toPoint(value[offset + 9], value[offset + 10], value[offset + 11], "RShoulder"));
-    skeleton.setLElbow(toPoint(value[offset + 12], value[offset + 13], value[offset + 14], "LElbow"));
-    skeleton.setRElbow(toPoint(value[offset + 15], value[offset + 16], value[offset + 17], "RElbow"));
-    skeleton.setLWrist(toPoint(value[offset + 18], value[offset + 19], value[offset + 20], "LWrist"));
-    skeleton.setRWrist(toPoint(value[offset + 21], value[offset + 22], value[offset + 23], "RWrist"));
-    skeleton.setLFinger(toPoint(value[offset + 24], value[offset + 25], value[offset + 26], "LFinger"));
-    skeleton.setRFinger(toPoint(value[offset + 27], value[offset + 28], value[offset + 29], "RFinger"));
-    skeleton.setLHip(toPoint(value[offset + 30], value[offset + 31], value[offset + 32], "LHip"));
-    skeleton.setRHip(toPoint(value[offset + 33], value[offset + 34], value[offset + 35], "RHip"));
-    skeleton.setLKnee(toPoint(value[offset + 36], value[offset + 37], value[offset + 38], "LKnee"));
-    skeleton.setRKnee(toPoint(value[offset + 39], value[offset + 40], value[offset + 41], "RKnee"));
-    skeleton.setLAnkle(toPoint(value[offset + 42], value[offset + 43], value[offset + 44], "LAnkle"));
-    skeleton.setRAnkle(toPoint(value[offset + 45], value[offset + 46], value[offset + 47], "RAnkle"));
-    skeleton.setLBigToe(toPoint(value[offset + 48], value[offset + 49], value[offset + 50], "LBigToe"));
-    skeleton.setRBigToe(toPoint(value[offset + 51], value[offset + 52], value[offset + 53], "RBigToe"));
-    skeleton.setLHeel(toPoint(value[offset + 54], value[offset + 55], value[offset + 56], "LHeel"));
-    skeleton.setRHeel(toPoint(value[offset + 57], value[offset + 58], value[offset + 59], "RHeel"));
-
-     ********************************************************************/
-    fun onBonePoints(map: Map<Int, FFlexionSportCb.FFlexionBody>?) {
+    fun onHandleIdentity(data: MutableList<SitAndReachObject>?) {
         viewModelScope.launch(Dispatchers.IO) {
-            if (map != null) {
-                handleIdentify(map)
+            if (data != null) {
+                handleIdentify(data)
             }
         }
     }
 
     @Synchronized
-    private fun handleIdentify(map: Map<Int, FFlexionSportCb.FFlexionBody>) {
+    private fun handleIdentify(data: MutableList<SitAndReachObject>) {
         if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
             //不是识别状态
             return
@@ -400,7 +380,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         //如果为识别状态
         if (sportState == MultiSportState.IDENTIFYING && currentIdentifyNumber != -1) {
             LogUtil.d("处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
-            val flexionBody = map.getOrDefault(currentIdentifyNumber, null)
+            val flexionBody = data.find { it.indexNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
             if (flexionBody == null) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
@@ -438,13 +418,11 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             return
         }
 
-        statusMap.forEach {
-            if (it.value == InformCode.PREPARECHECKINFINSIH
-                && sportPersonArray.get(it.key, null) == null
-                && map.getOrDefault(it.key, null) != null
-                && checkHandUp(map[it.key]?.body)
+        data.forEach {
+            if (sportPersonArray.get(it.indexNum, null) == null
+                && checkHandUp(it.skeleton)
             ) {
-                currentIdentifyNumber = it.key
+                currentIdentifyNumber = it.indexNum
                 multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
@@ -461,7 +439,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                     currentYuvData.yuv
                 }
                 multiIdentityEngine.identify(
-                    getIdentityRect(map[it.key]),
+                    getIdentityRect(it),
                     data,
                     currentYuvData.width,
                     currentYuvData.height,
@@ -477,7 +455,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         }
     }
 
-    private fun checkHandUp(it: MutableList<Point>?): Boolean {
+    private fun checkHandUp(skeleton: AdlPoseSkeleton?): Boolean {
 //        if (it.isNullOrEmpty() || it.size < 8) return false
 //        val header = it[0]
 //        val lShouder = it[2]
@@ -488,61 +466,67 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         return true
     }
 
-    fun getIdentityRect(it: FFlexionBody?): Rect {
+    fun getIdentityRect(it: SitAndReachObject?): Rect {
         var rect = Rect(0, 0, 50, 50)
-        if (it == null || (it.body == null && it.headBox == null)) return rect
+        val skeleton = it?.skeleton
+        if (it == null || (it.body == null && skeleton == null)) return rect
         //用头框
-        if (it.headBox != null) {
-            LogUtil.d("处理人脸识别：用头框")
-            return Rect(
-                it.headBox.x,
-                it.headBox.y,
-                it.headBox.right.toInt(),
-                it.headBox.bottom.toInt()
-            )
+//        if (it.headBox != null) {
+//            LogUtil.d("处理人脸识别：用头框")
+//            return Rect(
+//                it.headBox.x,
+//                it.headBox.y,
+//                it.headBox.right.toInt(),
+//                it.headBox.bottom.toInt()
+//            )
+//        } else {
+        //无头框，用骨骼推测
+        LogUtil.d("处理人脸识别：用骨骼")
+        val width = 180
+        val header = skeleton!!.headTop
+        if (header != null) {
+            rect.top = header.y.toInt()
+            rect.left = header.x.toInt() - width / 2
+            rect.right = header.x.toInt() + width / 2
+            rect.bottom = header.y.toInt() + width
         } else {
-            //无头框，用骨骼推测
-            if (it.body == null) return rect
-            LogUtil.d("处理人脸识别：用骨骼")
-            val width = 180
-            val header = it.body[0]
-            if (header != null) {
-                rect.top = header.y.toInt()
-                rect.left = header.x.toInt() - width / 2
-                rect.right = header.x.toInt() + width / 2
-                rect.bottom = header.y.toInt() + width
-            } else {
-                val lShouder = it.body[2]
-                val rShouder = it.body[3]
-                val centerX: Double = (lShouder.x + rShouder.x) / 2.0
-                val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
-                rect.bottom = max(lShouder.y, rShouder.y).toInt()
-                rect.left = (centerX - shoulderWidth / 2.0).toInt()
-                rect.right = (centerX + shoulderWidth / 2).toInt()
-                rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
-            }
-
-            if (rect.width() < 40 || rect.height() < 40) {
-                rect.left = rect.left - 20
-                rect.right = rect.left + 40
-                rect.top = rect.top - 20
-                rect.bottom = rect.top + 40
-            }
-            return rect
+            val lShouder = skeleton.lShoulder
+            val rShouder = skeleton.rShoulder
+            val centerX: Double = (lShouder.x + rShouder.x) / 2.0
+            val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
+            rect.bottom = max(lShouder.y, rShouder.y).toInt()
+            rect.left = (centerX - shoulderWidth / 2.0).toInt()
+            rect.right = (centerX + shoulderWidth / 2).toInt()
+            rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
         }
+
+        if (rect.width() < 40 || rect.height() < 40) {
+            rect.left = rect.left - 20
+            rect.right = rect.left + 40
+            rect.top = rect.top - 20
+            rect.bottom = rect.top + 40
+        }
+        return rect
+//        }
 
     }
 
-    fun handleResult(result: FFlexionSportResult) {
+    fun handleResult(result: MutableList<SitAndReachObject>) {
+        if (sportState != MultiSportState.SPORTING) return
         viewModelScope.launch(Dispatchers.IO) {
-            if (result.grade == null) {
-                return@launch
-            }
-            result.grade.forEach {
-                val person = sportPersonArray.get(it.key)
+            result.forEach {
+                val person = sportPersonArray.get(it.indexNum)
                 if (person == null) return@forEach
-                person.count = it.value
-                resultStatusList[it.key - 1] = true
+                val cuScore = max((it.distanceMax * 10 - 200).toInt(), -200)
+                if (it.state == SitAndReachObject.State.END) {
+                    resultStatusList[it.indexNum - 1] = true
+                }
+                person.count = cuScore
+                if (resultStatusList[it.indexNum - 1]) {
+                    withContext(Dispatchers.Main) {
+                        sportResultLd.value = it.indexNum to cuScore
+                    }
+                }
             }
             val list = resultStatusList.filter { it }
             val checkSize = checkMap.filter { it.value }.size
@@ -557,7 +541,9 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             sportPersonArray.forEach { index, value ->
                 changeSportCardState(index, ForwardFlexionCardState.SPORTING)
             }
-            testOnceFinishLD.postValue(true)
+            withContext(Dispatchers.Main) {
+                testOnceFinishLD.postValue(true)
+            }
             if (currentSportTimes > sportTimes) {
                 //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
                 SpeechWrapper.speech(
@@ -596,6 +582,10 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 }
 
                 override fun onFinish() {
+                    //结束运动
+                    for (i in resultStatusList.indices) {
+                        resultStatusList[i] = true
+                    }
                 }
             }.start()
         }
