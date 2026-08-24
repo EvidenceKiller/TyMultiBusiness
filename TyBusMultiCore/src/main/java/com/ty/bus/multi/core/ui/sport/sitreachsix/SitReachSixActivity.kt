@@ -567,6 +567,9 @@ class SitReachSixActivity :
      * 重测试
      */
     private fun retest() {
+        controller.reset()
+        controller.initPlayGround()
+        controller.prepare()
         mBinding.sportView.visibility = View.VISIBLE
         viewModel.retest()
     }

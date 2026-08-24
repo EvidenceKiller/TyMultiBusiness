@@ -309,7 +309,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
      */
     @Synchronized
     private fun handlePrepareStatus(map: MutableList<SitAndReachObject>) {
-        if (sportState == MultiSportState.SPORTING) return
+        if (sportState != MultiSportState.PREPARING) return
         var prepareCount = 0
 //        map.forEach {
 //            if (it.footPosition) {
@@ -469,7 +469,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     fun getIdentityRect(it: SitAndReachObject?): Rect {
         var rect = Rect(0, 0, 50, 50)
         val skeleton = it?.skeleton
-        if (it == null || (it.body == null && skeleton == null)) return rect
+        if (it == null || skeleton == null) return rect
         //用头框
 //        if (it.headBox != null) {
 //            LogUtil.d("处理人脸识别：用头框")
@@ -483,7 +483,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         //无头框，用骨骼推测
         LogUtil.d("处理人脸识别：用骨骼")
         val width = 180
-        val header = skeleton!!.headTop
+        val header = skeleton.headTop
         if (header != null) {
             rect.top = header.y.toInt()
             rect.left = header.x.toInt() - width / 2
@@ -517,14 +517,11 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             result.forEach {
                 val person = sportPersonArray.get(it.indexNum)
                 if (person == null) return@forEach
-                val cuScore = max((it.distanceMax * 10 - 200).toInt(), -200)
-                if (it.state == SitAndReachObject.State.END) {
+                if (it.state == SitAndReachObject.State.END && resultStatusList[it.indexNum - 1].not()) {
+                    person.count = max((it.distanceMax * 10 - 200).toInt(), -200)
                     resultStatusList[it.indexNum - 1] = true
-                }
-                person.count = cuScore
-                if (resultStatusList[it.indexNum - 1]) {
                     withContext(Dispatchers.Main) {
-                        sportResultLd.value = it.indexNum to cuScore
+                        sportResultLd.value = it.indexNum to person.count
                     }
                 }
             }
@@ -534,9 +531,12 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             if (list.size != checkSize) {
                 return@launch
             }
+            //冗余数据，超过了测试次数
+            if (currentSportTimes > sportTimes) {
+                return@launch
+            }
             stopSportCountDown()
             LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
-            sportState = MultiSportState.PREPARING
             currentSportTimes++
             sportPersonArray.forEach { index, value ->
                 changeSportCardState(index, ForwardFlexionCardState.SPORTING)
@@ -552,6 +552,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                         currentSportTimes - 1
                     )
                 )
+                sportState = MultiSportState.IDLE
                 toStatusSportEnd()
             } else {
                 SpeechWrapper.speech(
@@ -561,6 +562,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                     )
                 )
                 SystemClock.sleep(2000)
+                sportState = MultiSportState.PREPARING
                 toStatusPrepare()
             }
         }
@@ -584,6 +586,10 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 override fun onFinish() {
                     //结束运动
                     for (i in resultStatusList.indices) {
+                        if (resultStatusList[i].not()) {
+                            //未完成
+                            sportResultLd.value = i + 1 to -200
+                        }
                         resultStatusList[i] = true
                     }
                 }
@@ -598,7 +604,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     override fun toStatusPrepare() {
         super.toStatusPrepare()
         mHandler.removeCallbacksAndMessages(null)
-        sportState = MultiSportState.COUNTDOWN
+        sportState = MultiSportState.PREPARING
         for (i in 0 until sportManCount) {
             prepareStatusList[i] = false
             resultStatusList[i] = false
@@ -675,7 +681,6 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
      * 重测，只测一次
      */
     fun retest() {
-
         isRetest = true
         sportPersonArray.forEach { index, result ->
             result.count = -1000
