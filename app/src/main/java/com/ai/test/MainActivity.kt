@@ -296,6 +296,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             })
         }
 
+        mBinding.btnSitReach6Set.setOnClickListener {
+            UIMultiNavigation.goSitReachSixSetting(this)
+        }
+
         mBinding.btnForward6Set.setOnClickListener {
             UIMultiNavigation.goForwardFlexionSixSetting(this)
         }

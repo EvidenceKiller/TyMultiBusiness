@@ -16,6 +16,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
+import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
@@ -121,6 +122,13 @@ object UIMultiNavigation : BaseNavigation() {
      */
     fun goForwardFlexionSixSetting(context: Context) {
         context.startActivity(Intent(context, ForwardFlexionSixSettingActivity::class.java))
+    }
+
+    /**
+     * 6人坐位体前屈设置
+     */
+    fun goSitReachSixSetting(context: Context) {
+        context.startActivity(Intent(context, SitReachSixSettingActivity::class.java))
     }
 
     /**

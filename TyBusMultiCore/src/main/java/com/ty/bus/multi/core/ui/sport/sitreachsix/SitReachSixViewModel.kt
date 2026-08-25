@@ -109,13 +109,13 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     fun initData() {
         val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
 
         sportTimes = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_SIX_TEST_TIMES,
-            MultiCoreConstant.ZWTQQ_TEST_TIMES_DEFAULT
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
         )
         for (i in 1..diskNum) {
             checkMap.put(i, false)

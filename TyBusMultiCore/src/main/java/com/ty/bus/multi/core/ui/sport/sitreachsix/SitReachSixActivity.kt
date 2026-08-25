@@ -168,8 +168,8 @@ class SitReachSixActivity :
 
     private fun initConfigAndController() {
         val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.ZWTQQ_SIX_TEST_PEOPLE_NUMBER_DEFAULT
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         showLoadingDialog(getString(R.string.model_loding))
         val config = SitAndReachControllerConfig()
@@ -498,7 +498,7 @@ class SitReachSixActivity :
         val skeletonAble = BusiBaseConfig.getSkeletonEnable()
         uiConfig = AdlUIConfig.instance()
             .readConfig(
-                MultiCoreConstant.FORWARD_FLEXION_SIX_UI_KEY,
+                MultiCoreConstant.SIT_REACH_SIX_UI_KEY,
                 FFlexionRoleConfig::class.java
             )
     }
