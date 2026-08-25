@@ -65,7 +65,9 @@ class SitReachSixActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+
+    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -174,11 +176,12 @@ class SitReachSixActivity :
         showLoadingDialog(getString(R.string.model_loding))
         val config = SitAndReachControllerConfig()
         config.drawSkeleton = true
-        config.inputSource = SitAndReachControllerConfig.InputSource.VIDEO
+        config.inputSource =
+            if (viewModel.streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
-        sitAndReachType.setNum(diskNum)
-        sitAndReachType.setBoardNum(8)
+        sitAndReachType.num = diskNum
+        sitAndReachType.boardNum = 4
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
@@ -193,7 +196,6 @@ class SitReachSixActivity :
                     ).show()
                 })
                 controller.prepare()
-//                    controller.start()
                 viewModel.toStatusIdentifyFace()
 
             }
@@ -232,9 +234,9 @@ class SitReachSixActivity :
                         .append("\n")
                 }
 
-                AdlExecutor.postUI(Runnable {
-                    LogUtil.d(sb.toString().trim { it <= ' ' })
-                })
+//                AdlExecutor.postUI(Runnable {
+//                    LogUtil.d(sb.toString().trim { it <= ' ' })
+//                })
             }
 
             override fun onMessage(resultCodeType: ResultCodeType?) {
@@ -330,7 +332,7 @@ class SitReachSixActivity :
 
         //一次测试完毕
         viewModel.testOnceFinishLD.observe(this) {
-            controller.reset()
+//            controller.reset()
             viewModel.uploadResult()
         }
 
@@ -567,11 +569,15 @@ class SitReachSixActivity :
      * 重测试
      */
     private fun retest() {
-        controller.reset()
-        controller.initPlayGround()
-        controller.prepare()
-        mBinding.sportView.visibility = View.VISIBLE
-        viewModel.retest()
+//        controller.reset()
+//        controller.initPlayGround()
+        controller.resetObject()
+        mBinding.root.postDelayed({
+            controller.prepare()
+            controller.start()
+            mBinding.sportView.visibility = View.VISIBLE
+            viewModel.retest()
+        }, 1000)
     }
 
     protected fun processorPrepare() {
@@ -590,6 +596,7 @@ class SitReachSixActivity :
 
     override fun onPause() {
         super.onPause()
+        controller.reset()
         mBinding.cameraView.stopPreview()
     }
 
@@ -597,6 +604,7 @@ class SitReachSixActivity :
         super.onDestroy()
         SpeechWrapper.stop()
         hideLoadingDialog()
+        controller.release()
         mBinding.cameraView.release()
         cameraDispatcher.quit()
         videoReader?.release()

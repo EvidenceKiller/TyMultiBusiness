@@ -5,17 +5,34 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.adl.lib.AdlCameraPreviewView
-        android:id="@+id/camera_view"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+<!--    <com.adl.lib.AdlCameraPreviewView-->
+<!--        android:id="@+id/camera_view"-->
+<!--        app:layout_constraintTop_toTopOf="parent"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
 
-    <com.ty.forwardflexion.processor.ForwardFlexionSportOverlay
-        android:id="@+id/overlay"
+    <FrameLayout
+        android:id="@+id/layout"
+        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <com.adl.sport.controllers.sitandreach.SitAndReachLayout
+        android:id="@+id/sit_and_reach_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/TRANSPARENT"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
         android:id="@+id/ll_back"
@@ -223,6 +240,77 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
     </com.ty.tybusbase.view.RightDrawerLayoutView>
+
+    <LinearLayout
+        android:id="@+id/ll_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/layout"
+        android:layout_marginBottom="@dimen/dp_88"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/bnt_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="重置"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一帧"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/btn_save_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="保存"
+            android:textSize="@dimen/sp_12"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <Button
+            android:id="@+id/btn_start_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textSize="@dimen/sp_12"
+            app:layout_constraintEnd_toStartOf="@+id/btn_save_layout"
+            app:layout_constraintTop_toTopOf="@+id/btn_save_layout" />
+
+
+    </LinearLayout>
 
     <View
         android:layout_width="@dimen/dp_3"

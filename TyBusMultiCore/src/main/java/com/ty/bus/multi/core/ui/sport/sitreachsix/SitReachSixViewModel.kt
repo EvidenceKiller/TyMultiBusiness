@@ -80,7 +80,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     var currentSportTimes = 1 //当前测试次数
 
-    val identifyTimeOut = 3 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
+    val identifyTimeOut = 5 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
 
     val sportTimeOut = 10 //运动超时提示时间
 
@@ -249,9 +249,11 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             currentIdentifyNumber = -1
             //识别完成
             if (sportPersonArray.size == sportManCount) {
+                LogUtil.d("识别到全部人数。。。。。。。。。。。。。。。。。。")
                 toStatusPrepare()
             } else {
                 mHandler.postDelayed({
+                    LogUtil.d("识别超时。。。。。。。。。。。。。。。。。。。")
                     toStatusPrepare()
                 }, identifyTimeOut)
             }
@@ -309,7 +311,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
      */
     @Synchronized
     private fun handlePrepareStatus(map: MutableList<SitAndReachObject>) {
-        if (sportState != MultiSportState.PREPARING) return
+        if (sportState != MultiSportState.COUNTDOWN) return
         var prepareCount = 0
 //        map.forEach {
 //            if (it.footPosition) {
@@ -518,7 +520,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 val person = sportPersonArray.get(it.indexNum)
                 if (person == null) return@forEach
                 if (it.state == SitAndReachObject.State.END && resultStatusList[it.indexNum - 1].not()) {
-                    person.count = max((it.distanceMax * 10 - 200).toInt(), -200)
+                    person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
                     resultStatusList[it.indexNum - 1] = true
                     withContext(Dispatchers.Main) {
                         sportResultLd.value = it.indexNum to person.count
@@ -569,6 +571,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     }
 
     private fun startSportCountDown() {
+        LogUtil.d("开始倒计时  开始倒计时  开始倒计时")
         Handler(Looper.getMainLooper()).post {
             sportCountDownTimer?.cancel()
             sportCountDown = sportTimeOut
@@ -604,7 +607,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     override fun toStatusPrepare() {
         super.toStatusPrepare()
         mHandler.removeCallbacksAndMessages(null)
-        sportState = MultiSportState.PREPARING
+        sportState = MultiSportState.COUNTDOWN
         for (i in 0 until sportManCount) {
             prepareStatusList[i] = false
             resultStatusList[i] = false
