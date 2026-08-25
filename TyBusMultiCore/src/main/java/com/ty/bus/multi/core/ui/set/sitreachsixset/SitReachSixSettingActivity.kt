@@ -63,7 +63,7 @@ class SitReachSixSettingActivity :
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
-    val streamType = 1 //1:camera , 2: video
+    val streamType = 2 //1:camera , 2: video
 
     /***************************视频播放调试*************************/
     private var testPeopleCount = 0
@@ -165,15 +165,13 @@ class SitReachSixSettingActivity :
             MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
             MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES, testTimes)
             mBinding.sitAndReachLayout.markerRecognizerOverlay.restoreSportSetting()
-            controller.saveOverlay()
             updateOverlay()
         }
 
         mBinding.tvConfirm.setOnClickListener {
-            controller.saveOverlay()
+            mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
             finish()
         }
-        initOverlay()
         initConfigAndController()
         if (streamType == 1) {
             initCamera()
@@ -184,6 +182,7 @@ class SitReachSixSettingActivity :
     }
 
     private fun updateOverlay() {
+        mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
         controller.reset()
         controller.initPlayGround()
     }
@@ -194,15 +193,17 @@ class SitReachSixSettingActivity :
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         showLoadingDialog(getString(R.string.model_loding))
-        mBinding.sitAndReachLayout.setInputSource(SitAndReachControllerConfig.InputSource.CAMERA)
+        val sourceType =
+            if (streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
+        mBinding.sitAndReachLayout.setInputSource(sourceType)
         val config = SitAndReachControllerConfig()
         config.drawSkeleton = true
-        config.inputSource =
-            if (streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
+        config.inputSource = sourceType
+
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = 8
+        sitAndReachType.boardNum = 4
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
@@ -266,7 +267,7 @@ class SitReachSixSettingActivity :
             videoReader?.onReset()
         }
         mBinding.btnSaveLayout.setOnClickListener {
-            controller.saveOverlay()
+            mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
         }
         mBinding.btnStartSport.setOnClickListener {
             controller.initPlayGround()
@@ -407,10 +408,6 @@ class SitReachSixSettingActivity :
         updateOverlay()
     }
 
-    private fun initOverlay() {
-    }
-
-
     private fun releaseModel() {
         TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
     }
@@ -426,14 +423,18 @@ class SitReachSixSettingActivity :
     override fun onPause() {
         super.onPause()
         controller.reset()
-        mBinding.sitAndReachLayout.cameraPreviewView.stopPreview()
+        if (mBinding.sitAndReachLayout.cameraPreviewView != null) {
+            mBinding.sitAndReachLayout.cameraPreviewView.stopPreview()
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         hideLoadingDialog()
         controller.release()
-        mBinding.sitAndReachLayout.cameraPreviewView.release()
+        if (mBinding.sitAndReachLayout.cameraPreviewView != null) {
+            mBinding.sitAndReachLayout.cameraPreviewView.release()
+        }
         cameraDispatcher.quit()
         releaseModel()
     }
