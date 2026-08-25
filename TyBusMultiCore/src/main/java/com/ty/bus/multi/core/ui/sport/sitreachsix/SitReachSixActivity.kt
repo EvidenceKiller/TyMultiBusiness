@@ -110,7 +110,7 @@ class SitReachSixActivity :
 
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.ffSportConfig =
@@ -174,14 +174,16 @@ class SitReachSixActivity :
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         showLoadingDialog(getString(R.string.model_loding))
+        val sourceType =
+            if (viewModel.streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
+        mBinding.sitAndReachLayout.setInputSource(sourceType)
         val config = SitAndReachControllerConfig()
         config.drawSkeleton = true
-        config.inputSource =
-            if (viewModel.streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
+        config.inputSource = sourceType
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = 4
+        sitAndReachType.boardNum = 8
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
@@ -207,6 +209,8 @@ class SitReachSixActivity :
                         "模型加载: " + (if (isSuccess) "成功" else "失败"), Toast.LENGTH_LONG
                     ).show()
                 })
+                isModelOk = isSuccess
+                startMatDetect()
                 hideLoadingDialog()
             }
 
@@ -368,7 +372,7 @@ class SitReachSixActivity :
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
         cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
-
+                controller.onFrame(yuv, previewInfo)
             }
         })
         val ip =
@@ -386,7 +390,7 @@ class SitReachSixActivity :
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
             )
         val hikSubConfig = AdlCameraConfig.builder()
-        hikSubConfig.isPreviewEnable = false
+        hikSubConfig.isPreviewEnable = true
         ipcHik = hikSubConfig
             .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
@@ -440,7 +444,7 @@ class SitReachSixActivity :
 
     private fun startCameraPreview() {
         //开启摄像头
-        mBinding.cameraView.startPreview(ipcHik, object :
+        mBinding.sitAndReachLayout.cameraPreviewView.startPreview(ipcHik, object :
             AdlCameraPreviewView.OnViewStatusListener {
             override fun onAvailable() {
 
@@ -472,8 +476,8 @@ class SitReachSixActivity :
                 }
             }
         })
-        mBinding.cameraView.addFrameProcessor(cameraDispatcher)
-        mBinding.cameraView.textureView.scaleX = -1f
+        mBinding.sitAndReachLayout.cameraPreviewView.addFrameProcessor(cameraDispatcher)
+        mBinding.sitAndReachLayout.cameraPreviewView.textureView.scaleX = -1f
     }
 
     private fun setCameraTips(text: String) {
@@ -492,7 +496,7 @@ class SitReachSixActivity :
     private fun changeResolution() {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 64, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27, 26, 14)
     }
 
     private fun initOverlay() {
@@ -550,8 +554,10 @@ class SitReachSixActivity :
 //            mBinding.bntStart.performClick()
 //        }
         if (viewModel.streamType == 1) {
-            controller.initPlayGround()
-            viewModel.toStatusIdentifyFace()
+            mBinding.root.postDelayed({
+                controller.initPlayGround()
+            }, 500)
+//            viewModel.toStatusIdentifyFace()
         }
     }
 
@@ -569,8 +575,6 @@ class SitReachSixActivity :
      * 重测试
      */
     private fun retest() {
-//        controller.reset()
-//        controller.initPlayGround()
         controller.resetObject()
         mBinding.root.postDelayed({
             controller.prepare()
@@ -597,7 +601,9 @@ class SitReachSixActivity :
     override fun onPause() {
         super.onPause()
         controller.reset()
-        mBinding.cameraView.stopPreview()
+        if (mBinding.sitAndReachLayout.cameraPreviewView != null) {
+            mBinding.sitAndReachLayout.cameraPreviewView.stopPreview()
+        }
     }
 
     override fun onDestroy() {
@@ -605,7 +611,9 @@ class SitReachSixActivity :
         SpeechWrapper.stop()
         hideLoadingDialog()
         controller.release()
-        mBinding.cameraView.release()
+        if (mBinding.sitAndReachLayout.cameraPreviewView != null) {
+            mBinding.sitAndReachLayout.cameraPreviewView.release()
+        }
         cameraDispatcher.quit()
         videoReader?.release()
         releaseModel()

@@ -63,7 +63,7 @@ class SitReachSixSettingActivity :
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
-    val streamType = 2 //1:camera , 2: video
+    val streamType = 1 //1:camera , 2: video
 
     /***************************视频播放调试*************************/
     private var testPeopleCount = 0
@@ -203,7 +203,7 @@ class SitReachSixSettingActivity :
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = 4
+        sitAndReachType.boardNum = 8
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
