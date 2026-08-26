@@ -1484,6 +1484,13 @@ class ThirtySportViewModel(application: Application) :
     }
 
     /**
+     * 指定副屏是否已加入协同（collaborationStateMap 中状态为 NORMAL 可加入）
+     */
+    fun isSubScreenJoined(displayType: DisplayType): Boolean =
+        displayType != DisplayType.MAIN &&
+            collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
+
+    /**
      * 向已连接副屏发送开始运动指令，保证只发送一次
      */
     private fun sendSportCommand() {
@@ -1565,14 +1572,17 @@ class ThirtySportViewModel(application: Application) :
         GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_CARD_STATUS, GRPC_KEY) {
             val sportCardStatus = it.payload.toObject<GrpcSportCardStatus>()
             LogUtil.d(
-                "收到客户端消息：${it.commandCode},payload:${
+                "收到客户端（${GrpcManager.getClientIp(it.from)}）消息：${it.commandCode},payload:${
                     it.payload.toObject<GrpcSportCardStatus>().toString()
                 }"
             )
             sportCardStatus?.let { card ->
                 MultiSportCardViewState.fromValue(card.status)?.let { state ->
                     uiHandler.post {
-                        changeSportViewStateLD.value = DisplayType.LEFT to Pair(card.index, state)
+                        changeSportViewStateLD.value = it.from.getDisplayType(
+                            leftSubScreenIp,
+                            rightSubScreenIp
+                        ) to Pair(card.index, state)
                     }
                 }
             }

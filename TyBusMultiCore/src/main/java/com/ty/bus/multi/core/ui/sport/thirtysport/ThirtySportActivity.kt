@@ -421,9 +421,14 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         viewModel.countDownFinishLD.observe(this) {
             startDialog?.dismiss()
-            getAreaSportViewByDisplay(it.first).readyGo {
-                //比赛开始
-                getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
+            getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
+                //左右副屏：只有已加入协同的才进入运动状态
+                if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
+                    getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
+                }
+                if (viewModel.isSubScreenJoined(DisplayType.RIGHT)) {
+                    getAreaSportViewByDisplay(DisplayType.RIGHT).onStarted()
+                }
                 viewModel.toStatusSportStart()
             }
         }
