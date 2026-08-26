@@ -22,11 +22,7 @@ import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
-import com.ty.forwardflexion.callback.FFlexionSportCb
-import com.ty.forwardflexion.callback.FFlexionSportCb.FFlexionBody
-import com.ty.forwardflexion.config.FFlexionSportResult
 import com.ty.forwardflexion.informCode.InformCode
-import com.ty.sport.common.basic.bean.Point
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
@@ -48,7 +44,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
-import kotlin.math.min
 
 class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
@@ -422,6 +417,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
         data.forEach {
             if (sportPersonArray.get(it.indexNum, null) == null
+                && it.skeleton != null
                 && checkHandUp(it.skeleton)
             ) {
                 currentIdentifyNumber = it.indexNum
@@ -494,6 +490,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         } else {
             val lShouder = skeleton.lShoulder
             val rShouder = skeleton.rShoulder
+            if (lShouder == null || rShouder == null) return rect
             val centerX: Double = (lShouder.x + rShouder.x) / 2.0
             val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
             rect.bottom = max(lShouder.y, rShouder.y).toInt()
@@ -531,6 +528,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             val checkSize = checkMap.filter { it.value }.size
             //还有人未出成绩
             if (list.size != checkSize) {
+                LogUtil.d("总是被人数：${checkSize} -- 已出成绩:${list.size}")
                 return@launch
             }
             //冗余数据，超过了测试次数
@@ -588,15 +586,24 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
                 override fun onFinish() {
                     //结束运动
-                    for (i in resultStatusList.indices) {
-                        if (resultStatusList[i].not()) {
-                            //未完成
-                            sportResultLd.value = i + 1 to -200
-                        }
-                        resultStatusList[i] = true
-                    }
+                    finishWithTimeout()
                 }
             }.start()
+        }
+    }
+
+    private fun finishWithTimeout() {
+        for (i in resultStatusList.indices) {
+            val index = i + 1
+            val person = sportPersonArray.get(index)
+            if (person != null) {
+                if (resultStatusList[i].not()) {
+                    //未完成
+                    LogUtil.d("${person.number}道未完成=============")
+                    sportResultLd.value = index to -200
+                }
+                resultStatusList[i] = true
+            }
         }
     }
 
@@ -687,6 +694,9 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         isRetest = true
         sportPersonArray.forEach { index, result ->
             result.count = -1000
+        }
+        for (ind in resultStatusList.indices){
+            resultStatusList[ind] = false
         }
         sportTimes = 1
         currentSportTimes = 1

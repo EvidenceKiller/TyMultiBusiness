@@ -76,6 +76,9 @@ class SitReachSixSettingActivity :
 
     private var isModelLoadOk = false
 
+    //板子几个点
+    private var boardNum = 8
+
     private lateinit var controller: SitAndReachController
 
     private val cameraDispatcher by lazy {
@@ -203,7 +206,7 @@ class SitReachSixSettingActivity :
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = 8
+        sitAndReachType.boardNum = boardNum
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
@@ -300,7 +303,7 @@ class SitReachSixSettingActivity :
     }
 
     private fun initCamera() {
-        cameraDispatcher.setMirror(true)
+//        cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
                 controller.onFrame(yuv, previewInfo)
@@ -390,7 +393,7 @@ class SitReachSixSettingActivity :
             }
         })
         mBinding.sitAndReachLayout.cameraPreviewView.addFrameProcessor(cameraDispatcher)
-        mBinding.sitAndReachLayout.cameraPreviewView.textureView.scaleX = -1f
+//        mBinding.sitAndReachLayout.cameraPreviewView.textureView.scaleX = -1f
     }
 
     /**

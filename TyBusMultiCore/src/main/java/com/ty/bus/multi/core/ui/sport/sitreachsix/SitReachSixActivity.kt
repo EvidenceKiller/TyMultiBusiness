@@ -66,8 +66,8 @@ class SitReachSixActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
 
-    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
+        val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -82,6 +82,9 @@ class SitReachSixActivity :
     private var uiConfig: FFlexionRoleConfig? = null
     private var isModelOk = false //模型是否加载成功
     private var isInit = false //是否开始流程
+
+    //板子几个点
+    private var boardNum = 8
 
     private val cameraDispatcher by lazy {
         DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
@@ -183,7 +186,7 @@ class SitReachSixActivity :
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = 8
+        sitAndReachType.boardNum = boardNum
         config.sitAndReachType = sitAndReachType
         config.debug = true
         config.enableRecordVideo = false
@@ -224,23 +227,25 @@ class SitReachSixActivity :
                 viewModel.handleResult(sitAndReachObjectList)
                 val sb = StringBuilder()
                 for (obj in sitAndReachObjectList) {
-                    sb.append("道次: ").append(obj.getIndexNum())
-                        .append("  方向: ").append(obj.getDirection())
-                        .append("  成绩: ").append(obj.getDistanceMax())
-                        .append("  成绩Live: ").append(obj.getDistanceLive())
-                        .append("  手部: ").append(obj.getFingerDistance())
-                        .append("  双手水平: ")
-                        .append(if (obj.getHandParallel()) "达标" else "未水平")
-                        .append("  腿部位置: ")
-                        .append(if (obj.getFootPosition()) "达标" else "未在指定位置")
-                        .append("  双腿伸直: ")
-                        .append(if (obj.getLegParallel()) "达标" else "未伸直")
-                        .append("\n")
+                    if (obj.skeleton != null){
+                        sb.append("道次: ").append(obj.getIndexNum())
+                            .append("  方向: ").append(obj.getDirection())
+                            .append("  成绩: ").append(obj.getDistanceMax())
+                            .append("  成绩Live: ").append(obj.getDistanceLive())
+                            .append("  手部: ").append(obj.getFingerDistance())
+                            .append("  双手水平: ")
+                            .append(if (obj.getHandParallel()) "达标" else "未水平")
+                            .append("  腿部位置: ")
+                            .append(if (obj.getFootPosition()) "达标" else "未在指定位置")
+                            .append("  双腿伸直: ")
+                            .append(if (obj.getLegParallel()) "达标" else "未伸直")
+                            .append("\n")
+                    }
                 }
 
-//                AdlExecutor.postUI(Runnable {
-//                    LogUtil.d(sb.toString().trim { it <= ' ' })
-//                })
+                AdlExecutor.postUI(Runnable {
+                    LogUtil.d(sb.toString().trim { it <= ' ' })
+                })
             }
 
             override fun onMessage(resultCodeType: ResultCodeType?) {
@@ -368,7 +373,7 @@ class SitReachSixActivity :
     }
 
     private fun initCamera() {
-        cameraDispatcher.setMirror(true)
+//        cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
         cameraDispatcher.addFrameProcessor(object : AdlCameraFrameProcessor {
             override fun onFrame(yuv: ByteArray?, previewInfo: AdlCameraPreviewInfo) {
@@ -392,7 +397,6 @@ class SitReachSixActivity :
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = true
         ipcHik = hikSubConfig
-            .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
                 ip,
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
@@ -477,7 +481,7 @@ class SitReachSixActivity :
             }
         })
         mBinding.sitAndReachLayout.cameraPreviewView.addFrameProcessor(cameraDispatcher)
-        mBinding.sitAndReachLayout.cameraPreviewView.textureView.scaleX = -1f
+//        mBinding.sitAndReachLayout.cameraPreviewView.textureView.scaleX = -1f
     }
 
     private fun setCameraTips(text: String) {
