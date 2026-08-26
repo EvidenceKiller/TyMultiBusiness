@@ -44,6 +44,7 @@ import com.ty.sport.common.basic.bean.Point
 import com.ty.sport.common.sport.processor.SportConfig
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -187,7 +188,7 @@ class SitReachSixSettingActivity :
     private fun updateOverlay() {
         mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
         controller.reset()
-        controller.initPlayGround()
+//        controller.initPlayGround()
     }
 
     private fun initConfigAndController() {
@@ -200,7 +201,7 @@ class SitReachSixSettingActivity :
             if (streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
         mBinding.sitAndReachLayout.setInputSource(sourceType)
         val config = SitAndReachControllerConfig()
-        config.drawSkeleton = true
+        config.drawSkeleton = BusiBaseConfig.getSkeletonEnable()
         config.inputSource = sourceType
 
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
@@ -208,7 +209,7 @@ class SitReachSixSettingActivity :
         sitAndReachType.num = diskNum
         sitAndReachType.boardNum = boardNum
         config.sitAndReachType = sitAndReachType
-        config.debug = true
+        config.debug = BusiBaseConfig.getDebugEnable()
         config.enableRecordVideo = false
         config.needSetUI = true
         controller = SitAndReachController(config, mBinding.sitAndReachLayout)
@@ -220,7 +221,6 @@ class SitReachSixSettingActivity :
                         msg, Toast.LENGTH_SHORT
                     ).show()
                 })
-                controller.prepare()
             }
 
             override fun onModelState(isSuccess: Boolean) {
@@ -231,7 +231,6 @@ class SitReachSixSettingActivity :
                     ).show()
                 })
                 isModelLoadOk = true
-                controller.initPlayGround()
                 hideLoadingDialog()
             }
 
@@ -241,6 +240,7 @@ class SitReachSixSettingActivity :
             override fun onMessage(resultCodeType: ResultCodeType?) {
             }
         }
+        controller.combineLayout()
     }
 
     private fun initVideoView() {
@@ -402,13 +402,14 @@ class SitReachSixSettingActivity :
     private fun changeResolution() {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 14)
     }
 
     private fun startMat() {
         // 运动配置
 //        controller.reset()
-        updateOverlay()
+        controller.initPlayGround()
+//        updateOverlay()
     }
 
     private fun releaseModel() {

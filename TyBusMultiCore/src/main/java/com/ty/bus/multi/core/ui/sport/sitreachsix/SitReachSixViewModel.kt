@@ -52,7 +52,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     var ffSportConfig: ForwardFlexionConfig? = null
 
-    private val previewSize = 1920 to 1080
+    private val previewSize = 2560 to 1440
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
 
@@ -109,7 +109,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     private val recordProcess = object : AdlCameraFrameProcessor {
         override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-            videoRecorder.inputNv21(p0, System.currentTimeMillis().toString())
+            videoRecorder.inputNv21(p0, "")
         }
     }
 

@@ -165,21 +165,22 @@ class SitReachSixActivity :
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
+        val debug = BusiBaseConfig.getDebugEnable()
         showLoadingDialog(getString(R.string.model_loding))
         val sourceType =
             if (viewModel.streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
         mBinding.sitAndReachLayout.setInputSource(sourceType)
         val config = SitAndReachControllerConfig()
-        config.drawSkeleton = true
+        config.drawSkeleton = BusiBaseConfig.getSkeletonEnable()
         config.inputSource = sourceType
         config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
         val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
         sitAndReachType.num = diskNum
         sitAndReachType.boardNum = boardNum
         config.sitAndReachType = sitAndReachType
-        config.debug = true
+        config.debug = debug
         config.enableRecordVideo = false
-        config.needSetUI = true
+        config.needSetUI = false
         controller = SitAndReachController(config, mBinding.sitAndReachLayout)
         controller.callBack = object : SitAndReachCallBack {
             override fun onInitPlayGround(isSuccess: Boolean, msg: String?) {
@@ -490,7 +491,7 @@ class SitReachSixActivity :
     private fun changeResolution() {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 27, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 14)
     }
 
     private fun initOverlay() {
@@ -547,12 +548,13 @@ class SitReachSixActivity :
 //        runOnUiThread {
 //            mBinding.bntStart.performClick()
 //        }
-        if (viewModel.streamType == 1) {
-            mBinding.root.postDelayed({
-                controller.initPlayGround()
-            }, 500)
-//            viewModel.toStatusIdentifyFace()
-        }
+        controller.combineLayoutAndPrepare()
+//        if (viewModel.streamType == 1) {
+//            mBinding.root.postDelayed({
+//                controller.initPlayGround()
+//            }, 500)
+        viewModel.toStatusIdentifyFace()
+//        }
     }
 
 
