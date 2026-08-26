@@ -1,6 +1,5 @@
 package com.ty.bus.multi.core.ui.sport.sitreachsix
 
-import android.graphics.ImageFormat
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -20,11 +19,7 @@ import com.adl.lib.AdlCameraListener
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
-import com.adl.mount.core.TsModelInfo
-import com.adl.mount.core.TsModelResGroup
 import com.adl.mount.core.TsModelResPool
-import com.adl.mount.core.TsModelResPool.OnLoadModelCallbackSample
-import com.adl.processor.SportProcessorStatus
 import com.adl.sport.ballBase.ResultCodeType
 import com.adl.sport.controllers.sitandreach.SitAndReachCallBack
 import com.adl.sport.controllers.sitandreach.SitAndReachController
@@ -47,14 +42,8 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
-import com.ty.tybusbase.utils.DeviceUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
-import com.ty.tybusbase.utils.ToastUtil
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 
 class SitReachSixActivity :
@@ -66,7 +55,7 @@ class SitReachSixActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
 
-        val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
 //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
 
     /***************************视频播放调试*************************/
@@ -227,7 +216,7 @@ class SitReachSixActivity :
                 viewModel.handleResult(sitAndReachObjectList)
                 val sb = StringBuilder()
                 for (obj in sitAndReachObjectList) {
-                    if (obj.skeleton != null){
+                    if (obj.skeleton != null) {
                         sb.append("道次: ").append(obj.getIndexNum())
                             .append("  方向: ").append(obj.getDirection())
                             .append("  成绩: ").append(obj.getDistanceMax())
@@ -342,6 +331,7 @@ class SitReachSixActivity :
         //一次测试完毕
         viewModel.testOnceFinishLD.observe(this) {
 //            controller.reset()
+            stopRecording()
             viewModel.uploadResult()
         }
 
@@ -598,7 +588,13 @@ class SitReachSixActivity :
     private fun startRecording() {
         if (viewModel.streamType == 1) {
             viewModel.videoFile = null
-            val file = viewModel.getVideoPath(viewModel.sportInfo?.sportSkuId)
+            viewModel.startRecord(cameraDispatcher)
+        }
+    }
+
+    private fun stopRecording() {
+        if (viewModel.streamType == 1) {
+            viewModel.stopRecord(cameraDispatcher)
         }
     }
 

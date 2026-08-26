@@ -11,6 +11,8 @@ import androidx.core.util.forEach
 import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.adl.lib.AdlCameraFrameProcessor
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlYUVUtil
 import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.SportRecordEntity
@@ -27,6 +29,7 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportStatusEnum
+import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
@@ -48,6 +51,8 @@ import kotlin.math.max
 class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
 
     var ffSportConfig: ForwardFlexionConfig? = null
+
+    private val previewSize = 1920 to 1080
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
 
@@ -101,6 +106,12 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
 
     private var isRetest = false //是否为重测
+
+    private val recordProcess = object : AdlCameraFrameProcessor {
+        override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
+            videoRecorder.inputNv21(p0, System.currentTimeMillis().toString())
+        }
+    }
 
     fun initData() {
         val diskNum = MMKVUtil.decodeInt(
@@ -299,6 +310,22 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         viewModelScope.launch(Dispatchers.IO) {
             handlePrepareStatus(map)
         }
+    }
+
+    fun startRecord(cameraDispatcher: DynamicSportFrameDispatcher) {
+        getVideoPath(sportInfo!!.sportSkuId)
+        if (videoRecorder.isStarting) {
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            videoRecorder.onStart(videoFile, previewSize.first, previewSize.second)
+            cameraDispatcher.addFrameProcessor(recordProcess)
+        }
+    }
+
+    fun stopRecord(cameraDispatcher: DynamicSportFrameDispatcher) {
+        videoRecorder.onStop()
+        cameraDispatcher.removeFrameProcessor(recordProcess)
     }
 
     /**
@@ -695,7 +722,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         sportPersonArray.forEach { index, result ->
             result.count = -1000
         }
-        for (ind in resultStatusList.indices){
+        for (ind in resultStatusList.indices) {
             resultStatusList[ind] = false
         }
         sportTimes = 1
