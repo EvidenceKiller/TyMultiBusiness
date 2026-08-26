@@ -103,7 +103,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     private lateinit var multiSportParser: MultiSportParser<*>
     private val recordProcess = object : AdlCameraFrameProcessor {
         override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
-            videoRecorder.inputNv21(p0, System.currentTimeMillis().toString())
+            videoRecorder.inputNv21(p0, "")
         }
     }
 
