@@ -8,6 +8,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.identify.MultiIdentifyMachineListener
 import com.ty.tybusbase.identify.MultiPipelineIdentityEngine
+import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 
 open class BaseMultiPipelineIdentifyViewModel(application: Application) :
@@ -27,7 +28,7 @@ open class BaseMultiPipelineIdentifyViewModel(application: Application) :
                 BusiBaseConstantsValue.DEFAULT_VISITOR_MODULE
             ) && matchId == null
         multiIdentityEngine.visitorAble = visitor
-        FaceDetectorHelper.getInstance().setFrameInterval(2)
+        FaceDetectorHelper.getInstance().setFrameInterval(1)
         multiIdentityEngine.openMachine(object : MultiIdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 
@@ -61,11 +62,9 @@ open class BaseMultiPipelineIdentifyViewModel(application: Application) :
      * 识别成功，共上层业务逻辑实现
      */
     open fun identifyOk(index: Int, accountInfo: AccountInfo) {
-
     }
 
     open fun identifyFail(index: Int) {
-
     }
 
     override fun onDestroy() {

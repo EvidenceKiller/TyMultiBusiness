@@ -328,7 +328,6 @@ object RecordUploadHelper {
         //游客使用游客接口上传成绩
         val uploadRecord =
             if (TextUtils.isEmpty(sportRecordEntity.accountId) || sportRecordEntity.accountId == BusiBaseConstantsValue.VISITOR_USER_ID) {
-                sportRecordEntity.sportCount = sportRecordEntity.sportResult
                 SportRecordService.uploadCustomRecord(sportRecordEntity)
             } else {
                 SportRecordService.uploadRecord(sportRecordEntity)

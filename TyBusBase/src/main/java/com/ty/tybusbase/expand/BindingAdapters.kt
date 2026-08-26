@@ -4,6 +4,7 @@ import android.widget.ImageView
 import androidx.databinding.BindingAdapter
 import androidx.lifecycle.LiveData
 import com.bumptech.glide.Glide
+import com.ty.tybusbase.R
 
 /**
  * 自定义BindingAdapter，用于处理图片资源的绑定
@@ -16,6 +17,13 @@ fun setImageResource(imageView: ImageView, resId: Int) {
 @BindingAdapter("android:glideSrc")
 fun setImageResourceWithGlide(imageView: ImageView, resId: String?) {
     Glide.with(imageView.context).load(resId).into(imageView)
+}
+
+@BindingAdapter("android:glideHeader")
+fun setImageHeaderWithGlide(imageView: ImageView, resId: String?) {
+    Glide.with(imageView.context).load(resId)
+        .error(R.mipmap.ic_head_default)
+        .into(imageView)
 }
 
 /**
