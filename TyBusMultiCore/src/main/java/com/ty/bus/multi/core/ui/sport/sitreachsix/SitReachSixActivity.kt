@@ -57,7 +57,7 @@ class SitReachSixActivity :
 
 //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
 //    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175148/1601010001_1787737908925.mp4"
-    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175121/1601010001_1787737881518.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/app/20260827/1601010001/00000000000000000000000000000000/171408/1601010001_1787822048044.mp4"
 //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
 
     /***************************视频播放调试*************************/
