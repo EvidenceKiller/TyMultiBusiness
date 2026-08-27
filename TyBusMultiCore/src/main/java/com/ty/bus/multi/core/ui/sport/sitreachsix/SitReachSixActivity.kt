@@ -55,7 +55,9 @@ class SitReachSixActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
 
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+//    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175148/1601010001_1787737908925.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175121/1601010001_1787737881518.mp4"
 //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
 
     /***************************视频播放调试*************************/
@@ -208,7 +210,7 @@ class SitReachSixActivity :
             }
 
             override fun onResult(sitAndReachObjectList: MutableList<SitAndReachObject>?) {
-                if (sitAndReachObjectList == null || sitAndReachObjectList.isEmpty()) {
+                if (sitAndReachObjectList.isNullOrEmpty()) {
                     LogUtil.d("sitAndReachObjectList 为空")
                     return
                 }
@@ -239,12 +241,7 @@ class SitReachSixActivity :
             }
 
             override fun onMessage(resultCodeType: ResultCodeType?) {
-                AdlExecutor.postUI(Runnable {
-                    Toast.makeText(
-                        this@SitReachSixActivity,
-                        "消息: " + resultCodeType, Toast.LENGTH_SHORT
-                    ).show()
-                })
+                LogUtil.d("消息: $resultCodeType")
             }
         }
     }
@@ -487,11 +484,12 @@ class SitReachSixActivity :
 
     /**
      * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
+     * 30帧
      */
     private fun changeResolution() {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 18)
     }
 
     private fun initOverlay() {
