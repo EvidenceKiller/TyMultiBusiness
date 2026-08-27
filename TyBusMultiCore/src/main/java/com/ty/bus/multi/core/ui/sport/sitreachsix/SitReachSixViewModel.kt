@@ -481,14 +481,12 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     }
 
     private fun checkHandUp(skeleton: AdlPoseSkeleton?): Boolean {
-//        if (it.isNullOrEmpty() || it.size < 8) return false
-//        val header = it[0]
-//        val lShouder = it[2]
-//        val rShouder = it[3]
-//        val lWrist = it[6]
-//        val rWrist = it[7]
-//        return lWrist.y < header.y
-        return true
+        val lWrist = skeleton?.lWrist
+        val lShoulder = skeleton?.lShoulder
+        val rWrist = skeleton?.rWrist
+        val rShoulder = skeleton?.rShoulder
+        if (lWrist == null || lShoulder == null || rWrist == null || rShoulder == null) return false
+        return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
     }
 
     fun getIdentityRect(it: SitAndReachObject?): Rect {
