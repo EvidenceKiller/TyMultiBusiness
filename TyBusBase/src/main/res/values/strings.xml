@@ -1,6 +1,8 @@
 <resources>
     <string name="disappear_after_s">s后消失</string>
 
+    <string name="landing_point_calibration">落点标定</string>
+
     <string name="loading">加载中......</string>
 
     <string name="notice_exit">确定结束运动吗？</string>

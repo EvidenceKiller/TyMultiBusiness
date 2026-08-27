@@ -52,6 +52,7 @@ import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
+import com.ty.tybusbase.view.DirectionPadView
 
 
 class SitReachSixSettingActivity :
@@ -113,6 +114,10 @@ class SitReachSixSettingActivity :
         mBinding.tvTime.text = testTimes.toString()
 
         mBinding.llBack.setOnClickListener { finish() }
+
+        mBinding.tvShowMat.setOnClickListener {
+            controller.combineLayoutAndPrepare()
+        }
 
         mBinding.tvAutoMat.setOnClickListener {
             if (isModelLoadOk.not()) {
@@ -183,6 +188,30 @@ class SitReachSixSettingActivity :
             initVideo()
             initVideoView()
         }
+
+        initMoveBtn()
+    }
+
+    private val dxStep = 2
+    private fun initMoveBtn() {
+        mBinding.directView.setOnDirectionClickListener(object: DirectionPadView.OnDirectionClickListener{
+            override fun onMoveUp() {
+                mBinding.sitAndReachLayout.markerRecognizerOverlay.moveSelectedPoint(0,-dxStep)
+            }
+
+            override fun onMoveDown() {
+                mBinding.sitAndReachLayout.markerRecognizerOverlay.moveSelectedPoint(0,dxStep)
+            }
+
+            override fun onMoveLeft() {
+                mBinding.sitAndReachLayout.markerRecognizerOverlay.moveSelectedPoint(-dxStep,0)
+            }
+
+            override fun onMoveRight() {
+                mBinding.sitAndReachLayout.markerRecognizerOverlay.moveSelectedPoint(dxStep,0)
+            }
+
+        })
     }
 
     private fun updateOverlay() {

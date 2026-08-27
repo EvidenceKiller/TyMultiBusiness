@@ -9,6 +9,7 @@
     <string name="violations">违规</string>
     <string name="un_do">未完成</string>
     <string name="forward_flexion">坐位体前屈</string>
+    <string name="sit_reach_six_direction_title">选中后点击按钮微调</string>
 
     <string name="forward_flexion_start_speech">开始测试，请双手缓慢向前滑行推动</string>
     <string name="forward_flexion_times_start_speech">第%d次测试，请双手缓慢向前滑行推动</string>
@@ -20,6 +21,7 @@
     <string name="forward_flexion_set_tip">请调整红框大小和位置，与实际刻度板对齐</string>
 
     <string name="forward_flexion_auto_mat">自动识别刻度板</string>
+    <string name="forward_flexion_show_mat">显示刻度板</string>
     <string name="forward_flexion_auto_mat_fail">识别失败</string>
     <string name="forward_flexion_auto_mat_success">识别成功</string>
 

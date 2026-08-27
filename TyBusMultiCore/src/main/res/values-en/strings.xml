@@ -17,6 +17,7 @@
     <string name="next_group">下一组</string>
     <string name="forward_flexion_prepare_tip">请面向刻度双脚伸直准备</string>
     <string name="forward_flexion_auto_mat">自动识别刻度板</string>
+    <string name="forward_flexion_show_mat">显示刻度板</string>
     <string name="forward_flexion_auto_mat_fail">识别失败</string>
     <string name="forward_flexion_auto_mat_success">识别成功</string>
     <string name="forward_flexion_model_load_complete">模型加载完成</string>

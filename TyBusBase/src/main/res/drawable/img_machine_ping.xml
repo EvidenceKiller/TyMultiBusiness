@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
+    <!-- 顶部镜头外圈 -->
+    <path
+        android:fillColor="#80FFFFFF"
+        android:pathData="M100,54m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+    <!-- 顶部镜头内圈 -->
+    <path
+        android:fillColor="#4DFFFFFF"
+        android:pathData="M100,54m-15,0a15,15 0,1 1,30 0a15,15 0,1 1,-30 0" />
+    <!-- 机身 -->
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M62,84 H138 V136 H62 Z" />
+    <!-- 机身分隔线 -->
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M38,136 H162 V144 H38 Z" />
+    <!-- 底座 -->
+    <path
+        android:fillColor="#4DFFFFFF"
+        android:pathData="M50,144 H150 V156 H50 Z" />
+    <!-- 支架 -->
+    <path
+        android:fillColor="#66FFFFFF"
+        android:pathData="M72,156 H128 V172 H72 Z" />
+</vector>

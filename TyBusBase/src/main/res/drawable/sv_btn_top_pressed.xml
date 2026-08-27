@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="104dp"
+    android:height="104dp"
+    android:viewportWidth="104"
+    android:viewportHeight="104">
+    <!-- 按压态：圆形半透明背景变暗 -->
+    <path
+        android:fillColor="#33FFFFFF"
+        android:pathData="M52,52m-52,0a52,52 0,1 1,104 0a52,52 0,1 1,-104 0" />
+    <!-- 上箭头（按压态变暗） -->
+    <path
+        android:fillColor="#CCFFFFFF"
+        android:pathData="M52,22 L74,52 H60 V80 H44 V52 H30 Z" />
+</vector>
