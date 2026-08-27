@@ -427,11 +427,12 @@ class SitReachSixSettingActivity :
 
     /**
      * 设置摄像头分辨率；re:64(3840X2440), 27(1920x1080),70(2560X1440)
+     * 22帧
      */
     private fun changeResolution() {
         val deviceItem = ipcHik.deviceItem
         if (deviceItem.m_lUserID == -1) return
-        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 14)
+        DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, 70, 26, 16)
     }
 
     private fun startMat() {
