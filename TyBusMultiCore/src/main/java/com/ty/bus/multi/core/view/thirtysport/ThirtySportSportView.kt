@@ -3,10 +3,7 @@ package com.ty.bus.multi.core.view.thirtysport
 import android.content.Context
 import android.util.AttributeSet
 import android.view.LayoutInflater
-import android.view.View
 import android.widget.TextView
-import com.ty.tybusbase.expand.Action
-import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
 import com.ty.bus.multi.databinding.ThirtySportSportViewBinding
 
@@ -15,9 +12,10 @@ class ThirtySportSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    var startNowCallback: Action? = null
-
     private val mBinding: ThirtySportSportViewBinding
+
+    private var countDownNoticeTv: TextView? = null
+    private var countDownGoTv: TextView? = null
 
     init {
         mBinding = ThirtySportSportViewBinding.inflate(LayoutInflater.from(context), this, true)
@@ -35,43 +33,18 @@ class ThirtySportSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         cardMap[7] = mBinding.sportView8
         cardMap[8] = mBinding.sportView9
         cardMap[9] = mBinding.sportView10
-        mBinding.tvStartNow.setOnClickListener {
-            startNowCallback?.invoke()
-        }
     }
 
-    override fun getCountDownNoticeTv(): TextView = mBinding.tvCountDownNotice
-
-    override fun getCountDownGoTv(): TextView = mBinding.tvCountDownGo
-    override fun changeTimeTextBg(res: Int) {
-        mBinding.llTime.setBackgroundResource(R.mipmap.pic_time_warm_more)
+    /**
+     * 绑定Activity层统一管理的倒计时提示/大数字TextView。
+     * 倒计时、开始按钮、提示文案属于整个运动，由Activity持有，各区域面板共享引用。
+     */
+    fun bindCountDownViews(noticeTv: TextView, goTv: TextView) {
+        countDownNoticeTv = noticeTv
+        countDownGoTv = goTv
     }
 
-    override fun updateTime(time: String) {
-        mBinding.tvTime.text = time
-    }
+    override fun getCountDownNoticeTv(): TextView = countDownNoticeTv ?: TextView(context)
 
-    override fun setCountDownNotice(notice: String) {
-        super.setCountDownNotice(notice)
-        mBinding.tvStartNow.visibility = VISIBLE
-    }
-
-    override fun readyGo(block: Action) {
-        super.readyGo(block)
-        mBinding.tvStartNow.visibility = GONE
-    }
-
-    fun visibilityStartBtn(visibility: Int){
-        mBinding.tvStartNow.visibility = visibility
-    }
-
-    override fun onStarted() {
-        super.onStarted()
-        mBinding.llTime.visibility = VISIBLE
-    }
-
-    override fun reset() {
-        super.reset()
-        mBinding.llTime.visibility = GONE
-    }
+    override fun getCountDownGoTv(): TextView = countDownGoTv ?: TextView(context)
 }

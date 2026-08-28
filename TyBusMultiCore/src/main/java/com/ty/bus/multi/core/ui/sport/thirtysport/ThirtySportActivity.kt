@@ -146,7 +146,11 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         initAreaViews()
 
-        mBinding.sportViewMain.startNowCallback = {
+        //倒计时、开始按钮、提示文案属于整个运动，统一由Activity管理，各区域面板共享引用
+        listOf(mBinding.sportViewMain, mBinding.sportViewLeft, mBinding.sportViewRight)
+            .forEach { it.bindCountDownViews(mBinding.tvCountDownNotice, mBinding.tvCountDownGo) }
+
+        mBinding.tvStartNow.setOnClickListener {
             startDialog = CommonTipDialog().setCallback {
                 //如果是运动会模式，则切到准备状态
                 if (viewModel.thirtySportConfig?.sportModel == SportModel.MEETING) {
@@ -168,9 +172,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         mBinding.sportViewRight.setSportStartedText(viewModel.thirtySportConfig?.sportStartText)
 
         if (viewModel.thirtySportConfig?.sportModel == SportModel.MEETING) {
-            mBinding.sportViewMain.visibilityStartBtn(View.VISIBLE)
-            mBinding.sportViewLeft.visibilityStartBtn(View.VISIBLE)
-            mBinding.sportViewRight.visibilityStartBtn(View.VISIBLE)
+            mBinding.tvStartNow.visibility = View.VISIBLE
         }
         if (viewModel.streamType == 2) {
             mBinding.groupVideo.visible()
@@ -410,18 +412,24 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.countDownNoticeLD.observe(this) {
+            //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
             val configText = viewModel.thirtySportConfig?.countdownText
             val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${it.second}" else "${
                 com.ty.tybusbase.expand.getString(
                     R.string.race_start_countdown
                 )
             }：${it.second}"
-            getAreaSportViewByDisplay(it.first).setCountDownNotice(str)
+            mBinding.tvCountDownNotice.text = str
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
+            mBinding.tvStartNow.visibility = View.VISIBLE
         }
 
         viewModel.countDownFinishLD.observe(this) {
             startDialog?.dismiss()
+            //竞技开始，隐藏开始按钮，显示运动倒计时时间栏
+            mBinding.tvStartNow.visibility = View.GONE
             getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
+                mBinding.llTime.visibility = View.VISIBLE
                 //左右副屏：只有已加入协同的才进入运动状态
                 if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
                     getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
@@ -434,7 +442,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.sportCountDownLD.observe(this) {
-            getAreaSportViewByDisplay(it.first).updateTime(it.second)
+            //运动倒计时属于整个运动，统一在Activity层更新时间栏
+            mBinding.tvTime.text = it.second
         }
 
         viewModel.toDoneLD.observe(this) {
@@ -444,7 +453,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.changeTimeTextBgLD.observe(this) {
-            getAreaSportViewByDisplay(it.first).changeTimeTextBg(it.second)
+            //时间栏背景属于整个运动，统一在Activity层设置
+            mBinding.llTime.setBackgroundResource(R.mipmap.pic_time_warm_more)
         }
 
         viewModel.timeOutLD.observe(this) {
@@ -529,6 +539,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         mBinding.sportViewMain.reset()
         mBinding.sportViewLeft.reset()
         mBinding.sportViewRight.reset()
+        mBinding.llTime.visibility = View.GONE
         viewModel.reset()
     }
 
