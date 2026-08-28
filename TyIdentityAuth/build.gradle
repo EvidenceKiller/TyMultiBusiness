@@ -23,6 +23,17 @@ android {
     }
 }
 
+def versionName = android.defaultConfig.versionName
+def date = new Date().format('yyyy-MM-dd')
+
+tasks.register("sourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    destinationDirectory.set(layout.buildDirectory.dir("outputs/sources"))
+    archiveFileName.set("ZDZ-Identify-${versionName}-${date}-sources.jar")
+    from(android.sourceSets.main.java.srcDirs)
+    from(android.sourceSets.main.kotlin.srcDirs)
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar', '*.aar'])
 
