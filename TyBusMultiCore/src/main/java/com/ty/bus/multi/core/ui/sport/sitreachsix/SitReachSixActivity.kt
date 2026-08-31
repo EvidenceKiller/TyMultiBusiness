@@ -55,10 +55,11 @@ class SitReachSixActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
 
-//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
+    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
 //    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175148/1601010001_1787737908925.mp4"
-    val videoFilePath = "/sdcard/com.adl.sport/app/20260827/1601010001/00000000000000000000000000000000/190409/1601010001_1787828649624.mp4"
-//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
+    val videoFilePath =
+        "/sdcard/com.adl.sport/app/20260831/1601010001/00000000000000000000000000000000/112349/1601010001_1788146629491.mp4"
+//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -231,6 +232,7 @@ class SitReachSixActivity :
                             .append(if (obj.getFootPosition()) "达标" else "未在指定位置")
                             .append("  双腿伸直: ")
                             .append(if (obj.getLegParallel()) "达标" else "未伸直")
+                            .append(" 运动是否结束：${obj.state.name}")
                             .append("\n")
                     }
                 }
@@ -295,6 +297,9 @@ class SitReachSixActivity :
                 info.frameTimestamp = frameTime
                 info.imageId = frameTime.toString()
                 controller.onFrame(yuv, info)
+                yuv?.let {
+                    viewModel.onceCacheProcessor.onFrame(yuv, info)
+                }
             }
 
             override fun onComplete() {

@@ -64,7 +64,7 @@ class SitReachSixSettingActivity :
     var frameTime: Long = 0
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sit6人_1080p.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
     val streamType = 1 //1:camera , 2: video
 
     /***************************视频播放调试*************************/
