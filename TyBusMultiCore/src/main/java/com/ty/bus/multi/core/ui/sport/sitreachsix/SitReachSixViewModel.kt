@@ -354,7 +354,11 @@ class SitReachSixViewModel(application: Application) :
     private fun updateStatusMap(objects: MutableList<SitAndReachObject>) {
         statusMap.clear()
         objects.forEach {
-            statusMap.put(it.indexNum, true)
+            if (it.skeleton != null) {
+                statusMap.put(it.indexNum, true)
+            }else{
+                changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
+            }
         }
     }
 
@@ -448,8 +452,8 @@ class SitReachSixViewModel(application: Application) :
         val rWrist = skeleton?.rWrist
         val rShoulder = skeleton?.rShoulder
         if (lWrist == null || lShoulder == null || rWrist == null || rShoulder == null) return false
-//        return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
-        return true
+        return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
+//        return true
     }
 
     fun getIdentityRect(it: SitAndReachObject?): Rect {
