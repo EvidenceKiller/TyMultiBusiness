@@ -191,8 +191,8 @@ class SportCardSportView(context: Context, attrs: AttributeSet?, defStyleAttr: I
      */
     fun toIdentifying() {
         state = MultiSportCardViewState.IDENTIFYING
-        mBinding.rlIdentityNotice.visibility = VISIBLE
-        mBinding.progressView.setProgress(10f)
+//        mBinding.rlIdentityNotice.visibility = VISIBLE
+//        mBinding.progressView.setProgress(10f)
         tickTimes = 0f
 //        identifyingTimer.start()
         mBinding.clGr.visibility = INVISIBLE
