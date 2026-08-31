@@ -18,4 +18,10 @@ object GrpcCmdCode {
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x30
+
+    //已识别多少人 payload = GrpcSportIdentifiedCount
+    const val CMD_SPORT_IDENTIFIED_COUNT = 0x31
+
+    //清除已识别的信息 payload = ""
+    const val CMD_CLEAR_IDENTIFY_INFO = 0x32
 }

@@ -98,10 +98,10 @@ class MultiPipelineIdentityEngine {
         if (identifyInfo.isOk) return
         //如果阈值大于设定的靠谱值，直接返回成功
         if (score >= successThresholds) {
-            identifyInfo.isOk = true
             val studentEntity =
                 AdlService.getService().studentDao.queryStudentByAccountId(userId)
             if (studentEntity != null) {
+                identifyInfo.isOk = true
                 identityFinish(index, studentEntity)
                 return
             }
@@ -125,10 +125,10 @@ class MultiPipelineIdentityEngine {
                 }
             }
             if (matchUserId != null) {
-                identifyInfo.isOk = true
                 val studentEntity =
                     AdlService.getService().studentDao.queryStudentByAccountId(userId)
                 if (studentEntity != null) {
+                    identifyInfo.isOk = true
                     identityFinish(index, studentEntity)
                     return
                 }

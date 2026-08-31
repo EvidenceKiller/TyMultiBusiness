@@ -64,6 +64,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private lateinit var srrvResult: ThirtySportResultView
     private val number = 10
     private var startDialog: CommonTipDialog? = null
+    /** "是否清空已识别结果"对话框（协同识别计数提示，展示期间内容可动态更新） */
+    private var clearIdentifyDialog: CommonTipDialog? = null
 
     private var currentArea = DisplayType.MAIN
     private var leftIdentifiedCount = 0
@@ -411,6 +413,11 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
         }
 
+        //协同已识别人数变化：弹窗展示或更新"是否清空已识别结果"提示
+        viewModel.identifiedCountLD.observe(this) {
+            showOrUpdateClearIdentifyDialog()
+        }
+
         viewModel.countDownNoticeLD.observe(this) {
             //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
             val configText = viewModel.thirtySportConfig?.countdownText
@@ -541,6 +548,46 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         mBinding.sportViewRight.reset()
         mBinding.llTime.visibility = View.GONE
         viewModel.reset()
+    }
+
+    /**
+     * 展示或更新"是否清空已识别结果"对话框。
+     * 可能左区先上报、右区后上报，或仅一端上报；对话框展示期间（含新用户到达）内容实时更新。
+     */
+    private fun showOrUpdateClearIdentifyDialog() {
+        val text = buildClearIdentifyText()
+        val dialog = clearIdentifyDialog
+        if (dialog != null && dialog.isAdded) {
+            dialog.updateContent(text)
+            return
+        }
+        clearIdentifyDialog = CommonTipDialog()
+            .setContent(text)
+            .setCallback {
+                //用户选择"是"：按需向已上报识别人数的区域发送清除指令
+                viewModel.confirmClearIdentifyInfo()
+                clearIdentifyDialog = null
+                //清空后刷新底部导航栏"已识别x人"文案
+                updateAreaTabs()
+            }
+            .setCancelCallback {
+                //用户选择"否"：关闭本次提示
+                viewModel.cancelClearIdentifyInfo()
+                clearIdentifyDialog = null
+            }
+        clearIdentifyDialog?.show(supportFragmentManager, "clear_identify")
+    }
+
+    private fun buildClearIdentifyText(): String {
+        val sb = StringBuilder()
+        viewModel.identifiedCountMap[DisplayType.LEFT]?.let {
+            sb.append("左区已识别${it}人，")
+        }
+        viewModel.identifiedCountMap[DisplayType.RIGHT]?.let {
+            sb.append("右区已识别${it}人，")
+        }
+        sb.append("是否清空已识别结果")
+        return sb.toString()
     }
 
     private fun getAreaSportViewByDisplay(displayType: DisplayType = DisplayType.MAIN) =

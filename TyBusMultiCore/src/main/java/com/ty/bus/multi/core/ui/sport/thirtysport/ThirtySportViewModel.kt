@@ -97,6 +97,7 @@ import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.grpc.GrpcCollaborationSportInfo
 import com.ty.tybusbase.grpc.GrpcCollaborationStatus
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
+import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
 import com.ty.tybusbase.grpc.GrpcSportResult
 
 /**
@@ -174,6 +175,11 @@ class ThirtySportViewModel(application: Application) :
     //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示
     private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
     val collaborationStateLD = MutableLiveData<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+
+    //协同已识别人数上报记录：区域 → 已识别人数（CMD_SPORT_IDENTIFIED_COUNT），用于"是否清空已识别结果"提示
+    val identifiedCountMap = mutableMapOf<DisplayType, Int>()
+    //已识别人数变化通知（弹窗展示/更新，含弹窗期间新用户到达的人数同步）
+    val identifiedCountLD = MutableLiveData<Unit>()
 
     /**
      * 更新单个区域协同状态，保留其他区域已有状态，避免互相覆盖
@@ -1393,6 +1399,7 @@ class ThirtySportViewModel(application: Application) :
         registerAccountInfo()
         registerResult()
         registerCollaborationStatus()
+        registerIdentifiedCount()
     }
 
     /**
@@ -1506,6 +1513,84 @@ class ThirtySportViewModel(application: Application) :
     }
 
     /**
+     * 注册已识别人数指令：客户端发起协同时，若已有识别成功的人员，上报已识别人数到服务端。
+     * 服务端据此弹出"左区已识别X人，右区已识别X人，是否清空已识别结果"提示。
+     */
+    private fun registerIdentifiedCount() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_IDENTIFIED_COUNT, GRPC_KEY) { data ->
+            val count = data.payload.toObject<GrpcSportIdentifiedCount>()?.count ?: 0
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            uiHandler.post {
+                if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
+                    LogUtil.d("收到${displayType.name}副屏已识别人数：$count")
+                    identifiedCountMap[displayType] = count
+                    identifiedCountLD.value = Unit
+                }
+            }
+        }
+    }
+
+    /**
+     * "是否清空已识别结果"弹窗展示期间，客户端有新用户指令（CMD_ACCOUNT_INFO）到达时，
+     * 同步累加该区域已识别人数，并通知界面更新弹窗内容。
+     */
+    private fun syncIdentifiedCountWhileTip(displayType: DisplayType) {
+        if (identifiedCountMap.containsKey(displayType)) {
+            identifiedCountMap[displayType] = (identifiedCountMap[displayType] ?: 0) + 1
+            identifiedCountLD.value = Unit
+        }
+    }
+
+    /**
+     * 用户确认清空：按需发送清除指令，只发给上报过已识别人数的区域（左区/右区），
+     * 并同步清空主屏本地对应区域数据、重置卡片状态。
+     */
+    fun confirmClearIdentifyInfo() {
+        identifiedCountMap.keys.forEach { displayType ->
+            val ip = when (displayType) {
+                DisplayType.LEFT -> leftSubScreenIp
+                DisplayType.RIGHT -> rightSubScreenIp
+                else -> null
+            }
+            val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
+            if (clientId != null) {
+                LogUtil.d("发送清除指令到${displayType.name}副屏：$ip")
+                GrpcManager.sendToClient(clientId, GrpcCmdCode.CMD_CLEAR_IDENTIFY_INFO, "", false, null, null)
+            }
+            clearSubScreenIdentifiedData(displayType)
+        }
+        identifiedCountMap.clear()
+    }
+
+    /**
+     * 用户取消清空：关闭本次提示，清空计数记录（本次提示处理结束）
+     */
+    fun cancelClearIdentifyInfo() {
+        identifiedCountMap.clear()
+    }
+
+    /**
+     * 主屏本地同步清空副屏区域已识别数据，并重置对应道次卡片为未识别状态
+     */
+    private fun clearSubScreenIdentifiedData(displayType: DisplayType) {
+        val personArray = when (displayType) {
+            DisplayType.LEFT -> leftPersonArray
+            DisplayType.RIGHT -> rightPersonArray
+            else -> return
+        }
+        val indexes = mutableListOf<Int>()
+        for (i in 0 until personArray.size()) {
+            indexes.add(personArray.keyAt(i))
+        }
+        personArray.clear()
+        uiHandler.post {
+            indexes.forEach { index ->
+                changeSportViewStateLD.value = displayType to (index to MultiSportCardViewState.NOBODY)
+            }
+        }
+    }
+
+    /**
      * 注册成绩指令接收
      */
     private fun registerResult() {
@@ -1548,6 +1633,8 @@ class ThirtySportViewModel(application: Application) :
                     DisplayType.LEFT -> {
                         leftPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.LEFT, info.index, account)
+                        //弹窗展示期间，新用户到达需同步已识别人数
+                        syncIdentifiedCountWhileTip(DisplayType.LEFT)
                         //副屏识别到人，统一检查协同开始条件
                         checkCollaborationSportStart()
                     }
@@ -1555,6 +1642,8 @@ class ThirtySportViewModel(application: Application) :
                     DisplayType.RIGHT -> {
                         rightPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.RIGHT, info.index, account)
+                        //弹窗展示期间，新用户到达需同步已识别人数
+                        syncIdentifiedCountWhileTip(DisplayType.RIGHT)
                         //副屏识别到人，统一检查协同开始条件
                         checkCollaborationSportStart()
                     }
