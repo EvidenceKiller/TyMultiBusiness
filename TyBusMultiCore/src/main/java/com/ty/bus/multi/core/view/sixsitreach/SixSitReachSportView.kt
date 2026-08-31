@@ -58,8 +58,8 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
     /**
      * 开始按钮
      */
-    private val countDownTime = 50000L
-    private var currentTime = 5
+    private val countDownTime = 10000L
+    private var currentTime = 10
     private var countDownTimer: CountDownTimer? = null
 
     init {
@@ -120,7 +120,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
             return
         }
         if (state == ForwardFlexionCardState.IDENTIFIED) {
-            currentTime = 5
+            currentTime = 10
             if (countDownTimer == null) {
                 mBinding.tvBegin.visibility = VISIBLE
                 countDownTimer = object : CountDownTimer(

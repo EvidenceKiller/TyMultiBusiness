@@ -18,26 +18,21 @@ import com.adl.lib.pose.AdlPoseSkeleton
 import com.adl.service.entity.SportRecordEntity
 import com.adl.sport.sitandreach.SitAndReachObject
 import com.ty.bus.multi.R
-import com.ty.bus.multi.core.base.BaseMultiSportViewModel
+import com.ty.bus.multi.core.base.BaseMultiPipelineIdentifyViewModel
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
-import com.ty.forwardflexion.informCode.InformCode
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
-import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportStatusEnum
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
-import com.ty.tybusbase.entity.FaceIdentifyConfig
+import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
-import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.SpeechWrapper
-import com.ty.tybusbase.identify.IdentifyMachineListener
-import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
@@ -48,7 +43,8 @@ import kotlinx.coroutines.withContext
 import kotlin.math.abs
 import kotlin.math.max
 
-class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(application) {
+class SitReachSixViewModel(application: Application) :
+    BaseMultiPipelineIdentifyViewModel(application) {
 
     var ffSportConfig: ForwardFlexionConfig? = null
 
@@ -56,11 +52,9 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
 
-    private val multiIdentityEngine by lazy { MultiIdentityEngine() } //人脸识别引擎类
-
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
-    private var statusMap = mutableMapOf<Int, InformCode>()
+    private var statusMap = mutableMapOf<Int, Boolean>()
 
     val checkMap = HashMap<Int, Boolean>() //记录当前道是否已检录
 
@@ -80,7 +74,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     var currentSportTimes = 1 //当前测试次数
 
-    val identifyTimeOut = 5 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
+    val identifyTimeOut = 10 * 1000L //识别超时时间3秒，最后一个识别完，此时间内无新识别，则开始运动
 
     val sportTimeOut = 10 //运动超时提示时间
 
@@ -133,59 +127,22 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         sportState = MultiSportState.IDENTIFYING
     }
 
-    private fun initFaceIdentify() {
-        var visitor: Boolean =
-            MMKVUtil.decodeBoolean(MMKVBusiKey.VISITOR_ABLE, true) && matchId == null
-        multiIdentityEngine.visitorAble = visitor
-        FaceDetectorHelper.getInstance().setFrameInterval(2)
-        multiIdentityEngine.openMachine(object : IdentifyMachineListener {
-            override fun onIdentityMachineInit(initResult: Boolean) {
+    override fun initFaceIdentify() {
+        super.initFaceIdentify()
 
-            }
-
-            override fun onIdentityTimeOn() {
-
-            }
-
-            override fun onIdentityOk(accountInfo: AccountInfo) {
-                handleIdentityOk(accountInfo)
-            }
-
-            override fun onIdentityTimeFail() {
-                handleIdentityTimeFail()
-            }
-        })
-
-        multiIdentityEngine.addIdentityConfig(0, FaceIdentifyConfig().apply {
-            visitorRetryNum = 2
-            minScoreThreshold = 0.7f
-        })
-        multiIdentityEngine.addIdentityConfig(1, FaceIdentifyConfig().apply {
-            visitorRetryNum = 2
-            minScoreThreshold = 0.7f
-        })
-        multiIdentityEngine.addIdentityConfig(2, FaceIdentifyConfig().apply {
-            visitorRetryNum = 2
-            minScoreThreshold = 0.6f
-        })
-        multiIdentityEngine.addIdentityConfig(3, FaceIdentifyConfig().apply {
-            visitorRetryNum = 2
-            minScoreThreshold = 0.6f
-        })
-        multiIdentityEngine.addIdentityConfig(4, FaceIdentifyConfig().apply {
-            visitorRetryNum = 3
-        })
-        multiIdentityEngine.addIdentityConfig(5, FaceIdentifyConfig().apply {
-            visitorRetryNum = 3
-        })
+        multiIdentityEngine.addIdentityConfig(0, PipelineFaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(1, PipelineFaceIdentifyConfig(2, 0.7f))
+        multiIdentityEngine.addIdentityConfig(2, PipelineFaceIdentifyConfig(2, 0.6f))
+        multiIdentityEngine.addIdentityConfig(3, PipelineFaceIdentifyConfig(2, 0.6f))
+        multiIdentityEngine.addIdentityConfig(4, PipelineFaceIdentifyConfig(3))
+        multiIdentityEngine.addIdentityConfig(5, PipelineFaceIdentifyConfig(3))
     }
 
 
-    @Synchronized
-    private fun handleIdentityOk(accountInfo: AccountInfo) {
+    override fun identifyOk(index: Int, accountInfo: AccountInfo) {
         //正在运动，不处理识别
         if (sportState != MultiSportState.IDENTIFYING) {
-            LogUtil.d("识别到人脸：但已不是识别状态 $currentIdentifyNumber")
+            LogUtil.d("识别到人脸：但已不是识别状态 $index")
             return
         }
 
@@ -202,7 +159,6 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         )
         //取消超时任务
         timeOutHelper.cancel()
-        mHandler.removeCallbacksAndMessages(null)
         viewModelScope.launch {
             sportState = MultiSportState.PREPARING
             //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
@@ -228,9 +184,9 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             val checkResult = withContext(Dispatchers.IO) {
                 checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
             }
+            calcNextNumber(index + 1)
             if (!checkResult) {
                 //重置识别道次
-                currentIdentifyNumber = -1
                 ToastUtil.getInstance(
                     getApplication(),
                     getString(
@@ -243,23 +199,19 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             }
             //存已识别的人信息
             sportPersonArray.put(
-                currentIdentifyNumber,
-                MultiSportResult(accountInfo, currentIdentifyNumber, -1000)
+                index,
+                MultiSportResult(accountInfo, index, -1000)
             )
-            identifiedLD.postValue(Pair(currentIdentifyNumber, accountInfo))
-            checkMap[currentIdentifyNumber] = true
-            changeSportCardState(currentIdentifyNumber, ForwardFlexionCardState.IDENTIFIED)
+            identifiedLD.postValue(Pair(index, accountInfo))
+            checkMap[index] = true
+            changeSportCardState(index, ForwardFlexionCardState.IDENTIFIED)
 
-            LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
-            //重置识别道次
-            currentIdentifyNumber = -1
+            LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $index")
             //识别完成
             if (sportPersonArray.size == sportManCount) {
-                LogUtil.d("识别到全部人数。。。。。。。。。。。。。。。。。。")
                 toStatusPrepare()
-            } else {
+            } else if (sportPersonArray.size == 1) {
                 mHandler.postDelayed({
-                    LogUtil.d("识别超时。。。。。。。。。。。。。。。。。。。")
                     toStatusPrepare()
                 }, identifyTimeOut)
             }
@@ -268,35 +220,38 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
 
     }
 
-    @Synchronized
-    private fun handleIdentityTimeFail() {
-        changeSportCardState(currentIdentifyNumber, ForwardFlexionCardState.IDLE)
+    override fun identifyFail(index: Int) {
+        changeSportCardState(index, ForwardFlexionCardState.IDLE)
         //处理下一道是否有人
-        var tempNumber = currentIdentifyNumber + 1
+        calcNextNumber(index + 1)
+    }
+
+    private fun calcNextNumber(index: Int) {
+        LogUtil.d("当前识别失败道次：$index")
         var findOk = false
-//        while (tempNumber < sportManCount) {
-//            //找到下一道，状态为checkDown且还没有识别的位置
-//            if (statusMap[tempNumber] == InformCode.PREPARECHECKINFINSIH && sportPersonArray.get(
-//                    tempNumber,
-//                    null
-//                ) == null
-//            ) {
-//                currentIdentifyNumber = tempNumber
-//                changeSportCardState(
-//                    currentIdentifyNumber,
-//                    ForwardFlexionCardState.IDENTIFYING
-//                )
-//                multiIdentityEngine.reset()
-//                findOk = true
-//                break
-//            }
-//            tempNumber++
-//        }
+        var tempNumber = index % sportManCount
+        while (tempNumber < sportManCount) {
+            //找到下一道，状态为checkDown且还没有识别的位置
+            if (statusMap[tempNumber] == true && sportPersonArray.get(
+                    tempNumber,
+                    null
+                ) == null
+            ) {
+                currentIdentifyNumber = tempNumber
+                changeSportCardState(
+                    currentIdentifyNumber,
+                    ForwardFlexionCardState.IDENTIFYING
+                )
+                findOk = true
+                break
+            }
+            tempNumber++
+        }
+        LogUtil.d("下一道识别道次：$currentIdentifyNumber")
         //没有找到下一道，置为-1，再从头开始识别
         if (!findOk) {
             currentIdentifyNumber = -1
         }
-
     }
 
     private fun changeSportCardState(index: Int, state: ForwardFlexionCardState) {
@@ -390,8 +345,16 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
     fun onHandleIdentity(data: MutableList<SitAndReachObject>?) {
         viewModelScope.launch(Dispatchers.IO) {
             if (data != null) {
+                updateStatusMap(data)
                 handleIdentify(data)
             }
+        }
+    }
+
+    private fun updateStatusMap(objects: MutableList<SitAndReachObject>) {
+        statusMap.clear()
+        objects.forEach {
+            statusMap.put(it.indexNum, true)
         }
     }
 
@@ -426,7 +389,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 } else {
                     currentYuvData.yuv
                 }
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(flexionBody),
                     data,
                     currentYuvData.width,
@@ -437,7 +400,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             return
         }
         //如果正在识别，则等待识别完再处理下一个人脸识别
-        if (multiIdentityEngine.isIdentifying()) {
+        if (isIdentifying()) {
             LogUtil.d("处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
             return
         }
@@ -448,7 +411,6 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 && checkHandUp(it.skeleton)
             ) {
                 currentIdentifyNumber = it.indexNum
-                multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
                 val data = if (streamType == 1) {
@@ -463,7 +425,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 } else {
                     currentYuvData.yuv
                 }
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(it),
                     data,
                     currentYuvData.width,
@@ -486,7 +448,8 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         val rWrist = skeleton?.rWrist
         val rShoulder = skeleton?.rShoulder
         if (lWrist == null || lShoulder == null || rWrist == null || rShoulder == null) return false
-        return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
+//        return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
+        return true
     }
 
     fun getIdentityRect(it: SitAndReachObject?): Rect {
@@ -707,11 +670,6 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         }
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        multiIdentityEngine.closeMachine()
-    }
-
     /**
      * 重测，只测一次
      */
@@ -740,7 +698,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             prepareStatusList.add(false)
             resultStatusList.add(false)
         }
-        multiIdentityEngine.clearCountMap()
+        multiIdentityEngine.reset()
         sportPersonArray.clear()
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
