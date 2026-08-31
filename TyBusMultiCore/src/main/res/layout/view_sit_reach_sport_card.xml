@@ -87,16 +87,22 @@
         android:text="@string/identifying"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_64"
-        app:layout_constraintBottom_toBottomOf="@id/progress_view"
-        app:layout_constraintStart_toEndOf="@+id/progress_view"
-        app:layout_constraintTop_toTopOf="@+id/progress_view" />
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--        app:layout_constraintBottom_toBottomOf="@id/progress_view"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/progress_view"-->
+    <!--        app:layout_constraintTop_toTopOf="@+id/progress_view" />-->
 
     <androidx.constraintlayout.widget.Group
         android:id="@+id/group_identifying"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:visibility="gone"
-        app:constraint_referenced_ids="iv_identify_icon,tv_identifying,progress_view" />
+        app:constraint_referenced_ids="iv_identify_icon,progress_view" />
 
     <!--  已识别人员  -->
     <com.ty.tybusbase.view.CircleImageView

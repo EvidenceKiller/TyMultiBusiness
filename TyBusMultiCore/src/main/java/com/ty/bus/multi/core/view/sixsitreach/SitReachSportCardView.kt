@@ -5,6 +5,8 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.AnimationDrawable
 import android.os.CountDownTimer
+import android.os.Handler
+import android.os.Looper
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -37,6 +39,18 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
 
     private var bestScore = -1000 //最高分
+
+    //点号动画
+    private var dotCount = 0
+    private var dotsRunning = false
+    private val uiHandler = Handler(Looper.getMainLooper())
+    private val dotsRunnable = object : Runnable {
+        override fun run() {
+            dotCount = (dotCount % 3) + 1
+            mBinding.tvIdentifying.text = "识别中${".".repeat(dotCount)}"
+            uiHandler.postDelayed(this, 500)
+        }
+    }
 
     /**
      * 进度条假增
@@ -116,6 +130,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             ForwardFlexionCardState.SPORTING_NO_USER -> {
                 exitSportingNoUser()
             }
+
+            ForwardFlexionCardState.IDENTIFY_FAIL -> {
+                exitIdentifyFail()
+            }
         }
 
         //进入新状态处理
@@ -126,6 +144,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
 
             ForwardFlexionCardState.IDENTIFYING -> {
                 enterIdentifying()
+            }
+
+            ForwardFlexionCardState.IDENTIFY_FAIL -> {
+                enterIdentifyFail()
             }
 
             ForwardFlexionCardState.IDENTIFIED -> {
@@ -165,6 +187,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterSportingNoUser() {
+        stopDots()
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_testing_empty)
         mBinding.groupStartNoUser.visibility = VISIBLE
     }
@@ -174,6 +197,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterIdle() {
+        stopDots()
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_nouser)
         mBinding.groupIdle.visibility = VISIBLE
     }
@@ -182,18 +206,45 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         mBinding.groupIdle.visibility = GONE
     }
 
+    private fun startDots() {
+        if (dotsRunning) return
+        dotsRunning = true
+        dotCount = 0
+        uiHandler.postDelayed(dotsRunnable, 500)
+    }
+
+    private fun stopDots() {
+        uiHandler.removeCallbacks(dotsRunnable)
+        dotsRunning = false
+        dotCount = 0
+    }
+
     private fun enterIdentifying() {
         tickTimes = 0f
-        identifyingTimer.start()
-        mBinding.groupIdentifying.visibility = VISIBLE
+//        identifyingTimer.start()
+        mBinding.tvIdentifying.visibility = VISIBLE
+        startDots()
+    }
+
+    private fun enterIdentifyFail() {
+        tickTimes = 0f
+//        identifyingTimer.start()
+        mBinding.tvIdentifying.visibility = VISIBLE
+        startDots()
     }
 
     private fun exitIdentifying() {
-        identifyingTimer.cancel()
-        mBinding.groupIdentifying.visibility = GONE
+//        identifyingTimer.cancel()
+        mBinding.tvIdentifying.visibility = GONE
+    }
+
+    private fun exitIdentifyFail() {
+//        identifyingTimer.cancel()
+        mBinding.tvIdentifying.visibility = GONE
     }
 
     private fun enterIdentified() {
+        stopDots()
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.groupIdentified.visibility = VISIBLE
@@ -206,6 +257,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterPrepared() {
+        stopDots()
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.groupPrepared.visibility = VISIBLE
@@ -217,6 +269,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterFirstSporting() {
+        stopDots()
         val frameAnimation = mBinding.ivSportAni.getDrawable() as AnimationDrawable?
         frameAnimation?.start()
         mBinding.groupAccountInfo.visibility = VISIBLE
@@ -231,6 +284,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterSporting() {
+        stopDots()
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.rvScore.visibility = VISIBLE
     }
@@ -250,7 +304,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterCurrentSportEnd() {
-
+        stopDots()
     }
 
     private fun exitCurrentSportEnd() {
@@ -258,7 +312,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun enterFinished() {
-
+        stopDots()
     }
 
     private fun exitFinished() {
@@ -364,5 +418,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
 
     fun retest() {
 //        changeState(ForwardFlexionCardState.SPORTING)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stopDots()
     }
 }

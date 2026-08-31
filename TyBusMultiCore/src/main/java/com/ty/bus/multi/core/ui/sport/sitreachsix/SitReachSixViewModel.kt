@@ -221,7 +221,7 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
-        changeSportCardState(index, ForwardFlexionCardState.IDLE)
+        changeSportCardState(index, ForwardFlexionCardState.IDENTIFY_FAIL)
         //处理下一道是否有人
         calcNextNumber(index + 1)
     }
