@@ -301,7 +301,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                 getString(R.string.violations)
             }
 
-            score > -200 && score <= 400 -> {
+            score >= -200 && score <= 400 -> {
                 mBinding.tvSportCurrentResult.setTextColor(Color.WHITE)
                 mBinding.tvSportCurrentResultUnit.text = "cm"
                 "${score / 10.0}"

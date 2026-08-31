@@ -625,7 +625,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
                 if (resultStatusList[i].not()) {
                     //未完成
                     LogUtil.d("${person.number}道未完成=============")
-                    sportResultLd.value = index to -200
+                    sportResultLd.value = index to -500
                 }
                 resultStatusList[i] = true
             }
@@ -652,7 +652,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
         SystemClock.sleep(100)
         sportPersonArray.forEach { key, value ->
             //如果是-200,表示未完成，不上传成绩
-            if (value.count == -200) return@forEach
+            if (value.count == -500) return@forEach
             var sportResult = SportResult()
             sportResult.sportDuration = (endSportTime - startSportTime).toInt()
             sportResult.maxComboCount = 0
@@ -667,7 +667,7 @@ class SitReachSixViewModel(application: Application) : BaseMultiSportViewModel(a
             sportResult.userId = value.accountInfo.studentEntity?.accountId
             sportResult.startTime = startSportTime
             sportResult.endTime = endSportTime
-            if (value.count > -200 && value.count <= 400) {
+            if (value.count >= -200 && value.count <= 400) {
                 sportResult.sportResult = value.count.toString()
             } else {
                 sportResult.sportViolationStatus = 1
