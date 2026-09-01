@@ -535,4 +535,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        GrpcManager.stopServer()
+    }
 }
