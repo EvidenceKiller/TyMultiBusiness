@@ -30,6 +30,8 @@ class CommonTipDialog : BaseDialogFragment<DialogCommonTipBinding, BaseViewModel
     fun updateContent(content: String): CommonTipDialog {
         if (isVisible) {
             mBinding.tvContent.text = content
+        }else{
+            this.content = content
         }
         return this
     }

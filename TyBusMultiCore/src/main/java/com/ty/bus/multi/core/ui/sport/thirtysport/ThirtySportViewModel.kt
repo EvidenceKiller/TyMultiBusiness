@@ -178,6 +178,7 @@ class ThirtySportViewModel(application: Application) :
 
     //协同已识别人数上报记录：区域 → 已识别人数（CMD_SPORT_IDENTIFIED_COUNT），用于"是否清空已识别结果"提示
     val identifiedCountMap = mutableMapOf<DisplayType, Int>()
+
     //已识别人数变化通知（弹窗展示/更新，含弹窗期间新用户到达的人数同步）
     val identifiedCountLD = MutableLiveData<Unit>()
 
@@ -1495,7 +1496,7 @@ class ThirtySportViewModel(application: Application) :
      */
     fun isSubScreenJoined(displayType: DisplayType): Boolean =
         displayType != DisplayType.MAIN &&
-            collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
+                collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
 
     /**
      * 向已连接副屏发送开始运动指令，保证只发送一次
@@ -1517,7 +1518,10 @@ class ThirtySportViewModel(application: Application) :
      * 服务端据此弹出"左区已识别X人，右区已识别X人，是否清空已识别结果"提示。
      */
     private fun registerIdentifiedCount() {
-        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_IDENTIFIED_COUNT, GRPC_KEY) { data ->
+        GrpcManager.registerServerHandler(
+            GrpcCmdCode.CMD_SPORT_IDENTIFIED_COUNT,
+            GRPC_KEY
+        ) { data ->
             val count = data.payload.toObject<GrpcSportIdentifiedCount>()?.count ?: 0
             val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
             uiHandler.post {
@@ -1535,9 +1539,11 @@ class ThirtySportViewModel(application: Application) :
      * 同步累加该区域已识别人数，并通知界面更新弹窗内容。
      */
     private fun syncIdentifiedCountWhileTip(displayType: DisplayType) {
-        if (identifiedCountMap.containsKey(displayType)) {
-            identifiedCountMap[displayType] = (identifiedCountMap[displayType] ?: 0) + 1
-            identifiedCountLD.value = Unit
+        uiHandler.post {
+            if (identifiedCountMap.containsKey(displayType)) {
+                identifiedCountMap[displayType] = (identifiedCountMap[displayType] ?: 0) + 1
+                identifiedCountLD.value = Unit
+            }
         }
     }
 
@@ -1555,7 +1561,14 @@ class ThirtySportViewModel(application: Application) :
             val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
             if (clientId != null) {
                 LogUtil.d("发送清除指令到${displayType.name}副屏：$ip")
-                GrpcManager.sendToClient(clientId, GrpcCmdCode.CMD_CLEAR_IDENTIFY_INFO, "", false, null, null)
+                GrpcManager.sendToClient(
+                    clientId,
+                    GrpcCmdCode.CMD_CLEAR_IDENTIFY_INFO,
+                    "",
+                    false,
+                    null,
+                    null
+                )
             }
             clearSubScreenIdentifiedData(displayType)
         }
@@ -1585,7 +1598,8 @@ class ThirtySportViewModel(application: Application) :
         personArray.clear()
         uiHandler.post {
             indexes.forEach { index ->
-                changeSportViewStateLD.value = displayType to (index to MultiSportCardViewState.NOBODY)
+                changeSportViewStateLD.value =
+                    displayType to (index to MultiSportCardViewState.NOBODY)
             }
         }
     }

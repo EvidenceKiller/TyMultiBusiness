@@ -554,13 +554,16 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
      * 展示或更新"是否清空已识别结果"对话框。
      * 可能左区先上报、右区后上报，或仅一端上报；对话框展示期间（含新用户到达）内容实时更新。
      */
+    @Synchronized
     private fun showOrUpdateClearIdentifyDialog() {
         val text = buildClearIdentifyText()
         val dialog = clearIdentifyDialog
-        if (dialog != null && dialog.isAdded) {
+        if (dialog != null) {
+            LogUtil.d("更新内容：$text")
             dialog.updateContent(text)
             return
         }
+        LogUtil.d("首次显示内容：$text")
         clearIdentifyDialog = CommonTipDialog()
             .setContent(text)
             .setCallback {
