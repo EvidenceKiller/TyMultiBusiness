@@ -13,6 +13,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
+import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ItemSitReachSportScoreBinding
 import com.ty.bus.multi.databinding.ViewSitReachSportCardBinding
@@ -34,7 +35,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         this,
         true
     )
-    private var scoreList: MutableList<Int> = mutableListOf()
+    private var scoreList: MutableList<MultiSportResult> = mutableListOf()
 
     private var preState: ForwardFlexionCardState = ForwardFlexionCardState.IDLE
 
@@ -328,7 +329,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun addScore(score: Int) {
+    fun addScore(score: MultiSportResult) {
         if (scoreList.isNullOrEmpty()) {
             initScoreRv()
         }
@@ -339,7 +340,9 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         mBinding.rvScore.adapter?.notifyDataSetChanged()
     }
 
-    private fun updateBestScore(score: Int) {
+    private fun updateBestScore(result: MultiSportResult) {
+        if (result.status != 0) return
+        val score = result.count
         if (score > -200 && score <= 400) {
             mBinding.groupBest.visibility = VISIBLE
             bestScore = bestScore.coerceAtLeast(score)
@@ -347,18 +350,18 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         }
     }
 
-    private fun setCurrentScore(score: Int) {
+    private fun setCurrentScore(result: MultiSportResult) {
         mBinding.tvSportTimes.text = getString(R.string.how_many_times, scoreList.size)
-        mBinding.tvSportCurrentResult.text = when {
-            score == -300 -> {
-                mBinding.tvSportCurrentResult.setTextColor(Color.RED)
-                getString(R.string.violations)
-            }
-
-            score >= -200 && score <= 400 -> {
+        mBinding.tvSportCurrentResult.text = when (result.status) {
+            0 -> {
                 mBinding.tvSportCurrentResult.setTextColor(Color.WHITE)
                 mBinding.tvSportCurrentResultUnit.text = "cm"
-                "${score / 10.0}"
+                "${result.count / 10.0}"
+            }
+
+            1 -> {
+                mBinding.tvSportCurrentResult.setTextColor(Color.RED)
+                getString(R.string.violations)
             }
 
             else -> {
@@ -371,11 +374,11 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private fun initScoreRv() {
         mBinding.rvScore.layoutManager = LinearLayoutManager(context)
         mBinding.rvScore.adapter =
-            object : BaseBindingAdapter<ItemSitReachSportScoreBinding, Int>(scoreList) {
+            object : BaseBindingAdapter<ItemSitReachSportScoreBinding, MultiSportResult>(scoreList) {
                 @SuppressLint("SetTextI18n")
                 override fun convert(
                     holder: VBViewHolder<ItemSitReachSportScoreBinding>,
-                    item: Int
+                    item: MultiSportResult
                 ) {
                     if (holder.layoutPosition == 0) {
                         holder.vb.ivThisResult.visibility = VISIBLE
@@ -383,16 +386,17 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                         holder.vb.ivThisResult.visibility = INVISIBLE
                     }
                     holder.vb.tvIndex.text = "${scoreList.size - holder.layoutPosition}"
-                    holder.vb.tvScore.text = when {
-                        item == -300 -> {
-                            holder.vb.tvScore.setTextColor(Color.RED)
-                            getString(R.string.violations)
-                        }
-
-                        item > -200 && item <= 400 -> {
+                    LogUtil.d("===================${item.number} -- ${item.status}")
+                    holder.vb.tvScore.text = when(item.status) {
+                        0 -> {
                             holder.vb.tvScore.setTextColor(Color.WHITE)
                             holder.vb.tvScoreUnit.text = "cm"
-                            "${item / 10.0}"
+                            "${item.count / 10.0}"
+                        }
+
+                        1 -> {
+                            holder.vb.tvScore.setTextColor(Color.RED)
+                            getString(R.string.violations)
                         }
 
                         else -> {

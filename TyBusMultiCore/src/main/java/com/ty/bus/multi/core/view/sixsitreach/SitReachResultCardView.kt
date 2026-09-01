@@ -11,6 +11,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ViewSitReachResultCardBinding
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.utils.LogUtil
 
 class SitReachResultCardView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -36,16 +37,16 @@ class SitReachResultCardView(context: Context, attrs: AttributeSet?, defStyleAtt
                 .into(civHeader)
             tvName.text = result.accountInfo.studentEntity?.accountName
             val item = result.count
-            tvScore.text = when {
-                item == -300 -> {
-                    ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
-                    getString(R.string.violations)
-                }
-
-                item > -200 && item <= 400 -> {
+            LogUtil.d("=======================${result.status}")
+            tvScore.text = when(result.status) {
+                0 ->{
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_default)
                     tvScoreUnit.text = "cm"
                     "${item / 10.0}"
+                }
+                1 -> {
+                    ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
+                    getString(R.string.violations)
                 }
 
                 else -> {

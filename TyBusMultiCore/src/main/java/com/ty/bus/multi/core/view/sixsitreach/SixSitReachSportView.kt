@@ -10,6 +10,7 @@ import android.view.View
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
+import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.databinding.ViewSixSitReachSportBinding
 import com.ty.tybusbase.entity.AccountInfo
@@ -167,7 +168,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         }
     }
 
-    fun addScore(index: Int, score: Int) {
+    fun addScore(index: Int, score: MultiSportResult) {
         cardMap[index]?.addScore(score)
     }
 

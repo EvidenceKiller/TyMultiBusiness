@@ -10,5 +10,6 @@ open class MultiSportResult(
     var count: Int = 0,
     var rank: Int = 0,
     var meetGroup: MeetGroupDetailsEntity? = null,
-    var hasVoice: Boolean = false
+    var hasVoice: Boolean = false,
+    var status:Int = 0,  //成绩状态，0: 正常，1: 违规,2: 未完成
 )

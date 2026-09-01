@@ -32,6 +32,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.databinding.ActivitySitReach6Binding
@@ -57,9 +58,9 @@ class SitReachSixActivity :
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
 //    val videoFilePath = "/sdcard/com.adl.sport/app/20260826/1601010001/00000000000000000000000000000000/175148/1601010001_1787737908925.mp4"
-    val videoFilePath =
-        "/sdcard/com.adl.sport/app/20260831/1601010001/00000000000000000000000000000000/112349/1601010001_1788146629491.mp4"
-//    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
+//    val videoFilePath =
+//        "/sdcard/com.adl.sport/app/20260831/1601010001/00000000000000000000000000000000/112349/1601010001_1788146629491.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -76,7 +77,7 @@ class SitReachSixActivity :
     private var isInit = false //是否开始流程
 
     //板子几个点
-    private var boardNum = 8
+    private var boardNum = 4
 
     private val cameraDispatcher by lazy {
         DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
@@ -105,7 +106,7 @@ class SitReachSixActivity :
 
     override fun initData() {
         super.initData()
-//        viewModel.streamType = 2
+        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.ffSportConfig =
@@ -168,6 +169,7 @@ class SitReachSixActivity :
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
+        val param = MultiCoreConfig.getForwardFlexionParam()
         val debug = BusiBaseConfig.getDebugEnable()
         showLoadingDialog(getString(R.string.model_loding))
         val sourceType =
@@ -184,6 +186,9 @@ class SitReachSixActivity :
         config.debug = debug
         config.enableRecordVideo = false
         config.needSetUI = false
+        config.footPosition = param.checkFoot
+        config.handParallel = param.checkHand
+        config.legParallel = param.checkLeg
         controller = SitAndReachController(config, mBinding.sitAndReachLayout)
         controller.callBack = object : SitAndReachCallBack {
             override fun onInitPlayGround(isSuccess: Boolean, msg: String?) {
@@ -221,18 +226,20 @@ class SitReachSixActivity :
                 val sb = StringBuilder()
                 for (obj in sitAndReachObjectList) {
                     if (obj.skeleton != null) {
-                        sb.append("道次: ").append(obj.getIndexNum())
-                            .append("  方向: ").append(obj.getDirection())
-                            .append("  成绩: ").append(obj.getDistanceMax())
-                            .append("  成绩Live: ").append(obj.getDistanceLive())
-                            .append("  手部: ").append(obj.getFingerDistance())
+                        sb.append("道次: ").append(obj.indexNum)
+                            .append("  方向: ").append(obj.direction)
+                            .append("  成绩: ").append(obj.distanceMax)
+                            .append("  成绩Live: ").append(obj.distanceLive)
+                            .append("  手部: ").append(obj.fingerDistance)
                             .append("  双手水平: ")
-                            .append(if (obj.getHandParallel()) "达标" else "未水平")
+                            .append(if (obj.handParallel) "达标" else "未水平")
                             .append("  腿部位置: ")
-                            .append(if (obj.getFootPosition()) "达标" else "未在指定位置")
+                            .append(if (obj.footPosition) "达标" else "未在指定位置")
                             .append("  双腿伸直: ")
-                            .append(if (obj.getLegParallel()) "达标" else "未伸直")
+                            .append(if (obj.legParallel) "达标" else "未伸直")
                             .append(" 运动是否结束：${obj.state.name}")
+                            .append("  错误信息: ").append(obj.information)
+                            .append("  是否可用：").append(obj.isCompliant)
                             .append("\n")
                     }
                 }

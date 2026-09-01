@@ -65,7 +65,7 @@ class SitReachSixSettingActivity :
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/sitReach8point.mp4"
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
-    val streamType = 1 //1:camera , 2: video
+    val streamType = 2 //1:camera , 2: video
 
     /***************************视频播放调试*************************/
     private var testPeopleCount = 0
@@ -79,7 +79,7 @@ class SitReachSixSettingActivity :
     private var isModelLoadOk = false
 
     //板子几个点
-    private var boardNum = 8
+    private var boardNum = 4
 
     private lateinit var controller: SitAndReachController
 

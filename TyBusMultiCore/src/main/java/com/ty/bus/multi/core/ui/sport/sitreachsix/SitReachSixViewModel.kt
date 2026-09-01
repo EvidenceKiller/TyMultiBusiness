@@ -21,6 +21,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiPipelineIdentifyViewModel
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
@@ -55,6 +56,8 @@ class SitReachSixViewModel(application: Application) :
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
     private var statusMap = mutableMapOf<Int, Boolean>()
+
+    private val param by lazy { MultiCoreConfig.getForwardFlexionParam() }
 
     val checkMap = HashMap<Int, Boolean>() //记录当前道是否已检录
 
@@ -92,7 +95,7 @@ class SitReachSixViewModel(application: Application) :
     val sportTipsInfoLD = MutableLiveData<String>() //运动提示信息
 
     //成绩
-    val sportResultLd = MutableLiveData<Pair<Int, Int>>()
+    val sportResultLd = MutableLiveData<Pair<Int, MultiSportResult>>()
 
     //运动卡片的状态
     var sportCardStateLD = MutableLiveData<Pair<Int, ForwardFlexionCardState>>()
@@ -356,7 +359,7 @@ class SitReachSixViewModel(application: Application) :
         objects.forEach {
             if (it.skeleton != null) {
                 statusMap.put(it.indexNum, true)
-            }else{
+            } else {
                 changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
             }
         }
@@ -510,9 +513,10 @@ class SitReachSixViewModel(application: Application) :
                 if (person == null) return@forEach
                 if (it.state == SitAndReachObject.State.END && resultStatusList[it.indexNum - 1].not()) {
                     person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
+                    person.status = calcViolation(it)
                     resultStatusList[it.indexNum - 1] = true
                     withContext(Dispatchers.Main) {
-                        sportResultLd.value = it.indexNum to person.count
+                        sportResultLd.value = it.indexNum to person
                     }
                 }
             }
@@ -560,6 +564,14 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
+    private fun calcViolation(srj: SitAndReachObject): Int {
+        LogUtil.d("====================${srj.footPosition}--${srj.handParallel}--${srj.legParallel}")
+        return if ((param.checkFoot && srj.footPosition.not())
+            || (param.checkHand && srj.handParallel.not())
+            || (param.checkLeg && srj.legParallel.not())
+        ) 1 else 0
+    }
+
     private fun startSportCountDown() {
         LogUtil.d("开始倒计时  开始倒计时  开始倒计时")
         Handler(Looper.getMainLooper()).post {
@@ -592,7 +604,8 @@ class SitReachSixViewModel(application: Application) :
                 if (resultStatusList[i].not()) {
                     //未完成
                     LogUtil.d("${person.number}道未完成=============")
-                    sportResultLd.value = index to -500
+                    person.status = 2
+                    sportResultLd.value = index to person
                 }
                 resultStatusList[i] = true
             }
