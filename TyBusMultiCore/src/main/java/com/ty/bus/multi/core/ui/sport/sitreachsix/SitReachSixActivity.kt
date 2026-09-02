@@ -33,6 +33,7 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.view.common.PointElement
 import com.ty.bus.multi.databinding.ActivitySitReach6Binding
@@ -45,6 +46,7 @@ import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import androidx.core.view.isGone
 
 
 class SitReachSixActivity :
@@ -77,7 +79,7 @@ class SitReachSixActivity :
     private var isInit = false //是否开始流程
 
     //板子几个点
-    private var boardNum = 4
+    private var boardNum = 8
 
     private val cameraDispatcher by lazy {
         DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
@@ -106,7 +108,7 @@ class SitReachSixActivity :
 
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.ffSportConfig =
@@ -319,6 +321,11 @@ class SitReachSixActivity :
         super.initObserver()
         viewModel.sportCardStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
+            //切换不可用状态时，页面右上角提示"场地构建失败，部分位置暂不可用"
+            if (mBinding.tvUnavailableTip.isGone){
+                mBinding.tvUnavailableTip.visibility =
+                    if (it.second == ForwardFlexionCardState.UNAVAILABLE) View.VISIBLE else View.GONE
+            }
         }
 
         viewModel.identifiedLD.observe(this) {

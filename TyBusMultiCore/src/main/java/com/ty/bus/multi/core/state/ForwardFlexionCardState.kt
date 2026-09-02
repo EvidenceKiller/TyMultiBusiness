@@ -15,6 +15,9 @@ enum class ForwardFlexionCardState {
     //已识别
     IDENTIFIED,
 
+    //不可用
+    UNAVAILABLE,
+
     //已准备
     PREPARED,
 

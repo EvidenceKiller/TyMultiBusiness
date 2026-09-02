@@ -357,10 +357,11 @@ class SitReachSixViewModel(application: Application) :
     private fun updateStatusMap(objects: MutableList<SitAndReachObject>) {
         statusMap.clear()
         objects.forEach {
-            if (it.skeleton != null) {
-                statusMap.put(it.indexNum, true)
-            } else {
-                changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
+            when{
+                it.isCompliant.not() ->{ changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE) }
+                it.skeleton != null && checkHandUp(it.skeleton) ->{statusMap.put(it.indexNum, true)}
+                it.skeleton == null -> changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
+//                else -> changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
             }
         }
     }

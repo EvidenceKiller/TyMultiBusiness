@@ -117,7 +117,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
                 exitSportingNoUser()
             }
 
-            ForwardFlexionCardState.IDENTIFY_FAIL -> TODO()
+            else ->{}
         }
 
         //进入新状态处理
@@ -162,7 +162,7 @@ class ForwardFlexionSportCardView(context: Context, attrs: AttributeSet?, defSty
                 enterSportingNoUser()
             }
 
-            ForwardFlexionCardState.IDENTIFY_FAIL -> TODO()
+            else ->{}
         }
 
         preState = state

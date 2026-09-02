@@ -5,6 +5,8 @@
     <string name="zwtqq_count">测试次数</string>
     <string name="confirm_countdown">确定（%d）</string>
     <string name="identifying">识别中...</string>
+    <string name="temporarily_unavailable">暂不可用</string>
+    <string name="part_unavailable_tip">场地构建失败，部分位置暂不可用</string>
     <string name="lie_on_back_and_face_screen">请侧对屏幕仰卧准备</string>
     <string name="violations">违规</string>
     <string name="un_do">未完成</string>

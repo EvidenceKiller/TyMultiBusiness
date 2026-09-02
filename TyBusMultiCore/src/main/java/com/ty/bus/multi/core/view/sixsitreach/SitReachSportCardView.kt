@@ -135,6 +135,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             ForwardFlexionCardState.IDENTIFY_FAIL -> {
                 exitIdentifyFail()
             }
+
+            ForwardFlexionCardState.UNAVAILABLE -> {
+                exitUnavailable()
+            }
         }
 
         //进入新状态处理
@@ -149,6 +153,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
 
             ForwardFlexionCardState.IDENTIFY_FAIL -> {
                 enterIdentifyFail()
+            }
+
+            ForwardFlexionCardState.UNAVAILABLE -> {
+                enterUnavailable()
             }
 
             ForwardFlexionCardState.IDENTIFIED -> {
@@ -185,6 +193,16 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         }
 
         preState = state
+    }
+
+    private fun enterUnavailable() {
+        stopDots()
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_fl_card_ready_disabled)
+        mBinding.llUnavailableTips.visibility = VISIBLE
+    }
+
+    private fun exitUnavailable() {
+        mBinding.llUnavailableTips.visibility = GONE
     }
 
     private fun enterSportingNoUser() {

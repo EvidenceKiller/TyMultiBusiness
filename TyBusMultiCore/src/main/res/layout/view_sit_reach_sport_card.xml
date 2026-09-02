@@ -104,6 +104,43 @@
         android:visibility="gone"
         app:constraint_referenced_ids="iv_identify_icon,progress_view" />
 
+    <!--  不可用状态  -->
+    <LinearLayout
+        android:id="@+id/ll_unavailable_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_32"
+        android:paddingEnd="@dimen/dp_32"
+        android:paddingTop="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_16"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_unavailable_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/temporarily_unavailable"
+            android:src="@mipmap/ic_fl_disabled" />
+
+        <Space
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/tv_unavailable_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/temporarily_unavailable"
+            android:textColor="@color/white_40"
+            android:textSize="@dimen/sp_40" />
+    </LinearLayout>
+
     <!--  已识别人员  -->
     <com.ty.tybusbase.view.CircleImageView
         android:id="@+id/civ_header"
