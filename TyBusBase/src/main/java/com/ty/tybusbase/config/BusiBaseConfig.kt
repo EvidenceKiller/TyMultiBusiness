@@ -163,6 +163,30 @@ object BusiBaseConfig {
     }
 
     /**
+     * 获取实心球设置参数
+     */
+    fun getSolidBallParamBean(): SolidBallParamBean {
+        val json = MMKVUtil.decodeString(MMKVBusiKey.PARAM_FREE_SPORT_SOLID_BALL)
+        if (!json.isNullOrEmpty()) {
+            try {
+                return com.google.gson.Gson().fromJson(json, SolidBallParamBean::class.java) ?: SolidBallParamBean()
+            } catch (e: Exception) {
+            }
+        }
+        return MMKVUtil.decodeParcelable<SolidBallParamBean>(
+            MMKVBusiKey.PARAM_FREE_SPORT_SOLID_BALL,
+            SolidBallParamBean::class.java
+        ) ?: SolidBallParamBean()
+    }
+
+    /**
+     * 更新实心球设置参数
+     */
+    fun updateSolidBallParamBean(bean: SolidBallParamBean) {
+        MMKVUtil.encode(MMKVBusiKey.PARAM_FREE_SPORT_SOLID_BALL, bean)
+    }
+
+    /**
      * 更新NFC读卡器类型
      */
     fun updateNfcReaderType(type: Int) {

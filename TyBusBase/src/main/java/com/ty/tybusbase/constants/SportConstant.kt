@@ -249,6 +249,12 @@ object SportConstant {
     const val SPORT_PING_PONG_PUSH_LEFT_ATTACK_RIGHT = "480201"
     const val SPORT_PING_PONG_FOREHAND_ATTACK_BACKHAND_BLOCK = "480301"
 
+    /*
+     * 实心球
+     * 投掷铅球： 070101
+     */
+    const val SPORT_MEDICINE_BALL = "070101"
+
     /**
      * @hide
      */
