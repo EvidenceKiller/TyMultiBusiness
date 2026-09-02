@@ -200,8 +200,8 @@ class SitReachSixActivity :
                         msg, Toast.LENGTH_SHORT
                     ).show()
                 })
-                controller.prepare()
-                viewModel.toStatusIdentifyFace()
+//                controller.prepare()
+//                viewModel.toStatusIdentifyFace()
 
             }
 
@@ -246,9 +246,9 @@ class SitReachSixActivity :
                     }
                 }
 
-                AdlExecutor.postUI(Runnable {
-                    LogUtil.d(sb.toString().trim { it <= ' ' })
-                })
+//                AdlExecutor.postUI(Runnable {
+//                    LogUtil.d(sb.toString().trim { it <= ' ' })
+//                })
             }
 
             override fun onMessage(resultCodeType: ResultCodeType?) {
@@ -590,7 +590,7 @@ class SitReachSixActivity :
     private fun retest() {
         controller.resetObject()
         mBinding.root.postDelayed({
-            controller.prepare()
+            controller.combineLayoutAndPrepare()
             controller.start()
             mBinding.sportView.visibility = View.VISIBLE
             viewModel.retest()

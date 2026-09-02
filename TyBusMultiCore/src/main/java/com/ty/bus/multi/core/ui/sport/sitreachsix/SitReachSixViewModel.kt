@@ -346,6 +346,9 @@ class SitReachSixViewModel(application: Application) :
     }
 
     fun onHandleIdentity(data: MutableList<SitAndReachObject>?) {
+        if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
+            return
+        }
         viewModelScope.launch(Dispatchers.IO) {
             if (data != null) {
                 updateStatusMap(data)
