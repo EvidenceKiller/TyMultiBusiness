@@ -774,8 +774,8 @@ class ThirtySportViewModel(application: Application) :
         if (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size <= 0) return false
         //条件1：所有屏（主屏+已连接副屏）都识别满员才能直接开始，未连接的副屏不参与判定
         val allScreenFull = skipPersonArray.size >= skipManCount &&
-                (!(DisplayType.LEFT in connectedSubScreens) || leftPersonArray.size >= skipManCount) &&
-                (!(DisplayType.RIGHT in connectedSubScreens) || rightPersonArray.size >= skipManCount)
+                (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size >= skipManCount) &&
+                (DisplayType.RIGHT !in connectedSubScreens || rightPersonArray.size >= skipManCount)
         if (allScreenFull) return true
         //条件2：所有屏（主屏+已连接副屏）都倒计时结束
         if (!mainCountDownEnded) return false
