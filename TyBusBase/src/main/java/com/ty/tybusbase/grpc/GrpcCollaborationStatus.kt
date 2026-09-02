@@ -20,12 +20,14 @@ enum class CollaborationStatusEnum {
     SPORTING,
 
     /** 加入且当前有已识别的人员 */
+    @Deprecated("此属性已过时，请使用 newVersion", level = DeprecationLevel.WARNING)
     JOIN_WITH_IDENTIFIED,
 
     /** 可加入但不是当前运动 */
     JOINABLE,
 
     /** 倒计时结束 */
+    @Deprecated("此属性已过时，请使用 newVersion", level = DeprecationLevel.WARNING)
     COUNTDOWN_END,
 
     ;

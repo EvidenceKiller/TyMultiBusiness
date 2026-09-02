@@ -24,4 +24,7 @@ object GrpcCmdCode {
 
     //清除已识别的信息 payload = ""
     const val CMD_CLEAR_IDENTIFY_INFO = 0x32
+
+    //实心球运动卡片状态 payload = GrpcSportCardStatus
+    const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x33
 }

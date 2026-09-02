@@ -107,6 +107,7 @@ object MMKVBusiKey {
     const val ORGANIZE_PULL_UP_CONFIG = "ORGANIZE_PULL_UP_CONFIG"
 
     const val PARAM_FREE_SPORT_SITE_UP = "base_param_free_site_up" //自主测试仰卧起坐参数
+    const val PARAM_FREE_SPORT_SOLID_BALL = "PARAM_FREE_SOLID_BALL" //自主测试实心球参数
 
     const val PARAM_SKIP_TSJC = "PARAM_FREE_ROPE" //跳绳抬手检测
 
@@ -118,6 +119,12 @@ object MMKVBusiKey {
     const val SHOTBALL_CAMERA_CHOOSE: String = "shotball_camera_choose"
     const val SHOTBALL_COUNT_DOWN: String = "shotball_count_down"
     const val SHOTBALL_MULTI_PERSON_DETECTION: String = "shotball_multi_person_detection"
+
+    // solidBall
+    const val SOLIDBALL_IPC_CAMERA_MASTER_CONFIG_KEY = "solidball_ipc_camera_master_config_key" //实心球主机位IPC摄像头参数KEY
+    const val SOLIDBALL_IPC_CAMERA_SUB_CONFIG_KEY = "solidball_ipc_camera_sub_config_key" //实心球辅机位IPC摄像头参数KEY
+    const val SOLIDBALL_IPC_CAMERA_FACE_CONFIG_KEY = "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
+    const val SOLIDBALL_FACE_REGION_CONFIG_KEY = "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
 
     const val LEFT_SUB_SCREEN_IP = "left_sub_screen_ip" //左副屏IP
     const val RIGHT_SUB_SCREEN_IP = "right_sub_screen_ip" //右副屏IP

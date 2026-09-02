@@ -193,3 +193,42 @@ class ZwtqqParamBean : CommonParamBean {
         }
     }
 }
+
+@SuppressLint("ParcelCreator")
+class SolidBallParamBean : CommonParamBean {
+    var enableOverLine = true//踩线检测
+    var overLineOffset = 50//踩线阈值(0~100)
+    var enableHandOverHead = true//双手过顶检测
+    var calculateRole = 2//成绩计算方式(1:球前沿, 2:球中心, 3:球后沿)
+
+    constructor() : super()
+
+    constructor(parcel: Parcel) : super(parcel) {
+        enableOverLine = parcel.readByte() != 0.toByte()
+        overLineOffset = parcel.readInt()
+        enableHandOverHead = parcel.readByte() != 0.toByte()
+        calculateRole = parcel.readInt()
+    }
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        super.writeToParcel(parcel, flags)
+        parcel.writeByte(if (enableOverLine) 1 else 0)
+        parcel.writeInt(overLineOffset)
+        parcel.writeByte(if (enableHandOverHead) 1 else 0)
+        parcel.writeInt(calculateRole)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<SolidBallParamBean> {
+        override fun createFromParcel(parcel: Parcel): SolidBallParamBean {
+            return SolidBallParamBean(parcel)
+        }
+
+        override fun newArray(size: Int): Array<SolidBallParamBean?> {
+            return arrayOfNulls(size)
+        }
+    }
+}

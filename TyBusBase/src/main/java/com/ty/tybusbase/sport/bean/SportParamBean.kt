@@ -31,3 +31,10 @@ class PullUpParamBean : CommonParamBean() {
     var enableOverhang = false//直臂垂悬
     var enableCountDown = true//动作间隔10秒
 }
+
+class SolidBallParamBean : CommonParamBean() {
+    var enableOverLine = true//踩线检测
+    var overLineOffset = 50//踩线阈值(0~100)
+    var enableHandOverHead = true//双手过顶检测
+    var calculateRole = 2//成绩计算方式(1:球前沿, 2:球中心, 3:球后沿)
+}
