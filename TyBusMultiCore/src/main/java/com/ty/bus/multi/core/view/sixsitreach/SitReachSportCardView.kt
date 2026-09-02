@@ -351,7 +351,15 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         if (scoreList.isNullOrEmpty()) {
             initScoreRv()
         }
-        scoreList.add(0, score)
+        scoreList.add(
+            0,
+            MultiSportResult(
+                score.accountInfo,
+                score.number,
+                count = score.count,
+                status = score.status
+            )
+        )
         changeState(ForwardFlexionCardState.RESULT_IN_SPORTING)
         setCurrentScore(score)
         updateBestScore(score)
@@ -361,11 +369,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private fun updateBestScore(result: MultiSportResult) {
         if (result.status != 0) return
         val score = result.count
-        if (score > -200 && score <= 400) {
-            mBinding.groupBest.visibility = VISIBLE
-            bestScore = bestScore.coerceAtLeast(score)
-            mBinding.tvBestScore.text = "${bestScore / 10.0}"
-        }
+        if (score !in -200..400) return
+        mBinding.groupBest.visibility = VISIBLE
+        bestScore = maxOf(bestScore, score)
+        mBinding.tvBestScore.text = "${bestScore / 10.0}"
     }
 
     private fun setCurrentScore(result: MultiSportResult) {
@@ -392,7 +399,8 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     private fun initScoreRv() {
         mBinding.rvScore.layoutManager = LinearLayoutManager(context)
         mBinding.rvScore.adapter =
-            object : BaseBindingAdapter<ItemSitReachSportScoreBinding, MultiSportResult>(scoreList) {
+            object :
+                BaseBindingAdapter<ItemSitReachSportScoreBinding, MultiSportResult>(scoreList) {
                 @SuppressLint("SetTextI18n")
                 override fun convert(
                     holder: VBViewHolder<ItemSitReachSportScoreBinding>,
@@ -405,7 +413,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                     }
                     holder.vb.tvIndex.text = "${scoreList.size - holder.layoutPosition}"
                     LogUtil.d("===================${item.number} -- ${item.status}")
-                    holder.vb.tvScore.text = when(item.status) {
+                    holder.vb.tvScore.text = when (item.status) {
                         0 -> {
                             holder.vb.tvScore.setTextColor(Color.WHITE)
                             holder.vb.tvScoreUnit.text = "cm"
