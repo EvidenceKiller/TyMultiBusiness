@@ -13,24 +13,21 @@ data class GrpcCollaborationStatus(
  * 发送端通过Grpc传递int值，接收端用 [fromCode] 转换后判断
  */
 enum class CollaborationStatusEnum {
-    /** 加入 */
-    JOIN,
+    /** 已加入协同状态 */
+    JOINED,
 
-    /** 运动中 */
+    /** 开始运动 */
     SPORTING,
 
-    /** 加入且当前有已识别的人员 */
-    @Deprecated("此属性已过时，请使用 newVersion", level = DeprecationLevel.WARNING)
-    JOIN_WITH_IDENTIFIED,
-
-    /** 可加入但不是当前运动 */
+    /** 可加入（未加入，空闲状态） */
     JOINABLE,
 
-    /** 倒计时结束 */
-    @Deprecated("此属性已过时，请使用 newVersion", level = DeprecationLevel.WARNING)
-    COUNTDOWN_END,
-
+    /** 准备状态（未加入，准备状态） */
+    PREPARED,
     ;
+
+    /** 通过 gRPC 传输的状态 int 值（等价于 ordinal） */
+    val code: Int get() = ordinal
 
     companion object {
         /**

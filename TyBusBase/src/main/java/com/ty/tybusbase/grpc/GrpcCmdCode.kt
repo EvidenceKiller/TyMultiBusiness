@@ -32,5 +32,5 @@ object GrpcCmdCode {
 
 
     //实心球运动卡片状态 payload = GrpcSportCardStatus
-    const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x33
+    const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x40
 }

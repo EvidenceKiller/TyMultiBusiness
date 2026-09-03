@@ -15,24 +15,20 @@ data class GrpcCollaborationSportInfo(
  * 发送端通过Grpc传递int值，接收端用 [fromCode] 转换后判断
  */
 enum class CollaborationCmdEnum(val code: Int) {
-    /** 加入或者强制加入 */
-    JOIN(0),
-    /** 运动已开始 */
+    /** 强制加入协同 */
+    FORCE_JOIN(0),
+    /** 发起协同 */
     START(1),
-    /** 准备中 */
+    /** 准备加入协同 */
     PREPARE(2),
-    /** 运动中 */
-    SPORT(3),
-    /** 运动结束 */
-    FINISH(4),
-    /** 暂停停用(非激活)状态 */
-    DEACTIVATE(5),
-    /** 解散-退出 */
-    DISBAND(6),
-    /** 身份认证 */
-    IDENTITY_AUTHENTICATION(7),
+    /** 取消准备加入协同 */
+    CANCEL_PREPARE(3),
+    /** 开启协作 */
+    SPORT(4),
+    /** 结束协同 */
+    FINISH(5),
     /** 查询命令 */
-    QUERY(8);
+    QUERY(6);
 
     companion object {
         /**
@@ -62,6 +58,4 @@ enum class SubScreenSportState {
     FINISH,
     /** 暂停停用(非激活)状态 */
     DEACTIVATE,
-    /** 身份识别状态 */
-    IDENTITY_AUTHENTICATION
 }
