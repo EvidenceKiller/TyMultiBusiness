@@ -1473,8 +1473,7 @@ class ThirtySportViewModel(application: Application) :
             val statusEnum = CollaborationStatusEnum.fromCode(status ?: -1)
             val state = when (statusEnum) {
                 //运动中、已有已识别人员 → 不能加入协同，设备占用中
-                CollaborationStatusEnum.SPORTING,
-                CollaborationStatusEnum.JOIN_WITH_IDENTIFIED -> CollaborationAreaState.OCCUPIED
+                CollaborationStatusEnum.SPORTING -> CollaborationAreaState.OCCUPIED
                 //其余状态可加入协同
                 else -> CollaborationAreaState.NORMAL
             }
