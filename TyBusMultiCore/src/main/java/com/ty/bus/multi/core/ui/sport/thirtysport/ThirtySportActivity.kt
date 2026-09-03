@@ -11,6 +11,9 @@ import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.util.forEach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlHandlerThread
@@ -49,6 +52,8 @@ import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 
 class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtySportViewModel>() {
 
@@ -344,9 +349,20 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         })
     }
 
+    /**
+     * 收集 Flow。页面处于 STARTED 及以上状态才派发事件，退到后台暂停。
+     * 注意：flowWithLifecycle 在每次回到 STARTED 时会重新订阅，因此 replay>0（粘性）的 Flow
+     * 会把最近一次缓存事件重放；一次性事件请在 ViewModel 侧用 replay=0 的非粘性流。
+     */
+    private fun <T> Flow<T>.collectOnLifecycle(block: suspend (T) -> Unit) {
+        lifecycleScope.launch {
+            flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(block)
+        }
+    }
+
     override fun initObserver() {
         super.initObserver()
-        viewModel.startPreviewLD.observe(this) {
+        viewModel.startPreviewLD.collectOnLifecycle {
             //开启摄像头
             mBinding.cameraView.startPreview(it.first, object :
                 AdlCameraPreviewView.OnViewStatusListener {
@@ -379,23 +395,23 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             mBinding.cameraView.textureView.scaleX = -1f
         }
 
-        viewModel.cameraLoginStateLD.observe(this) {
+        viewModel.cameraLoginStateLD.collectOnLifecycle {
             if (it) hideTips() else setTips(getString(R.string.ipc_camera_fail_tip))
         }
 
-        viewModel.stopPreviewLD.observe(this) {
+        viewModel.stopPreviewLD.collectOnLifecycle {
             mBinding.cameraView.stopPreview()
         }
 
-        viewModel.resultLD.observe(this) {
+        viewModel.resultLD.collectOnLifecycle {
             getAreaSportViewByDisplay(it.first).updateScore(it.second)
         }
 
-        viewModel.singleResultLD.observe(this) {
+        viewModel.singleResultLD.collectOnLifecycle {
             getAreaSportViewByDisplay(it.first).updateScore(it.second.first, it.second.second)
         }
 
-        viewModel.identifiedLD.observe(this) {
+        viewModel.identifiedLD.collectOnLifecycle {
             AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.second.studentEntity!!.accountName}")
             getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
             timeOutHelper.cancel()
@@ -403,26 +419,26 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             updateAreaTabs()
         }
 
-        viewModel.sportStartedLD.observe(this) {
+        viewModel.sportStartedLD.collectOnLifecycle {
             //运动开始，底部导航栏切换为"x人运动中"文案
             updateAreaTabs()
         }
 
-        viewModel.collaborationStateLD.observe(this) {
+        viewModel.collaborationStateLD.collectOnLifecycle {
             //协同状态变化，刷新导航区（未连接/设备占用中红字不可点击）
             updateAreaTabs()
         }
 
-        viewModel.changeSportViewStateLD.observe(this) {
+        viewModel.changeSportViewStateLD.collectOnLifecycle {
             getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
         }
 
         //协同已识别人数变化：弹窗展示或更新"是否清空已识别结果"提示
-        viewModel.identifiedCountLD.observe(this) {
+        viewModel.identifiedCountLD.collectOnLifecycle {
             showOrUpdateClearIdentifyDialog()
         }
 
-        viewModel.countDownNoticeLD.observe(this) {
+        viewModel.countDownNoticeLD.collectOnLifecycle {
             //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
             val configText = viewModel.thirtySportConfig?.countdownText
             val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${it.second}" else "${
@@ -435,7 +451,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             mBinding.tvStartNow.visibility = View.VISIBLE
         }
 
-        viewModel.countDownFinishLD.observe(this) {
+        viewModel.countDownFinishLD.collectOnLifecycle {
             startDialog?.dismiss()
             //竞技开始，隐藏开始按钮，显示运动倒计时时间栏
             mBinding.tvStartNow.visibility = View.GONE
@@ -452,18 +468,18 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             }
         }
 
-        viewModel.sportCountDownLD.observe(this) {
+        viewModel.sportCountDownLD.collectOnLifecycle {
             //运动倒计时属于整个运动，统一在Activity层更新时间栏
             mBinding.tvTime.text = it.second
         }
 
-        viewModel.toDoneLD.observe(this) {
+        viewModel.toDoneLD.collectOnLifecycle {
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
             addResultView(it)
         }
 
-        viewModel.changeTimeTextBgLD.observe(this) {
+        viewModel.changeTimeTextBgLD.collectOnLifecycle {
             //时间栏背景属于整个运动，统一在Activity层设置
             mBinding.llTime.setBackgroundResource(R.mipmap.pic_time_warm_more)
         }
@@ -476,7 +492,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             initTopView(it)
         }
 
-        viewModel.showReportLD.observe(this) {
+        viewModel.showReportLD.collectOnLifecycle {
             val intent = Intent(this, SportReportActivity::class.java)
             intent.putExtra("url", it)
             intent.putExtra("show_white_board", true)

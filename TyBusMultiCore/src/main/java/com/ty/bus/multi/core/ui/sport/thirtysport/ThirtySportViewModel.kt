@@ -12,8 +12,13 @@ import android.os.Looper
 import android.os.SystemClock
 import android.util.SparseArray
 import androidx.core.util.forEach
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.log.AdlLogger
 import com.adl.base.overlay.SportOverlayMultiRegion
@@ -100,6 +105,20 @@ import com.ty.tybusbase.grpc.GrpcCollaborationStatus
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
 import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
 import com.ty.tybusbase.grpc.GrpcSportResult
+import kotlinx.coroutines.channels.BufferOverflow
+
+/**
+ * 创建一次性事件流（非粘性）：
+ * - replay=0：事件仅在发射当下派发给已订阅方；错过即丢弃，页面重新订阅不会重放历史事件，
+ *   适合所有"只处理一次"的 UI 消息（倒计时更新、识别结果、页面跳转等）。
+ * - 大容量缓冲 + DROP_OLDEST：高频事件不会阻塞发射方，且不易丢失（仅极端积压时丢弃最旧值）
+ */
+private fun <T> eventFlow(replay: Int = 0): MutableSharedFlow<T> =
+    MutableSharedFlow(
+        replay = replay,
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
 
 /**
  * 导航区协同状态
@@ -159,39 +178,56 @@ class ThirtySportViewModel(application: Application) :
     var startTime: Long = 0
     var endTime: Long = 0
 
-    val startPreviewLD = MutableLiveData<Pair<AdlCamera, AdlCameraFrameProcessor>>() //开启预览LD
-    val stopPreviewLD = MutableLiveData<Boolean>() //停止预览LD
-    val resultLD = MutableLiveData<Pair<DisplayType, MutableList<GroupSportBaseMan>>>() //成绩结果LD
-    val singleResultLD = MutableLiveData<Pair<DisplayType, Pair<Int, Int>>>() //成绩结果LD
-    val countDownFinishLD = MutableLiveData<Pair<DisplayType, Boolean>>() //竞技开始倒计时完成LD
-    val toDoneLD = MutableLiveData<List<ThirtySportResultItem>>() //比赛结束LD
-    val changeSportViewStateLD =
-        MutableLiveData<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>() //切换运动卡片状态
-//    val indicatorLD = MutableLiveData<IndicatorsResultDto?>()
+    //开启预览事件
+    private val _startPreviewLD = eventFlow<Pair<AdlCamera, AdlCameraFrameProcessor>>()
+    val startPreviewLD: SharedFlow<Pair<AdlCamera, AdlCameraFrameProcessor>> = _startPreviewLD.asSharedFlow()
+    //停止预览事件
+    private val _stopPreviewLD = eventFlow<Boolean>()
+    val stopPreviewLD: SharedFlow<Boolean> = _stopPreviewLD.asSharedFlow()
+    //成绩结果（区域 → 已识别人员列表）
+    private val _resultLD = eventFlow<Pair<DisplayType, MutableList<GroupSportBaseMan>>>()
+    val resultLD: SharedFlow<Pair<DisplayType, MutableList<GroupSportBaseMan>>> = _resultLD.asSharedFlow()
+    //单人次成绩结果（区域 → (位置, 成绩)）
+    private val _singleResultLD = eventFlow<Pair<DisplayType, Pair<Int, Int>>>()
+    val singleResultLD: SharedFlow<Pair<DisplayType, Pair<Int, Int>>> = _singleResultLD.asSharedFlow()
+    //竞技开始倒计时完成事件（区域 → 是否完成）
+    private val _countDownFinishLD = eventFlow<Pair<DisplayType, Boolean>>()
+    val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> = _countDownFinishLD.asSharedFlow()
+    //比赛结束事件（一次性消息：非粘性，返回页面不会重放，避免重复 clearScreen/addResultView）
+    private val _toDoneLD = eventFlow<List<ThirtySportResultItem>>()
+    val toDoneLD: SharedFlow<List<ThirtySportResultItem>> = _toDoneLD.asSharedFlow()
+    //切换运动卡片状态（区域 → (位置, 卡片状态)）
+    private val _changeSportViewStateLD = eventFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>()
+    val changeSportViewStateLD: SharedFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>> = _changeSportViewStateLD.asSharedFlow()
+    //已识别人员（区域 → (位置, 人员信息)）
+    private val _identifiedLD = eventFlow<Pair<DisplayType, Pair<Int, AccountInfo>>>()
+    val identifiedLD: SharedFlow<Pair<DisplayType, Pair<Int, AccountInfo>>> = _identifiedLD.asSharedFlow()
+    //运动是否开始（状态，需支持同步读取当前值，供开始条件/导航文案判断）
+    private val _sportStartedLD = MutableStateFlow(false)
+    val sportStartedLD: StateFlow<Boolean> = _sportStartedLD.asStateFlow()
 
-    //已识别人员
-    val identifiedLD = MutableLiveData<Pair<DisplayType, Pair<Int, AccountInfo>>>()
-    val sportStartedLD = MutableLiveData<Boolean>() //运动开始事件，用于UI切换底部导航栏文案
-
-    //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示
+    //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示（状态，需支持同步读取）
     private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
-    val collaborationStateLD = MutableLiveData<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+    private val _collaborationStateLD = MutableStateFlow<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+    val collaborationStateLD: StateFlow<Map<DisplayType, CollaborationAreaState>> = _collaborationStateLD.asStateFlow()
 
     //协同已识别人数上报记录：区域 → 已识别人数（CMD_SPORT_IDENTIFIED_COUNT），用于"是否清空已识别结果"提示
     val identifiedCountMap = mutableMapOf<DisplayType, Int>()
 
     //已识别人数变化通知（弹窗展示/更新，含弹窗期间新用户到达的人数同步）
-    val identifiedCountLD = MutableLiveData<Unit>()
+    private val _identifiedCountLD = eventFlow<Unit>()
+    val identifiedCountLD: SharedFlow<Unit> = _identifiedCountLD.asSharedFlow()
 
-    //人员报告信息展示
-    val showReportLD = MutableLiveData<String>()
+    //人员报告信息展示（一次性跳转消息：非粘性，避免从报告页返回时重放导致再次跳转）
+    private val _showReportLD = eventFlow<String>()
+    val showReportLD: SharedFlow<String> = _showReportLD.asSharedFlow()
 
     /**
      * 更新单个区域协同状态，保留其他区域已有状态，避免互相覆盖
      */
     private fun updateCollaborationState(displayType: DisplayType, state: CollaborationAreaState) {
         collaborationStateMap[displayType] = state
-        uiHandler.post { collaborationStateLD.value = collaborationStateMap.toMap() }
+        uiHandler.post { _collaborationStateLD.value = collaborationStateMap.toMap() }
     }
 
     //协同开始条件跟踪：主屏倒计时是否结束
@@ -205,12 +241,17 @@ class ThirtySportViewModel(application: Application) :
 
     //协同开始条件跟踪：开始运动指令是否已发送
     private var startCommandSent = false
-    val changeTimeTextBgLD = MutableLiveData<Pair<DisplayType, Int>>() //改变时间显示UI的背景色LD
-    val cameraLoginStateLD = MutableLiveData<Boolean>() //相机登录状态LD
-
+    //改变时间显示UI的背景色（区域 → 背景色资源）
+    private val _changeTimeTextBgLD = eventFlow<Pair<DisplayType, Int>>()
+    val changeTimeTextBgLD: SharedFlow<Pair<DisplayType, Int>> = _changeTimeTextBgLD.asSharedFlow()
+    //相机登录状态
+    private val _cameraLoginStateLD = eventFlow<Boolean>()
+    val cameraLoginStateLD: SharedFlow<Boolean> = _cameraLoginStateLD.asSharedFlow()
 
     var countDownTime: Long = 10 //竞技倒计时10S，单位秒
-    var countDownNoticeLD = MutableLiveData<Pair<DisplayType, String>>() //竞技倒计时过程中更新UI的LD
+    //竞技倒计时过程中更新UI（每秒一次，高频事件流）
+    private val _countDownNoticeLD = eventFlow<Pair<DisplayType, String>>()
+    val countDownNoticeLD: SharedFlow<Pair<DisplayType, String>> = _countDownNoticeLD.asSharedFlow()
 
     //记录每个位置状态
     private val currentPersonState =
@@ -227,7 +268,7 @@ class ThirtySportViewModel(application: Application) :
     //X秒竞技倒计时的Timer任务
     val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
-            countDownNoticeLD.postValue(DisplayType.MAIN to "${countDownTime--}")
+            _countDownNoticeLD.tryEmit(DisplayType.MAIN to "${countDownTime--}")
         }
 
         override fun onFinish() {
@@ -244,7 +285,9 @@ class ThirtySportViewModel(application: Application) :
     val soundCount = 5
     val simpleFormat = SimpleDateFormat("m:ss")
     var sportCountDownTime = 60L // 比赛时间 S
-    val sportCountDownLD = MutableLiveData<Pair<DisplayType, String>>()//更新倒计时的LD
+    //运动倒计时文本（区域 → 文案，每秒一次，高频事件流）
+    private val _sportCountDownLD = eventFlow<Pair<DisplayType, String>>()
+    val sportCountDownLD: SharedFlow<Pair<DisplayType, String>> = _sportCountDownLD.asSharedFlow()
 
     private lateinit var factory: AbstractMultiSportFactory
 
@@ -481,7 +524,7 @@ class ThirtySportViewModel(application: Application) :
                         MultiSportResult(accountInfo, accountIndex)
                     )
                     AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
-                    identifiedLD.value = DisplayType.MAIN to Pair(accountIndex, accountInfo)
+                    _identifiedLD.tryEmit(DisplayType.MAIN to Pair(accountIndex, accountInfo))
                     //给accountInfo赋值，用来获取存储视频的地址
                     if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                         accountInfoLD.postValue(accountInfo)
@@ -544,7 +587,7 @@ class ThirtySportViewModel(application: Application) :
                 skipPersonArray[it.positionNum]?.count = it.score
             }
 //            LogUtil.d("成绩：$str")
-            resultLD.postValue(DisplayType.MAIN to result)
+            _resultLD.tryEmit(DisplayType.MAIN to result)
         }
     }
 
@@ -803,7 +846,7 @@ class ThirtySportViewModel(application: Application) :
         //停止倒计时音效
         stopPlayCutDown()
         startCountDownTimer.cancel()
-        countDownFinishLD.postValue(DisplayType.MAIN to true)
+        _countDownFinishLD.tryEmit(DisplayType.MAIN to true)
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
         //处理开始后摄像头分辨率
@@ -825,10 +868,10 @@ class ThirtySportViewModel(application: Application) :
         ipcHik.pauseProcessor()
         setResolution(ipcHik, getSportResolution())
         SystemClock.sleep(100)
-        stopPreviewLD.postValue(true)
+        _stopPreviewLD.tryEmit(true)
         SystemClock.sleep(100)
         ipcHik.restartProcessor()
-        startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+        _startPreviewLD.tryEmit(Pair(ipcHik, cameraDispatcher))
         SystemClock.sleep(200)
         /********************切换分辨率********************/
         multiSportProcessor.clearTransform()
@@ -838,10 +881,10 @@ class ThirtySportViewModel(application: Application) :
         ipcHik.pauseProcessor()
         setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
         SystemClock.sleep(100)
-        stopPreviewLD.postValue(true)
+        _stopPreviewLD.tryEmit(true)
         SystemClock.sleep(100)
         ipcHik.restartProcessor()
-        startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+        _startPreviewLD.tryEmit(Pair(ipcHik, cameraDispatcher))
         SystemClock.sleep(200)
         /********************切换分辨率********************/
         multiSportProcessor.clearTransform()
@@ -850,13 +893,13 @@ class ThirtySportViewModel(application: Application) :
     private fun changeMultiIdentityCardState(index: Int, state: MultiSportCardViewState) {
         uiHandler.post {
             LogUtil.d("changeMultiIdentityCardState: index $index state ${state.name}")
-            changeSportViewStateLD.value = DisplayType.MAIN to Pair(index, state)
+            _changeSportViewStateLD.tryEmit(DisplayType.MAIN to Pair(index, state))
         }
     }
 
     private fun identified(type: DisplayType, index: Int, accountInfo: AccountInfo) {
         uiHandler.post {
-            identifiedLD.value = type to Pair(index, accountInfo)
+            _identifiedLD.tryEmit(type to Pair(index, accountInfo))
         }
     }
 
@@ -884,12 +927,12 @@ class ThirtySportViewModel(application: Application) :
                 override fun onLoginSucceed() {
                     setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
                     SystemClock.sleep(100)
-                    cameraLoginStateLD.postValue(true)
-                    startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+                    _cameraLoginStateLD.tryEmit(true)
+                    _startPreviewLD.tryEmit(Pair(ipcHik, cameraDispatcher))
                 }
 
                 override fun onLoginFail() {
-                    cameraLoginStateLD.postValue(false)
+                    _cameraLoginStateLD.tryEmit(false)
                 }
 
                 override fun onOpenStatus(p0: String?) {
@@ -897,7 +940,7 @@ class ThirtySportViewModel(application: Application) :
                 }
 
                 override fun onError(p0: Exception?) {
-                    cameraLoginStateLD.postValue(false)
+                    _cameraLoginStateLD.tryEmit(false)
                 }
 
                 override fun onStreamLoss() {
@@ -913,7 +956,7 @@ class ThirtySportViewModel(application: Application) :
     override fun toStatusSportStart() {
         super.toStatusSportStart()
         skipRoseState = MultiSportState.SPORTING
-        sportStartedLD.postValue(true)
+        _sportStartedLD.value = true
         startTime = System.currentTimeMillis()
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
         sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
@@ -924,15 +967,15 @@ class ThirtySportViewModel(application: Application) :
                     SoundPlayUtils.play(25 + soundIndex++ % soundCount)
                 }
                 if (sportCountDownTime == 10L) {
-                    changeTimeTextBgLD.postValue(DisplayType.MAIN to R.drawable.pk_skip_rose_time_warning_shape)
+                    _changeTimeTextBgLD.tryEmit(DisplayType.MAIN to R.drawable.pk_skip_rose_time_warning_shape)
                 }
 
-                sportCountDownLD.postValue(DisplayType.MAIN to simpleFormat.format(Date((sportCountDownTime) * 1000)))
+                _sportCountDownLD.tryEmit(DisplayType.MAIN to simpleFormat.format(Date((sportCountDownTime) * 1000)))
             }
 
             override fun onFinish() {
                 //比赛结束
-                sportCountDownLD.postValue(DisplayType.MAIN to "0:00")
+                _sportCountDownLD.tryEmit(DisplayType.MAIN to "0:00")
                 sportFinish()
             }
 
@@ -1021,7 +1064,7 @@ class ThirtySportViewModel(application: Application) :
         }
         //合并主屏+副屏成绩，供结果页统一展示
         val mergedItems = mergeAllAreaResults(resultList)
-        toDoneLD.postValue(mergedItems)
+        _toDoneLD.tryEmit(mergedItems)
         handleUploadResult(resultList)
     }
 
@@ -1382,11 +1425,11 @@ class ThirtySportViewModel(application: Application) :
 //            ipcHik.pauseProcessor()
 //            setResolution(ipcHik, getIdentifyResolution())
 //            SystemClock.sleep(100)
-//            stopPreviewLD.postValue(true)
+//            _stopPreviewLD.tryEmit(true)
 //            SystemClock.sleep(100)
 //            changeResolution()
 //            ipcHik.restartProcessor()
-//            startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
+//            _startPreviewLD.tryEmit(Pair(ipcHik, cameraDispatcher))
 //            SystemClock.sleep(200)
 //            /********************切换分辨率********************/
 //            multiSportProcessor.clearTransform()
@@ -1507,7 +1550,7 @@ class ThirtySportViewModel(application: Application) :
      */
     fun isSubScreenJoined(displayType: DisplayType): Boolean =
         displayType != DisplayType.MAIN &&
-                collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
+                _collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
 
     /**
      * 向已连接副屏发送开始运动指令，保证只发送一次
@@ -1539,7 +1582,7 @@ class ThirtySportViewModel(application: Application) :
                 if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
                     LogUtil.d("收到${displayType.name}副屏已识别人数：$count")
                     identifiedCountMap[displayType] = count
-                    identifiedCountLD.value = Unit
+                    _identifiedCountLD.tryEmit(Unit)
                 }
             }
         }
@@ -1553,7 +1596,7 @@ class ThirtySportViewModel(application: Application) :
         uiHandler.post {
             if (identifiedCountMap.containsKey(displayType)) {
                 identifiedCountMap[displayType] = (identifiedCountMap[displayType] ?: 0) + 1
-                identifiedCountLD.value = Unit
+                _identifiedCountLD.tryEmit(Unit)
             }
         }
     }
@@ -1609,8 +1652,9 @@ class ThirtySportViewModel(application: Application) :
         personArray.clear()
         uiHandler.post {
             indexes.forEach { index ->
-                changeSportViewStateLD.value =
+                _changeSportViewStateLD.tryEmit(
                     displayType to (index to MultiSportCardViewState.NOBODY)
+                )
             }
         }
     }
@@ -1640,7 +1684,7 @@ class ThirtySportViewModel(application: Application) :
 
                         else -> {}
                     }
-                    singleResultLD.value = displayType to (result.index to score)
+                    _singleResultLD.tryEmit(displayType to (result.index to score))
                 }
             }
         }
@@ -1700,7 +1744,7 @@ class ThirtySportViewModel(application: Application) :
             showLoading()
             val recordUrl = SportRecordService.querySportOnlineReport(recordId)
             if (recordUrl?.startsWith("http") == true) {
-                showReportLD.postValue(recordUrl)
+                _showReportLD.tryEmit(recordUrl)
             } else {
                 ToastUtil.getInstance(getApplication(), "暂无报告").show()
             }
@@ -1722,10 +1766,12 @@ class ThirtySportViewModel(application: Application) :
             sportCardStatus?.let { card ->
                 MultiSportCardViewState.fromValue(card.status)?.let { state ->
                     uiHandler.post {
-                        changeSportViewStateLD.value = it.from.getDisplayType(
-                            leftSubScreenIp,
-                            rightSubScreenIp
-                        ) to Pair(card.index, state)
+                        _changeSportViewStateLD.tryEmit(
+                            it.from.getDisplayType(
+                                leftSubScreenIp,
+                                rightSubScreenIp
+                            ) to Pair(card.index, state)
+                        )
                     }
                 }
             }
