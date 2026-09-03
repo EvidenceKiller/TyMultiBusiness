@@ -5,7 +5,8 @@ package com.ty.tybusbase.grpc
  * @param status 状态int值，对应 [CollaborationStatusEnum] 的 ordinal
  */
 data class GrpcCollaborationStatus(
-    val status: Int
+    val status: Int,
+    val skuId: String? = ""
 )
 
 /**
