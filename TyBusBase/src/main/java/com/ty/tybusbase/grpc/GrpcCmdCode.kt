@@ -16,14 +16,20 @@ object GrpcCmdCode {
     //协同状态回复 payload = GrpcCollaborationStatus
     const val CMD_COLLABORATION_STATUS = 0x24
 
+
+
     //运动卡片状态 payload = GrpcSportCardStatus
-    const val CMD_SPORT_CARD_STATUS = 0x30
+    const val CMD_SPORT_CARD_STATUS = 0x50
 
     //已识别多少人 payload = GrpcSportIdentifiedCount
-    const val CMD_SPORT_IDENTIFIED_COUNT = 0x31
+    const val CMD_SPORT_IDENTIFIED_COUNT = 0x51
 
     //清除已识别的信息 payload = ""
-    const val CMD_CLEAR_IDENTIFY_INFO = 0x32
+    const val CMD_CLEAR_IDENTIFY_INFO = 0x52
+
+    //倒计时结束
+    const val CMD_COUNTDOWN_END = 0x53
+
 
     //实心球运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x33
