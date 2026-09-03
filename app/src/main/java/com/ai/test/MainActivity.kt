@@ -97,6 +97,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     it.forEach { cId ->
                         LogUtil.d("有客户端连上,${GrpcManager.getClientIp(cId)}")
                     }
+                    LogUtil.d("总连接数：${it.size}")
                 }
             } catch (e: Exception) {
             }
