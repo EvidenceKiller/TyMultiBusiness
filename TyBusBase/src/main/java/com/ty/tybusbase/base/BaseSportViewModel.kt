@@ -394,7 +394,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         AdlService.getService().recordUploadDao.insert(sportRecordEntity)
     }
 
-    private fun buildSportRecordEntity(
+    fun buildSportRecordEntity(
         sceneId: String,
         result: SportResult,
         aId: String?,
