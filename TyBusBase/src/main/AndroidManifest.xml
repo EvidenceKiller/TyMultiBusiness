@@ -5,5 +5,8 @@
         <activity
             android:name=".ui.report.SportReportActivity"
             android:exported="true" />
+        <activity
+            android:name=".ui.webview.CommonWebViewActivity"
+            android:exported="true" />
     </application>
 </manifest>
