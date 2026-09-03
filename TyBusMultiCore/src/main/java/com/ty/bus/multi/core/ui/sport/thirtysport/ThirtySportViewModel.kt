@@ -1052,7 +1052,8 @@ class ThirtySportViewModel(application: Application) :
                         displayType = DisplayType.LEFT,
                         areaName = areaNameMap[DisplayType.LEFT] ?: "",
                         isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
-                        trackNumber = result.number
+                        trackNumber = result.number,
+                        recordId = result.recordId
                     )
                 )
             }
@@ -1066,7 +1067,8 @@ class ThirtySportViewModel(application: Application) :
                         displayType = DisplayType.RIGHT,
                         areaName = areaNameMap[DisplayType.RIGHT] ?: "",
                         isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
-                        trackNumber = result.number
+                        trackNumber = result.number,
+                        recordId = result.recordId
                     )
                 )
             }
@@ -1621,8 +1623,17 @@ class ThirtySportViewModel(application: Application) :
                 uiHandler.post {
                     //参考主屏postResult，将成绩存储到对应区域人员数组的count中
                     when (displayType) {
-                        DisplayType.LEFT -> leftPersonArray[result.index]?.count = score
-                        DisplayType.RIGHT -> rightPersonArray[result.index]?.count = score
+                        DisplayType.LEFT -> {
+                            leftPersonArray[result.index]?.count = score
+                            leftPersonArray[result.index]?.recordId = result.recordId
+
+                        }
+
+                        DisplayType.RIGHT -> {
+                            rightPersonArray[result.index]?.count = score
+                            rightPersonArray[result.index]?.recordId = result.recordId
+                        }
+
                         else -> {}
                     }
                     singleResultLD.value = displayType to (result.index to score)

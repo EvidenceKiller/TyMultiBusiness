@@ -14,14 +14,19 @@ data class ThirtySportResultItem(
     /** 是否为游客 */
     val isVisitor: Boolean,
     /** 道次（从0开始，展示需+1） */
-    val trackNumber: Int
+    val trackNumber: Int,
+    /**  记录ID，用于获取在线报告 */
+    var recordId: String? = null
 ) {
     /** 成绩 */
     val count: Int get() = result.count
+
     /** 排名 */
     val rank: Int get() = result.rank
+
     /** 姓名 */
     val name: String? get() = result.accountInfo.studentEntity?.accountName
+
     /** 头像地址 */
     val faceUrl: String? get() = result.accountInfo.studentEntity?.userFaceImgUrl
 }

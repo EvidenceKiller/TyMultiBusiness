@@ -10,5 +10,6 @@ open class MultiSportResult(
     var count: Int = 0,
     var rank: Int = 0,
     var meetGroup: MeetGroupDetailsEntity? = null,
-    var hasVoice: Boolean = false
+    var hasVoice: Boolean = false,
+    var recordId:String? = null,
 )

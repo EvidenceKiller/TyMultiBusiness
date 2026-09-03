@@ -483,7 +483,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         srrvResult.setSupportReport(viewModel.isSupportReport())
         if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
             srrvResult.setReportOnclickListener {
-                viewReport(viewModel.getIndicatorsResultDto(it))
+                when(it.displayType){
+                    DisplayType.MAIN -> viewReport(viewModel.getIndicatorsResultDto(it.trackNumber))
+                    DisplayType.LEFT -> ToastUtil.getInstance(this,"稍后处理: ${viewModel.leftPersonArray[it.trackNumber].recordId}").show()
+                    DisplayType.RIGHT -> ToastUtil.getInstance(this,"稍后处理: ${viewModel.rightPersonArray[it.trackNumber].recordId}").show()
+                    else -> {}
+                }
             }
         }
 

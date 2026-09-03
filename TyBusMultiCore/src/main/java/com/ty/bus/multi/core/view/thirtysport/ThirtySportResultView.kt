@@ -39,7 +39,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     private val mBinding: ThirtySportResultViewBinding
     var top1Count: Int = Int.MAX_VALUE
 
-    protected var reportClickListener: Action1<Int>? = null
+    protected var reportClickListener: Action1<ThirtySportResultItem>? = null
     private var resultList: List<ThirtySportResultItem>? = null
 
     //倒计时
@@ -59,7 +59,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
         initView()
     }
 
-    fun setReportOnclickListener(listener: (view: Int) -> Unit) {
+    fun setReportOnclickListener(listener: (view: ThirtySportResultItem) -> Unit) {
         reportClickListener = listener
     }
 
@@ -122,7 +122,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
                     }
                     if (isSupportReport) {
                         holder.vb.btnReport.visibility = VISIBLE
-                        holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item.trackNumber) }
+                        holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item) }
                     } else {
                         holder.vb.btnReport.visibility = GONE
                     }

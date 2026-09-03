@@ -12,4 +12,5 @@ data class GrpcSportResult(
     var accountId: String = "",
     var sportSkuId: String = "",
     var sportSkuName: String = "",
+    val recordId: String? = null  //运动记录ID，可查询在线报告
 )
