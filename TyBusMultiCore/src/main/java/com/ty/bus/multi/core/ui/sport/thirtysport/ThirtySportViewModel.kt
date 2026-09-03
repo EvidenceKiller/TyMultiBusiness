@@ -85,6 +85,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import androidx.core.net.toUri
+import com.adl.service.web.SportRecordService
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.getDisplayType
@@ -181,6 +182,9 @@ class ThirtySportViewModel(application: Application) :
 
     //已识别人数变化通知（弹窗展示/更新，含弹窗期间新用户到达的人数同步）
     val identifiedCountLD = MutableLiveData<Unit>()
+
+    //人员报告信息展示
+    val showReportLD = MutableLiveData<String>()
 
     /**
      * 更新单个区域协同状态，保留其他区域已有状态，避免互相覆盖
@@ -1681,6 +1685,26 @@ class ThirtySportViewModel(application: Application) :
                     else -> LogUtil.d("收到未知区域用户消息：clientId=${data.from}")
                 }
             }
+        }
+    }
+
+    /**
+     *
+     */
+    fun queryOnlineReport(recordId: String?) {
+        if (recordId.isNullOrEmpty()) {
+            ToastUtil.getInstance(getApplication(), "暂无报告").show()
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            showLoading()
+            val recordUrl = SportRecordService.querySportOnlineReport(recordId)
+            if (recordUrl?.startsWith("http") == true) {
+                showReportLD.postValue(recordUrl)
+            } else {
+                ToastUtil.getInstance(getApplication(), "暂无报告").show()
+            }
+            hideLoading()
         }
     }
 

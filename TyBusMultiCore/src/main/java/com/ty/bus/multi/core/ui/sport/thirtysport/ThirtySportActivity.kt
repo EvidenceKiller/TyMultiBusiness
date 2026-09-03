@@ -34,6 +34,7 @@ import com.ty.bus.multi.core.config.MultiCoreConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.entity.ThirtySportResultItem
+import com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity
 import com.ty.bus.multi.core.view.thirtysport.ThirtySportResultView
 import com.ty.bus.multi.databinding.AcThirtySportBinding
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -64,6 +65,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     private lateinit var srrvResult: ThirtySportResultView
     private val number = 10
     private var startDialog: CommonTipDialog? = null
+
     /** "是否清空已识别结果"对话框（协同识别计数提示，展示期间内容可动态更新） */
     private var clearIdentifyDialog: CommonTipDialog? = null
 
@@ -273,11 +275,13 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
                 tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
                 tvTab.isEnabled = false
             }
+
             CollaborationAreaState.OCCUPIED -> {
                 tvTab.text = getString(occupiedRes)
                 tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
                 tvTab.isEnabled = false
             }
+
             else -> {
                 tvTab.text = getString(
                     if (sporting) sportingRes else identifiedRes,
@@ -388,7 +392,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.singleResultLD.observe(this) {
-            getAreaSportViewByDisplay(it.first).updateScore(it.second.first,it.second.second)
+            getAreaSportViewByDisplay(it.first).updateScore(it.second.first, it.second.second)
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -472,6 +476,13 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             initTopView(it)
         }
 
+        viewModel.showReportLD.observe(this) {
+            val intent = Intent(this, SportReportActivity::class.java)
+            intent.putExtra("url", it)
+            intent.putExtra("show_white_board", true)
+            startActivity(intent)
+        }
+
     }
 
     private fun addResultView(resultList: List<ThirtySportResultItem>) {
@@ -483,10 +494,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         srrvResult.setSupportReport(viewModel.isSupportReport())
         if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
             srrvResult.setReportOnclickListener {
-                when(it.displayType){
+                when (it.displayType) {
                     DisplayType.MAIN -> viewReport(viewModel.getIndicatorsResultDto(it.trackNumber))
-                    DisplayType.LEFT -> ToastUtil.getInstance(this,"稍后处理: ${viewModel.leftPersonArray[it.trackNumber].recordId}").show()
-                    DisplayType.RIGHT -> ToastUtil.getInstance(this,"稍后处理: ${viewModel.rightPersonArray[it.trackNumber].recordId}").show()
+                    DisplayType.LEFT -> viewModel.queryOnlineReport(viewModel.leftPersonArray[it.trackNumber].recordId)
+
+                    DisplayType.RIGHT -> viewModel.queryOnlineReport(viewModel.rightPersonArray[it.trackNumber].recordId)
+
                     else -> {}
                 }
             }
@@ -603,7 +616,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             DisplayType.LEFT -> mBinding.sportViewLeft
             DisplayType.MAIN -> mBinding.sportViewMain
             DisplayType.RIGHT -> mBinding.sportViewRight
-            DisplayType.OTHER -> {mBinding.sportViewMain}
+            DisplayType.OTHER -> {
+                mBinding.sportViewMain
+            }
         }
 
     /**
