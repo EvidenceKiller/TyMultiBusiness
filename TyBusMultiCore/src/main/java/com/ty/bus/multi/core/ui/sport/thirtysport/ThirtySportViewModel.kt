@@ -229,7 +229,7 @@ class ThirtySportViewModel(application: Application) :
         override fun onFinish() {
             //主屏倒计时结束，统一检查协同开始条件
             mainCountDownEnded = true
-            readyGo()
+            checkCollaborationSportStart()
         }
     }
 
@@ -492,7 +492,7 @@ class ThirtySportViewModel(application: Application) :
                     //处理竞技倒计时
                     //如果已识别五人，则直接开始
                     if (skipPersonArray.size == skipManCount) {
-                        readyGo()
+                        checkCollaborationSportStart()
                         return@launch
                     }
                     //重新复位倒计时时间
@@ -748,7 +748,7 @@ class ThirtySportViewModel(application: Application) :
      * 主屏触发准备开始（倒计时结束/满员），统一检查协同开始条件
      */
     fun readyGo() {
-        checkCollaborationSportStart()
+        startSport()
     }
 
     /**
@@ -757,6 +757,10 @@ class ThirtySportViewModel(application: Application) :
      */
     private fun checkCollaborationSportStart() {
         if (!canStartCollaborationSport()) return
+        startSport()
+    }
+
+    private fun startSport() {
         tryStartSport()
         sendSportCommand()
     }
@@ -1400,6 +1404,14 @@ class ThirtySportViewModel(application: Application) :
         registerResult()
         registerCollaborationStatus()
         registerIdentifiedCount()
+        registerCountDownEnd()
+    }
+
+    private fun registerCountDownEnd() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_COUNTDOWN_END, GRPC_KEY) {
+            subScreenCountDownEnded.add(it.from.getDisplayType(leftSubScreenIp, rightSubScreenIp))
+            checkCollaborationSportStart()
+        }
     }
 
     /**
@@ -1465,11 +1477,6 @@ class ThirtySportViewModel(application: Application) :
                 CollaborationStatusEnum.JOIN_WITH_IDENTIFIED -> CollaborationAreaState.OCCUPIED
                 //其余状态可加入协同
                 else -> CollaborationAreaState.NORMAL
-            }
-            //副屏倒计时结束，记录状态并统一检查协同开始条件
-            if (displayType != DisplayType.OTHER && statusEnum == CollaborationStatusEnum.COUNTDOWN_END) {
-                subScreenCountDownEnded.add(displayType)
-                checkCollaborationSportStart()
             }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
             updateCollaborationState(displayType, state)
