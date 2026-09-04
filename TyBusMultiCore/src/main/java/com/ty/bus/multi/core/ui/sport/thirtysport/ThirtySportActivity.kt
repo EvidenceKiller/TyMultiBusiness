@@ -84,7 +84,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
         timeOutHelper.cancel()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
