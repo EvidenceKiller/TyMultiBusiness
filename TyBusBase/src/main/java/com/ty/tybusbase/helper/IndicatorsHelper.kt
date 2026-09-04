@@ -12,6 +12,7 @@ import com.adl.sport.general.EuExerciseFileGroup
 import com.adl.sport.general.pullup.PullUpPrescription
 import com.adl.sport.general.ropeskip.EuRopeSkipExercisePrescription
 import com.adl.sport.general.situp.SitUpPrescription
+import com.adl.sport.solidball.bp.SolidBallPreBean
 import com.adl.sport.standard.ExercisePrescription
 import com.ty.tybusbase.entity.IndicatorSportStartTimeInvalid
 import com.ty.tybusbase.entity.IndicatorSportTimeInvalid
@@ -23,9 +24,12 @@ import com.ty.tybusbase.entity.IndicatorInterrupt
 import com.ty.tybusbase.entity.IndicatorXY
 import com.ty.tybusbase.entity.WristRate
 import com.ty.tybusbase.utils.NumberUtil
+import com.ty.tybusbase.utils.SportIndicatorsUtils.setValueScale
+import com.ty.tybusbase.utils.StringKt
 import com.ty.tybusbase.utils.VideoUtil
 import com.zy.logic.Point
 import java.io.File
+import java.math.RoundingMode
 import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.roundToInt
@@ -778,6 +782,14 @@ object IndicatorsHelper {
         return indicatorsImages
     }
 
+    fun addIndicatorsImages(path: String?, des: String): MutableList<SportImageEntity> {
+        return if (path.isNullOrEmpty()) {
+            mutableListOf()
+        } else {
+            mutableListOf(SportImageEntity(path, des))
+        }
+    }
+
     fun createIndicatorsResultDto(
         code: String,
         indicatorsList: MutableList<SportIndicatorsEntity<*, *>>?,
@@ -835,4 +847,205 @@ object IndicatorsHelper {
             NumberUtil.format2(p.y / 1000.0).toFloat()
         )
     }
+
+    fun getMedicineballIndicatorsList(
+        distanceResult: Double,// 毫米
+        resultCode: Int,//  0 = 正常运动 -1 = 踩线违规 -2 = 双手未举过头顶
+        prescription: SolidBallPreBean?
+    ): MutableList<SportIndicatorsEntity<*, *>>? {
+
+        prescription ?: return null
+
+        val indicatorsList = mutableListOf<SportIndicatorsEntity<*, *>>()
+
+        //  【距离成绩】距离上报单位厘米，如果无成绩上报空字符串
+        //  毫米->厘米
+        val distanceResultCM = StringKt.bigDecimalDivide(
+            distanceResult, 10.0, 1, RoundingMode.HALF_UP
+        ).toString()
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_DISTANCE_SCORE
+            this.indicatorsName = "距离成绩"
+            this.indicatorsValue = StringKt.subZeroAndDot(distanceResultCM)
+            this.indicatorsUnit = "cm"
+        })
+
+        //  【得分】得分（正常成绩0-100分），无分数空字符串（横线展示）
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_SCORE
+            this.indicatorsName = "得分"
+            this.indicatorsValue = ""
+            this.indicatorsUnit = "分"
+        })
+
+        // 【等级】等级数值（优良中差），无等级上报空字符串（横线展示）
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_LEVEL
+            this.indicatorsName = "等级"
+            this.indicatorsValue = ""
+            this.indicatorsUnit = ""
+        })
+
+        //  resultCode      0 = 正常运动 -1 = 踩线违规 -2 = 双手未举过头顶
+        //  violationType   【违规类型】违规类型（0：投掷踩线1：助跑投掷2：双手未过头顶投掷3：未落在投掷区内）
+        //  【成绩违规】0：未违规 1：违规
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_VIOLATION
+            this.indicatorsName = "成绩违规"
+            this.indicatorsValue = if (resultCode == 0) "0" else "1"
+            this.indicatorsUnit = ""
+        })
+
+        //  【违规类型】违规类型（0：投掷踩线1：助跑投掷2：双手未过头顶投掷3：未落在投掷区内）
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_VIOLATION_TYPE
+            this.indicatorsName = "违规类型"
+            this.indicatorsValue = when (resultCode) {
+                -1 -> "0"
+                -2 -> "2"
+                else -> ""
+            }
+            this.indicatorsUnit = ""
+        })
+
+        /// 预摆阶段: 预摆姿势，站姿间距
+        //  【预摆姿势】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_PRE_STANCE_POSITION
+            this.indicatorsName = "预摆姿势"
+            this.indicatorsValue = setValueScale(prescription.preAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.prePath, "预摆姿势")
+        })
+
+        //  【站姿间距】"L间距 / L前足"，无值上报空字符串
+        val stanceWidth = StringKt.bigDecimalDivide(
+            prescription.prePostureDisL2.toDouble(),// L间距
+            prescription.prePostureDisL1.toDouble(),// L前足
+            1,
+            RoundingMode.HALF_UP
+        ).toString()
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_STAND_SPACE
+            this.indicatorsName = "站姿间距"
+            this.indicatorsValue = StringKt.subZeroAndDot(stanceWidth)
+            this.indicatorsUnit = ""
+            this.indicatorsImages = addIndicatorsImages(prescription.prePath, "站姿间距")
+        })
+
+        /// 反弓阶段: 引球手肘，引球手臂，反弓伸髋，反弓屈膝
+        //  【引球手肘】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_THROW_ELBOW
+            this.indicatorsName = "引球手肘"
+            this.indicatorsValue = setValueScale(prescription.elbowAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.reboundPath, "引球手肘")
+        })
+
+        //  【引球手臂】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_THROW_ARM
+            this.indicatorsName = "引球手臂"
+            this.indicatorsValue = setValueScale(prescription.armAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.reboundPath, "引球手臂")
+        })
+
+        //  【反弓伸髋】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_BACK_BEND_KNEE
+            this.indicatorsName = "反弓伸髋"
+            this.indicatorsValue = setValueScale(prescription.hipAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.reboundPath, "反弓伸髋")
+        })
+
+        //  【反弓屈膝】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_BACK_BEND_HIP
+            this.indicatorsName = "反弓屈膝"
+            this.indicatorsValue = setValueScale(prescription.kneeAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.reboundPath, "反弓屈膝")
+        })
+
+        /// 投掷阶段： 出手姿势，出手角度，出手时机
+        //  【出手姿势】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_THROW_POSITION
+            this.indicatorsName = "出手姿势"
+            this.indicatorsValue = setValueScale(prescription.sellPostureAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.sellMarkPath, "出手姿势")
+        })
+
+        //  【出手角度】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_THROW_ANGLE
+            this.indicatorsName = "出手角度"
+            this.indicatorsValue = setValueScale(prescription.sellMarkAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.sellMarkPath, "出手角度")
+        })
+
+        //  【出手时机角度】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_THROW_TIME
+            this.indicatorsName = "出手时机角度"
+            this.indicatorsValue = setValueScale(prescription.sellTimeAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.sellMarkPath, "出手时机角度")
+        })
+
+        //  【运动轨迹】运动轨迹图片地址
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_MOVE_TRACK
+            this.indicatorsName = "运动轨迹"
+            this.indicatorsValue = ""
+            this.indicatorsUnit = ""
+            this.indicatorsImages = addIndicatorsImages(prescription.ballTrackerPath, "运动轨迹")
+        })
+
+        //  【动作分析】
+        //  "{
+        //    wind：[图片1， 2]  2张图片，如无图片需要按序设置对应的缺省图 （预摆姿势 ，站姿间距）
+        //    extension：[图片1， 2，3，4]  四张图片，如无图片需要按序设置对应的缺省图（引球手肘，引球手臂，反弓伸髋，反弓屈膝）
+        //    release：[图片1， 2，3]  3张图片，如无图片需要按序设置对应的缺省图（出手姿势，出手角度，出手时机）
+        //   }"
+        val actionAnalysis = hashMapOf<String, Any>(
+            "wind" to listOf(
+                prescription.prePath,
+                prescription.prePath
+            ),
+            "extension" to listOf(
+                prescription.reboundPath,
+                prescription.reboundPath,
+                prescription.reboundPath,
+                prescription.reboundPath
+            ),
+            "release" to listOf(
+                prescription.sellMarkPath,
+                prescription.sellMarkPath,
+                prescription.sellMarkPath
+            ),
+        )
+        indicatorsList.add(SportIndicatorsEntity<HashMap<String, Any>, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_MOTION_ANALYSIS
+            this.indicatorsName = "动作分析"
+            this.indicatorsValue = actionAnalysis
+            this.indicatorsUnit = ""
+        })
+
+        //  【偏移情况】正常角度值，无角度值上报空字符串
+        indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
+            this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_OFFSET
+            this.indicatorsName = "偏移情况"
+            this.indicatorsValue = setValueScale(prescription.ballFallAngle.toString())
+            this.indicatorsUnit = "°"
+            this.indicatorsImages = addIndicatorsImages(prescription.ballFallPath, "偏移情况")
+        })
+        return indicatorsList
+    }
+
 }

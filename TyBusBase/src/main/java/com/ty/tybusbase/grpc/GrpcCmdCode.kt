@@ -31,6 +31,6 @@ object GrpcCmdCode {
     const val CMD_COUNTDOWN_END = 0x53
 
 
-    //实心球运动卡片状态 payload = GrpcSportCardStatus
+    //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70
 }

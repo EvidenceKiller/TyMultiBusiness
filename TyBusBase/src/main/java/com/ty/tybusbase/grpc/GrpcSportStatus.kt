@@ -5,4 +5,5 @@ package com.ty.tybusbase.grpc
  */
 data class GrpcSportStatus(
     var status: Int = 0, //运动状态
+    val skuId: String? = ""
 )
