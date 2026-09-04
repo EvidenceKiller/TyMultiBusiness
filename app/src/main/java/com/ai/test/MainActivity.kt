@@ -424,7 +424,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.btnThirtySkip.setOnClickListener {
             UIMultiNavigation.goThirtySport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0001"
+                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0024"
                     sportItemCode = SportConstant.SPORT_SKIP_ROPE
                     endValue = "20000"
                     sportSkuName = "30人跳绳"
