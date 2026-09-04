@@ -105,6 +105,12 @@ class SportReportActivity : BaseActivity<ActivitySportReportBinding, BaseViewMod
                     )
                 }
 
+                6 ->{
+                    mBinding.webView.loadDataWithBaseURL(
+                        "file:///android_asset/medicineBall/", generateHtml, "text/html", "UTF-8", null
+                    )
+                }
+
                 else -> {
                     mBinding.webView.loadDataWithBaseURL(
                         "file:///android_asset/", generateHtml, "text/html", "UTF-8", null
