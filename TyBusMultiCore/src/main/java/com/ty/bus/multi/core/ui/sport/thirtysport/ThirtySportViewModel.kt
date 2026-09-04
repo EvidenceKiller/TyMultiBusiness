@@ -879,7 +879,7 @@ class ThirtySportViewModel(application: Application) :
 
     private fun changeTo2K() {
         ipcHik.pauseProcessor()
-        setResolution(ipcHik, getIdentifyResolution(), getInitCameraFrameRate())
+        setResolution(ipcHik, getSportResolution())
         SystemClock.sleep(100)
         _stopPreviewLD.tryEmit(true)
         SystemClock.sleep(100)
