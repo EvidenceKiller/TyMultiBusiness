@@ -8,6 +8,7 @@ package com.ty.tybusbase.grpc
 data class GrpcCollaborationSportInfo(
     val cmd: Int = 0,          //协同指令
     val sportSkuId: String,    //协同运动ID
+    val testCount: Int = 1     //协同运动人数
 )
 
 /**
