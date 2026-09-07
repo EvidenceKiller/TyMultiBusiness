@@ -101,4 +101,6 @@
     <string name="area_left_occupied">左区 | 设备占用中</string>
     <string name="area_right_occupied">右区 | 设备占用中</string>
     <string name="visitor_number_with_area">游客 %1$s%2$d道</string>
+    <string name="the_best_current">当前最高</string>
+    <string name="visitor">游客</string>
 </resources>

@@ -221,6 +221,63 @@ class ThirtySportViewModel(application: Application) :
     private val _sportStartedLD = MutableStateFlow(false)
     val sportStartedLD: StateFlow<Boolean> = _sportStartedLD.asStateFlow()
 
+    /** 当前最高展示数据：本次运动进行中，主/左/右三屏实时成绩最高者 */
+    data class CurrentBestInfo(
+        val displayType: DisplayType,
+        val areaName: String,
+        val accountName: String,
+        val score: Int
+    )
+
+    //当前最高（状态，粘性，页面返回后也能恢复显示）
+    private val _currentBestLD = MutableStateFlow<CurrentBestInfo?>(null)
+    val currentBestLD: StateFlow<CurrentBestInfo?> = _currentBestLD.asStateFlow()
+
+    /**
+     * 刷新当前最高：运动开始或任一屏成绩变化后调用
+     */
+    fun refreshCurrentBest() {
+        _currentBestLD.value = computeCurrentBest()
+    }
+
+    /**
+     * 计算三屏实时最佳：运动未开始或无有效成绩(count>0)返回null，UI层据此隐藏/显示
+     */
+    private fun computeCurrentBest(): CurrentBestInfo? {
+        if (!_sportStartedLD.value) return null
+        var bestResult: MultiSportResult? = null
+        var bestType = DisplayType.MAIN
+        //局部函数会被编译器视为"变化闭包"捕获 bestResult/bestType，故判断时先取不可变快照 current，
+        //避免"被捕获变量无法智能转换"的编译错误
+        fun checkArea(type: DisplayType, area: SparseArray<MultiSportResult>) {
+            for (index in 0 until area.size()) {
+                val result = area.valueAt(index)
+                if (result.count <= 0) continue
+                val current = bestResult
+                if (current == null || result.count > current.count) {
+                    bestResult = result
+                    bestType = type
+                }
+            }
+        }
+        checkArea(DisplayType.MAIN, skipPersonArray)
+        checkArea(DisplayType.LEFT, leftPersonArray)
+        checkArea(DisplayType.RIGHT, rightPersonArray)
+        val best = bestResult
+        if (best == null) return null
+        val areaName = when (bestType) {
+            DisplayType.LEFT -> getString(R.string.area_left)
+            DisplayType.RIGHT -> getString(R.string.area_right)
+            else -> getString(R.string.area_main)
+        }
+        return CurrentBestInfo(
+            displayType = bestType,
+            areaName = areaName,
+            accountName = best.accountInfo.studentEntity?.accountName ?: getString(R.string.visitor),
+            score = best.count
+        )
+    }
+
     //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示（状态，需支持同步读取）
     private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
     private val _collaborationStateLD =
@@ -608,6 +665,7 @@ class ThirtySportViewModel(application: Application) :
                 skipPersonArray[it.positionNum]?.count = it.score
             }
 //            LogUtil.d("成绩：$str")
+            refreshCurrentBest()
             _resultLD.tryEmit(DisplayType.MAIN to result)
         }
     }
@@ -978,6 +1036,7 @@ class ThirtySportViewModel(application: Application) :
         super.toStatusSportStart()
         skipRoseState = MultiSportState.SPORTING
         _sportStartedLD.value = true
+        refreshCurrentBest()
         startTime = System.currentTimeMillis()
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
         sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
@@ -1707,6 +1766,7 @@ class ThirtySportViewModel(application: Application) :
 
                         else -> {}
                     }
+                    refreshCurrentBest()
                     _singleResultLD.tryEmit(displayType to (result.index to score))
                 }
             }

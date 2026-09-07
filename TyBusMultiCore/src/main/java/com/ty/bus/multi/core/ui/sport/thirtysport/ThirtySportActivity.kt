@@ -122,6 +122,8 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST || viewModel.sceneId == SceneConstants.INDEPENDENT_TEST || viewModel.sceneId == SceneConstants.CLASS_TEST) {
             mBinding.groupTodayTop.visibility = View.GONE
         }
+        //运动开始前隐藏"当前最高"，有实时成绩后再显示
+        mBinding.groupCurrentBest.visibility = View.GONE
 
         val isDebug =
             MMKVUtil.decodeBoolean(
@@ -422,6 +424,20 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.sportStartedLD.collectOnLifecycle {
             //运动开始，底部导航栏切换为"x人运动中"文案
             updateAreaTabs()
+        }
+
+        //本次运动实时最高（主/左/右三屏），有成绩才显示
+        viewModel.currentBestLD.collectOnLifecycle { best ->
+            if (best == null) {
+                mBinding.groupCurrentBest.visibility = View.GONE
+                return@collectOnLifecycle
+            }
+            mBinding.tvCurrentBestName.text = "${best.areaName} | ${best.accountName}"
+            mBinding.tvCurrentBestCount.text = best.score.toString()
+            mBinding.tvCurrentBestCount.visibility = View.VISIBLE
+            mBinding.tvCurrentBestUnit.text = viewModel.measureUnit
+            mBinding.tvCurrentBestUnit.visibility = View.VISIBLE
+            mBinding.groupCurrentBest.visibility = View.VISIBLE
         }
 
         viewModel.collaborationStateLD.collectOnLifecycle {

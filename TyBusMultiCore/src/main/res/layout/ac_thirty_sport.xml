@@ -167,6 +167,82 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="ll_top1_info,ll_top1_icon" />
 
+    <!-- 当前最高：本次运动进行中的三屏实时最佳成绩 -->
+    <LinearLayout
+        android:id="@+id/ll_current_best_icon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="@dimen/dp_38"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="@+id/ll_current_best_info"
+        app:layout_constraintRight_toLeftOf="@+id/ll_current_best_info"
+        app:layout_constraintTop_toTopOf="@+id/ll_current_best_info">
+
+        <ImageView
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:background="@mipmap/ic_exe_cpt_5jp_top1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/the_best_current"
+            android:textColor="#FDD401"
+            android:textSize="@dimen/sp_20" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_current_best_info"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginRight="@dimen/dp_40"
+        android:background="@drawable/pk_rank_top_1_bg_5jum"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="@dimen/dp_32"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ll_top1_info">
+
+        <TextView
+            android:id="@+id/tv_current_best_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxEms="5"
+            android:singleLine="true"
+            android:text="@string/no_one_on_list"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24" />
+
+        <TextView
+            android:id="@+id/tv_current_best_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:text="260"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_48"
+            android:visibility="gone" />
+
+        <TextView
+            android:id="@+id/tv_current_best_unit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="3dp"
+            android:text="@string/ge"
+            android:textColor="@color/white_80"
+            android:textSize="@dimen/sp_24"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_current_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="ll_current_best_info,ll_current_best_icon" />
+
     <!-- 中部：三个区域运动面板，默认只显示主区 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_skip_sport_view_container"

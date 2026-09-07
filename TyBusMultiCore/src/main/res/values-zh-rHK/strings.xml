@@ -94,4 +94,6 @@
     <string name="area_left_occupied">左區 | 設備佔用中</string>
     <string name="area_right_occupied">右區 | 設備佔用中</string>
     <string name="visitor_number_with_area">遊客 %1$s%2$d道</string>
+    <string name="the_best_current">當前最高</string>
+    <string name="visitor">遊客</string>
 </resources>
