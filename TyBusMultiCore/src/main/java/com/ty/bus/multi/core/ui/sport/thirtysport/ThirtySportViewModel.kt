@@ -1617,7 +1617,8 @@ class ThirtySportViewModel(application: Application) :
     private fun syncIdentifiedCountWhileTip(displayType: DisplayType) {
         uiHandler.post {
             if (identifiedCountMap.containsKey(displayType)) {
-                identifiedCountMap[displayType] = (identifiedCountMap[displayType] ?: 0) + 1
+                identifiedCountMap[displayType] =
+                    if (displayType == DisplayType.LEFT) leftPersonArray.size else rightPersonArray.size()
                 _identifiedCountLD.tryEmit(Unit)
             }
         }
