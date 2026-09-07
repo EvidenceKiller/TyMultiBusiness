@@ -75,13 +75,6 @@ abstract class BaseActivity<DB : ViewBinding, VM : BaseViewModel> : RxAppCompatA
         registerLive()
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        setIntent(intent)
-        initData()
-        initView(null)
-    }
-
     private fun registerLive() {
         viewModel.mBaseUcLiveData.showEmptyCallBackEvent
             .observe(this) { onEmpty() }
