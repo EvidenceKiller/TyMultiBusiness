@@ -180,36 +180,53 @@ class ThirtySportViewModel(application: Application) :
 
     //开启预览事件
     private val _startPreviewLD = eventFlow<Pair<AdlCamera, AdlCameraFrameProcessor>>()
-    val startPreviewLD: SharedFlow<Pair<AdlCamera, AdlCameraFrameProcessor>> = _startPreviewLD.asSharedFlow()
+    val startPreviewLD: SharedFlow<Pair<AdlCamera, AdlCameraFrameProcessor>> =
+        _startPreviewLD.asSharedFlow()
+
     //停止预览事件
     private val _stopPreviewLD = eventFlow<Boolean>()
     val stopPreviewLD: SharedFlow<Boolean> = _stopPreviewLD.asSharedFlow()
+
     //成绩结果（区域 → 已识别人员列表）
     private val _resultLD = eventFlow<Pair<DisplayType, MutableList<GroupSportBaseMan>>>()
-    val resultLD: SharedFlow<Pair<DisplayType, MutableList<GroupSportBaseMan>>> = _resultLD.asSharedFlow()
+    val resultLD: SharedFlow<Pair<DisplayType, MutableList<GroupSportBaseMan>>> =
+        _resultLD.asSharedFlow()
+
     //单人次成绩结果（区域 → (位置, 成绩)）
     private val _singleResultLD = eventFlow<Pair<DisplayType, Pair<Int, Int>>>()
-    val singleResultLD: SharedFlow<Pair<DisplayType, Pair<Int, Int>>> = _singleResultLD.asSharedFlow()
+    val singleResultLD: SharedFlow<Pair<DisplayType, Pair<Int, Int>>> =
+        _singleResultLD.asSharedFlow()
+
     //竞技开始倒计时完成事件（区域 → 是否完成）
     private val _countDownFinishLD = eventFlow<Pair<DisplayType, Boolean>>()
-    val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> = _countDownFinishLD.asSharedFlow()
+    val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> =
+        _countDownFinishLD.asSharedFlow()
+
     //比赛结束事件（一次性消息：非粘性，返回页面不会重放，避免重复 clearScreen/addResultView）
     private val _toDoneLD = eventFlow<List<ThirtySportResultItem>>()
     val toDoneLD: SharedFlow<List<ThirtySportResultItem>> = _toDoneLD.asSharedFlow()
+
     //切换运动卡片状态（区域 → (位置, 卡片状态)）
-    private val _changeSportViewStateLD = eventFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>()
-    val changeSportViewStateLD: SharedFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>> = _changeSportViewStateLD.asSharedFlow()
+    private val _changeSportViewStateLD =
+        eventFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>()
+    val changeSportViewStateLD: SharedFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>> =
+        _changeSportViewStateLD.asSharedFlow()
+
     //已识别人员（区域 → (位置, 人员信息)）
     private val _identifiedLD = eventFlow<Pair<DisplayType, Pair<Int, AccountInfo>>>()
-    val identifiedLD: SharedFlow<Pair<DisplayType, Pair<Int, AccountInfo>>> = _identifiedLD.asSharedFlow()
+    val identifiedLD: SharedFlow<Pair<DisplayType, Pair<Int, AccountInfo>>> =
+        _identifiedLD.asSharedFlow()
+
     //运动是否开始（状态，需支持同步读取当前值，供开始条件/导航文案判断）
     private val _sportStartedLD = MutableStateFlow(false)
     val sportStartedLD: StateFlow<Boolean> = _sportStartedLD.asStateFlow()
 
     //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示（状态，需支持同步读取）
     private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
-    private val _collaborationStateLD = MutableStateFlow<Map<DisplayType, CollaborationAreaState>>(emptyMap())
-    val collaborationStateLD: StateFlow<Map<DisplayType, CollaborationAreaState>> = _collaborationStateLD.asStateFlow()
+    private val _collaborationStateLD =
+        MutableStateFlow<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+    val collaborationStateLD: StateFlow<Map<DisplayType, CollaborationAreaState>> =
+        _collaborationStateLD.asStateFlow()
 
     //协同已识别人数上报记录：区域 → 已识别人数（CMD_SPORT_IDENTIFIED_COUNT），用于"是否清空已识别结果"提示
     val identifiedCountMap = mutableMapOf<DisplayType, Int>()
@@ -241,14 +258,17 @@ class ThirtySportViewModel(application: Application) :
 
     //协同开始条件跟踪：开始运动指令是否已发送
     private var startCommandSent = false
+
     //改变时间显示UI的背景色（区域 → 背景色资源）
     private val _changeTimeTextBgLD = eventFlow<Pair<DisplayType, Int>>()
     val changeTimeTextBgLD: SharedFlow<Pair<DisplayType, Int>> = _changeTimeTextBgLD.asSharedFlow()
+
     //相机登录状态
     private val _cameraLoginStateLD = eventFlow<Boolean>()
     val cameraLoginStateLD: SharedFlow<Boolean> = _cameraLoginStateLD.asSharedFlow()
 
     var countDownTime: Long = 10 //竞技倒计时10S，单位秒
+
     //竞技倒计时过程中更新UI（每秒一次，高频事件流）
     private val _countDownNoticeLD = eventFlow<Pair<DisplayType, String>>()
     val countDownNoticeLD: SharedFlow<Pair<DisplayType, String>> = _countDownNoticeLD.asSharedFlow()
@@ -285,6 +305,7 @@ class ThirtySportViewModel(application: Application) :
     val soundCount = 5
     val simpleFormat = SimpleDateFormat("m:ss")
     var sportCountDownTime = 60L // 比赛时间 S
+
     //运动倒计时文本（区域 → 文案，每秒一次，高频事件流）
     private val _sportCountDownLD = eventFlow<Pair<DisplayType, String>>()
     val sportCountDownLD: SharedFlow<Pair<DisplayType, String>> = _sportCountDownLD.asSharedFlow()
@@ -1488,7 +1509,8 @@ class ThirtySportViewModel(application: Application) :
     private fun sendCollaborationCommand(clientId: String, cmd: CollaborationCmdEnum) {
         val payload = GrpcCollaborationSportInfo(
             cmd = cmd.ordinal,
-            sportSkuId = sportInfo?.sportSkuId ?: ""
+            sportSkuId = sportInfo?.sportSkuId ?: "",
+            testCount = sportInfo?.testCount?.toInt() ?: 1
         )
         GrpcManager.sendToClient(
             clientId,

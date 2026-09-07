@@ -426,8 +426,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 sportInfo = SceneSportInfoEntity().apply {
                     sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0024"
                     sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                    endValue = "20000"
+                    endValue = "60000"
                     sportSkuName = "30人跳绳"
+                    testCount = "30"
                     sceneId = SceneConstants.INDEPENDENT_TEST
                 }
                 energyPoint = 10

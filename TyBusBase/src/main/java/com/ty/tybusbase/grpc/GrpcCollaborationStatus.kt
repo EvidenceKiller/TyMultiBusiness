@@ -6,7 +6,7 @@ package com.ty.tybusbase.grpc
  */
 data class GrpcCollaborationStatus(
     val status: Int,
-    val skuId: String? = ""
+    val skuId: String? = "",  //运动SKU ID
 )
 
 /**
