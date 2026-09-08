@@ -1631,7 +1631,7 @@ class ThirtySportViewModel(application: Application) :
      */
     fun isSubScreenJoined(displayType: DisplayType): Boolean =
         displayType != DisplayType.MAIN &&
-                _collaborationStateLD.value?.get(displayType) == CollaborationAreaState.NORMAL
+                _collaborationStateLD.value[displayType] == CollaborationAreaState.NORMAL
 
     /**
      * 向已连接副屏发送开始运动指令，保证只发送一次
