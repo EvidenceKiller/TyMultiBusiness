@@ -237,6 +237,9 @@ object SportConstant {
     const val SPORT_SHOT_BALL_L2 = "900603"
     const val SPORT_SHOT_BALL_L3 = "900605"
 
+    // 行进间上篮
+    const val DRIBBLE_SHOT = "100201"
+
     /*
     乒乓球正手攻球
     乒乓球1分钟左推右攻
@@ -254,6 +257,11 @@ object SportConstant {
      * 投掷铅球： 070101
      */
     const val SPORT_MEDICINE_BALL = "070101"
+
+    // 篮球绕杆
+    const val CONE_DRIBBLING_BASKET_BALL = "100101"
+    // 足球绕杆
+    const val CONE_DRIBBLING_FOOT_BALL = "110101"
 
     /**
      * @hide
