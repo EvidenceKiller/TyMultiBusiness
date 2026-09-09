@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="thirty_sport_area_options">
+        <item>Smart Screen Multi-Sport</item>
+        <item>Left Mini Playground</item>
+        <item>Right Mini Playground</item>
+    </string-array>
+</resources>

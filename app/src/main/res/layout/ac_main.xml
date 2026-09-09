@@ -272,6 +272,14 @@
                     android:text="右副屏IP"
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_thirty_sport_set"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="三屏运动框设置"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
             </LinearLayout>
 
             <LinearLayout

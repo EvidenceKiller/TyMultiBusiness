@@ -114,18 +114,34 @@ object MMKVBusiKey {
     const val SHOTBALL_IPC_CAMERA_CONFIG_KEY = "shotball_ipc_camera_config_key" //篮球IPC摄像头参数KEY
     const val SHOTBALL_LED_CONFIG_KEY = "shotball_led_config_key" //篮球LED参数KEY
     const val PINGPANG_IPC_CAMERA_CONFIG_KEY = "pingpang_ipc_camera_config_key" //兵乓球IPC摄像头参数KEY
-    const val PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY = "pingpang_bluetooth_address_config_key" //兵乓球IPC摄像头参数KEY
+    const val PINGPANG_BLUETOOTH_ADDRESS_CONFIG_KEY =
+        "pingpang_bluetooth_address_config_key" //兵乓球IPC摄像头参数KEY
 
     const val SHOTBALL_CAMERA_CHOOSE: String = "shotball_camera_choose"
     const val SHOTBALL_COUNT_DOWN: String = "shotball_count_down"
     const val SHOTBALL_MULTI_PERSON_DETECTION: String = "shotball_multi_person_detection"
 
     // solidBall
-    const val SOLIDBALL_IPC_CAMERA_MASTER_CONFIG_KEY = "solidball_ipc_camera_master_config_key" //实心球主机位IPC摄像头参数KEY
-    const val SOLIDBALL_IPC_CAMERA_SUB_CONFIG_KEY = "solidball_ipc_camera_sub_config_key" //实心球辅机位IPC摄像头参数KEY
-    const val SOLIDBALL_IPC_CAMERA_FACE_CONFIG_KEY = "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
-    const val SOLIDBALL_FACE_REGION_CONFIG_KEY = "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
+    const val SOLIDBALL_IPC_CAMERA_MASTER_CONFIG_KEY =
+        "solidball_ipc_camera_master_config_key" //实心球主机位IPC摄像头参数KEY
+    const val SOLIDBALL_IPC_CAMERA_SUB_CONFIG_KEY =
+        "solidball_ipc_camera_sub_config_key" //实心球辅机位IPC摄像头参数KEY
+    const val SOLIDBALL_IPC_CAMERA_FACE_CONFIG_KEY =
+        "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
+    const val SOLIDBALL_FACE_REGION_CONFIG_KEY =
+        "solidball_ipc_camera_face_config_key" //实心球人脸IPC摄像头参数KEY
 
     const val LEFT_SUB_SCREEN_IP = "left_sub_screen_ip" //左副屏IP
     const val RIGHT_SUB_SCREEN_IP = "right_sub_screen_ip" //右副屏IP
+
+    const val MAIN_SCREEN_IPC_CAMERA_KEY = "main_screen_ipc_camera_key" //主屏IPC存储KEY
+
+    const val LEFT_SUB_SCREEN_IPC_CAMERA_KEY = "left_sub_screen_ipc_camera_key" //左副屏IPC存储KEY
+
+    const val RIGHT_SUB_SCREEN_IPC_CAMERA_KEY = "right_sub_screen_ipc_camera_key" //右副屏IPC存储KEY
+
+    const val LEFT_SUB_SCREEN_LED_IP_KEY = "left_sub_screen_led_ip_key" //左副屏LED IP地址存储KEY
+
+    const val RIGHT_SUB_SCREEN_LED_IP_KEY = "right_sub_screen_led_ip_key" //右副屏LED IP地址存储KEY
+
 }

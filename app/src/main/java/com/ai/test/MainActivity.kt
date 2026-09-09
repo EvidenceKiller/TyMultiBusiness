@@ -48,6 +48,7 @@ import com.ty.tybusbase.dialog.CommonInputDialog
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.dialog.CommonIpcCameraSettingDialog
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.Dispatchers
@@ -242,8 +243,12 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnIpcSet.setOnClickListener {
-            val httpCameraSettingDialog = HttpCameraSettingDialog()
-            httpCameraSettingDialog.show(supportFragmentManager, "http_camera")
+//            val httpCameraSettingDialog = HttpCameraSettingDialog()
+//            httpCameraSettingDialog.show(supportFragmentManager, "http_camera")
+            CommonIpcCameraSettingDialog(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY).show(
+                supportFragmentManager,
+                "ipc camera"
+            )
         }
 
         mBinding.bnt10.setOnClickListener {
@@ -477,6 +482,9 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             ) { ip ->
                 BusiBaseConfig.saveRightSubScreenIp(ip)
             }
+        }
+        mBinding.btnThirtySportSet.setOnClickListener {
+            UIMultiNavigation.goThirtySportSetting(this)
         }
     }
 

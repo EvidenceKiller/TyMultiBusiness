@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="thirty_sport_area_options">
+        <item>智慧屏多人运动</item>
+        <item>微操场左区</item>
+        <item>微操场右区</item>
+    </string-array>
+</resources>

@@ -14,6 +14,7 @@ import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
+import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
@@ -129,6 +130,13 @@ object UIMultiNavigation : BaseNavigation() {
             putExtra("test_count", number)
             putExtra("res_type", resolutionType)
         })
+    }
+
+    /**
+     * 主屏 + 左右副屏 10 人运动框体设置
+     */
+    fun goThirtySportSetting(context: Context) {
+        context.startActivity(Intent(context, ThirtySportSettingActivity::class.java))
     }
 
     fun goForwardFlexionSetting(context: Context) {

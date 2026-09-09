@@ -57,5 +57,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>
