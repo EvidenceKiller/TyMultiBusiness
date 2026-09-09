@@ -16,6 +16,11 @@ object GrpcCmdCode {
     //协同状态回复 payload = GrpcCollaborationStatus
     const val CMD_COLLABORATION_STATUS = 0x24
 
+    //设置设备IP地址 payload = GrpcDeviceIpInfo
+    const val CMD_DEVICE_IP_SETTING = 0x25
+
+    //设置设备IP地址 payload = GrpcIpcCameraInfo
+    const val CMD_IPC_CAMERA_SETTING = 0x26
 
 
     //运动卡片状态 payload = GrpcSportCardStatus
