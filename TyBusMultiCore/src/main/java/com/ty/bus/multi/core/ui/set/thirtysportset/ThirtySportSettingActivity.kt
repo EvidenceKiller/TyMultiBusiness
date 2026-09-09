@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
@@ -13,12 +14,14 @@ import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
 import com.adl.lib.AdlCameraPreviewView
 import com.ty.bus.multi.R
+import com.ty.grpclib.GrpcManager
 import com.ty.bus.multi.databinding.ActivityThirtySportSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
@@ -59,8 +62,7 @@ class ThirtySportSettingActivity :
 
         mBinding.ivBack.setOnClickListener { finish() }
         mBinding.btnSave.setOnClickListener {
-            mBinding.overlay.saveConfig()
-            ToastUtil.getInstance(this, getString(R.string.save_successful)).show()
+            saveConfig()
         }
         mBinding.btnReset.setOnClickListener {
             resetCurrentArea()
@@ -81,38 +83,114 @@ class ThirtySportSettingActivity :
         reloadOverlay()
     }
 
+    private fun saveConfig() {
+        // 先本地保存当前屏的框体配置
+        mBinding.overlay.saveConfig()
+
+        // 主屏：直接按本地保存结果提示
+        if (currentMode == AreaMode.MAIN) {
+            ToastUtil.getInstance(this, getString(R.string.save_successful)).show()
+            return
+        }
+
+        // 副屏：读出刚保存的配置，将 targetRegion 通过 gRPC 下发到对应副屏，发送成功/失败后再提示
+        val subScreenIp = when (currentMode) {
+            AreaMode.LEFT -> BusiBaseConfig.readLeftSubScreenIp()
+            AreaMode.RIGHT -> BusiBaseConfig.readRightSubScreenIp()
+            else -> null
+        }
+        val clientId = subScreenIp?.let { GrpcManager.getClientIdByIp(it) }
+        if (clientId.isNullOrEmpty()) {
+            ToastUtil.getInstance(this, getString(R.string.save_failed)).show()
+            return
+        }
+
+        val uiConfig = AdlUIConfig.instance().readConfig(
+            getSaveKey(currentMode),
+            RoleConfigMulti::class.java
+        )
+        val payload = uiConfig?.targetRegion ?: ""
+        GrpcManager.sendToClient(
+            clientId,
+            GrpcCmdCode.CMD_TEN_SPORT_REGION_SETTING,
+            payload,
+            true,
+            {
+                ToastUtil.getInstance(
+                    this@ThirtySportSettingActivity,
+                    getString(R.string.save_successful)
+                ).show()
+            },
+            { _, _ ->
+                ToastUtil.getInstance(
+                    this@ThirtySportSettingActivity,
+                    getString(R.string.save_failed)
+                ).show()
+            }
+        )
+    }
+
     /**
-     * 初始化顶部区域切换下拉框，默认选中"智慧屏多人运动"
+     * 初始化顶部区域切换下拉框。
+     * 下拉内容根据左右副屏 gRPC 连接情况动态生成：仅展示已连接的副屏；
+     * 左右副屏均未连接时不显示下拉框，仅保留主屏设置。
      */
     private fun initAreaSpinner() {
-        updateAreaText(currentMode.ordinal)
+        val modes = availableAreaModes()
+        if (modes.size <= 1) {
+            mBinding.llAreaSelector.visibility = View.GONE
+            currentMode = AreaMode.MAIN
+            return
+        }
+        mBinding.llAreaSelector.visibility = View.VISIBLE
+        updateAreaText(currentMode)
         updateAreaArrow(false)
         mBinding.llAreaSelector.setOnClickListener {
             if (areaPopup?.isShowing == true) {
                 areaPopup?.dismiss()
             } else {
-                showAreaPopup()
+                showAreaPopup(modes)
             }
         }
     }
 
     /**
-     * 弹出区域选择列表：选中项以金色高亮，同时右侧箭头切换为向上
+     * 可切换屏列表：主屏始终存在；左右副屏仅当对应 gRPC 客户端已连接时加入
      */
-    private fun showAreaPopup() {
+    private fun availableAreaModes(): List<AreaMode> {
+        val modes = mutableListOf(AreaMode.MAIN)
+        if (isSubScreenConnected(BusiBaseConfig.readLeftSubScreenIp())) {
+            modes.add(AreaMode.LEFT)
+        }
+        if (isSubScreenConnected(BusiBaseConfig.readRightSubScreenIp())) {
+            modes.add(AreaMode.RIGHT)
+        }
+        return modes
+    }
+
+    /**
+     * 副屏是否已连接主屏：通过 gRPC 客户端注册表判定（与三十人运动页协同逻辑一致）
+     */
+    private fun isSubScreenConnected(ip: String?): Boolean =
+        !ip.isNullOrEmpty() && GrpcManager.getClientIdByIp(ip) != null
+
+    /**
+     * 弹出区域选择列表：仅显示已连接区域，选中项以金色高亮，同时右侧箭头切换为向上
+     */
+    private fun showAreaPopup(modes: List<AreaMode>) {
         val content = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundResource(R.drawable.bg_area_popup)
         }
         val checkedColor = Color.parseColor("#FDD401")
-        areaOptions.forEachIndexed { index, option ->
+        modes.forEach { mode ->
             val item = LayoutInflater.from(this)
                 .inflate(R.layout.item_area_option, content, false) as TextView
-            item.text = option
-            item.setTextColor(if (index == currentMode.ordinal) checkedColor else Color.WHITE)
+            item.text = areaOptions[mode.ordinal]
+            item.setTextColor(if (mode == currentMode) checkedColor else Color.WHITE)
             item.setOnClickListener {
                 areaPopup?.dismiss()
-                onAreaOptionSelected(index)
+                onAreaModeSelected(mode)
             }
             content.addView(item)
         }
@@ -136,22 +214,17 @@ class ThirtySportSettingActivity :
     }
 
     /**
-     * 选中区域选项：index 与 AreaMode 顺序一致(0 主屏 / 1 左区 / 2 右区)
+     * 选中区域选项：区域不同则切换对应屏
      */
-    private fun onAreaOptionSelected(position: Int) {
-        updateAreaText(position)
-        val mode = when (position) {
-            1 -> AreaMode.LEFT
-            2 -> AreaMode.RIGHT
-            else -> AreaMode.MAIN
-        }
+    private fun onAreaModeSelected(mode: AreaMode) {
+        updateAreaText(mode)
         if (mode != currentMode) {
             switchArea(mode)
         }
     }
 
-    private fun updateAreaText(position: Int) {
-        mBinding.tvAreaSelected.text = areaOptions[position]
+    private fun updateAreaText(mode: AreaMode) {
+        mBinding.tvAreaSelected.text = areaOptions[mode.ordinal]
     }
 
     private fun updateAreaArrow(open: Boolean) {

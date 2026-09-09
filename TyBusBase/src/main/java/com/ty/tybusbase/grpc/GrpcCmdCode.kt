@@ -30,6 +30,11 @@ object GrpcCmdCode {
     //倒计时结束
     const val CMD_COUNTDOWN_END = 0x53
 
+    //十人框体设置 payload = String
+    const val CMD_TEN_SPORT_REGION_SETTING = 0x54
+
+
+
 
     //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70
