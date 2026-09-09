@@ -1,6 +1,7 @@
 package com.ty.tybusbase.dialog
 
 import android.content.Context
+import android.content.DialogInterface
 import android.text.Editable
 import android.text.InputType
 import android.text.TextUtils
@@ -14,6 +15,7 @@ import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.databinding.BusiBaseDialogHttpCameraSettingBinding
 import com.ty.tybusbase.entity.IpcCameraConfig
+import com.ty.tybusbase.expand.Action
 
 /**
  * @description: 调试模式dialog
@@ -27,6 +29,7 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
     private var accountIsEmpty = false
     private var pswIsEmpty = false
     private var thresholdIsEmpty = false
+    private var dismissCallback: Action? = null
 
     override fun initData() {
         isCancelable = false
@@ -35,6 +38,11 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
         mBinding.etAccount.setText(config.account)
         mBinding.etPsw.setText(config.psw)
         textChanged()
+    }
+
+    fun setDismissCallback(callback: Action): CommonIpcCameraSettingDialog {
+        this.dismissCallback = callback
+        return this
     }
 
     override fun initViewObservable() {
@@ -146,4 +154,8 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
         imm.hideSoftInputFromWindow(mBinding.etPsw.windowToken, 0)
     }
 
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        dismissCallback?.invoke()
+    }
 }
