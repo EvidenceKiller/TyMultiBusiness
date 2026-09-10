@@ -22,6 +22,9 @@ object GrpcCmdCode {
     //设置设备IP地址 payload = GrpcIpcCameraInfo
     const val CMD_IPC_CAMERA_SETTING = 0x26
 
+    //重启设备指令 payload = ""
+    const val CMD_REBOOT_DEVICE = 0x27
+
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x50
