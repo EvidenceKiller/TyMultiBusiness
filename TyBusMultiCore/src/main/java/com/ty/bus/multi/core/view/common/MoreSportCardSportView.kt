@@ -45,6 +45,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
             dotCount = (dotCount % 3) + 1
             mBinding.tvNotice.text = "识别中${".".repeat(dotCount)}"
         }
+
         override fun onFinish() {}
     }
 
@@ -485,8 +486,9 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     override fun reset() {
-        mBinding.tvCount.visibility = GONE
-        mBinding.tvUnit.visibility = GONE
+        mBinding.tvCount.gone()
+        mBinding.tvUnit.gone()
+        mBinding.tvLeaveNotice.gone()
         mBinding.tvCount.text = "0"
         enterNobody()
     }
