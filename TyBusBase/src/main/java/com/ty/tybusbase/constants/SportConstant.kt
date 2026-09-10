@@ -238,7 +238,7 @@ object SportConstant {
     const val SPORT_SHOT_BALL_L3 = "900605"
 
     // 行进间上篮
-    const val DRIBBLE_SHOT = "100201"
+    const val SPORT_DRIBBLE_SHOT = "100201"
 
     /*
     乒乓球正手攻球
