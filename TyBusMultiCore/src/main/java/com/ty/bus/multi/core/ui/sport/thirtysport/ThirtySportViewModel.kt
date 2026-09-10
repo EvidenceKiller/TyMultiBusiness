@@ -479,27 +479,14 @@ class ThirtySportViewModel(application: Application) :
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
-        val ip =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_IP,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
-            )
-        val account = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
-        )
-        val psw =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_PSW,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
-            )
+        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-            ip,
+            cameraConfig.ip,
             BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-            account,
-            psw
+            cameraConfig.account,
+            cameraConfig.psw
         ).setStreamType(0).build() as NsCameraHKSource
     }
 

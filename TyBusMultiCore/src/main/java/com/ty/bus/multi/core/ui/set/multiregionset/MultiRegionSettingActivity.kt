@@ -10,6 +10,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.ActivityMultiRegionSettingBinding
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.utils.MMKVUtil
@@ -82,19 +83,7 @@ class MultiRegionSettingActivity :
     }
 
     private fun openCamera() {
-        val ip =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_IP,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
-            )
-        val account = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
-        )
-        val psw = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_PSW,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
-        )
+        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val pairResolution = when (resolutionType) {
             0 -> Pair(1920, 1080)
             1 -> Pair(2560, 1440)
@@ -104,7 +93,7 @@ class MultiRegionSettingActivity :
         val camera = AdlCameraConfig.builder()
             .setPreviewSize(pairResolution.first, pairResolution.second)
             .setCameraType(AdlCameraConfig.CameraType.HK)
-            .setConnect(ip, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT, account, psw)
+            .setConnect(cameraConfig.ip, BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT, cameraConfig.account, cameraConfig.psw)
             .setStreamType(0)
             .build()
         mBinding.previewView.startPreview(camera, object :

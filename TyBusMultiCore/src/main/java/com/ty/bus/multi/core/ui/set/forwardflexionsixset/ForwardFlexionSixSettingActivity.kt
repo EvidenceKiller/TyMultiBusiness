@@ -30,6 +30,7 @@ import com.ty.sport.common.basic.bean.Point
 import com.ty.sport.common.sport.processor.SportConfig
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -168,29 +169,16 @@ class ForwardFlexionSixSettingActivity :
                 )
             }
         })
-        val ip =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_IP,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
-            )
-        val account = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
-        )
-        val psw =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_PSW,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
-            )
+        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = true
         ipcHik = hikSubConfig
             .setPreviewFormat(ImageFormat.YV12)
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-                ip,
+                cameraConfig.ip,
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-                account,
-                psw
+                cameraConfig.account,
+                cameraConfig.psw
             ).setStreamType(0).build() as NsCameraHKSource
 
     }

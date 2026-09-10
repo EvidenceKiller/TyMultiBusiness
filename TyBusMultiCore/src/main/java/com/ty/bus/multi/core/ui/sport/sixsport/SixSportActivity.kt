@@ -55,6 +55,7 @@ import com.ty.bus.multi.core.factory.MultiSportProduceFactory
 import com.ty.bus.multi.core.utils.ThreeSportStandFilter
 import com.ty.bus.multi.core.view.threesport.ThreeSportResultView
 import com.ty.bus.multi.databinding.ActivitySixSportBinding
+import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
@@ -307,28 +308,15 @@ class SixSportActivity : BaseMultiSportActivity<ActivitySixSportBinding, SixSpor
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
         cameraDispatcher.addFrameProcessor(multiSportProcessor)
-        val ip =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_IP,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
-            )
-        val account = MMKVUtil.decodeString(
-            MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
-            BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
-        )
-        val psw =
-            MMKVUtil.decodeString(
-                MMKVBusiKey.HTTP_CAMERA_PSW,
-                BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
-            )
+        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig
             .setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
-                ip,
+                cameraConfig.ip,
                 BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PORT,
-                account,
-                psw
+                cameraConfig.account,
+                cameraConfig.psw
             ).setStreamType(0).build() as NsCameraHKSource
     }
 

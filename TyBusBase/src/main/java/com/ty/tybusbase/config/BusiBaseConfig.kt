@@ -169,7 +169,8 @@ object BusiBaseConfig {
         val json = MMKVUtil.decodeString(MMKVBusiKey.PARAM_FREE_SPORT_SOLID_BALL)
         if (!json.isNullOrEmpty()) {
             try {
-                return com.google.gson.Gson().fromJson(json, SolidBallParamBean::class.java) ?: SolidBallParamBean()
+                return com.google.gson.Gson().fromJson(json, SolidBallParamBean::class.java)
+                    ?: SolidBallParamBean()
             } catch (e: Exception) {
             }
         }
@@ -245,10 +246,32 @@ object BusiBaseConfig {
      * 读取存储的IPC摄像头配置
      */
     fun readIpcCameraConfig(key: String): IpcCameraConfig {
-        return MMKVUtil.decodeParcelable<IpcCameraConfig>(
-            key,
-            IpcCameraConfig::class.java
-        ) ?: IpcCameraConfig("172.16.30.200", "admin", "zy132456")
+        //如果是主屏摄像头KEy，需要兼容原IPC设置
+        if (key == MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY) {
+            return MMKVUtil.decodeParcelable<IpcCameraConfig>(
+                key,
+                IpcCameraConfig::class.java
+            ) ?: IpcCameraConfig(
+                MMKVUtil.decodeString(
+                    MMKVBusiKey.HTTP_CAMERA_IP,
+                    BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP
+                ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_IP,
+                MMKVUtil.decodeString(
+                    MMKVBusiKey.HTTP_CAMERA_ACCOUNT,
+                    BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT
+                ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_ACCOUNT,
+                MMKVUtil.decodeString(
+                    MMKVBusiKey.HTTP_CAMERA_PSW,
+                    BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+                ) ?: BusiBaseConstantsValue.HTTP_CAMERA_DEFAULT_PASSWORD
+            )
+
+        } else {
+            return MMKVUtil.decodeParcelable<IpcCameraConfig>(
+                key,
+                IpcCameraConfig::class.java
+            ) ?: IpcCameraConfig("172.16.30.200", "admin", "zy132456")
+        }
     }
 
     /**
@@ -315,5 +338,5 @@ object BusiBaseConfig {
             BusiBaseConstantsValue.CAMERA_TYPE_DEFAULT
         )
     }
-    
+
 }
