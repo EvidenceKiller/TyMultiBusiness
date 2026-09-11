@@ -247,6 +247,7 @@ class ThirtySportViewModel(application: Application) :
         if (!_sportStartedLD.value) return null
         var bestResult: MultiSportResult? = null
         var bestType = DisplayType.MAIN
+
         //局部函数会被编译器视为"变化闭包"捕获 bestResult/bestType，故判断时先取不可变快照 current，
         //避免"被捕获变量无法智能转换"的编译错误
         fun checkArea(type: DisplayType, area: SparseArray<MultiSportResult>) {
@@ -273,7 +274,8 @@ class ThirtySportViewModel(application: Application) :
         return CurrentBestInfo(
             displayType = bestType,
             areaName = areaName,
-            accountName = best.accountInfo.studentEntity?.accountName ?: getString(R.string.visitor),
+            accountName = best.accountInfo.studentEntity?.accountName
+                ?: getString(R.string.visitor),
             score = best.count
         )
     }
@@ -479,7 +481,8 @@ class ThirtySportViewModel(application: Application) :
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
-        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
+        val cameraConfig =
+            BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
@@ -1556,7 +1559,8 @@ class ThirtySportViewModel(application: Application) :
         val payload = GrpcCollaborationSportInfo(
             cmd = cmd.ordinal,
             sportSkuId = sportInfo?.sportSkuId ?: "",
-            testCount = sportInfo?.testCount?.toInt() ?: 1
+            testCount = sportInfo?.testCount?.toInt() ?: 1,
+            sceneId = sceneId ?: SceneConstants.PK
         )
         GrpcManager.sendToClient(
             clientId,
