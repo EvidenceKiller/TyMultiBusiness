@@ -270,7 +270,7 @@ object BusiBaseConfig {
             return MMKVUtil.decodeParcelable<IpcCameraConfig>(
                 key,
                 IpcCameraConfig::class.java
-            ) ?: IpcCameraConfig("172.16.30.200", "admin", "zy132456")
+            ) ?: IpcCameraConfig("172.16.30.200", "admin", "zy132456", 8000)
         }
     }
 
