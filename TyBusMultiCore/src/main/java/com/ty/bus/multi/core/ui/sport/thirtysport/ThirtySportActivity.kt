@@ -103,7 +103,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
         LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
         viewModel.initEngine(number)
-        viewModel.getBestRankTop()
+//        viewModel.getBestRankTop()
         viewModel.loadPerson(studentList)
         //注册Grpc指令
         viewModel.registerGrpcCmd()

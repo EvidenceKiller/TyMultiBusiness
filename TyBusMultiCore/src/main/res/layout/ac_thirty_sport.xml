@@ -165,6 +165,7 @@
         android:id="@+id/group_today_top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         app:constraint_referenced_ids="ll_top1_info,ll_top1_icon" />
 
     <!-- 当前最高：本次运动进行中的三屏实时最佳成绩 -->
