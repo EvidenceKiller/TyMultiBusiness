@@ -458,11 +458,8 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 }
                 energyPoint = 10
             }, EtTenSportConfig.builder {
-                setCountdownText("开始倒计时")
-                setResultPageText("测试结束")
-                setSportStartText("开始咯，开始咯")
                 setVoiceBroadcastSupported(true)
-                setSupportNextGroup(false)
+                setSupportNextGroup(true)
                 setSupportReport(true)
             }
             )
