@@ -95,7 +95,10 @@ class MultiPipelineIdentityEngine {
         val identifyInfo = identifiedMap.getOrDefault(index, null)
             ?: PipelineIdentifyInfo().apply { identifiedMap.put(index, this) }
         //已识别成功
-        if (identifyInfo.isOk) return
+        if (identifyInfo.isOk) {
+            LogUtil.d("已识别成功直接返回：道次${index}")
+            return
+        }
         //如果阈值大于设定的靠谱值，直接返回成功
         if (score >= successThresholds) {
             val studentEntity =

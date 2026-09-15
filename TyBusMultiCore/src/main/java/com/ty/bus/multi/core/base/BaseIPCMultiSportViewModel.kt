@@ -382,7 +382,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     override fun identifyOk(accountIndex: Int, accountInfo: AccountInfo) {
         //正在运动，不处理识别
         if (skipRoseState != MultiSportState.IDENTIFYING) {
-            AdlLogger.d("识别到人脸：但已不是识别状态 $accountIndex")
+            LogUtil.d("识别到人脸：但已不是识别状态 $accountIndex")
             return
         }
 
@@ -426,7 +426,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
                         accountIndex,
                         MultiSportResult(accountInfo, accountIndex)
                     )
-                    AdlLogger.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
+                    LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
                     identifiedLD.value = Pair(accountIndex, accountInfo)
                     //给accountInfo赋值，用来获取存储视频的地址
                     if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
