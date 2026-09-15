@@ -228,6 +228,7 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
      * 可从，standby，identifying,prepared,切换过来
      */
     fun enterNobody() {
+        mBinding.tvNotice.visible()
         mBinding.tvNotice.text = getString(R.string.prompt_move_to_sport_area)
         mBinding.tvNotice.setTextColor(resources.getColor(R.color.white_60))
         mBinding.tvSkipState.visible()
@@ -489,8 +490,9 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvCount.gone()
         mBinding.tvUnit.gone()
         mBinding.tvLeaveNotice.gone()
+        mBinding.ivHeaderBg2.gone()
         mBinding.tvCount.text = "0"
-        enterNobody()
+        changeState(MultiSportCardViewState.NOBODY)
     }
 
 }
