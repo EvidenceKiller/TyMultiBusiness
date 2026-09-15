@@ -520,7 +520,8 @@ class ThirtySportViewModel(application: Application) :
     override fun identifyFail(index: Int) {
         changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
         //处理下一道是否有人
-        var tempNumber = currentIdentifyNumber + 1
+        val index = currentIdentifyNumber + 1
+        var tempNumber = index % skipManCount
         var findOk = false
         while (tempNumber < skipManCount) {
             //找到下一道，状态为checkDown且还没有识别的位置
