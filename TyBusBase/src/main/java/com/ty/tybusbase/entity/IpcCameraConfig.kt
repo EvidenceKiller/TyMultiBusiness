@@ -8,5 +8,5 @@ data class IpcCameraConfig(
     val ip: String,
     val account: String,
     val psw: String,
-    val port: Int = 8080
+    val port: Int = 8000
 ) : Parcelable
