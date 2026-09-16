@@ -67,8 +67,12 @@ open class BaseMultiPipelineIdentifyViewModel(application: Application) :
     open fun identifyFail(index: Int) {
     }
 
+    override fun onPause() {
+        super.onPause()
+        multiIdentityEngine.closeMachine()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        multiIdentityEngine.closeMachine()
     }
 }
