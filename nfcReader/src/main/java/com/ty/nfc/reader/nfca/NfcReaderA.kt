@@ -28,6 +28,7 @@ class NfcReaderA : AbstractNfcReader() {
             Log.d(TAG, "请先初始化设备")
             return
         }
+        isStop = false
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
         }, 0, interval, TimeUnit.MILLISECONDS)
@@ -35,6 +36,7 @@ class NfcReaderA : AbstractNfcReader() {
 
     @Synchronized
     private fun performReaderARead() {
+        if (isStop) return
         if (devNum == -1) {
             devNum = callContactLess!!.fw_init_ex(2, null, 0)
             if (devNum != -1) {
@@ -44,8 +46,8 @@ class NfcReaderA : AbstractNfcReader() {
                     Log.d(TAG, "设备初始化成功")
                 } else {
                     Log.e(TAG, "设备初始化失败,设备类型不匹配")
-                    callContactLess?.fw_exit(devNum)
                     stopRead()
+                    return
                 }
             } else {
                 Log.d(TAG, "设备初始化失败")
@@ -69,6 +71,7 @@ class NfcReaderA : AbstractNfcReader() {
 
     @Synchronized
     override fun stopRead() {
+        isStop = true
         super.stopRead()
         Log.d(TAG, "停止读卡")
         callContactLess?.fw_exit(devNum);

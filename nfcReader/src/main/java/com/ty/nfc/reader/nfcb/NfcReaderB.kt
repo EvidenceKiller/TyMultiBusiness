@@ -22,6 +22,7 @@ class NfcReaderB : AbstractNfcReader() {
 
     override fun startRead(callback: ReadCallback) {
         super.startRead(callback)
+        isStop = false
         Log.d(TAG, "NFCB startRead")
         readingTask = scheduler.scheduleWithFixedDelay({
             performReaderARead()
@@ -30,6 +31,7 @@ class NfcReaderB : AbstractNfcReader() {
 
     @Synchronized
     private fun performReaderARead() {
+        if (isStop) return
         if (devNum == -1) {
             devNum = comproCall.lc_init_ex(2, null, 0).toInt()
             if (devNum != -1) {
@@ -38,8 +40,8 @@ class NfcReaderB : AbstractNfcReader() {
                     Log.d(TAG, "设备初始化成功")
                 } else {
                     Log.e(TAG, "设备初始化失败,设备类型不匹配")
-                    comproCall.lc_exit(devNum)
                     stopRead()
+                    return
                 }
             } else {
                 Log.d(TAG, "设备初始化失败")
@@ -64,6 +66,7 @@ class NfcReaderB : AbstractNfcReader() {
 
     @Synchronized
     override fun stopRead() {
+        isStop = true
         super.stopRead()
         Log.d(TAG, "停止读卡")
         comproCall.lc_exit(devNum);
