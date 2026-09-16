@@ -49,6 +49,7 @@ import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
+import com.ty.tybusbase.ui.webview.CommonWebViewActivity
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -509,7 +510,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         }
 
         viewModel.showReportLD.collectOnLifecycle {
-            val intent = Intent(this, SportReportActivity::class.java)
+            val intent = Intent(this, CommonWebViewActivity::class.java)
             intent.putExtra("url", it)
             intent.putExtra("show_white_board", true)
             startActivity(intent)
