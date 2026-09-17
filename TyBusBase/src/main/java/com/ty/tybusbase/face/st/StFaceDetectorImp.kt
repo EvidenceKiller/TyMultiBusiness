@@ -251,7 +251,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
             rectF.bottom = min(centerY + 20, height.toFloat())
         }
         //校正完，再校验下宽高
-        if (rectF.width() > width || rectF.height() > height){
+        if (rectF.width() > width || rectF.height() > height) {
             return TyLivingModel().apply {
                 failType = FailType.AREA_ERROR
                 msg = "人脸裁剪区域错误"
@@ -275,7 +275,7 @@ class StFaceDetectorImp : FaceDetectorInterface {
             val top = rectF.top.toInt().toEven()
             bytes = AdlYUVUtil.cropNV21(yuv, width, height, left, top, targetW, targetH)
 
-            if (bytes == null) {
+            if (bytes == null || bytes.size != targetW * targetH * 3 / 2) {
                 LogUtil.d("警告： 人脸数据为null")
                 return TyLivingModel().apply {
                     failType = FailType.DATA_ERROR
