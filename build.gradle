@@ -22,6 +22,10 @@ buildscript {
         }
     }
     dependencies {
+        // 手动升级 R8/D8：AGP 7.4.2 自带的 8.0.x 处理 JDK21 编译的 class 时会抛
+        // "Cannot invoke \"String.length()\" because \"<parameter1>\" is null"
+        // （如 TyInference-ClassicAlgoJ-2026-09-11.aar），8.1.44+ 已修复
+        classpath 'com.android.tools:r8:8.1.56'
         classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath 'com.github.kezong:fat-aar:1.3.6'
