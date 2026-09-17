@@ -239,12 +239,6 @@ class StFaceDetectorImp : FaceDetectorInterface {
                 msg = "人脸裁剪区域错误"
             }
         }
-        if (isIsDetecting) return TyLivingModel().apply {
-            failType = FailType.DETECTING
-            msg = "人脸正在检测中..."
-        }
-        isIsDetecting = true
-        LogUtil.d("商汤开始检测人脸")
         //裁剪区矫正,rect太小会导致人脸识别程序崩溃
         if (rectF.width() < 40) {
             val centerX = rectF.centerX()
@@ -256,6 +250,19 @@ class StFaceDetectorImp : FaceDetectorInterface {
             rectF.top = max(centerY - 20, 0f)
             rectF.bottom = min(centerY + 20, height.toFloat())
         }
+        //校正完，再校验下宽高
+        if (rectF.width() > width || rectF.height() > height){
+            return TyLivingModel().apply {
+                failType = FailType.AREA_ERROR
+                msg = "人脸裁剪区域错误"
+            }
+        }
+        if (isIsDetecting) return TyLivingModel().apply {
+            failType = FailType.DETECTING
+            msg = "人脸正在检测中..."
+        }
+        isIsDetecting = true
+        LogUtil.d("商汤开始检测人脸")
         val startDetectFace = System.currentTimeMillis()
         var bytes = yuv
         var tyLivingModel: TyLivingModel? = null
