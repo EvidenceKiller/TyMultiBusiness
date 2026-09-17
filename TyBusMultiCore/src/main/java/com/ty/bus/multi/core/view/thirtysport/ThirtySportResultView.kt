@@ -19,6 +19,7 @@ import com.ty.tybusbase.base.VBViewHolder
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.expand.Action1
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.GridSpaceDecoration
 import com.ty.tybusbase.helper.SpeechWrapper
@@ -69,7 +70,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
 
     private fun initView() {
         mBinding.rvResult.layoutManager = GridLayoutManager(context, 2)
-        mBinding.rvResult.addItemDecoration(GridSpaceDecoration(12,56))
+        mBinding.rvResult.addItemDecoration(GridSpaceDecoration(12, 56))
         mBinding.rvResult.adapter =
             object : BaseBindingAdapter<ItemThirtySportResultGridBinding, ThirtySportResultItem>() {
                 override fun convert(
@@ -120,7 +121,7 @@ class ThirtySportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
                     } else {
                         holder.vb.tvVisitorNumber.visibility = GONE
                     }
-                    if (isSupportReport) {
+                    if (isSupportReport && item.isVisitor.not()) {
                         holder.vb.btnReport.visibility = VISIBLE
                         holder.vb.btnReport.setOnClickListener { reportClickListener?.invoke(item) }
                     } else {
