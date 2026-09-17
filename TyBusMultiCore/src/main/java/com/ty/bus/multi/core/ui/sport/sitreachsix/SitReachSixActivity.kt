@@ -246,9 +246,9 @@ class SitReachSixActivity :
                     }
                 }
 
-//                AdlExecutor.postUI(Runnable {
-//                    LogUtil.d(sb.toString().trim { it <= ' ' })
-//                })
+                AdlExecutor.postUI(Runnable {
+                    LogUtil.d(sb.toString().trim { it <= ' ' })
+                })
             }
 
             override fun onMessage(resultCodeType: ResultCodeType?) {
