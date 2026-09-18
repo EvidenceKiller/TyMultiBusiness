@@ -7,12 +7,15 @@ import android.content.Context;
 import android.graphics.RectF;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
+
 import com.sensetime.sdk.video.module.StCommon;
 import com.sensetime.sdk.video.module.StDb;
 import com.sensetime.sdk.video.module.StDetect;
 import com.sensetime.sdk.video.module.StQuality;
 import com.sensetime.sdk.video.module.StVerify;
 import com.sensetime.sdk.video.module.sdk.common.StImage;
+import com.sensetime.sdk.video.module.sdk.common.StPoint;
 import com.sensetime.sdk.video.module.sdk.common.StQualityInfo;
 import com.sensetime.sdk.video.module.sdk.common.StQualityResult;
 import com.sensetime.sdk.video.module.sdk.common.StRect;
@@ -256,8 +259,14 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         if (ret != 0) return errorReturn("检测异常", yuv, FailType.NO_FACE);
         //获取人脸检测的结果
         StTrackResult stDetectResult = mStDetect.getStDetectResult();
+        if (stDetectResult == null) {
+            return errorReturn("检测结果为空", yuv, FailType.NO_FACE);
+        }
         //获取人员检测中的人脸信息
         StTrackInfo[] detectInfo = stDetectResult.getTrackInfo();
+        if (detectInfo == null || detectInfo.length == 0) {
+            return errorReturn("未检测到人脸", yuv, FailType.NO_FACE);
+        }
 
         /*---------人脸质量检测----------*/
         ret = mStQuality.sdkVideoQualityDetect(stImage, detectInfo);
@@ -282,6 +291,12 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         StHelper.INSTANCE.d("人脸检测结果人脸数：" + stQualityResult.getQualityCount(), false);
         List<StQualityInfo> qualityInfos = Arrays.stream(stQualityInfo).filter(qualityInfo -> {
 
+            // 关键点越界校验：越界直接丢弃，避免特征提取对齐时 native 越界崩溃
+            if (!isPointsInBounds(qualityInfo.getPointsArray(), width, height)) {
+                StHelper.INSTANCE.d("关键点数字越界", false);
+                return false;
+            }
+
             String fileName = "detect_" + key + ".jpg";
             float quality = 0.0f;
             String ss = "水平角: " + qualityInfo.getYaw()
@@ -290,32 +305,30 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                     + ", 左眼状态: " + qualityInfo.getEyestateLeft()
                     + ", 综合质量: " + (quality = qualityInfo.getQuality());
             StHelper.INSTANCE.d(ss, false);
+            // 打印关键点，用于判断坐标格式（临时排查用，定位后可删）
+            for (StQualityInfo qi : stQualityInfo) {
+                StringBuilder sb = getStringBuilder(width, height, qi, stImage);
+                StHelper.INSTANCE.d(sb.toString(), false);
+            }
 
             fileName = "invalide_" + qualityInfo.getYaw() + "_" + qualityInfo.getPitch() + "_" + quality + ".jpg";
             // 综合质量低于0.55的时候，开启丢弃策略
+            // 角度硬丢弃：俯仰角/水平角超过45度直接丢弃（不依赖综合质量阈值，
+            // 否则综合质量>=0.55时大角度人脸会绕过丢弃进入特征提取，导致SDK对齐越界崩溃）
+            if (Math.abs(qualityInfo.getPitch()) > 45) {
+                return false;
+            }
+            if (Math.abs(qualityInfo.getYaw()) > 45) {
+                return false;
+            }
+            // 遮挡硬丢弃：超过0.35直接丢弃
+            if (Math.abs(qualityInfo.getOcclusionRatio()) > 0.35f) {
+                return false;
+            }
+            // 综合质量低于0.55时，开启更严格的丢弃策略
             if (quality < 0.55f) {
-                // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
-                if (Math.abs(qualityInfo.getPitch()) > 45) {
-                    return false;
-                }
-
-                // 水平角(Yaw) :  大于45度，直接丢弃
-                if (Math.abs(qualityInfo.getYaw()) > 45) {
-                    //d(" 警告： 水平角异常，直接丢弃 !");
-                    return false;
-                }
-
-                // 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
-                if (Math.abs(qualityInfo.getOcclusionRatio()) > 0.35f) {
-                    //d(" 警告： 遮挡比例异常，直接丢弃 !");
-                    return false;
-                }
-
-                // 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
-                if (Math.abs(qualityInfo.getQuality()) < 0.2f) {
-                    //d(" 警告： 综合质量异常，直接丢弃 !");
-                    return false;
-                }
+                // 综合质量 < 0.2 直接丢弃
+                return !(Math.abs(qualityInfo.getQuality()) < 0.2f);
             }
             return true;
         }).collect(Collectors.toList());
@@ -404,6 +417,24 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         }
     }
 
+    @NonNull
+    private static StringBuilder getStringBuilder(int width, int height, StQualityInfo qi, StImage stImage) {
+        StPoint[] pts = qi.getPointsArray();
+        StringBuilder sb = new StringBuilder("points[frame=" + width + "x" + height + ", len=" + (pts == null ? -1 : pts.length) + "] ");
+        if (pts != null) {
+            for (int i = 0; i < Math.min(pts.length, 20); i++) {
+                sb.append(pts[i].getX()).append("--").append(pts[i].getY()).append(",");
+            }
+        }
+        StRect r = qi.getRect();
+        if (r != null) {
+            sb.append(" rect=[").append(r.getLeft()).append(",").append(r.getTop())
+                    .append(",").append(r.getRight()).append(",").append(r.getBottom()).append("]");
+        }
+        sb.append("stimage: ").append(stImage.getWidth()).append(" height: ").append(stImage.getHeight()).append(" datasize: ").append(stImage.getData().length);
+        return sb;
+    }
+
     private TyLivingModel errorReturn(String errorMsg, byte[] yuv, FailType failType) {
         StHelper.INSTANCE.e(errorMsg, true);
         onFaceFast(null);
@@ -416,12 +447,32 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         return model;
     }
 
+    /**
+     * 校验人脸关键点是否越界。
+     * 关键点为像素坐标、x,y 交错存储（如 53 点 = 106 个 float）。
+     * 任一关键点坐标超出 [0,width]x[0,height] 视为越界，避免进入 SDK 对齐时 native 越界崩溃。
+     */
+    private boolean isPointsInBounds(StPoint[] points, int width, int height) {
+        if (points == null || points.length < 2 || (points.length % 2) != 0) {
+            return false;
+        }
+        for (int i = 0; i + 1 < points.length; i += 2) {
+            float x = points[i].getX();
+            float y = points[i].getY();
+            if (x < 0f || y < 0f || x > width || y > height) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private StVerifyResult getFeature(StImage stImage, StTrackInfo stTrackInfo, StQualityInfo stQualityInfo) {
         if (!isInit) return null;
         float quality = stQualityInfo.getQuality();
         float confidence = stTrackInfo.getConfidence();
         int ret = -1;
-        if (quality >= mQualityThreshold && confidence >= mConfidenceThreshold)
+        if (quality >= mQualityThreshold && confidence >= mConfidenceThreshold
+                && stQualityInfo.getPointsArray() != null)
             ret = mStVerify.sdkVideoVerifyOne(stImage, stQualityInfo.getPointsArray());
         StHelper.parseSdkErrorCode(ret, "特征提取");
         if (ret == 0) {
@@ -433,17 +484,12 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
 
     // 创建识别对象
     private StImage createStImage(byte[] yuv, int width, int height, RectF rectF) {
-        StImage stImage;
-        int dstWidth = width;
-        int dstHeight = height;
-        if (rectF != null && rectF.width() > 0 && rectF.height() > 0) {
-            dstWidth = (int) rectF.width();
-            dstHeight = (int) rectF.height();
-//            byte[] i420 = YuvTool.convertToI420(yuv, width, height, (int) rectF.left, (int) rectF.top, dstWidth, dstHeight, 0, chars);
-//            yuv = YuvTool.I420ToNV21(i420, dstWidth, dstHeight);
-        }
-        stImage = new StImage(dstWidth, dstHeight, dstWidth, StImage.StPixelFormat.PixFmtNV21, yuv);
-        return stImage;
+        // 注意：历史实现曾在传入 rectF 时把 dstWidth/dstHeight/stride 改为 rectF 的宽高，
+        // 但 yuv 数据仍是整图未裁剪，导致 StImage 声明的尺寸/stride 与实际数据不一致，
+        // 在 SDK 人脸对齐(仿射变换 WarpAffineLinear)阶段越界读内存崩溃。
+        // 此处统一使用整图，保证数据、宽高、stride 三者严格一致；如需按 rectF 裁剪，
+        // 必须先把 yuv 正确裁剪（含偏移与偶对齐）后再传入对应宽高。
+        return new StImage(width, height, width, StImage.StPixelFormat.PixFmtNV21, yuv);
     }
 
 
