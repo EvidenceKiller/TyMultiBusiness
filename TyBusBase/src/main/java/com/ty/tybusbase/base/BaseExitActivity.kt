@@ -68,6 +68,7 @@ abstract class BaseExitActivity<VB : ViewBinding, VM : BaseViewModel> : BaseActi
 
     open fun showBackBtn() {
         mBaseBinding.ivExit.visibility = View.VISIBLE
+        mBaseBinding.ivExit.bringToFront()
     }
 
     fun showExitView(show: Boolean) {
