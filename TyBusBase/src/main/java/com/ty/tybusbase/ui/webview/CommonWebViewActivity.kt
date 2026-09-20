@@ -51,7 +51,14 @@ class CommonWebViewActivity : BaseActivity<BusiBaseActivityCommonWebviewBinding,
         }
 
         if (showWhiteBoard) {
-            mBinding.whiteBoard.visible()
+            mBinding.layoutPen.visible()
+            mBinding.layoutPen.setOnClickListener {
+                mBinding.whiteBoard.visibility = View.VISIBLE
+                mBinding.layoutPen.visibility = View.GONE
+            }
+            mBinding.whiteBoard.setCloseListener {
+                mBinding.layoutPen.visibility = View.VISIBLE
+            }
         }
 
     }
