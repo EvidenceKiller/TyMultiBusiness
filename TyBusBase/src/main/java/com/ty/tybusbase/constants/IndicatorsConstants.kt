@@ -150,4 +150,48 @@ object IndicatorsConstants {
     const val PING_PONG_HC_FASTEST_BALL_SPEED_PARABOLA = "0130017" // 球速最快抛物线
     const val PING_PONG_HC_SLOWEST_BALL_SPEED_PARABOLA = "0130018" // 球速最慢抛物线
     /**************************乒乓球正手攻反手推挡指标参数*******************************/
+
+
+
+    /**************************足球运球绕杆射门指标参数*******************************/
+    const val FOOTBALL_DRIBBLE_SHOOT_PROCEDURAL_TIME = "110102002" // 过程性时间指标
+    const val FOOTBALL_DRIBBLE_SHOOT_SHOT_TIME = "110102003" // 射门耗时
+    const val FOOTBALL_DRIBBLE_SHOOT_SHOT_RESULT = "110102005" // 射门结果
+    const val FOOTBALL_DRIBBLE_SHOOT_PROCEDURAL_VIOLATION = "110102004" // 过程性违规指标
+    const val FOOTBALL_DRIBBLE_SHOOT_DRIBBLE_TURN_TIMING = "110102101" // 专项绕杆变向时机
+    const val FOOTBALL_DRIBBLE_SHOOT_MOTION_TRACK_COORDINATES = "110102102" // 运动轨迹坐标
+    /**************************足球运球绕杆射门指标参数*******************************/
+
+    /**************************篮球运球绕杆上篮指标参数*******************************/
+    const val BASKETBALL_DRIBBLE_SHOOT_PROCEDURAL_TIME = "100102003" // 过程性时间指标（去程）
+    const val BASKETBALL_DRIBBLE_SHOOT_LAYUP_TIME = "100102006" // 上篮耗时指标
+    const val BASKETBALL_DRIBBLE_SHOOT_PROCEDURAL_VIOLATION = "100102008" // 过程性违规指标（去程）
+    const val BASKETBALL_DRIBBLE_SHOOT_LAYUP_RESULT = "100102009" // 上篮结果
+    const val BASKETBALL_DRIBBLE_SHOOT_DRIBBLE_TURN_TIMING = "100102101" // 专项绕杆变向时机（去程）
+    const val BASKETBALL_DRIBBLE_SHOOT_MOTION_TRACK_COORDINATES = "100102103" // 运动轨迹坐标
+    /**************************篮球运球绕杆上篮指标参数*******************************/
+
+    /**************************足球运球绕标志杆指标参数*******************************/
+    const val FOOTBALL_DRIBBLE_PROCESS_DISTANCE = "11010001" // 过程性距离指标
+    const val FOOTBALL_DRIBBLE_PROCESS_TIME = "11010002" // 过程性时间指标
+    const val FOOTBALL_DRIBBLE_SERVE_REACTION_TIME = "11010003" // 发球反应时间
+    const val FOOTBALL_DRIBBLE_PROCESS_VIOLATION_GOING = "11010004" // 过程性违规指标
+    const val FOOTBALL_DRIBBLE_SPECIAL_CHANGE_DIRECTION_GOING = "11011001" // 专项绕杆变向时机
+    const val FOOTBALL_DRIBBLE_MOVEMENT_TRAJECTORY = "11011002" // 运动轨迹
+    /**************************足球运球绕标志杆指标参数*******************************/
+
+    /**************************篮球运球绕标志杆指标参数*******************************/
+    const val BASKETBALL_DRIBBLE_PROCESS_DISTANCE_GOING = "10010001" // 过程性距离指标（去程）
+    const val BASKETBALL_DRIBBLE_PROCESS_DISTANCE_RETURN = "10010002" // 过程性距离指标（返程）
+    const val BASKETBALL_DRIBBLE_PROCESS_TIME_GOING = "10010003" // 过程性时间指标（去程）
+    const val BASKETBALL_DRIBBLE_PROCESS_TIME_RETURN = "10010004" // 过程性时间指标（返程）
+    const val BASKETBALL_DRIBBLE_DRIBBLE_TURN_TIME = "10010005" // 运球转身时间指标
+    const val BASKETBALL_DRIBBLE_DRIBBLE_TURN_VIOLATION = "10010011" // 运球转身违规指标
+    const val BASKETBALL_DRIBBLE_SERVE_REACTION_TIME = "10010007" // 发球反应时间
+    const val BASKETBALL_DRIBBLE_PROCESS_VIOLATION_GOING = "10010008" // 过程性违规指标（去程）
+    const val BASKETBALL_DRIBBLE_PROCESS_VIOLATION_RETURN = "10010009" // 过程性违规指标（返程）
+    const val BASKETBALL_DRIBBLE_SPECIAL_CHANGE_DIRECTION_GOING = "10011001" // 专项绕杆变向时机（去程）
+    const val BASKETBALL_DRIBBLE_SPECIAL_CHANGE_DIRECTION_RETURN = "10011002" // 专项绕杆变向时机（返程）
+    const val BASKETBALL_DRIBBLE_MOVEMENT_TRAJECTORY = "10011003" // 运动轨迹
+    /**************************篮球运球绕标志杆指标参数*******************************/
 }
