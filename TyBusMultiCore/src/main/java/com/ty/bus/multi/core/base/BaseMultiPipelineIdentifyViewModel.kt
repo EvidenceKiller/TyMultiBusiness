@@ -70,11 +70,11 @@ open class BaseMultiPipelineIdentifyViewModel(application: Application) :
 
     override fun onPause() {
         super.onPause()
+        multiIdentityEngine.closeMachine()
     }
 
     override fun onStop() {
         super.onStop()
-        multiIdentityEngine.closeMachine()
     }
 
     override fun onDestroy() {
