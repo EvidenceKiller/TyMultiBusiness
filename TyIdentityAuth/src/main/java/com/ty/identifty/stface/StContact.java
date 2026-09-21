@@ -11,7 +11,7 @@ import java.lang.annotation.RetentionPolicy;
  * Description: this is StConfig
  */
 public class StContact {
-    public final static String LOG_TAG = "商汤人脸>>";
+    public final static String LOG_TAG = "StFace>> ";
 
     //region----------------商湯授權-----------------
     public static final String AUTH_ON_LING = "sdk_video_online";

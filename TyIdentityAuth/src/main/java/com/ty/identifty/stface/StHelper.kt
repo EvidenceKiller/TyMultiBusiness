@@ -137,8 +137,10 @@ object StHelper {
     @JvmStatic
     fun parseSdkErrorCode(ret: Int, msg: String?) {
         if (ret == 0) {
+            d("ok-> $msg")
             return
         }
+
         val errMsg = msg + "错误码: " + ret + "! "
         if (ret == -13) {
             d(errMsg + "please check if the license file exists!")

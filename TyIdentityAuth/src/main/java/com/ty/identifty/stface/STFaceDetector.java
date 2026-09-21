@@ -42,7 +42,6 @@ import java.util.stream.Stream;
  */
 public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
 
-
     private static char[] chars = new char[]{'N', 'V', '2', '1'};
     private final StParameter mStParameter;
     private final String mTrackConfig;
@@ -55,6 +54,8 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
     private float mConfidenceThreshold;
     private static STFaceDetector singleSTFaceDetector;
 
+    // 临时变量
+    private byte[] mFaceBuffer;
 
     private STFaceDetector(StParameter stParameter, String trackConfigStr) {
         mStParameter = stParameter;
@@ -235,7 +236,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
      * 人脸能力api,需要在子线程中调用.未成功会调用onFaceFast(null)且返回null.
      *
      * @param key              无意义，会原路返回，建议时间戳
-     * @param yuv              目标图片数据nv21
+     * @param data             目标图片数据nv21
      * @param width            图片宽
      * @param height           图片高
      * @param rectF            图片裁剪区域，相对于YUV图片坐标
@@ -247,47 +248,58 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
      * @return 返回函数结果，失败返回null
      */
     @Override
-    public TyLivingModel detectByYuv(String key, byte[] yuv, int width, int height, RectF rectF, float scale, int featureCheckMode) {
-        if (!isInit) return errorReturn("初始化未完成", yuv, FailType.NOT_INIT);
+    public synchronized TyLivingModel detectByYuv(String key, byte[] data, int width, int height, RectF rectF, float scale, int featureCheckMode) {
+        if (!isInit) return errorReturn("初始化未完成", data, FailType.NOT_INIT);
+
+        // 重新拷贝一份数据
+        mFaceBuffer = Arrays.copyOf(data, data.length);
+
         TyLivingModel jfFaceResult = null;
         //构建图片信息
-        StImage stImage = createStImage(yuv, width, height, rectF);
+        StImage stImage = createStImage(mFaceBuffer, width, height, rectF);
 
         /*---------人脸检测----------*/
         int ret = mStDetect.sdkVideoDetectOne(stImage);
-        StHelper.parseSdkErrorCode(ret, "检测");
-        if (ret != 0) return errorReturn("检测异常", yuv, FailType.NO_FACE);
+        StHelper.parseSdkErrorCode(ret, "检测，len=" + mFaceBuffer.length
+                + ", size=" + (width * height * 3 / 2)
+                + ", tid=" + Thread.currentThread().getId());
+
+        if (ret != 0) return errorReturn("检测异常", mFaceBuffer, FailType.NO_FACE);
         //获取人脸检测的结果
         StTrackResult stDetectResult = mStDetect.getStDetectResult();
         if (stDetectResult == null) {
-            return errorReturn("检测结果为空", yuv, FailType.NO_FACE);
+            return errorReturn("检测结果为空", mFaceBuffer, FailType.NO_FACE);
         }
         //获取人员检测中的人脸信息
         StTrackInfo[] detectInfo = stDetectResult.getTrackInfo();
         if (detectInfo == null || detectInfo.length == 0) {
-            return errorReturn("未检测到人脸", yuv, FailType.NO_FACE);
+            return errorReturn("未检测到人脸", mFaceBuffer, FailType.NO_FACE);
         }
 
         /*---------人脸质量检测----------*/
         ret = mStQuality.sdkVideoQualityDetect(stImage, detectInfo);
         StHelper.parseSdkErrorCode(ret, "质量");
         if (ret != 0) {
-            return errorReturn("质量检测异常", yuv, FailType.NO_QUALITY);
+            return errorReturn("质量检测异常", mFaceBuffer, FailType.NO_QUALITY);
         }
+
         //获取质量检测结果
         StQualityResult stQualityResult = mStQuality.getStQualityResult();
         StQualityInfo[] stQualityInfo = stQualityResult.getQualityInfo();
+
         /**************************************************************/
         // 俯仰角(Pitch): 如果大于45度，直接丢弃, 35-45 暂时有效, 低于35 有效
-// 水平角(Yaw) :  大于45度，直接丢弃
-// 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
-// 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
-/*if (stTrackInfo != null) {
-    //StRect rect = stTrackInfo.getRect();
-    d(" 人脸置信度: " + stTrackInfo.getConfidence()
-            + ", 人脸大小: " + (rect != null ? (rect.getRight() - rect.getLeft())
-            + "," + (rect.getBottom() - rect.getTop()) : " 0,0,0,0"));
-}*/
+        // 水平角(Yaw) :  大于45度，直接丢弃
+        // 遮挡比例(OcclusionRatio) :  大于0.35 直接丢弃，0.3 - 0.35 暂时有效, 其他有效
+        // 综合质量(Quality) : 小于0.2 直接丢弃， 0.2 -0.5 暂时有用, 其他有效
+        /*if (stTrackInfo != null) {
+            //StRect rect = stTrackInfo.getRect();
+            d(" 人脸置信度: " + stTrackInfo.getConfidence()
+                    + ", 人脸大小: " + (rect != null ? (rect.getRight() - rect.getLeft())
+                    + "," + (rect.getBottom() - rect.getTop()) : " 0,0,0,0"));
+        }*/
+
+
         StHelper.INSTANCE.d("人脸检测结果人脸数：" + stQualityResult.getQualityCount(), false);
         List<StQualityInfo> qualityInfos = Arrays.stream(stQualityInfo).filter(qualityInfo -> {
 
@@ -335,11 +347,11 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
 
         /**************************************************************/
         if (qualityInfos.isEmpty()) {
-            return errorReturn("质量角度检测异常", yuv, FailType.NO_QUALITY);
+            return errorReturn("质量角度检测异常", mFaceBuffer, FailType.NO_QUALITY);
         }
         int faceNum = qualityInfos.size();
 
-//        int faceNum = stQualityResult.getQualityCount();
+        //int faceNum = stQualityResult.getQualityCount();
         //人脸数量校验
         List<StTrackInfo> detectInfos = Arrays.stream(detectInfo).filter(stTrackInfo -> {
             return qualityInfos.stream().anyMatch(qi -> qi.getId() == stTrackInfo.getId());
@@ -366,11 +378,11 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         //【2: 提取特征】，抽取特征值得方式->图片多张人脸时，直接报错;//退出了不继续,返回人脸位置}
         else if (featureCheckMode == 2) {
             if (faceNum > 1)
-                return errorReturn("特征抽取失败，图片中发现多个人脸", yuv, FailType.MORE_FACE);
+                return errorReturn("特征抽取失败，图片中发现多个人脸", mFaceBuffer, FailType.MORE_FACE);
             //提取特征值
             StVerifyResult stVerifyResult = getFeature(stImage, detectInfos.get(0), qualityInfos.get(0));
             if (stVerifyResult == null)
-                return errorReturn("特征提取异常", yuv, FailType.NO_FEATURE);
+                return errorReturn("特征提取异常", mFaceBuffer, FailType.NO_FEATURE);
             jfFaceResult = new TyLivingModel();
             TyFaceInfo<float[]> jfFaceInfo = new TyFaceInfo();
             jfFaceInfo.setFeatureFloat(stVerifyResult.getVerifyFeature());
@@ -386,8 +398,10 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
         }
         // 【3: 提取特征+ m：N检索】多张人脸时，首先比对的成功返回
         else {
+
             StVerifyResult[] stVerifyResults = new StVerifyResult[1];
             for (int i = 0; i < faceNum; i++) {
+
                 //提取特征
                 StVerifyResult stVerifyResult = getFeature(stImage, detectInfos.get(i), qualityInfos.get(i));
                 if (stVerifyResult == null) {
@@ -402,6 +416,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 if (faceFeatureThreshold > score) {
                     continue;
                 }
+
                 jfFaceResult = new TyLivingModel();
                 TyFaceInfo<float[]> jfFaceInfo = new TyFaceInfo();
                 jfFaceInfo.setId(id);
@@ -413,7 +428,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
                 onFaceInfo(jfFaceResult);
                 return jfFaceResult;
             }
-            return errorReturn("未查询到人员", yuv, FailType.NO_SEARCH);
+            return errorReturn("未查询到人员", mFaceBuffer, FailType.NO_SEARCH);
         }
     }
 
@@ -468,13 +483,14 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
 
     private StVerifyResult getFeature(StImage stImage, StTrackInfo stTrackInfo, StQualityInfo stQualityInfo) {
         if (!isInit) return null;
+
         float quality = stQualityInfo.getQuality();
         float confidence = stTrackInfo.getConfidence();
         int ret = -1;
         if (quality >= mQualityThreshold && confidence >= mConfidenceThreshold
                 && stQualityInfo.getPointsArray() != null)
             ret = mStVerify.sdkVideoVerifyOne(stImage, stQualityInfo.getPointsArray());
-        StHelper.parseSdkErrorCode(ret, "特征提取");
+        StHelper.parseSdkErrorCode(ret, "特征提取-> tid=" + Thread.currentThread().getId());
         if (ret == 0) {
             return mStVerify.getStVerifyResult();
         }
