@@ -557,7 +557,6 @@ class ThirtySportViewModel(application: Application) :
             AdlLogger.d("识别到人脸：但已不是识别状态 $accountIndex")
             return
         }
-        stopPlayCutDown()
         SpeechWrapper.speech(
             getString(
                 R.string.identified_someone,
@@ -624,8 +623,8 @@ class ThirtySportViewModel(application: Application) :
                     if (skipPersonArray.size == 1 && startCountDownTimer == null) {
                         startCountDownTimer = createCountDownTimer()
                         startCountDownTimer?.start()
+//                        playCutDown()
                     }
-                    playCutDown()
                     //识别到人，取消超时机制
                     timeOutHelper.cancel()
                 } else {
@@ -1874,7 +1873,7 @@ class ThirtySportViewModel(application: Application) :
         focalHandler.removeCallbacksAndMessages(null)
         videoRecorder.onStop()
         videoRecorder.onRelease()
-        asyncPlayer.stop()
+//        asyncPlayer.stop()
         config.unloadModel()
         multiSportProcessor.onRelease()
         GrpcManager.unregisterHandler(GRPC_KEY)
