@@ -353,7 +353,7 @@ class ThirtySportViewModel(application: Application) :
         override fun onFinish() {
             //主屏倒计时结束，统一检查协同开始条件
             mainCountDownEnded = true
-//            skipRoseState = MultiSportState.WAITING_START
+            skipRoseState = MultiSportState.WAITING_START
             checkCollaborationSportStart()
         }
     }
@@ -738,7 +738,7 @@ class ThirtySportViewModel(application: Application) :
 
                 GroupSportsBaseChannelStatus.standBy -> {
                     if (getSportModel() == SportModel.NORMAL
-                        && skipRoseState != MultiSportState.SPORTING
+                        && (skipRoseState == MultiSportState.PREPARING || skipRoseState == MultiSportState.IDENTIFYING)
                         && roseMultiResult == null
                     ) {
                         changeMultiIdentityCardState(
