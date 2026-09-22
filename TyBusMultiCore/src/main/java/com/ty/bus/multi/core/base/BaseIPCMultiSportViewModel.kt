@@ -155,15 +155,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     var focalHandler = Handler(Looper.getMainLooper())
 
     //X秒竞技倒计时的Timer任务
-    val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {
-            countDownNoticeLD.postValue("${countDownTime--}")
-        }
-
-        override fun onFinish() {
-            readyGo()
-        }
-    }
+    private var startCountDownTimer:CountDownTimer? = null
 
     //当前播放音效的索引
     var soundIndex = 0
@@ -245,6 +237,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             MultiSportState.PREPARING, MultiSportState.IDENTIFYING -> {
                 handleIdentify(groupSkippingManList)
             }
+
             MultiSportState.COUNTDOWN -> {
             }
 
@@ -284,10 +277,23 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         bsSkipRoseMultiProcessor.addFrameProcessor(multiSportProcessor)
     }
 
+    private fun createCountDownTimer(): CountDownTimer =
+        object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
+
+            override fun onTick(millisUntilFinished: Long) {
+                countDownNoticeLD.postValue("${countDownTime--}")
+            }
+
+            override fun onFinish() {
+                readyGo()
+            }
+        }
+
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(bsSkipRoseMultiProcessor)
-        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
+        val cameraConfig =
+            BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig.setCameraType(AdlCameraConfig.CameraType.HK).setConnect(
@@ -450,8 +456,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 //                    countDownNoticeLD.value =
 //                        "${getString(R.string.race_start_countdown)}：${countDownTime}"
                     //第一个人识别成功，则开始倒计时
-                    if (skipPersonArray.size == 1) {
-                        startCountDownTimer.start()
+                    if (skipPersonArray.size == 1 && startCountDownTimer == null) {
+                        startCountDownTimer = createCountDownTimer()
+                        startCountDownTimer?.start()
                     }
                     playCutDown()
                     //识别到人，取消超时机制
@@ -704,7 +711,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
         //停止倒计时音效
         stopPlayCutDown()
-        startCountDownTimer.cancel()
+        startCountDownTimer?.cancel()
         countDownFinishLD.postValue(true)
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
@@ -1031,7 +1038,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     override fun onDestroy() {
         super.onDestroy()
         sportingCountDownTimer?.cancel()
-        startCountDownTimer.cancel()
+        startCountDownTimer?.cancel()
         toDone()
         bsSkipRoseMultiProcessor.onRelease()
         skipRoseState = MultiSportState.IDLE
