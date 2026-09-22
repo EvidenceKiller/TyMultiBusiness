@@ -345,18 +345,7 @@ class ThirtySportViewModel(application: Application) :
     var focalHandler = Handler(Looper.getMainLooper())
 
     //X秒竞技倒计时的Timer任务
-    val startCountDownTimer = object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
-        override fun onTick(millisUntilFinished: Long) {
-            _countDownNoticeLD.tryEmit(DisplayType.MAIN to "${countDownTime--}")
-        }
-
-        override fun onFinish() {
-            //主屏倒计时结束，统一检查协同开始条件
-            mainCountDownEnded = true
-            skipRoseState = MultiSportState.WAITING_START
-            checkCollaborationSportStart()
-        }
-    }
+    private var startCountDownTimer: CountDownTimer? = null
 
     //当前播放音效的索引
     var soundIndex = 0
@@ -478,6 +467,20 @@ class ThirtySportViewModel(application: Application) :
         })
         bsSkipRoseMultiProcessor.addFrameProcessor(multiSportProcessor)
     }
+
+    private fun createCountDownTimer() =
+        object : CountDownTimer(getDefaultCountDownTime() * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                _countDownNoticeLD.tryEmit(DisplayType.MAIN to "${countDownTime--}")
+            }
+
+            override fun onFinish() {
+                //主屏倒计时结束，统一检查协同开始条件
+                mainCountDownEnded = true
+                skipRoseState = MultiSportState.WAITING_START
+                checkCollaborationSportStart()
+            }
+        }
 
     private fun initCamera() {
         cameraDispatcher.setMirror(true)
@@ -618,8 +621,9 @@ class ThirtySportViewModel(application: Application) :
 //                    countDownNoticeLD.value =
 //                        "${getString(R.string.race_start_countdown)}：${countDownTime}"
                     //第一个人识别成功，则开始倒计时
-                    if (skipPersonArray.size == 1) {
-                        startCountDownTimer.start()
+                    if (skipPersonArray.size == 1 && startCountDownTimer == null) {
+                        startCountDownTimer = createCountDownTimer()
+                        startCountDownTimer?.start()
                     }
                     playCutDown()
                     //识别到人，取消超时机制
@@ -917,7 +921,7 @@ class ThirtySportViewModel(application: Application) :
         }
         //停止倒计时音效
         stopPlayCutDown()
-        startCountDownTimer.cancel()
+        startCountDownTimer?.cancel()
         _countDownFinishLD.tryEmit(DisplayType.MAIN to true)
         //开始3-2-1倒计时就表示比赛已经开始
         skipRoseState = MultiSportState.COUNTDOWN
@@ -1027,6 +1031,7 @@ class ThirtySportViewModel(application: Application) :
 
     override fun toStatusSportStart() {
         super.toStatusSportStart()
+        startCountDownTimer = null
         skipRoseState = MultiSportState.SPORTING
         _sportStartedLD.value = true
         refreshCurrentBest()
@@ -1860,7 +1865,7 @@ class ThirtySportViewModel(application: Application) :
         //页面关闭，发送协同运动结束指令
         sendCollaborationFinish()
         sportingCountDownTimer?.cancel()
-        startCountDownTimer.cancel()
+        startCountDownTimer?.cancel()
         toDone()
         bsSkipRoseMultiProcessor.onRelease()
         skipRoseState = MultiSportState.IDLE

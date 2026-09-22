@@ -155,7 +155,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
     var focalHandler = Handler(Looper.getMainLooper())
 
     //X秒竞技倒计时的Timer任务
-    private var startCountDownTimer:CountDownTimer? = null
+    private var startCountDownTimer: CountDownTimer? = null
 
     //当前播放音效的索引
     var soundIndex = 0
@@ -804,6 +804,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
 
     override fun toStatusSportStart() {
         super.toStatusSportStart()
+        startCountDownTimer = null
         skipRoseState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
