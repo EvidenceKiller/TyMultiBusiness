@@ -353,6 +353,7 @@ class ThirtySportViewModel(application: Application) :
         override fun onFinish() {
             //主屏倒计时结束，统一检查协同开始条件
             mainCountDownEnded = true
+//            skipRoseState = MultiSportState.WAITING_START
             checkCollaborationSportStart()
         }
     }
@@ -608,6 +609,7 @@ class ThirtySportViewModel(application: Application) :
                     //处理竞技倒计时
                     //如果已识别五人，则直接开始
                     if (skipPersonArray.size == skipManCount) {
+//                        skipRoseState = MultiSportState.WAITING_START
                         checkCollaborationSportStart()
                         return@launch
                     }
