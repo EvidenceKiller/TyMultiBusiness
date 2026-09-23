@@ -1,5 +1,6 @@
 package com.ty.tybusbase.identify
 
+import android.graphics.Rect
 import com.adl.base.overlay.SportOverlay
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
@@ -24,8 +25,13 @@ import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.tracker.SingleTracker
 import com.ty.tybusbase.utils.DeviceUtil
+import com.ty.tybusbase.utils.LogUtil
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
-open class SingleIdentityProcessor : AdlCameraFrameProcessor {
+open class SingleIdentityProcessor(val customIdentifyRect: ICustomIdentifyRect = DefaultCustomRect()) :
+    AdlCameraFrameProcessor {
     private val mFrameProcessors by lazy { ArrayList<AdlCameraFrameProcessor>() }
     private val yuvData by lazy { TsYuvFrame() }
     private val tsConfig by lazy { SportConfigSingle() }
@@ -95,10 +101,11 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
                 frame.skeleton?.let {
                     if (judgeHandUp(it)) {
                         identityEngine.identify(
-                            frame.skeleton,
-                            yuvData.yuv,
-                            yuvData.width,
-                            yuvData.height
+                            customIdentifyRect.calcRect(
+                                frame.skeleton,
+                                yuvData.width,
+                                yuvData.height
+                            ), yuvData.yuv, yuvData.width, yuvData.height
                         )
                     }
                     if (identityOk && startGestureDetection != null && startGestureDetection?.startGestureDetection(
@@ -263,6 +270,10 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
         startGestureDetection?.reset()
     }
 
+    fun clearCount() {
+        identityEngine.clearCountMap()
+    }
+
     fun release() {
         isStarting = false
         tsSportLifecycle.toIdle()
@@ -285,6 +296,47 @@ open class SingleIdentityProcessor : AdlCameraFrameProcessor {
             0,
             FaceIdentifyConfig(round, BusiBaseConstantsValue.DEFAULT_SINGLE_FACE_THRESHOLD)
         )
+    }
+
+    interface ICustomIdentifyRect {
+        fun calcRect(skeleton: AdlPoseSkeleton?, width: Int, height: Int): Rect
+    }
+
+    class DefaultCustomRect() : ICustomIdentifyRect {
+        override fun calcRect(skeleton: AdlPoseSkeleton?, width: Int, height: Int): Rect {
+            if (skeleton == null) {
+                LogUtil.d("skeleton.bodyrect  is Null null null null ------", true)
+                return Rect(0, 0, 50, 50)
+            }
+            var rect = Rect(0, 0, 50, 50)
+            if (skeleton.LShoulder != null && skeleton.RShoulder != null) {
+                val shoulderWidth = abs(skeleton.LShoulder.x - skeleton.RShoulder.x)
+                rect.bottom = max(skeleton.LShoulder.y, skeleton.RShoulder.y).toInt()
+                rect.left =
+                    max(
+                        min(
+                            skeleton.LShoulder.x,
+                            skeleton.RShoulder.x
+                        ).toInt(), 0
+                    )
+                rect.right = min(rect.left + shoulderWidth.toInt(), width)
+                rect.top = if (skeleton.headTop != null) {
+                    skeleton.headTop.y.toInt()
+                } else {
+                    max((rect.bottom - 1.8 * shoulderWidth).toInt(), 0)
+                }
+            }
+
+            //框体纠正
+            if (rect.width() < 40 || rect.height() < 40) {
+                rect.left = max(rect.left - 20, 0)
+                rect.right = min(rect.left + 40, width)
+                rect.top = max(rect.top - 20, 0)
+                rect.bottom = min(rect.top + 40, height)
+            }
+            return rect
+        }
+
     }
 
     companion object {

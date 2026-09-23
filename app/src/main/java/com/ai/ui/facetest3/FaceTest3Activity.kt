@@ -15,6 +15,7 @@ import com.ty.tybusbase.identify.IdentifyMachineListener
 import com.ty.tybusbase.identify.SingleIdentityProcessor
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.ToastUtil
 
 class FaceTest3Activity : BaseSportStatusActivity<ActivityFaceTest3Binding, BaseSportViewModel>() {
 
@@ -53,6 +54,7 @@ class FaceTest3Activity : BaseSportStatusActivity<ActivityFaceTest3Binding, Base
             mBinding.overlay,
             TsSportRegion(Point(960, 0), Point(1920, 0), Point(960, 1080), Point(1920, 1080))
         )
+        identityProcessor.setIdentityRound(2)
         identityProcessor.setIdentityListener(object : IdentifyMachineListener {
             override fun onIdentityMachineInit(initResult: Boolean) {
 
@@ -63,10 +65,17 @@ class FaceTest3Activity : BaseSportStatusActivity<ActivityFaceTest3Binding, Base
 
             override fun onIdentityOk(accountInfo: AccountInfo?) {
                 LogUtil.d("识别成功：${accountInfo?.studentEntity?.accountName}")
+                ToastUtil.getInstance(
+                    this@FaceTest3Activity,
+                    "识别成功：${accountInfo?.studentEntity?.accountName}"
+                ).show()
+                identityProcessor.clearCount()
+                identityProcessor.reset()
             }
 
             override fun onIdentityTimeFail() {
                 LogUtil.d("识别失败:")
+                identityProcessor.reset()
             }
 
         })
