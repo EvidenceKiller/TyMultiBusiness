@@ -1,6 +1,7 @@
 package com.ty.bus.multi.core.view.ettensport
 
 import android.content.Context
+import android.os.CountDownTimer
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,8 @@ import com.ty.tybusbase.expand.Action
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
 import com.ty.bus.multi.databinding.EtTenSportSportViewBinding
+import com.ty.tybusbase.helper.SpeechWrapper
+import java.util.concurrent.Executors
 
 class EtTenSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     BaseMultiSportViewNoAnimation(context, attrs, defStyleAttr) {
@@ -56,12 +59,36 @@ class EtTenSportSportView(context: Context, attrs: AttributeSet?, defStyleAttr: 
         mBinding.tvStartNow.visibility = VISIBLE
     }
 
-    override fun readyGo(block: Action) {
-        super.readyGo(block)
+    fun readyGo(block: Action, speak: Boolean) {
+        getCountDownNoticeTv().text = startedText
+        countDownTime = 4L
+        countTimer = object : CountDownTimer(countDownTime * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                countDownTime--
+                var text = if (countDownTime == 0L) {
+                    context.getString(R.string.start)
+                } else {
+                    countDownTime.toString()
+                }
+                getCountDownGoTv().text = text
+                if (speak) {
+                    Executors.newSingleThreadExecutor().execute {
+                        SpeechWrapper.speakAfterStop(text)
+                    }
+                }
+            }
+
+            override fun onFinish() {
+                block.invoke()
+                onStarted()
+            }
+
+        }.start()
+        getCountDownGoTv().visibility = VISIBLE
         mBinding.tvStartNow.visibility = GONE
     }
 
-    fun visibilityStartBtn(visibility: Int){
+    fun visibilityStartBtn(visibility: Int) {
         mBinding.tvStartNow.visibility = visibility
     }
 

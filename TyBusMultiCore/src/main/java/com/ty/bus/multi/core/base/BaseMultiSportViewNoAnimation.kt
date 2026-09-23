@@ -31,10 +31,10 @@ abstract class BaseMultiSportViewNoAnimation(
     protected val bottomShadowViewMap = HashMap<Int, View>()
     protected val preparedMap by lazy { SparseArray<Int>() }
 
-    private var countDownTime = 4L // 倒计时，单位S
-    private var countTimer: CountDownTimer? = null
+    protected var countDownTime = 4L // 倒计时，单位S
+    protected var countTimer: CountDownTimer? = null
 
-    private var startedText: String = getString(R.string.race_start_cheer)
+    protected var startedText: String = getString(R.string.race_start_cheer)
 
 
     abstract fun getCountDownNoticeTv(): TextView
