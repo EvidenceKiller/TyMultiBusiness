@@ -64,6 +64,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var ptStandardId: String? = null
     var energyPoint: Int = 0
     var streamType = 1 //1:摄像头播放，2:视频播放
+    var canPlayBgm = true //是否能播背景音乐，用于上层业务控制音乐播放
 
     val sportResult: SportResult by lazy { SportResult() }
 
@@ -126,7 +127,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     open fun toStatusSportStart() {
         startSportTime = System.currentTimeMillis()
         statusLD.postValue(SportStatusEnum.SPORT_START)
-        if (sceneId == null || (!sceneId.equals(SceneConstants.INDEPENDENT_TEST) && !sceneId.equals(
+        if (canPlayBgm && (!sceneId.equals(SceneConstants.INDEPENDENT_TEST) && !sceneId.equals(
                 SceneConstants.CLASS_TEST
             ))
         ) {
@@ -249,7 +250,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                 //先用运动SkuID去匹配，再用itemCode去匹配
                 val uri: Uri? =
                     when (sportInfo?.testCount) {
-                        "3", "5", "10" -> {
+                        "3", "5", "10", "30" -> {
                             ("android.resource://" + getApplication<Application>().packageName + "/" + R.raw.skip_rope_multi_bgm).toUri()
                         }
 
