@@ -138,6 +138,7 @@ object BusiBaseConstantsValue {
     const val SHOTBALL_DEFAULT_MULTI_PERSON_DETECTION: Boolean = false
 
     const val SHOTBALL_SPORT_TYPE: String = "shotball_sport_type"
+    const val SHOTBALL_SPORT_DURATION: String = "shotball_sport_duration"
 
     const val SHOTBALL_FREE_POINT: Int = 0
     const val SHOTBALL_SET_POINT_L1: Int = 1
