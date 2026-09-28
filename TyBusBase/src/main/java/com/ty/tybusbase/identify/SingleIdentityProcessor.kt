@@ -153,6 +153,10 @@ open class SingleIdentityProcessor(val customIdentifyRect: ICustomIdentifyRect =
 
     fun resetSportRegion(sportRegion: TsSportRegion) {
         tsConfig.sportRegion = sportRegion
+        singleTracker.setInitPointF(
+            sportRegion.centerX().toFloat(),
+            sportRegion.centerY().toFloat()
+        )
     }
 
     fun handleIdentityOk(accountInfo: AccountInfo?) {
