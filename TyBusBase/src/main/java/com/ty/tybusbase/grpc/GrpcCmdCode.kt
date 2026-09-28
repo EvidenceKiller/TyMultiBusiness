@@ -25,6 +25,12 @@ object GrpcCmdCode {
     //重启设备指令 payload = ""
     const val CMD_REBOOT_DEVICE = 0x27
 
+    //设置授权信息 payload = GrpcDeviceAuthInfo
+    const val CMD_DEVICE_AUTH_INFO = 0x28
+
+    //主设备IP payload = String
+    const val CMD_MAIN_DEVICE_IP = 0x29
+
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x50

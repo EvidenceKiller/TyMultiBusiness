@@ -148,4 +148,6 @@ object BusiBaseConstantsValue {
     const val SHOTBALL_SET_POINT_L1_NAME: String = "L1"
     const val SHOTBALL_SET_POINT_L2_NAME: String = "L2"
     const val SHOTBALL_SET_POINT_L3_NAME: String = "L3"
+
+    const val GRPC_CONNECT_PORT = 3588 //grpc端口
 }
