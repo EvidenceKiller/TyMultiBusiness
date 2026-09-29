@@ -30,6 +30,7 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
     private var pswIsEmpty = false
     private var thresholdIsEmpty = false
     private var dismissCallback: Action? = null
+    private var confirmCallback: Action? = null
 
     override fun initData() {
         isCancelable = false
@@ -42,6 +43,11 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
 
     fun setDismissCallback(callback: Action): CommonIpcCameraSettingDialog {
         this.dismissCallback = callback
+        return this
+    }
+
+    fun setConfirmCallback(callback: Action): CommonIpcCameraSettingDialog {
+        this.confirmCallback = callback
         return this
     }
 
@@ -123,6 +129,7 @@ class CommonIpcCameraSettingDialog(val saveKey: String) :
                         mBinding.etPsw.text.toString().trim()
                     )
                 )
+                confirmCallback?.invoke()
                 dismiss()
             }
 
