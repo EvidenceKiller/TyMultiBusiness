@@ -1790,6 +1790,20 @@ class ThirtySportViewModel(application: Application) :
                 when (displayType) {
                     //存储到对应区域的人员数组，供成绩存储/底部导航栏统计使用
                     DisplayType.LEFT -> {
+                        if (account.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
+                            for (index in 0 until leftPersonArray.size) {
+                                val multiResult = leftPersonArray.valueAt(index)
+                                //已识别过此人
+                                if (multiResult.accountInfo.studentEntity!!.accountId == account.studentEntity?.accountId) {
+                                    leftPersonArray.removeAt(index)
+                                    changeMultiIdentityCardState(
+                                        multiResult.number,
+                                        MultiSportCardViewState.NOBODY
+                                    )
+                                    break
+                                }
+                            }
+                        }
                         leftPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.LEFT, info.index, account)
                         //弹窗展示期间，新用户到达需同步已识别人数
@@ -1799,6 +1813,20 @@ class ThirtySportViewModel(application: Application) :
                     }
 
                     DisplayType.RIGHT -> {
+                        if (account.studentEntity?.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
+                            for (index in 0 until rightPersonArray.size) {
+                                val multiResult = rightPersonArray.valueAt(index)
+                                //已识别过此人
+                                if (multiResult.accountInfo.studentEntity!!.accountId == account.studentEntity?.accountId) {
+                                    rightPersonArray.removeAt(index)
+                                    changeMultiIdentityCardState(
+                                        multiResult.number,
+                                        MultiSportCardViewState.NOBODY
+                                    )
+                                    break
+                                }
+                            }
+                        }
                         rightPersonArray.put(info.index, MultiSportResult(account, info.index))
                         identified(DisplayType.RIGHT, info.index, account)
                         //弹窗展示期间，新用户到达需同步已识别人数
