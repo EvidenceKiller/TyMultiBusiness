@@ -911,7 +911,7 @@ class ThirtySportViewModel(application: Application) :
         if (!mainCountDownEnded) return false
         return connectedSubScreens.all {
             it in subScreenCountDownEnded ||
-                    collaborationStateMap[it] == CollaborationAreaState.OCCUPIED
+                    collaborationStateMap[it] != CollaborationAreaState.NORMAL
         }
     }
 
