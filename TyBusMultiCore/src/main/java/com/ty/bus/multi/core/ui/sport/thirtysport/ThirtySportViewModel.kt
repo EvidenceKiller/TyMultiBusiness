@@ -900,8 +900,8 @@ class ThirtySportViewModel(application: Application) :
         val connectedSubScreens = connectedSubScreenTypes()
         //前提：主屏和所有已连接副屏都必须识别到至少1人，任一屏为0则不能开始
         if (skipPersonArray.size <= 0) return false
-        if (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size <= 0) return false
-        if (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size <= 0) return false
+        if (DisplayType.LEFT in connectedSubScreens && collaborationStateMap[DisplayType.LEFT] == CollaborationAreaState.NORMAL && leftPersonArray.size <= 0) return false
+        if (DisplayType.RIGHT in connectedSubScreens && collaborationStateMap[DisplayType.RIGHT] == CollaborationAreaState.NORMAL && rightPersonArray.size <= 0) return false
         //条件1：所有屏（主屏+已连接副屏）都识别满员才能直接开始，未连接的副屏不参与判定
         val allScreenFull = skipPersonArray.size >= skipManCount &&
                 (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size >= skipManCount) &&
