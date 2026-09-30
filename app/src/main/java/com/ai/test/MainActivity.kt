@@ -92,7 +92,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
     private fun startAsServer() {
         GlobalScope.launch(Dispatchers.IO) {
             try {
-                GrpcManager.startServer(50051)
+                GrpcManager.startServer(BusiBaseConstantsValue.GRPC_CONNECT_PORT)
 //                registerAccountInfoHandler()
                 GrpcManager.connectedClientList.collect {
                     it.forEach { cId ->
