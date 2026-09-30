@@ -49,7 +49,10 @@ object IndicatorsHelper {
             this.indicatorsName = "运动单个时间分布"
             val list = mutableListOf<Float>()
             pres.scoreTimeList?.forEach {
-                list.add(NumberUtil.formatHalfUp((it - startSportTime) / 1000f).toFloat())
+                val tt = it - startSportTime
+                if (tt >= 0) {
+                    list.add(NumberUtil.formatHalfUp((tt) / 1000f).toFloat())
+                }
             }
             this.indicatorsValue = list
         })
@@ -801,7 +804,7 @@ object IndicatorsHelper {
         accountName: String?,
         accountSex: Int?,
         accountAvatar: String?,
-        sportVersion:String = BusiBaseConfig.getReportVersion()
+        sportVersion: String = BusiBaseConfig.getReportVersion()
     ): IndicatorsResultDto? {
         if (indicatorsList == null) return null
         val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
