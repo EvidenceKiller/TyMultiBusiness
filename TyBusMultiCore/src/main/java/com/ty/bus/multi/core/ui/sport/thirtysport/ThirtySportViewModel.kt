@@ -903,9 +903,12 @@ class ThirtySportViewModel(application: Application) :
                 (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size >= skipManCount) &&
                 (DisplayType.RIGHT !in connectedSubScreens || rightPersonArray.size >= skipManCount)
         if (allScreenFull) return true
-        //条件2：所有屏（主屏+已连接副屏）都倒计时结束
+        //条件2：主屏与参与协同的副屏都倒计时结束；未连接或占用中（未加入协同）的副屏不参与判定
         if (!mainCountDownEnded) return false
-        return connectedSubScreens.all { it in subScreenCountDownEnded }
+        return connectedSubScreens.all {
+            it in subScreenCountDownEnded ||
+                    collaborationStateMap[it] == CollaborationAreaState.OCCUPIED
+        }
     }
 
     /**
