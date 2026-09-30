@@ -276,7 +276,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         unconnectedRes: Int,
         occupiedRes: Int
     ) {
+        //未有协同状态记录时按无连接处理，收到副屏回复后（NORMAL/OCCUPIED）自动刷新
         val state = viewModel.collaborationStateLD.value?.get(displayType)
+            ?: CollaborationAreaState.UNCONNECTED
         when (state) {
             CollaborationAreaState.UNCONNECTED -> {
                 tvTab.text = getString(unconnectedRes)

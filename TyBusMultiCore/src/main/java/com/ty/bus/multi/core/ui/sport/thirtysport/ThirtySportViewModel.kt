@@ -281,9 +281,13 @@ class ThirtySportViewModel(application: Application) :
     }
 
     //导航区协同状态：左/右副屏各自的 未连接/设备占用中/正常，用于UI显示（状态，需支持同步读取）
-    private val collaborationStateMap = mutableMapOf<DisplayType, CollaborationAreaState>()
+    //默认无连接：收到副屏协同状态回复后刷新为 NORMAL / OCCUPIED
+    private val collaborationStateMap = mutableMapOf(
+        DisplayType.LEFT to CollaborationAreaState.UNCONNECTED,
+        DisplayType.RIGHT to CollaborationAreaState.UNCONNECTED
+    )
     private val _collaborationStateLD =
-        MutableStateFlow<Map<DisplayType, CollaborationAreaState>>(emptyMap())
+        MutableStateFlow<Map<DisplayType, CollaborationAreaState>>(collaborationStateMap.toMap())
     val collaborationStateLD: StateFlow<Map<DisplayType, CollaborationAreaState>> =
         _collaborationStateLD.asStateFlow()
 
