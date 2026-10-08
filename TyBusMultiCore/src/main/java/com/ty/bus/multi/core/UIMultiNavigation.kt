@@ -9,6 +9,7 @@ import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SkipEightSportConfig
+import com.ty.bus.multi.core.config.TenSitUpSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
@@ -29,6 +30,7 @@ import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
+import com.ty.bus.multi.core.ui.sport.tensitup.TenSitUpSportActivity
 import com.ty.bus.multi.core.ui.sport.thirtysport.ThirtySportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.base.BaseNavigation
@@ -224,5 +226,21 @@ object UIMultiNavigation : BaseNavigation() {
         preCallback?.invoke(intent)
         startActivity(context, intent, config)
     }
+
+    /**
+     * 十人仰卧起坐
+     */
+    fun goTenSitUpSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: TenSitUpSportConfig? = null,
+        preCallback: Action1<Intent>? = null
+    ) {
+        val intent = Intent(context, TenSitUpSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
+
 
 }

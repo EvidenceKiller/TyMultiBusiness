@@ -97,4 +97,6 @@
     <string name="the_best_current">當前最高</string>
     <string name="visitor">遊客</string>
     <string name="lie_supine_ready">请仰卧准备</string>
+    <string name="sit_down_raise_right_hand">请坐下并举右手</string>
+
 </resources>

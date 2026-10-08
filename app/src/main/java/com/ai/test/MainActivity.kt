@@ -33,6 +33,7 @@ import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
+import com.ty.bus.multi.core.config.TenSitUpSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
@@ -423,6 +424,25 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
 
         initDouble()
         initThirty()
+        initTenSitUp()
+    }
+
+    private fun initTenSitUp() {
+        mBinding.btnTenSitUp.setOnClickListener {
+            UIMultiNavigation.goTenSitUpSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0024"
+                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
+                    endValue = "60000"
+                    sportSkuName = "30人跳绳"
+                    testCount = "30"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+                energyPoint = 10
+            }, TenSitUpSportConfig.builder{
+
+            })
+        }
     }
 
     private fun initThirty() {
