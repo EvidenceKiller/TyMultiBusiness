@@ -96,4 +96,5 @@
     <string name="visitor_number_with_area">遊客 %1$s%2$d道</string>
     <string name="the_best_current">當前最高</string>
     <string name="visitor">遊客</string>
+    <string name="lie_supine_ready">请仰卧准备</string>
 </resources>

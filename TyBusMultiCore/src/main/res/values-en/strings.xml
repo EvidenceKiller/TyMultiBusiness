@@ -96,4 +96,6 @@
     <string name="visitor_number_with_area">Visitor %1$s Track %2$d</string>
     <string name="the_best_current">Current Highest</string>
     <string name="visitor">Visitor</string>
+    <string name="lie_supine_ready">请仰卧准备</string>
+
 </resources>
