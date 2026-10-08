@@ -5,6 +5,20 @@
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <TextView
+        android:id="@+id/tv_top_hint"
+        android:layout_width="@dimen/dp_796"
+        android:layout_height="@dimen/dp_100"
+        android:layout_marginTop="@dimen/dp_45"
+        android:gravity="center"
+        android:paddingVertical="@dimen/dp_12"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="上课地方双节快乐"/>
+
     <com.ty.bus.multi.core.view.common.MoreLandscapeSportCardSportView
         android:id="@+id/ml_sport_view_1"
         android:layout_width="wrap_content"
