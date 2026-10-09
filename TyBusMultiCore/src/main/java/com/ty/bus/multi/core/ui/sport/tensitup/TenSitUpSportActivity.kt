@@ -52,7 +52,8 @@ import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, TenSitUpSportViewModel>() {
+class TenSitUpSportActivity :
+    BaseMultiSportActivity<ActivityTenSitUpBinding, TenSitUpSportViewModel>() {
     /***************************视频播放调试*************************/
     var videoReader: AdlVideoReader? = null
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
@@ -211,6 +212,8 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
         } else {
             initVideoView()
             initVideo()
+            cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
+            cameraDispatcher.addFrameProcessor(multiSportProcessor)
         }
         initSportView()
     }
@@ -279,7 +282,10 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
                 val info = AdlCameraPreviewInfo(width, height)
                 info.frameTimestamp = frameTime
                 info.imageId = frameTime.toString()
-                multiSportProcessor.onFrame(yuv, info)
+//                multiSportProcessor.onFrame(yuv, info)
+                yuv?.let {
+                    cameraDispatcher.onFrame(yuv, info)
+                }
             }
 
             override fun onComplete() {
@@ -293,7 +299,8 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(viewModel.onceCacheProcessor)
         cameraDispatcher.addFrameProcessor(multiSportProcessor)
-        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
+        val cameraConfig =
+            BusiBaseConfig.readIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY)
         val hikSubConfig = AdlCameraConfig.builder()
         hikSubConfig.isPreviewEnable = false
         ipcHik = hikSubConfig

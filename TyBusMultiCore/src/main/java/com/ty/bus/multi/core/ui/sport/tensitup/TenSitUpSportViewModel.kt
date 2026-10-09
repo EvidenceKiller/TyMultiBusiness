@@ -22,21 +22,15 @@ import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
-import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
-import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
-import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.SpeechWrapper
-import com.ty.tybusbase.identify.IdentifyMachineListener
-import com.ty.tybusbase.identify.MultiIdentityEngine
 import com.ty.tybusbase.identify.OnceCacheProcessor
 import com.ty.tybusbase.utils.LogUtil
-import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
@@ -119,6 +113,7 @@ class TenSitUpSportViewModel(application: Application) :
 
 
     override fun initFaceIdentify() {
+        super.initFaceIdentify()
         multiIdentityEngine.addIdentityConfig(0, PipelineFaceIdentifyConfig().apply {
             visitorRoundCount = 2
             minScoreThreshold = 0.7f
@@ -137,18 +132,36 @@ class TenSitUpSportViewModel(application: Application) :
         })
         multiIdentityEngine.addIdentityConfig(4, PipelineFaceIdentifyConfig().apply {
             visitorRoundCount = 3
+            minScoreThreshold = 0.6f
         })
         multiIdentityEngine.addIdentityConfig(5, PipelineFaceIdentifyConfig().apply {
             visitorRoundCount = 3
+            minScoreThreshold = 0.6f
         })
 
+        multiIdentityEngine.addIdentityConfig(6, PipelineFaceIdentifyConfig().apply {
+            visitorRoundCount = 3
+            minScoreThreshold = 0.4f
+        })
+        multiIdentityEngine.addIdentityConfig(7, PipelineFaceIdentifyConfig().apply {
+            visitorRoundCount = 3
+            minScoreThreshold = 0.5f
+        })
+        multiIdentityEngine.addIdentityConfig(8, PipelineFaceIdentifyConfig().apply {
+            visitorRoundCount = 3
+            minScoreThreshold = 0.5f
+        })
+        multiIdentityEngine.addIdentityConfig(9, PipelineFaceIdentifyConfig().apply {
+            visitorRoundCount = 3
+            minScoreThreshold = 0.4f
+        })
     }
 
-    @Synchronized
-    private fun handleIdentityTimeFail() {
-        changeMultiSportViewCardState(currentIdentifyNumber, MultiSportCardViewState.IDLE)
+    override fun identifyFail(index: Int) {
+//        changeMultiSportViewCardState(currentIdentifyNumber, MultiSportCardViewState.IDLE)
         //处理下一道是否有人
         var tempNumber = currentIdentifyNumber + 1
+        tempNumber = tempNumber % sportManCount
         var findOk = false
         while (tempNumber < sportManCount) {
             //找到下一道，状态为checkDown且还没有识别的位置
@@ -162,7 +175,6 @@ class TenSitUpSportViewModel(application: Application) :
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFYING
                 )
-                multiIdentityEngine.reset()
                 findOk = true
                 break
             }
@@ -175,8 +187,7 @@ class TenSitUpSportViewModel(application: Application) :
 
     }
 
-    @Synchronized
-    private fun handleIdentityOk(accountInfo: AccountInfo) {
+    override fun identifyOk(index: Int, accountInfo: AccountInfo) {
         //正在运动，不处理识别
         if (sportState != MultiSportState.IDENTIFYING) {
             LogUtil.d("识别到人脸：但已不是识别状态 $currentIdentifyNumber")
@@ -325,7 +336,7 @@ class TenSitUpSportViewModel(application: Application) :
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(skipRopeMan),
                     currentYuvData.yuv,
                     currentYuvData.width,
@@ -336,7 +347,7 @@ class TenSitUpSportViewModel(application: Application) :
             return
         }
         //如果正在识别，则等待识别完再处理下一个人脸识别
-        if (multiIdentityEngine.isIdentifying()) {
+        if (isIdentifying()) {
             LogUtil.d("处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
             return
         }
@@ -347,10 +358,9 @@ class TenSitUpSportViewModel(application: Application) :
                 && checkHandUp(it)
             ) {
                 currentIdentifyNumber = it.positionNum
-                multiIdentityEngine.reset()
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                multiIdentityEngine.identify(
+                identify(
                     getIdentityRect(it),
                     currentYuvData.yuv,
                     currentYuvData.width,
@@ -488,7 +498,8 @@ class TenSitUpSportViewModel(application: Application) :
     private fun checkHandUp(it: GroupSportBaseMan): Boolean {
         if (it.skeleton == null || it.skeleton.lShoulder == null || it.skeleton.rWrist == null)
             return false
-        return it.skeleton.lWrist.y < it.skeleton.lShoulder.y
+//        return it.skeleton.lWrist.y < it.skeleton.lShoulder.y
+        return true
     }
 
     private fun getIdentityRect(it: TsSportChannel?): Rect {
@@ -722,7 +733,6 @@ class TenSitUpSportViewModel(application: Application) :
     override fun onDestroy() {
         super.onDestroy()
         sportEngine.stopRecorder(null)
-        multiIdentityEngine.closeMachine()
         sportingCountDownTimer?.cancel()
         videoRecorder.onRelease()
         uiHandler.removeCallbacksAndMessages(null)

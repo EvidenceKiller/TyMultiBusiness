@@ -102,7 +102,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
             }
 
             MultiSportCardViewState.IDENTIFIED -> {
-                exitPrepared()
+                exitIdentified()
             }
 
             MultiSportCardViewState.SPORTING -> {
@@ -142,7 +142,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
             }
 
             MultiSportCardViewState.IDENTIFIED -> {
-                enterPrepared()
+                enterIdentified()
             }
 
             MultiSportCardViewState.SPORTING -> {
@@ -172,7 +172,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
     }
 
     private fun exitIdle() {
-        mBinding.groupIdle.visible()
+        mBinding.groupIdle.gone()
     }
 
     /**
@@ -213,6 +213,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
 
     private fun exitPrepared() {
         mBinding.groupPrepared.gone()
+        mBinding.groupAccountInfo.gone()
     }
 
     /**
@@ -220,7 +221,23 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
      */
     fun enterPrepared() {
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_more_landscape_card_completed)
+        mBinding.groupAccountInfo.visible()
         mBinding.groupPrepared.visible()
+        stopDots()
+    }
+
+    private fun exitIdentified() {
+        mBinding.groupIdentified.gone()
+        mBinding.groupAccountInfo.gone()
+    }
+
+    /**
+     * 切换到识别已准备状态
+     */
+    fun enterIdentified() {
+        mBinding.ivBg.setBackgroundResource(R.mipmap.bg_more_landscape_card_completed)
+        mBinding.groupAccountInfo.visible()
+        mBinding.groupIdentified.visible()
         stopDots()
     }
 
