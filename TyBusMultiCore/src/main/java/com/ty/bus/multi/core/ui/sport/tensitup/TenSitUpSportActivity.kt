@@ -36,6 +36,7 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.config.SixSportConfig
+import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.factory.AbstractMultiSportFactory
 import com.ty.bus.multi.core.factory.MultiSportProduceFactory
 import com.ty.bus.multi.databinding.ActivityTenSitUpBinding
@@ -62,7 +63,7 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
     private var isSpeeching = false
 
     //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/FM0640097_01_20260325145319339.mp4"
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/0601010003_1775815884231.mp4"
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/10_sit_up-2k.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -110,6 +111,7 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
 
     override fun initData() {
         super.initData()
+        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tsConfig =
@@ -481,7 +483,7 @@ class TenSitUpSportActivity: BaseMultiSportActivity<ActivityTenSitUpBinding, Ten
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
         val uiConfig = AdlUIConfig.instance().readConfig(
-            "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}10",
+            MultiCoreConstant.TEN_SIT_UP_REGION_KEY,
             RoleConfigMulti::class.java
         )
         uiConfig.number = viewModel.sportManCount

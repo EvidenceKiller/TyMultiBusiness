@@ -30,4 +30,6 @@ object MultiCoreConstant {
 
     const val SKIP_EIGHT_OVERLAY_UI_KEY = "skip_eight_overlay_ui_key"  //八字跳绳UI KEY
     const val SKIP_EIGHT_IDENTIFY_OVERLAY_UI_KEY = "skip_eight_identify_overlay_ui_key"  //八字跳绳UI KEY
+
+    const val TEN_SIT_UP_REGION_KEY = "ten_sit_up_region_key"  //十人仰卧起坐，框体Key
 }

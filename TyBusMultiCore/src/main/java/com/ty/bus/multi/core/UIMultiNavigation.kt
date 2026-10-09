@@ -127,10 +127,18 @@ object UIMultiNavigation : BaseNavigation() {
         context.startActivity(Intent(context, ThreeSportSettingActivity::class.java))
     }
 
-    fun goMultiRegionSetting(context: Context, number: Int, resolutionType: Int = 0) {
+    fun goMultiRegionSetting(
+        context: Context,
+        number: Int,
+        resolutionType: Int = 0,
+        saveKey: String? = null
+    ) {
         context.startActivity(Intent(context, MultiRegionSettingActivity::class.java).apply {
             putExtra("test_count", number)
             putExtra("res_type", resolutionType)
+            saveKey?.let {
+                putExtra("save_key", it)
+            }
         })
     }
 

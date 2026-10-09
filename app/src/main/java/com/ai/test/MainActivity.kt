@@ -37,6 +37,7 @@ import com.ty.bus.multi.core.config.TenSitUpSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
+import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.grpclib.GrpcManager
@@ -442,6 +443,14 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             }, TenSitUpSportConfig.builder {
 
             })
+        }
+        mBinding.btnTenSitUpRegionSetup.setOnClickListener {
+            UIMultiNavigation.goMultiRegionSetting(
+                this,
+                10,
+                1,
+                MultiCoreConstant.TEN_SIT_UP_REGION_KEY
+            )
         }
     }
 
