@@ -431,15 +431,15 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.btnTenSitUp.setOnClickListener {
             UIMultiNavigation.goTenSitUpSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_SKIP_ROPE + "0024"
-                    sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                    endValue = "60000"
-                    sportSkuName = "30人跳绳"
-                    testCount = "30"
-                    sceneId = SceneConstants.INDEPENDENT_TEST
+                    sportItemCode = SportConstant.SPORT_SIT_UP
+                    sportSkuId = sportItemCode + "0024"
+                    endValue = "20000"
+                    sportSkuName = "10人仰卧起坐"
+                    testCount = "10"
+                    sceneId = SceneConstants.FREE
                 }
                 energyPoint = 10
-            }, TenSitUpSportConfig.builder{
+            }, TenSitUpSportConfig.builder {
 
             })
         }

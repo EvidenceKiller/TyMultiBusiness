@@ -108,7 +108,7 @@
         android:layout_width="@dimen/dp_1200"
         android:layout_height="@dimen/dp_330"
         android:layout_marginTop="@dimen/dp_80"
-        android:background="@mipmap/pic_introduce_6rywqz_tips"
+        android:background="@mipmap/bg_introduce_10ywqz_tips"
         app:layout_constraintLeft_toLeftOf="@+id/tv_in_tip"
         app:layout_constraintRight_toRightOf="@+id/tv_in_tip"
         app:layout_constraintTop_toBottomOf="@+id/tv_in_tip" />
@@ -141,7 +141,7 @@
         android:id="@+id/tv_camera_tips"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_60"
+        android:layout_marginTop="@dimen/dp_80"
         android:text="@string/ipc_camera_fail_tip"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_28"
