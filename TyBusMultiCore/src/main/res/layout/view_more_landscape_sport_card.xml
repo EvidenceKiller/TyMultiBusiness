@@ -191,12 +191,14 @@
         android:id="@+id/tv_sport_index"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/dp_122"
         android:layout_marginTop="@dimen/dp_35"
         android:textColor="@color/white_80"
         android:textSize="@dimen/sp_32"
+        app:layout_constraintEnd_toStartOf="@+id/iv_sport_header"
+        app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="1" />
 
     <com.ty.tybusbase.view.CircleImageView
         android:id="@+id/iv_sport_header"
@@ -204,6 +206,7 @@
         android:layout_height="@dimen/dp_32"
         android:layout_marginStart="@dimen/dp_24"
         android:layout_marginTop="@dimen/dp_42"
+        app:layout_constraintEnd_toStartOf="@+id/tv_sport_name"
         app:layout_constraintStart_toEndOf="@+id/tv_sport_index"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -212,36 +215,44 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_16"
+        android:ellipsize="end"
+        android:maxEms="5"
+        android:singleLine="true"
         android:textColor="@color/white_80"
         android:textSize="@dimen/sp_32"
         app:layout_constraintBottom_toBottomOf="@+id/iv_sport_header"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/iv_sport_header"
-        app:layout_constraintTop_toTopOf="@+id/iv_sport_header" />
+        app:layout_constraintTop_toTopOf="@+id/iv_sport_header"
+        tools:text="圣诞快顺丰到付水电费" />
 
     <TextView
         android:id="@+id/tv_unit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/dp_135"
-        android:layout_marginBottom="@dimen/dp_19"
+        android:layout_marginBottom="@dimen/dp_42"
         android:text="@string/ge"
         android:textColor="@color/white_80"
         android:textSize="@dimen/sp_48"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_score" />
 
     <TextView
         android:id="@+id/tv_score"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="@dimen/dp_8"
+        android:layout_marginBottom="@dimen/dp_23"
         android:text="0"
         android:textColor="@color/white"
         android:textFontWeight="600"
         android:textSize="@dimen/sp_88"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/tv_unit" />
+        app:layout_constraintEnd_toStartOf="@+id/tv_unit"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <!--  成绩  -->
     <androidx.constraintlayout.widget.Group

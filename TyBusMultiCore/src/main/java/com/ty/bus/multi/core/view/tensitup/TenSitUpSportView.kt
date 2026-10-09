@@ -25,6 +25,7 @@ import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
 
 class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -45,7 +46,7 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
 
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
-    private var isShowNext = false
+    private var isShowNext = true
 
     private val NEXT_COUNT_DOWN_TIME = 10 //倒计时时间
 
@@ -127,6 +128,7 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
     }
 
     fun setSportingTips(text: String) {
+        mBinding.tvTopHint.visible()
         mBinding.tvTopHint.text = text
     }
     fun sportFinish() {

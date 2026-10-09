@@ -131,11 +131,42 @@
         android:layout_height="wrap_content"
         app:constraint_referenced_ids="btn_in_tip_confirm,iv_in_tip,tv_in_tip" />
 
+    <TextView
+        android:id="@+id/tv_start_now"
+        android:layout_width="@dimen/dp_160"
+        android:layout_height="@dimen/dp_64"
+        android:layout_marginTop="@dimen/dp_48"
+        android:layout_marginEnd="@dimen/dp_40"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:gravity="center"
+        android:text="@string/start_now"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.MyLinerGradientTextVIewType1
+        android:id="@+id/tv_time_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/sp_40"
+        android:layout_marginEnd="@dimen/dp_22"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_start_now"
+        app:layout_constraintEnd_toStartOf="@+id/tv_start_now"
+        app:layout_constraintTop_toTopOf="@+id/tv_start_now" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_time_count_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_start_now,tv_time_down"/>
+
     <com.ty.bus.multi.core.view.tensitup.TenSitUpSportView
         android:id="@+id/sport_view"
-        android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/tv_camera_tips"
@@ -153,6 +184,6 @@
     <com.ty.tybusbase.view.ReadyView
         android:id="@+id/ready_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

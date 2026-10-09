@@ -6,6 +6,7 @@ import android.graphics.Rect
 import android.os.CountDownTimer
 import android.util.SparseArray
 import androidx.core.util.forEach
+import androidx.core.util.size
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.adl.lib.AdlCameraFrameProcessor
@@ -25,8 +26,10 @@ import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
+import com.ty.tybusbase.expand.eventFlow
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.OnceCacheProcessor
@@ -34,6 +37,8 @@ import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -64,17 +69,11 @@ class TenSitUpSportViewModel(application: Application) :
     //视频创建时间
     private var createTime: Long = 0
 
-    //每个位置的已准备状态；只要准备了，就不能再切换为未准备，除非去其他位置识别
-    val layDownStatusList = mutableListOf<Boolean>()
-
     //成绩结果
     val resultLD = MutableLiveData<MutableList<GroupSportBaseMan>>() //成绩结果LD
 
     //运动卡片状态
     var changeSportViewStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>()
-
-    //识别卡片状态
-    var changeIdentityCardStateLD = MutableLiveData<Pair<Int, MultiSportCardViewState>>()
 
     //已识别人员
     var identifiedLD = MutableLiveData<Pair<Int, AccountInfo>>()
@@ -89,8 +88,19 @@ class TenSitUpSportViewModel(application: Application) :
 
     var toDoneLD = MutableLiveData<MutableList<MultiSportResult>>() //比赛结束LD
 
+    //竞技倒计时过程中更新UI（每秒一次，高频事件流）
+    private val _countDownNoticeLD = eventFlow<Long>()
+    val countDownNoticeLD: SharedFlow<Long> = _countDownNoticeLD.asSharedFlow()
+
     var sportCountDownTime = 60L // 比赛时间 S
     val sportCountDownLD = MutableLiveData<String>()//更新倒计时的LD
+
+    private val identifyCountDownTime = 15L  //人脸识别倒计时时间
+
+    var countDownTime: Long = identifyCountDownTime //竞技倒计时10S，单位秒
+
+    //X秒竞技倒计时的Timer任务
+    private var startCountDownTimer: CountDownTimer? = null
 
     //运动倒计时任务
     private var sportingCountDownTimer: CountDownTimer? = null
@@ -104,13 +114,22 @@ class TenSitUpSportViewModel(application: Application) :
         for (index in 1..sportManCount) {
             currentPersonState.add(GroupSportsBaseChannelStatus.none)
             currentCardState.add(MultiSportCardViewState.NOBODY)
-            layDownStatusList.add(false)
         }
         sportState = MultiSportState.PREPARING
         initFaceIdentify()
         timeOutHelper.start()
     }
 
+    private fun createCountDownTimer() =
+        object : CountDownTimer(identifyCountDownTime * 1000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                _countDownNoticeLD.tryEmit(countDownTime--)
+            }
+
+            override fun onFinish() {
+                readyGo()
+            }
+        }
 
     override fun initFaceIdentify() {
         super.initFaceIdentify()
@@ -212,7 +231,6 @@ class TenSitUpSportViewModel(application: Application) :
                     if (value.accountInfo.studentEntity!!.accountId == accountInfo.studentEntity!!.accountId) {
                         LogUtil.d("已识别过${value.accountInfo.studentEntity!!.accountName}")
                         rmKey = key
-                        layDownStatusList[value.number] = false
                         changeMultiSportViewCardState(
                             value.number,
                             MultiSportCardViewState.IDLE
@@ -238,6 +256,11 @@ class TenSitUpSportViewModel(application: Application) :
                     currentIdentifyNumber,
                     MultiSportCardViewState.IDENTIFIED
                 )
+                if (sportPersonArray.size == 1 && startCountDownTimer == null) {
+                    countDownTime = identifyCountDownTime
+                    startCountDownTimer = createCountDownTimer()
+                    startCountDownTimer?.start()
+                }
                 LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
             } else {
                 ToastUtil.getInstance(
@@ -387,95 +410,21 @@ class TenSitUpSportViewModel(application: Application) :
         //非运动状态下记录每个位置的人员进入状态
         for (skipMan in skipRopeManList) {
             val currentState = currentPersonState[skipMan.positionNum]
-            val roseMultiResult = sportPersonArray.get(skipMan.positionNum, null)
             val nextState = skipMan.channelStatus
             currentPersonState[skipMan.positionNum] = nextState
             LogUtil.d("处理位置状态：道数 ${skipMan.positionNum} 状态 $currentState -> ${nextState.name}")
             //处理进入时间
             when (nextState) {
-//                GroupSportsBaseChannelStatus.none -> {
-//                    //如果当前为standby,下一个状态为 none
-//                    if (currentState == GroupSportsBaseChannelStatus.standBy) {
-//                        //当前比赛状态为运动中... 切换人员卡片到离开状态
-//                        if (sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-//                            changeMultiSportViewCardState(
-//                                skipMan.positionNum,
-//                                MultiSportCardViewState.LEAVE
-//                            )
-//                            currentCardState[skipMan.positionNum] = MultiSportCardViewState.LEAVE
-//                        }
-//                        if (sportState != MultiSportState.SPORTING && sportState != MultiSportState.COUNTDOWN && roseMultiResult == null) {
-//                            changeMultiSportViewCardState(
-//                                skipMan.positionNum,
-//                                MultiSportCardViewState.NOBODY
-//                            )
-//                        }
-//                    }
-//                }
-//
-//                GroupSportsBaseChannelStatus.standBy -> {
-//                    if (sportState != MultiSportState.SPORTING) {
-//                        changeMultiSportViewCardState(
-//                            skipMan.positionNum,
-//                            MultiSportCardViewState.STANDBY
-//                        )
-//                    }
-//                    //进入区域
-//                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-//                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
-//                        changeMultiSportViewCardState(
-//                            skipMan.positionNum,
-//                            MultiSportCardViewState.LEAVE_TO_SPORTING
-//                        )
-//                    }
-//                }
-//
-//                GroupSportsBaseChannelStatus.checkDown -> {
-//                    //进入区域
-//                    if (currentState == GroupSportsBaseChannelStatus.none && sportState == MultiSportState.SPORTING && roseMultiResult != null) {
-//                        currentCardState[skipMan.positionNum] = MultiSportCardViewState.SPORTING
-//                        changeMultiSportViewCardState(
-//                            skipMan.positionNum,
-//                            MultiSportCardViewState.LEAVE_TO_SPORTING
-//                        )
-//                    }
-//                }
-
                 GroupSportsBaseChannelStatus.layDown -> {
                     changeMultiSportViewCardState(
                         skipMan.positionNum,
                         MultiSportCardViewState.PREPARED
                     )
-                    val status = layDownStatusList[skipMan.positionNum]
-                    if (!status) {
-                        layDownStatusList[skipMan.positionNum] = true
-                        uiHandler.removeCallbacks(checkLayDownRunnable)
-                        val layDownList =
-                            layDownStatusList.filter { it }
-                        if (layDownList.size == sportManCount) {
-                            //全部OK，可开始比赛
-                            readyGo()
-                        } else {
-                            //如果准备好的人数，不等于总运动人数，则等三秒检测已准备的是否等于已识别的
-                            uiHandler.postDelayed(checkLayDownRunnable, 10_000)
-                        }
-                    }
                 }
 
                 else -> {}
             }
 
-        }
-    }
-
-    private val checkLayDownRunnable = Runnable {
-        val layDownList = layDownStatusList.filter { it }
-        LogUtil.d("checkLayDownRunnable  ${layDownList.size}")
-        if (layDownList.size == sportPersonArray.size()) {
-            //全部OK，可开始比赛
-            readyGo()
-        } else {
-            readySpeechLD.value = true
         }
     }
 
@@ -546,6 +495,7 @@ class TenSitUpSportViewModel(application: Application) :
     }
 
     fun readyGo() {
+        startCountDownTimer?.cancel()
         sportState = MultiSportState.COUNTDOWN
         countDownFinishLD.postValue(sportPersonArray)
     }
@@ -591,6 +541,7 @@ class TenSitUpSportViewModel(application: Application) :
      */
     override fun toStatusSportStart() {
         super.toStatusSportStart()
+        startCountDownTimer = null
         sportCountDownTime = sportInfo?.endValue?.toLong()?.div(1000) ?: 60
         sportingCountDownTimer = object : CountDownTimer(sportCountDownTime * 1000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
@@ -708,11 +659,9 @@ class TenSitUpSportViewModel(application: Application) :
         currentPersonState.clear()
         currentCardState.clear()
         sportPersonArray.clear()
-        layDownStatusList.clear()
         for (index in 1..sportManCount) {
             currentPersonState.add(GroupSportsBaseChannelStatus.none)
             currentCardState.add(MultiSportCardViewState.NOBODY)
-            layDownStatusList.add(false)
         }
         initFaceIdentify()
         sportState = MultiSportState.PREPARING
@@ -725,13 +674,13 @@ class TenSitUpSportViewModel(application: Application) :
             result.count = 0
             changeTimeTextBgLD.postValue(R.drawable.pk_skip_rose_time_shape)
         }
-        layDownStatusList.clear()
         readyGo()
         videoFile = null
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        startCountDownTimer?.cancel()
         sportEngine.stopRecorder(null)
         sportingCountDownTimer?.cancel()
         videoRecorder.onRelease()

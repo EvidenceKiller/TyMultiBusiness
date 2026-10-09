@@ -7,6 +7,7 @@ import android.os.SystemClock
 import android.view.View
 import androidx.core.util.forEach
 import androidx.core.util.size
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlVideoReader
@@ -44,6 +45,8 @@ import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
+import com.ty.tybusbase.expand.gone
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.DeviceUtil
@@ -188,6 +191,17 @@ class TenSitUpSportActivity :
         viewModel.toDoneLD.observe(this) {
         }
 
+        lifecycleScope.launch {
+            viewModel.countDownNoticeLD.collect {
+                identifyCountDown(it)
+            }
+        }
+    }
+
+    private fun identifyCountDown(time: Long) {
+        mBinding.groupTimeCountDown.visible()
+        mBinding.tvTimeDown.text =
+            com.ty.tybusbase.expand.getString(R.string.auto_start_second_after, time)
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -464,6 +478,7 @@ class TenSitUpSportActivity :
 
     override fun onStatusSport() {
         super.onStatusSport()
+        mBinding.groupTimeCountDown.gone()
         multiSportProcessor.changeTo(SportProcessorStatus.Sporting)
         parser.checkSkipScore = true
     }

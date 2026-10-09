@@ -12,8 +12,10 @@ import com.ty.identifty.base.TyFaceInfo
 import com.ty.tybusbase.R
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.utils.ApplicationUtil
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.callbackFlow
 import java.io.File
 import java.nio.ByteBuffer
@@ -274,3 +276,16 @@ fun String.getDisplayType(leftSubScreenIp: String?, rightSubScreenIp: String?): 
         else -> DisplayType.OTHER
     }
 }
+
+/**
+ * 创建一次性事件流（非粘性）：
+ * - replay=0：事件仅在发射当下派发给已订阅方；错过即丢弃，页面重新订阅不会重放历史事件，
+ *   适合所有"只处理一次"的 UI 消息（倒计时更新、识别结果、页面跳转等）。
+ * - 大容量缓冲 + DROP_OLDEST：高频事件不会阻塞发射方，且不易丢失（仅极端积压时丢弃最旧值）
+ */
+fun <T> eventFlow(replay: Int = 0): MutableSharedFlow<T> =
+    MutableSharedFlow(
+        replay = replay,
+        extraBufferCapacity = 64,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )

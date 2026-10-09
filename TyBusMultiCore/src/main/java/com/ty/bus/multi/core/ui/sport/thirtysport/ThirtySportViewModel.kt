@@ -93,6 +93,7 @@ import androidx.core.net.toUri
 import com.adl.service.web.SportRecordService
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
+import com.ty.tybusbase.expand.eventFlow
 import com.ty.tybusbase.expand.getDisplayType
 import com.ty.tybusbase.expand.toJson
 import com.ty.tybusbase.expand.toObject
@@ -107,18 +108,6 @@ import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
 import com.ty.tybusbase.grpc.GrpcSportResult
 import kotlinx.coroutines.channels.BufferOverflow
 
-/**
- * 创建一次性事件流（非粘性）：
- * - replay=0：事件仅在发射当下派发给已订阅方；错过即丢弃，页面重新订阅不会重放历史事件，
- *   适合所有"只处理一次"的 UI 消息（倒计时更新、识别结果、页面跳转等）。
- * - 大容量缓冲 + DROP_OLDEST：高频事件不会阻塞发射方，且不易丢失（仅极端积压时丢弃最旧值）
- */
-private fun <T> eventFlow(replay: Int = 0): MutableSharedFlow<T> =
-    MutableSharedFlow(
-        replay = replay,
-        extraBufferCapacity = 64,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
-    )
 
 /**
  * 导航区协同状态

@@ -50,6 +50,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
             context.obtainStyledAttributes(attrs, R.styleable.MoreSportCardSportView)
         val index = attributes.getInt(R.styleable.MoreSportCardSportView_pk_index, 1)
         mBinding.tvNumber.text = index.toString()
+        mBinding.tvSportIndex.text = index.toString()
     }
 
 
@@ -121,7 +122,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
         }
 
         when (state) {
-            MultiSportCardViewState.NOBODY -> {
+            MultiSportCardViewState.IDLE -> {
                 enterIdle()
             }
 
@@ -183,7 +184,6 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_more_landscape_card_empty)
         mBinding.groupIdle.visible()
         stopDots()
-
     }
 
     private fun exitStandby() {
@@ -262,6 +262,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
 
     private fun exitSporting() {
         mBinding.groupSport.gone()
+        mBinding.groupScore.gone()
     }
 
     /**
@@ -269,6 +270,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
      */
     fun enterSporting() {
         mBinding.groupSport.visible()
+        mBinding.groupScore.visible()
         if (::accountInfo.isInitialized) {
             mBinding.tvSportName.text = accountInfo.studentEntity!!.accountName
             Glide.with(context).load(accountInfo.studentEntity!!.userFaceImgUrl)
@@ -282,9 +284,11 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
 
     private fun exitFinish() {
         mBinding.groupScore.gone()
+        mBinding.groupAccountInfo.gone()
     }
 
     private fun enterFinish() {
+        mBinding.groupAccountInfo.visible()
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_more_landscape_card_completed)
         mBinding.groupScore.visible()
     }
@@ -341,7 +345,7 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
         mBinding.tvScore.gone()
         mBinding.tvUnit.gone()
         mBinding.tvScore.text = "0"
-        changeState(MultiSportCardViewState.NOBODY)
+        changeState(MultiSportCardViewState.IDLE)
     }
 
 }

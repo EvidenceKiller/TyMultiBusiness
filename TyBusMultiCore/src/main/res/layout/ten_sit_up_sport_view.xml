@@ -13,7 +13,7 @@
         android:gravity="center"
         android:paddingVertical="@dimen/dp_12"
         android:textColor="@color/white"
-        android:textSize="@dimen/sp_28"
+        android:textSize="@dimen/sp_64"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
