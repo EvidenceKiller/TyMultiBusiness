@@ -324,6 +324,12 @@ class ThirtySportViewModel(application: Application) :
     //协同开始条件跟踪：开始运动指令是否已发送
     private var startCommandSent = false
 
+    //运动结束条件跟踪：主屏运动是否已结束
+    private var mainSportFinished = false
+
+    //运动结束条件跟踪：已上报运动结束的副屏
+    private val subScreenSportFinished = mutableSetOf<DisplayType>()
+
     //改变时间显示UI的背景色（区域 → 背景色资源）
     private val _changeTimeTextBgLD = eventFlow<Pair<DisplayType, Int>>()
     val changeTimeTextBgLD: SharedFlow<Pair<DisplayType, Int>> = _changeTimeTextBgLD.asSharedFlow()
@@ -1118,8 +1124,23 @@ class ThirtySportViewModel(application: Application) :
         SoundPlayUtils.play(24)
         //停止录像，上传录像成绩
         videoRecorder.onStop()
-        handleResult(skipPersonArray)
+        //主屏结束：需等所有已加入副屏也结束后，才统一计算并展示成绩结果页
+        mainSportFinished = true
+        checkAllSportFinished()
+    }
 
+    /**
+     * 运动结束统一检查：主屏结束 且 所有已加入协同的副屏都结束，才计算成绩并展示结果页
+     */
+    private fun checkAllSportFinished() {
+        if (!mainSportFinished) return
+        val joinedSubScreens =
+            listOf(DisplayType.LEFT, DisplayType.RIGHT).filter { isSubScreenJoined(it) }
+        if (joinedSubScreens.any { it !in subScreenSportFinished }) {
+            LogUtil.d("等待副屏运动结束：已加入=$joinedSubScreens，已结束=$subScreenSportFinished")
+            return
+        }
+        handleResult(skipPersonArray)
     }
 
     /**
@@ -1633,7 +1654,12 @@ class ThirtySportViewModel(application: Application) :
             val displayType = data.from.getDisplayType(leftSubScreenIp,rightSubScreenIp)
             val status = GrpcSportStatusEnum.fromCode(info.status)
             if (status == GrpcSportStatusEnum.FINISHED){
-
+                if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
+                    LogUtil.d("收到${displayType.name}副屏运动结束")
+                    subScreenSportFinished.add(displayType)
+                    //与副屏成绩写入保持同一线程时序，避免结果未合并就出成绩页
+                    uiHandler.post { checkAllSportFinished() }
+                }
             }
         }
     }
