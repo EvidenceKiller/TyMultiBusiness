@@ -105,6 +105,8 @@ import com.ty.tybusbase.grpc.GrpcCollaborationStatus
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
 import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
 import com.ty.tybusbase.grpc.GrpcSportResult
+import com.ty.tybusbase.grpc.GrpcSportStatus
+import com.ty.tybusbase.grpc.GrpcSportStatusEnum
 import kotlinx.coroutines.channels.BufferOverflow
 
 /**
@@ -1538,6 +1540,7 @@ class ThirtySportViewModel(application: Application) :
         registerCollaborationStatus()
         registerIdentifiedCount()
         registerCountDownEnd()
+        registerGrpcSportStatusHandler()
     }
 
     private fun registerCountDownEnd() {
@@ -1614,6 +1617,24 @@ class ThirtySportViewModel(application: Application) :
             }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
             updateCollaborationState(displayType, state)
+        }
+    }
+
+    /**
+     * 注册运动结束指令
+     */
+    private fun registerGrpcSportStatusHandler() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_STATUS, GRPC_KEY) { data ->
+            val info = data.payload.toObject<GrpcSportStatus>()
+            if (info == null || info.skuId != sportInfo?.sportSkuId) {
+                LogUtil.d("当前运动状态指令不匹配：grpcskuid:${info?.skuId}--sportSkuId:${sportInfo?.sportSkuId}")
+                return@registerServerHandler
+            }
+            val displayType = data.from.getDisplayType(leftSubScreenIp,rightSubScreenIp)
+            val status = GrpcSportStatusEnum.fromCode(info.status)
+            if (status == GrpcSportStatusEnum.FINISHED){
+
+            }
         }
     }
 
