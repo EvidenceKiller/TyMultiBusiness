@@ -261,6 +261,9 @@ class TenSitUpSportViewModel(application: Application) :
                     startCountDownTimer = createCountDownTimer()
                     startCountDownTimer?.start()
                 }
+                if (sportPersonArray.size == sportManCount){
+                    readyGo()
+                }
                 LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $currentIdentifyNumber")
             } else {
                 ToastUtil.getInstance(
