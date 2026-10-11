@@ -93,6 +93,7 @@
     <string name="area_right_unconnected">Right Area | Not Connected</string>
     <string name="area_left_occupied">Left Area | Occupied</string>
     <string name="area_right_occupied">Right Area | Occupied</string>
+    <string name="wait_other_area_join">Waiting for other areas to join...</string>
     <string name="visitor_number_with_area">Visitor %1$s Track %2$d</string>
     <string name="the_best_current">Current Highest</string>
     <string name="visitor">Visitor</string>

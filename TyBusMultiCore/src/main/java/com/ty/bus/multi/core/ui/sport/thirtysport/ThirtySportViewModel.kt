@@ -204,6 +204,10 @@ class ThirtySportViewModel(application: Application) :
     val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> =
         _countDownFinishLD.asSharedFlow()
 
+    //主屏识别倒计时已结束、等待其他区域倒计时结束（倒计时文案展示"等待其他区域加入..."）
+    private val _waitOtherAreaLD = eventFlow<Unit>()
+    val waitOtherAreaLD: SharedFlow<Unit> = _waitOtherAreaLD.asSharedFlow()
+
     //比赛结束事件（一次性消息：非粘性，返回页面不会重放，避免重复 clearScreen/addResultView）
     private val _toDoneLD = eventFlow<List<ThirtySportResultItem>>()
     val toDoneLD: SharedFlow<List<ThirtySportResultItem>> = _toDoneLD.asSharedFlow()
@@ -491,6 +495,10 @@ class ThirtySportViewModel(application: Application) :
                 mainCountDownEnded = true
                 skipRoseState = MultiSportState.WAITING_START
                 checkCollaborationSportStart()
+                //主屏识别倒计时已结束，但仍有已加入副屏未倒计时结束：提示等待其他区域
+                if (needWaitOtherAreaJoin()) {
+                    _waitOtherAreaLD.tryEmit(Unit)
+                }
             }
         }
 
@@ -920,6 +928,17 @@ class ThirtySportViewModel(application: Application) :
         return connectedSubScreens.all {
             it in subScreenCountDownEnded ||
                     collaborationStateMap[it] != CollaborationAreaState.NORMAL
+        }
+    }
+
+    /**
+     * 是否需要等待其他区域：主屏识别倒计时已结束，但仍有已加入协同的副屏未倒计时结束
+     */
+    private fun needWaitOtherAreaJoin(): Boolean {
+        if (!mainCountDownEnded) return false
+        return connectedSubScreenTypes().any {
+            collaborationStateMap[it] == CollaborationAreaState.NORMAL &&
+                    it !in subScreenCountDownEnded
         }
     }
 

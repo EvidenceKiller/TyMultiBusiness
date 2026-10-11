@@ -472,8 +472,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         viewModel.countDownFinishLD.collectOnLifecycle {
             startDialog?.dismiss()
-            //竞技开始，隐藏开始按钮，显示运动倒计时时间栏
+            //竞技开始，隐藏开始按钮与等待文案，显示运动倒计时时间栏
             mBinding.tvStartNow.visibility = View.GONE
+            mBinding.tvCountDownNotice.visibility = View.GONE
             getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
                 mBinding.llTime.visibility = View.VISIBLE
                 //左右副屏：只有已加入协同的才进入运动状态
@@ -490,6 +491,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.sportCountDownLD.collectOnLifecycle {
             //运动倒计时属于整个运动，统一在Activity层更新时间栏
             mBinding.tvTime.text = it.second
+        }
+
+        viewModel.waitOtherAreaLD.collectOnLifecycle {
+            //主屏识别倒计时已结束，但已加入的副屏尚未倒计时结束：提示等待其他区域
+            mBinding.tvCountDownNotice.text = getString(R.string.wait_other_area_join)
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
         }
 
         viewModel.toDoneLD.collectOnLifecycle {
