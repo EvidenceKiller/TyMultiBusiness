@@ -25,7 +25,7 @@ object BusiBaseConstantsValue {
 
     const val HTTP_CAMERA_DEFAULT_IP = "172.16.30.200"
     const val HTTP_CAMERA_DEFAULT_ACCOUNT = "admin"
-    const val HTTP_CAMERA_DEFAULT_PASSWORD = "zy123456"
+    const val HTTP_CAMERA_DEFAULT_PASSWORD = "zy132456"
     const val HTTP_CAMERA_DEFAULT_PORT = 8000
 
     const val MULTI_SPORT_CONFIG_KEY = "multi_sport_config_key_"
