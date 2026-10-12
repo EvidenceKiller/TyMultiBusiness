@@ -426,6 +426,89 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         initDouble()
         initThirty()
         initTenSitUp()
+        initNewTenSport()
+    }
+
+    private fun initNewTenSport() {
+        mBinding.btnTenHighKnees.setOnClickListener {
+            goTenSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_HIGH_KNEE
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "20000"
+                        testCount = "10"
+                        sportSkuName = "十人高抬腿"
+                        sceneId = SceneConstants.FREE
+                    }
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
+            )
+        }
+        mBinding.btnTenSideToSide.setOnClickListener {
+            goTenSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_LEFT_RIGHT_ROPE
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "20000"
+                        testCount = "10"
+                        sportSkuName = "十人左右跳"
+                        sceneId = SceneConstants.FREE
+                    }
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
+            )
+        }
+        mBinding.btnTenOpenClose.setOnClickListener {
+            goTenSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_OPEN_CLOSE_JUMP
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "20000"
+                        sportSkuName = "十人开合跳"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
+            )
+        }
+
+        mBinding.btnTenSquat.setOnClickListener {
+            goTenSport(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportItemCode = SportConstant.SPORT_SQUATS
+                        sportSkuId = sportItemCode + "0001"
+                        endValue = "20000"
+                        sportSkuName = "十人下蹲"
+                        sceneId = SceneConstants.INDEPENDENT_TEST
+                    }
+                }, TenSportConfig.builder {
+                    setCountdownText("开始倒计时")
+                    setResultPageText("测试结束")
+                    setSportStartText("开始咯，开始咯")
+                    setVoiceBroadcastSupported(true)
+                    setSupportNextGroup(false)
+                }
+            )
+        }
     }
 
     private fun initTenSitUp() {

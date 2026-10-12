@@ -213,6 +213,22 @@
                     android:textSize="16sp" />
 
                 <Button
+                    android:id="@+id/btn_ten_side_to_side"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10人左右跳"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_ten_high_knees"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10人高抬腿"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
+                <Button
                     android:id="@+id/btn_10_region_set"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

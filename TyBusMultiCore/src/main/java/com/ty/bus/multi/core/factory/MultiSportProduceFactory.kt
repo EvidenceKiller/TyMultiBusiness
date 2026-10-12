@@ -10,7 +10,7 @@ object MultiSportProduceFactory {
             SportConstant.SPORT_SIT_UP -> {
                 if (testCount == "10") {
                     TenSiteUpFactory()
-                }else if (testCount == "6") {
+                } else if (testCount == "6") {
                     SixSiteUpFactory()
                 } else {
                     ThreeSiteUpFactory()
@@ -43,6 +43,14 @@ object MultiSportProduceFactory {
                 } else {
                     TenSportSquatsFactory()
                 }
+            }
+
+            SportConstant.SPORT_HIGH_KNEE -> {
+                TenHighKneesFactory()
+            }
+
+            SportConstant.SPORT_LEFT_RIGHT_ROPE -> {
+                TenSideToSideJumpFactory()
             }
 
             else -> FiveSportSquatsFactory()
