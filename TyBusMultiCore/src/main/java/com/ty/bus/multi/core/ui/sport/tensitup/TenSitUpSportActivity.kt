@@ -77,7 +77,7 @@ class TenSitUpSportActivity :
 
     private val sportConfig by lazy { MultiSportConfig() }
 
-    private var needChangeResolution = true //是否需要切换分辨率
+    private var needChangeResolution = false //是否需要切换分辨率
 
     private lateinit var parser: MultiSportParser<*>
 
@@ -115,7 +115,7 @@ class TenSitUpSportActivity :
 
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
         viewModel.tsConfig =
@@ -335,7 +335,7 @@ class TenSitUpSportActivity :
             }
 
             override fun onLoginSucceed() {
-                changeResolution(64)
+                changeResolution(70,15)
                 SystemClock.sleep(100)
                 runOnUiThread {
                     hideCameraTips()
@@ -373,7 +373,7 @@ class TenSitUpSportActivity :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             /********************切换分辨率********************/
             ipcHik.pauseProcessor()
-            changeResolution(70, 14)
+            changeResolution(70, 15)
             SystemClock.sleep(100)
             mBinding.cameraView.stopPreview()
             SystemClock.sleep(100)
@@ -391,7 +391,7 @@ class TenSitUpSportActivity :
         viewModel.viewModelScope.launch(Dispatchers.IO) {
             /********************切换分辨率********************/
             ipcHik.pauseProcessor()
-            changeResolution(64, 17)
+            changeResolution(64, 14)
             SystemClock.sleep(100)
             mBinding.cameraView.stopPreview()
             SystemClock.sleep(100)
@@ -599,7 +599,7 @@ class TenSitUpSportActivity :
         //切换Pose模型ID
         mBinding.overlay.multiRegion.setDrawing(true)
         timeOutHelper.start()
-        changeResolutionTo4K()
+//        changeResolutionTo4K()
         mBinding.readyView.reset()
         viewModel.reset()
         multiSportProcessor.onReset()

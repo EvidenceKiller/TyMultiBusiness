@@ -250,9 +250,9 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
             accountInfo.studentEntity!!.accountName,
             accountInfo.studentEntity!!.userFaceImgUrl
         )
-        if (accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
-            mBinding.ivHeaderBg.visible()
-        }
+//        if (accountInfo.studentEntity?.cardType == BusiBaseConstantsValue.CHINA_MOBILE_CARD_TYPE) {
+//            mBinding.ivHeaderBg.visible()
+//        }
     }
 
     override fun setPrecastAccountInfo(accountInfo: AccountInfo) {
