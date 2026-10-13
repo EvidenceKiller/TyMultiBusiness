@@ -819,14 +819,19 @@ object IndicatorsHelper {
             this.version = sportVersion
             this.sportVideos = mutableListOf()
             val videoList = mutableListOf<SportVideo>()
-            videoFile?.absolutePath?.let {
-                val file = File(videoCover ?: "")
-                if (!file.exists()) {
-                    val bitmap = VideoUtil.getVideoThumbnail(it)
-                    AdlBitmapUtil.save(bitmap, File(videoCover), Bitmap.CompressFormat.PNG)
+            try {
+                videoFile?.absolutePath?.let {
+                    videoList.add(SportVideo("视频地址", it, videoCover))
+                    val file = File(videoCover ?: "")
+                    if (!file.exists()) {
+                        val bitmap = VideoUtil.getVideoThumbnail(it)
+                        AdlBitmapUtil.save(bitmap, File(videoCover), Bitmap.CompressFormat.PNG)
+                    }
                 }
-                videoList.add(SportVideo("视频地址", it, videoCover))
+            } catch (e: Exception) {
+
             }
+
             this.sportVideos = videoList
             val toJson = JSON.toJSONString(indicatorsList)
             val indicators = JSON.parseArray(toJson, SportIndicators::class.java).toMutableList()
