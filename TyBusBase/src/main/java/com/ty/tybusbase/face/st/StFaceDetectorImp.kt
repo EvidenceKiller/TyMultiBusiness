@@ -119,9 +119,9 @@ class StFaceDetectorImp : FaceDetectorInterface {
                         )
 
                     if (addFace(replace, user.accountId, stVerifyResult)) {
-                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库ok")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} -- aId:${user.accountId} -- uId:${user.userId} 特征入库ok")
                     } else {
-                        Log.d(StContact.LOG_TAG, "${user.accountName} 特征入库失败")
+                        Log.d(StContact.LOG_TAG, "${user.accountName} -- aId:${user.accountId} -- uId:${user.userId} 特征入库失败")
                     }
                 } catch (e: Exception) {
                     failCount++
