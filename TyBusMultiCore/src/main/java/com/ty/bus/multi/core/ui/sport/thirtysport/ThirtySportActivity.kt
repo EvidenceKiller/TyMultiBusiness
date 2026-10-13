@@ -550,12 +550,13 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         val params =
             ConstraintLayout.LayoutParams(
                 RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
+                mBinding.flResultViewContainer.height
             )
         params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
+        mBinding.flResultViewContainer.addView(
             srrvResult,
-            params
+            RecyclerView.LayoutParams.MATCH_PARENT,
+            RecyclerView.LayoutParams.MATCH_PARENT
         )
         srrvResult.setConfirmOnclickListener {
             finish()
@@ -563,12 +564,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         srrvResult.setResultTitleText(viewModel.thirtySportConfig?.resultPageText)
         if (viewModel.thirtySportConfig?.isSupportNextGroup == true) {
             srrvResult.setNextOnclickListener {
-                mBinding.clSkipSportViewContainer.removeView(srrvResult)
+                mBinding.flResultViewContainer.removeView(srrvResult)
                 reset()
             }
         }
 
-        doResultViewTranslateAnimation(srrvResult)
+//        doResultViewTranslateAnimation(srrvResult)
         srrvResult.setResult(
             resultList,
             if (viewModel.matchId != null) 100000 else top1Count,
@@ -697,7 +698,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             ObjectAnimator.ofFloat(
                 view,
                 "translationY",
-                view.height.toFloat(),
+                0f,
                 -view.height.toFloat()
             ).setDuration(500).start()
         }
