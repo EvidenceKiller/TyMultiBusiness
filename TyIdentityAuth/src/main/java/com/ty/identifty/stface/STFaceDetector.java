@@ -209,7 +209,7 @@ public final class STFaceDetector extends TyFaceDetector<StVerifyResult> {
      */
     public boolean addDb(int id, StVerifyResult stVerifyResult) {
         int i = mStDb.sdkVideoDbAdd(id, stVerifyResult);
-        StHelper.parseSdkErrorCode(i, "入库");
+//        StHelper.parseSdkErrorCode(i, "入库");
         if (i == 0) return true;
         return false;
     }
