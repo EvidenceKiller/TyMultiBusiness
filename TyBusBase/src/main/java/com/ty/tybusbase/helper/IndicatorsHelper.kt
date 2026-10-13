@@ -922,12 +922,12 @@ object IndicatorsHelper {
         })
 
         //  【站姿间距】"L间距 / L前足"，无值上报空字符串
-        val stanceWidth = StringKt.bigDecimalDivide(
+        val stanceWidth = StringKt.bigDecimalDivideToString(
             prescription.prePostureDisL2.toDouble(),// L间距
             prescription.prePostureDisL1.toDouble(),// L前足
             1,
             RoundingMode.HALF_UP
-        ).toString()
+        )
         indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
             this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_STAND_SPACE
             this.indicatorsName = "站姿间距"

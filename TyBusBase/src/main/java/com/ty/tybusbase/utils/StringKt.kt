@@ -30,4 +30,18 @@ object StringKt {
         val bigDivisor = BigDecimal(divisor.toString())    // 同理
         return bigDividend.divide(bigDivisor, scale, roundingMode)
     }
+
+    fun bigDecimalDivideToString(
+        dividend: Any,
+        divisor: Number,
+        scale: Int,
+        roundingMode: RoundingMode,
+        nullValue: String = ""
+    ): String {
+        return try {
+            bigDecimalDivide(dividend, divisor, scale, roundingMode).toString()
+        } catch (e: ArithmeticException) {
+            nullValue
+        }
+    }
 }
