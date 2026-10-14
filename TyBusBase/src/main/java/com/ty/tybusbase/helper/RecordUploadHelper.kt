@@ -6,11 +6,13 @@ import android.text.TextUtils
 import com.adl.auth.core.AdlAuthFactory
 import com.adl.service.entity.RecordResEntity
 import com.adl.service.entity.SceneSportInfoEntity
+import com.adl.service.entity.SportIndicatorsEntity
 import com.adl.service.entity.SportRecordEntity
 import com.adl.service.outer.AdlService
 import com.adl.service.upload.OssFileUploadService
 import com.adl.service.web.SportRecordService
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.IndicatorsConstants
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.expand.getFileExtension
 import com.ty.tybusbase.utils.ApplicationUtil
@@ -261,6 +263,11 @@ object RecordUploadHelper {
                 }
             }
 
+            // 动作分析：将上传后的远端地址按 wind/extension/release 回写到 indicatorsValue
+            if (indicators.indicatorsCode == IndicatorsConstants.MEDICINE_BALL_MOTION_ANALYSIS) {
+                rebuildMedicineBallMotionAnalysisValue(indicators)
+            }
+
             //上传视频
             indicators.indicatorsVideos?.forEach {
                 if (it.videoCover.isNullOrEmpty().not()
@@ -363,6 +370,30 @@ object RecordUploadHelper {
 
     fun saveSportResultToDB(sportRecordEntity: SportRecordEntity) {
         AdlService.getService()?.recordUploadDao?.insert(sportRecordEntity)
+    }
+
+    /**
+     * 将动作分析图片上传后的远端地址，按 wind/extension/release 回写到 indicatorsValue
+     * 分组字段使用 SportImageEntity.motionAnalysisImageDesc
+     */
+    @Suppress("UNCHECKED_CAST")
+    private fun rebuildMedicineBallMotionAnalysisValue(indicators: SportIndicatorsEntity<*, *>) {
+        val wind = mutableListOf<String>()
+        val extension = mutableListOf<String>()
+        val release = mutableListOf<String>()
+        indicators.indicatorsImages?.forEach { img ->
+            when (img.motionAnalysisImageDesc) {
+                "wind" -> wind.add(img.imageUrl.orEmpty())
+                "extension" -> extension.add(img.imageUrl.orEmpty())
+                "release" -> release.add(img.imageUrl.orEmpty())
+            }
+        }
+        val value = hashMapOf<String, Any>(
+            "wind" to wind,
+            "extension" to extension,
+            "release" to release,
+        )
+        (indicators as SportIndicatorsEntity<Any, *>).indicatorsValue = value
     }
 
     /**
