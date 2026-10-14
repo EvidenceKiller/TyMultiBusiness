@@ -62,7 +62,7 @@ dependencies {
     api rootProject.ext.dependencies["gson"]
 
     api(name: 'AdlPose-2025-04-29', ext: 'aar')
-    api(name: 'AdlPoseSdk-2026-05-12', ext: 'aar')
+    api(name: 'AdlPoseSdk-2026-10-14', ext: 'aar')
     api(name: 'AdlPoseGt-2026-05-27', ext: 'aar')
     api(name: 'NzPoseCore-v1.0.0-2026-05-27', ext: 'aar')
     api(name: 'AdlCamera-2026-07-29', ext: 'aar')
