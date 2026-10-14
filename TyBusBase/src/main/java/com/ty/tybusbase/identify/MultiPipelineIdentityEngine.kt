@@ -129,7 +129,7 @@ class MultiPipelineIdentityEngine {
             }
             if (matchUserId != null) {
                 val studentEntity =
-                    AdlService.getService().studentDao.queryStudentByAccountId(userId)
+                    AdlService.getService().studentDao.queryStudentByAccountId(matchUserId)
                 if (studentEntity != null) {
                     identifyInfo.isOk = true
                     identityFinish(index, studentEntity)
