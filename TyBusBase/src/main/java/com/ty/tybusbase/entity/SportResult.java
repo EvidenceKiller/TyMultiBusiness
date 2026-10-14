@@ -127,6 +127,10 @@ public class SportResult {
     private File videoFile= null;
     private String videoCover= null;
 
+    //增加一个视频地址，这里应该使用一个List添加所有视频,由于兼容问题，只能做单个新增
+    private File videoFile2= null;
+    private String videoCover2= null;
+
     private String cardType;
 
     private int energyPoint;
@@ -328,6 +332,22 @@ public class SportResult {
 
     public void setVideoCover(String videoCover) {
         this.videoCover = videoCover;
+    }
+
+    public File getVideoFile2() {
+        return videoFile2;
+    }
+
+    public void setVideoFile2(File videoFile2) {
+        this.videoFile2 = videoFile2;
+    }
+
+    public String getVideoCover2() {
+        return videoCover2;
+    }
+
+    public void setVideoCover2(String videoCover2) {
+        this.videoCover2 = videoCover2;
     }
 
     public String getReportCode() {
