@@ -78,6 +78,7 @@ class MultiRegionSettingActivity :
             val multi = RoleConfigMulti()
             multi.key = saveKey
             multi.number = number
+            multi.isShowNumberText = true
             mBinding.overlay.setConfig(multi, OnRenderScene.StatusSportSet)
             mBinding.overlay.saveConfig()
             mBinding.overlay.refresh()
@@ -97,6 +98,7 @@ class MultiRegionSettingActivity :
             RoleConfigMulti::class.java
         )
         uiConfig.number = number
+        uiConfig.isShowNumberText = true
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.refresh()
 

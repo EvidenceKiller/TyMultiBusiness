@@ -213,6 +213,9 @@ class TenSitUpSportActivity :
             mainHandler.removeCallbacks(tipRunnable)
             viewModel.toStatusIdentifyFace()
         }
+        mBinding.tvStartNow.setOnClickListener {
+            viewModel.readyGo()
+        }
         mainHandler.postDelayed(tipRunnable, 1000)
         mBinding.btnInTipConfirm.text =
             getString(R.string.confirm_countdown, tipCountDownCount)
