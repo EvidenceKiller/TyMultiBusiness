@@ -37,7 +37,7 @@ class SixSiteUpFactory : AbstractMultiSportFactory() {
         return SitUpMultiParser(rule, 6)
     }
 
-    override fun getMultiSportType(): MultiSportType = MultiSportType.CRUNCH_6_PERSONS
+    override fun getMultiSportType(): MultiSportType = MultiSportType.SIT_UP_6_PERSONS
 
     override fun enableSmooth(): Boolean = true
 
