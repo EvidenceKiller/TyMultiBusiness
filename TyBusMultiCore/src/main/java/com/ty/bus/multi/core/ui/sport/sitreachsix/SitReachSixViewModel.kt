@@ -360,10 +360,19 @@ class SitReachSixViewModel(application: Application) :
     private fun updateStatusMap(objects: MutableList<SitAndReachObject>) {
         statusMap.clear()
         objects.forEach {
-            when{
-                it.isCompliant.not() ->{ changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE) }
-                it.skeleton != null && checkHandUp(it.skeleton) ->{statusMap.put(it.indexNum, true)}
-                it.skeleton == null -> changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
+            when {
+                it.isCompliant.not() -> {
+                    changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE)
+                }
+
+                it.skeleton != null && checkHandUp(it.skeleton) -> {
+                    statusMap.put(it.indexNum, true)
+                }
+
+                it.skeleton == null -> changeSportCardState(
+                    it.indexNum,
+                    ForwardFlexionCardState.IDLE
+                )
 //                else -> changeSportCardState(it.indexNum, ForwardFlexionCardState.IDLE)
             }
         }
@@ -569,10 +578,16 @@ class SitReachSixViewModel(application: Application) :
     }
 
     private fun calcViolation(srj: SitAndReachObject): Int {
-        LogUtil.d("====================${srj.footPosition}--${srj.handParallel}--${srj.legParallel}")
-        return if ((param.checkFoot && srj.footPosition.not())
-            || (param.checkHand && srj.handParallel.not())
-            || (param.checkLeg && srj.legParallel.not())
+        LogUtil.d(
+            "====================${srj.failMsgList.getOrNull(0)}--${
+                srj.failMsgList.getOrNull(
+                    1
+                )
+            }--${srj.failMsgList.getOrNull(2)}"
+        )
+        return if ((param.checkFoot && srj.failMsgList.getOrNull(2) == false)
+            || (param.checkHand && srj.failMsgList.getOrNull(0) == false)
+            || (param.checkLeg && srj.failMsgList.getOrNull(1) == false)
         ) 1 else 0
     }
 
@@ -636,7 +651,7 @@ class SitReachSixViewModel(application: Application) :
         SystemClock.sleep(100)
         sportPersonArray.forEach { key, value ->
             //如果是-200,表示未完成，不上传成绩
-            if (value.count == -500) return@forEach
+            if (value.status == 2) return@forEach
             var sportResult = SportResult()
             sportResult.sportDuration = (endSportTime - startSportTime).toInt()
             sportResult.maxComboCount = 0
@@ -651,9 +666,8 @@ class SitReachSixViewModel(application: Application) :
             sportResult.userId = value.accountInfo.studentEntity?.accountId
             sportResult.startTime = startSportTime
             sportResult.endTime = endSportTime
-            if (value.count >= -200 && value.count <= 400) {
-                sportResult.sportResult = value.count.toString()
-            } else {
+            sportResult.sportResult = value.count.toString()
+            if (value.status == 1) {
                 sportResult.sportViolationStatus = 1
                 sportResult.sportViolationNumber = "1"
             }
