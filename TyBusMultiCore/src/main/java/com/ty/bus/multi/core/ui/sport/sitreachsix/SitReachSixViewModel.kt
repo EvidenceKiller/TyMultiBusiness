@@ -578,6 +578,9 @@ class SitReachSixViewModel(application: Application) :
     }
 
     private fun calcViolation(srj: SitAndReachObject): Int {
+        if (srj.direction == SitAndReachObject.Direction.UNKNOWN) {
+            return 2
+        }
         LogUtil.d(
             "====================${srj.failMsgList.getOrNull(0)}--${
                 srj.failMsgList.getOrNull(

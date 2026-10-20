@@ -86,7 +86,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
      */
     fun changeState(state: ForwardFlexionCardState) {
         if (preState == state) {
-            LogUtil.d("SitReachSportCardView状态未改变")
+//            LogUtil.d("SitReachSportCardView状态未改变")
             return
         }
         LogUtil.d("SitReachSportCardView ${mBinding.tvIndex.text} 状态切换: $preState -> $state")
