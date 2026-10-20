@@ -106,6 +106,8 @@ import com.ty.tybusbase.grpc.GrpcCollaborationStatus
 import com.ty.tybusbase.grpc.GrpcSportCardStatus
 import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
 import com.ty.tybusbase.grpc.GrpcSportResult
+import com.ty.tybusbase.grpc.GrpcSportStatus
+import com.ty.tybusbase.grpc.GrpcSportStatusEnum
 import kotlinx.coroutines.channels.BufferOverflow
 
 
@@ -190,6 +192,10 @@ class ThirtySportViewModel(application: Application) :
     private val _countDownFinishLD = eventFlow<Pair<DisplayType, Boolean>>()
     val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> =
         _countDownFinishLD.asSharedFlow()
+
+    //主屏识别倒计时已结束、等待其他区域倒计时结束（倒计时文案展示"等待其他区域加入..."）
+    private val _waitOtherAreaLD = eventFlow<Unit>()
+    val waitOtherAreaLD: SharedFlow<Unit> = _waitOtherAreaLD.asSharedFlow()
 
     //比赛结束事件（一次性消息：非粘性，返回页面不会重放，避免重复 clearScreen/addResultView）
     private val _toDoneLD = eventFlow<List<ThirtySportResultItem>>()
@@ -310,6 +316,12 @@ class ThirtySportViewModel(application: Application) :
 
     //协同开始条件跟踪：开始运动指令是否已发送
     private var startCommandSent = false
+
+    //运动结束条件跟踪：主屏运动是否已结束
+    private var mainSportFinished = false
+
+    //运动结束条件跟踪：已上报运动结束的副屏
+    private val subScreenSportFinished = mutableSetOf<DisplayType>()
 
     //改变时间显示UI的背景色（区域 → 背景色资源）
     private val _changeTimeTextBgLD = eventFlow<Pair<DisplayType, Int>>()
@@ -472,6 +484,10 @@ class ThirtySportViewModel(application: Application) :
                 mainCountDownEnded = true
                 skipRoseState = MultiSportState.WAITING_START
                 checkCollaborationSportStart()
+                //主屏识别倒计时已结束，但仍有已加入副屏未倒计时结束：提示等待其他区域
+                if (needWaitOtherAreaJoin()) {
+                    _waitOtherAreaLD.tryEmit(Unit)
+                }
             }
         }
 
@@ -889,8 +905,8 @@ class ThirtySportViewModel(application: Application) :
         val connectedSubScreens = connectedSubScreenTypes()
         //前提：主屏和所有已连接副屏都必须识别到至少1人，任一屏为0则不能开始
         if (skipPersonArray.size <= 0) return false
-        if (DisplayType.LEFT in connectedSubScreens && leftPersonArray.size <= 0) return false
-        if (DisplayType.RIGHT in connectedSubScreens && rightPersonArray.size <= 0) return false
+        if (DisplayType.LEFT in connectedSubScreens && collaborationStateMap[DisplayType.LEFT] == CollaborationAreaState.NORMAL && leftPersonArray.size <= 0) return false
+        if (DisplayType.RIGHT in connectedSubScreens && collaborationStateMap[DisplayType.RIGHT] == CollaborationAreaState.NORMAL && rightPersonArray.size <= 0) return false
         //条件1：所有屏（主屏+已连接副屏）都识别满员才能直接开始，未连接的副屏不参与判定
         val allScreenFull = skipPersonArray.size >= skipManCount &&
                 (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size >= skipManCount) &&
@@ -900,7 +916,18 @@ class ThirtySportViewModel(application: Application) :
         if (!mainCountDownEnded) return false
         return connectedSubScreens.all {
             it in subScreenCountDownEnded ||
-                    collaborationStateMap[it] == CollaborationAreaState.OCCUPIED
+                    collaborationStateMap[it] != CollaborationAreaState.NORMAL
+        }
+    }
+
+    /**
+     * 是否需要等待其他区域：主屏识别倒计时已结束，但仍有已加入协同的副屏未倒计时结束
+     */
+    private fun needWaitOtherAreaJoin(): Boolean {
+        if (!mainCountDownEnded) return false
+        return connectedSubScreenTypes().any {
+            collaborationStateMap[it] == CollaborationAreaState.NORMAL &&
+                    it !in subScreenCountDownEnded
         }
     }
 
@@ -1105,8 +1132,23 @@ class ThirtySportViewModel(application: Application) :
         SoundPlayUtils.play(24)
         //停止录像，上传录像成绩
         videoRecorder.onStop()
-        handleResult(skipPersonArray)
+        //主屏结束：需等所有已加入副屏也结束后，才统一计算并展示成绩结果页
+        mainSportFinished = true
+        checkAllSportFinished()
+    }
 
+    /**
+     * 运动结束统一检查：主屏结束 且 所有已加入协同的副屏都结束，才计算成绩并展示结果页
+     */
+    private fun checkAllSportFinished() {
+        if (!mainSportFinished) return
+        val joinedSubScreens =
+            listOf(DisplayType.LEFT, DisplayType.RIGHT).filter { isSubScreenJoined(it) }
+        if (joinedSubScreens.any { it !in subScreenSportFinished }) {
+            LogUtil.d("等待副屏运动结束：已加入=$joinedSubScreens，已结束=$subScreenSportFinished")
+            return
+        }
+        handleResult(skipPersonArray)
     }
 
     /**
@@ -1527,6 +1569,7 @@ class ThirtySportViewModel(application: Application) :
         registerCollaborationStatus()
         registerIdentifiedCount()
         registerCountDownEnd()
+        registerGrpcSportStatusHandler()
     }
 
     private fun registerCountDownEnd() {
@@ -1603,6 +1646,29 @@ class ThirtySportViewModel(application: Application) :
             }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
             updateCollaborationState(displayType, state)
+        }
+    }
+
+    /**
+     * 注册运动结束指令
+     */
+    private fun registerGrpcSportStatusHandler() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_STATUS, GRPC_KEY) { data ->
+            val info = data.payload.toObject<GrpcSportStatus>()
+            if (info == null || info.skuId != sportInfo?.sportSkuId) {
+                LogUtil.d("当前运动状态指令不匹配：grpcskuid:${info?.skuId}--sportSkuId:${sportInfo?.sportSkuId}")
+                return@registerServerHandler
+            }
+            val displayType = data.from.getDisplayType(leftSubScreenIp,rightSubScreenIp)
+            val status = GrpcSportStatusEnum.fromCode(info.status)
+            if (status == GrpcSportStatusEnum.FINISHED){
+                if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
+                    LogUtil.d("收到${displayType.name}副屏运动结束")
+                    subScreenSportFinished.add(displayType)
+                    //与副屏成绩写入保持同一线程时序，避免结果未合并就出成绩页
+                    uiHandler.post { checkAllSportFinished() }
+                }
+            }
         }
     }
 

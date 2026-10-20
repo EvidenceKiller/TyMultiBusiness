@@ -94,6 +94,9 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var videoFile: File? = null
     var videoCover: String? = null
 
+    var videoFile2: File? = null
+    var videoCover2: String? = null
+
     open fun toStatusPrepare() {
         statusLD.postValue(SportStatusEnum.PREPARE)
     }
@@ -470,6 +473,31 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                     )
                 )
             }
+
+            if (result.videoFile2 != null && result.videoFile2!!.exists()) {
+                if (result.videoCover2 == null) {
+                    result.videoCover2 =
+                        "${result.videoFile2!!.parent}/${System.currentTimeMillis()}_cover.png"
+                }
+                val file = File(result.videoCover2)
+                if (!file.exists()) {
+                    val bitmap = VideoUtil.getVideoThumbnail(result.videoFile2!!.absolutePath)
+                    AdlBitmapUtil.save(bitmap, File(result.videoCover2), Bitmap.CompressFormat.PNG)
+                }
+                if (!file.exists()) {
+                    result.videoCover2 = ""
+                }
+                if (sportVideos == null) {
+                    sportVideos = ArrayList()
+                }
+                sportVideos.add(
+                    SportVideoEntity(
+                        result.videoFile2!!.absolutePath,
+                        result.videoCover2,
+                        "视频地址2"
+                    )
+                )
+            }
         }
     }
 
@@ -486,6 +514,21 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             videoCover = "${videoFile!!.parent}/${timestamp}_cover.png"
         }
         return videoFile!!
+    }
+
+    fun getVideoPath2(sAi: String? = sportInfo?.sportSkuId): File {
+        if (videoFile2 == null) {
+            val userDir = AdlFileHelper.createUserDir(
+                accountInfoLD.value?.studentEntity?.accountId
+                    ?: BusiBaseConstantsValue.VISITOR_USER_ID,
+                sAi
+            )
+            val timestamp = System.currentTimeMillis()
+            val fileName = "${sAi}_${timestamp}_${UUID.randomUUID()}.mp4"
+            videoFile2 = File(userDir, fileName)
+            videoCover2 = "${videoFile2!!.parent}/${UUID.randomUUID()}_cover.png"
+        }
+        return videoFile2!!
     }
 
     fun resetVideoPath() {

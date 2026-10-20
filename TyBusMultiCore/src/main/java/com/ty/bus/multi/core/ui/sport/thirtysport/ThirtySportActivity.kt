@@ -472,8 +472,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
 
         viewModel.countDownFinishLD.collectOnLifecycle {
             startDialog?.dismiss()
-            //竞技开始，隐藏开始按钮，显示运动倒计时时间栏
+            //竞技开始，隐藏开始按钮与等待文案，显示运动倒计时时间栏
             mBinding.tvStartNow.visibility = View.GONE
+            mBinding.tvCountDownNotice.visibility = View.GONE
             getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
                 mBinding.llTime.visibility = View.VISIBLE
                 //左右副屏：只有已加入协同的才进入运动状态
@@ -490,6 +491,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         viewModel.sportCountDownLD.collectOnLifecycle {
             //运动倒计时属于整个运动，统一在Activity层更新时间栏
             mBinding.tvTime.text = it.second
+        }
+
+        viewModel.waitOtherAreaLD.collectOnLifecycle {
+            //主屏识别倒计时已结束，但已加入的副屏尚未倒计时结束：提示等待其他区域
+            mBinding.tvCountDownNotice.text = getString(R.string.wait_other_area_join)
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
         }
 
         viewModel.toDoneLD.collectOnLifecycle {
@@ -543,12 +550,13 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         val params =
             ConstraintLayout.LayoutParams(
                 RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
+                mBinding.flResultViewContainer.height
             )
         params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
+        mBinding.flResultViewContainer.addView(
             srrvResult,
-            params
+            RecyclerView.LayoutParams.MATCH_PARENT,
+            RecyclerView.LayoutParams.MATCH_PARENT
         )
         srrvResult.setConfirmOnclickListener {
             finish()
@@ -556,12 +564,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
         srrvResult.setResultTitleText(viewModel.thirtySportConfig?.resultPageText)
         if (viewModel.thirtySportConfig?.isSupportNextGroup == true) {
             srrvResult.setNextOnclickListener {
-                mBinding.clSkipSportViewContainer.removeView(srrvResult)
+                mBinding.flResultViewContainer.removeView(srrvResult)
                 reset()
             }
         }
 
-        doResultViewTranslateAnimation(srrvResult)
+//        doResultViewTranslateAnimation(srrvResult)
         srrvResult.setResult(
             resultList,
             if (viewModel.matchId != null) 100000 else top1Count,
@@ -690,7 +698,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             ObjectAnimator.ofFloat(
                 view,
                 "translationY",
-                view.height.toFloat(),
+                0f,
                 -view.height.toFloat()
             ).setDuration(500).start()
         }

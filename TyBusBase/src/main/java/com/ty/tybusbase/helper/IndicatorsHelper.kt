@@ -793,6 +793,19 @@ object IndicatorsHelper {
         }
     }
 
+    /**
+     * 动作分析图片：本地路径放入 imageUrl，阶段标识放入 motionAnalysisImageDesc（wind/extension/release）
+     * 上传后由 RecordUploadHelper 将远端地址回写到 indicatorsValue
+     */
+    private fun addMotionAnalysisImages(
+        paths: List<String?>,
+        motionAnalysisDesc: String
+    ): MutableList<SportImageEntity> {
+        return paths.map { path ->
+            SportImageEntity(path.orEmpty(), "", motionAnalysisDesc, "0")
+        }.toMutableList()
+    }
+
     fun createIndicatorsResultDto(
         code: String,
         indicatorsList: MutableList<SportIndicatorsEntity<*, *>>?,
@@ -819,14 +832,79 @@ object IndicatorsHelper {
             this.version = sportVersion
             this.sportVideos = mutableListOf()
             val videoList = mutableListOf<SportVideo>()
-            videoFile?.absolutePath?.let {
-                val file = File(videoCover ?: "")
-                if (!file.exists()) {
-                    val bitmap = VideoUtil.getVideoThumbnail(it)
-                    AdlBitmapUtil.save(bitmap, File(videoCover), Bitmap.CompressFormat.PNG)
+            try {
+                videoFile?.absolutePath?.let {
+                    videoList.add(SportVideo("视频地址", it, videoCover))
+                    val file = File(videoCover ?: "")
+                    if (!file.exists()) {
+                        val bitmap = VideoUtil.getVideoThumbnail(it)
+                        AdlBitmapUtil.save(bitmap, File(videoCover), Bitmap.CompressFormat.PNG)
+                    }
                 }
-                videoList.add(SportVideo("视频地址", it, videoCover))
+            } catch (e: Exception) {
+
             }
+
+            this.sportVideos = videoList
+            val toJson = JSON.toJSONString(indicatorsList)
+            val indicators = JSON.parseArray(toJson, SportIndicators::class.java).toMutableList()
+            this.sportIndicatorsList = indicators
+        }
+    }
+
+    fun createIndicatorsResultDto(
+        code: String,
+        indicatorsList: MutableList<SportIndicatorsEntity<*, *>>?,
+        startSportTime: Long,
+        endSportTime: Long,
+        count: Int,
+        videoFile: File?,
+        videoCover: String?,
+        subVideoFile: File?,
+        subVideoCover: String?,
+        accountName: String?,
+        accountSex: Int?,
+        accountAvatar: String?,
+        sportVersion: String = BusiBaseConfig.getReportVersion()
+    ): IndicatorsResultDto? {
+        if (indicatorsList == null) return null
+        val format = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        return IndicatorsResultDto().apply {
+            this.sportTypeCode = code
+            this.userName = accountName
+            this.sex = accountSex ?: 0
+            this.userAvatar = accountAvatar
+            this.sportTestTime = format.format(Date(startSportTime))
+            this.sportTime = (endSportTime - startSportTime).toString()
+            this.sportResult = "$count"
+            this.version = sportVersion
+            this.sportVideos = mutableListOf()
+            val videoList = mutableListOf<SportVideo>()
+            try {
+                videoFile?.absolutePath?.let {
+                    videoList.add(SportVideo("视频地址", it, videoCover))
+                    val file = File(videoCover ?: "")
+                    if (!file.exists()) {
+                        val bitmap = VideoUtil.getVideoThumbnail(it)
+                        AdlBitmapUtil.save(bitmap, File(videoCover), Bitmap.CompressFormat.PNG)
+                    }
+                }
+            } catch (e: Exception) {
+
+            }
+            try {
+                subVideoFile?.absolutePath?.let {
+                    videoList.add(SportVideo("视频地址", it, subVideoCover))
+                    val file = File(subVideoCover ?: "")
+                    if (!file.exists()) {
+                        val bitmap = VideoUtil.getVideoThumbnail(it)
+                        AdlBitmapUtil.save(bitmap, File(subVideoCover), Bitmap.CompressFormat.PNG)
+                    }
+                }
+            } catch (e: Exception) {
+
+            }
+
             this.sportVideos = videoList
             val toJson = JSON.toJSONString(indicatorsList)
             val indicators = JSON.parseArray(toJson, SportIndicators::class.java).toMutableList()
@@ -922,12 +1000,12 @@ object IndicatorsHelper {
         })
 
         //  【站姿间距】"L间距 / L前足"，无值上报空字符串
-        val stanceWidth = StringKt.bigDecimalDivide(
+        val stanceWidth = StringKt.bigDecimalDivideToString(
             prescription.prePostureDisL2.toDouble(),// L间距
             prescription.prePostureDisL1.toDouble(),// L前足
             1,
             RoundingMode.HALF_UP
-        ).toString()
+        )
         indicatorsList.add(SportIndicatorsEntity<String, String>().apply {
             this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_STAND_SPACE
             this.indicatorsName = "站姿间距"
@@ -1016,28 +1094,46 @@ object IndicatorsHelper {
         //    extension：[图片1， 2，3，4]  四张图片，如无图片需要按序设置对应的缺省图（引球手肘，引球手臂，反弓伸髋，反弓屈膝）
         //    release：[图片1， 2，3]  3张图片，如无图片需要按序设置对应的缺省图（出手姿势，出手角度，出手时机）
         //   }"
-        val actionAnalysis = hashMapOf<String, Any>(
-            "wind" to listOf(
-                prescription.prePath,
-                prescription.prePath
-            ),
-            "extension" to listOf(
+
+        val windImages = addMotionAnalysisImages(
+            listOf(prescription.prePath, prescription.prePath),
+            "wind"
+        )
+        val extensionImages = addMotionAnalysisImages(
+            listOf(
                 prescription.reboundPath,
                 prescription.reboundPath,
                 prescription.reboundPath,
                 prescription.reboundPath
             ),
-            "release" to listOf(
+            "extension"
+        )
+        val releaseImages = addMotionAnalysisImages(
+            listOf(
                 prescription.sellMarkPath,
                 prescription.sellMarkPath,
                 prescription.sellMarkPath
             ),
+            "release"
         )
+        val actionAnalysisImages = mutableListOf<SportImageEntity>().apply {
+            addAll(windImages)
+            addAll(extensionImages)
+            addAll(releaseImages)
+        }
+        // 初始为本地路径；云端上传完成后由 RecordUploadHelper 回写远端地址
+        val actionAnalysis = hashMapOf<String, Any>(
+            "wind" to windImages.map { it.imageUrl },
+            "extension" to extensionImages.map { it.imageUrl },
+            "release" to releaseImages.map { it.imageUrl },
+        )
+
         indicatorsList.add(SportIndicatorsEntity<HashMap<String, Any>, String>().apply {
             this.indicatorsCode = IndicatorsConstants.MEDICINE_BALL_MOTION_ANALYSIS
             this.indicatorsName = "动作分析"
             this.indicatorsValue = actionAnalysis
             this.indicatorsUnit = ""
+            this.indicatorsImages = actionAnalysisImages
         })
 
         //  【偏移情况】正常角度值，无角度值上报空字符串

@@ -412,6 +412,11 @@
             android:textSize="@dimen/sp_22" />
     </LinearLayout>
 
+    <FrameLayout
+        android:id="@+id/fl_result_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <LinearLayout
         android:id="@+id/ll_btn"
         android:layout_width="match_parent"
