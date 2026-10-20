@@ -12,4 +12,5 @@ open class MultiSportResult(
     var meetGroup: MeetGroupDetailsEntity? = null,
     var hasVoice: Boolean = false,
     var recordId:String? = null,
+    var status:Int = 0,  //成绩状态，0: 正常，1: 违规,2: 未完成
 )

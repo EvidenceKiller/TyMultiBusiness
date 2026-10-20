@@ -132,4 +132,23 @@
         <attr name="callback_fps" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="DirectionPadView">
+        <!-- 标题文字 -->
+        <attr name="dp_title" format="string" />
+        <!-- 是否显示标题，默认true -->
+        <attr name="dp_show_title" format="boolean" />
+        <!-- 中间设备图 -->
+        <attr name="dp_center_image" format="reference" />
+        <!-- 方向按钮边长，不设置时按总布局大小自适应计算 -->
+        <attr name="dp_button_size" format="dimension" />
+        <!-- 中间设备图边长，不设置时 = 2 × 按钮边长 -->
+        <attr name="dp_center_size" format="dimension" />
+        <!-- 标题文字大小，默认dp_24 -->
+        <attr name="dp_title_size" format="dimension" />
+        <!-- 上按钮距标题间距，默认dp_20（兼容旧写法，未设置时作为按钮间距） -->
+        <attr name="dp_button_margin_top" format="dimension" />
+        <!-- 按钮间距（按钮与按钮、按钮与标题/中间图的间距），默认dp_20 -->
+        <attr name="dp_button_gap" format="dimension" />
+    </declare-styleable>
+
 </resources>

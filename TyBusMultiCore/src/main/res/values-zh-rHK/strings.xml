@@ -4,7 +4,9 @@
     <string name="zwtqq_count">测试次数</string>
     <string name="confirm_countdown">确定（%d）</string>
     <string name="identifying">识别中...</string>
-    <string name="lie_on_back_and_face_screen">请侧对屏幕仰卧准备</string>
+    <string name="temporarily_unavailable">暫不可用</string>
+    <string name="part_unavailable_tip">場地構建失敗，部分位置暫不可用</string>
+    <string name="lie_on_back_and_face_screen">請側對屏幕仰臥準備</string>
     <string name="pull_up_start_tips">"請確保 仰卧起坐墊 \n已放在標註區域內"</string>
     <string name="violations">违规</string>
     <string name="un_do">未完成</string>
@@ -17,6 +19,7 @@
     <string name="next_group">下一组</string>
     <string name="forward_flexion_prepare_tip">请面向刻度双脚伸直准备</string>
     <string name="forward_flexion_auto_mat">自动识别刻度板</string>
+    <string name="forward_flexion_show_mat">显示刻度板</string>
     <string name="forward_flexion_auto_mat_fail">识别失败</string>
     <string name="forward_flexion_auto_mat_success">识别成功</string>
     <string name="forward_flexion_model_load_complete">模型加载完成</string>

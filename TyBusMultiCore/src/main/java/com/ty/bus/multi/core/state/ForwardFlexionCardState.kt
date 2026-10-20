@@ -7,8 +7,16 @@ enum class ForwardFlexionCardState {
     //识别中
     IDENTIFYING,
 
+    /**
+     * 识别失败
+     */
+    IDENTIFY_FAIL,
+
     //已识别
     IDENTIFIED,
+
+    //不可用
+    UNAVAILABLE,
 
     //已准备
     PREPARED,

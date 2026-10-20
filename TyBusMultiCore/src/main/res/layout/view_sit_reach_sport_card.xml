@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dp_760"
+    android:layout_height="@dimen/dp_220">
+
+    <ImageView
+        android:id="@+id/iv_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/bg_card_ready_nouser" />
+
+    <TextView
+        android:id="@+id/tv_index"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="1"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_64"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_goneMarginStart="@dimen/dp_16"
+        app:layout_goneMarginTop="@dimen/dp_4" />
+
+    <!--无人状态-->
+    <TextView
+        android:id="@+id/tv_state"
+        android:layout_width="@dimen/dp_96"
+        android:layout_height="@dimen/dp_55"
+        android:background="@drawable/pk_skip_rose_card_state_shape"
+        android:gravity="center"
+        android:text="@string/idle_state"
+        android:textColor="@color/white_60"
+        android:textFontWeight="600"
+        android:textSize="@dimen/dp_24"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_idle_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_48"
+        android:text="@string/forward_flexion_identified_tip"
+        android:textColor="@color/white_60"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_idle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="tv_state,tv_idle_tips" />
+
+    <!--  识别中状态  -->
+    <com.ty.tybusbase.view.ArcCircleProgressView
+        android:id="@+id/progress_view"
+        android:layout_width="@dimen/dp_96"
+        android:layout_height="@dimen/dp_96"
+        android:layout_marginStart="@dimen/dp_195"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_identify_icon"
+        android:layout_width="@dimen/dp_48"
+        android:layout_height="@dimen/dp_48"
+        android:layout_centerInParent="true"
+        android:scaleType="fitXY"
+        android:src="@mipmap/ic_face_recognition"
+        app:layout_constraintBottom_toBottomOf="@+id/progress_view"
+        app:layout_constraintLeft_toLeftOf="@+id/progress_view"
+        app:layout_constraintRight_toRightOf="@+id/progress_view"
+        app:layout_constraintTop_toTopOf="@+id/progress_view" />
+
+    <TextView
+        android:id="@+id/tv_identifying"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_24"
+        android:text="@string/identifying"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_64"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--        app:layout_constraintBottom_toBottomOf="@id/progress_view"-->
+    <!--        app:layout_constraintStart_toEndOf="@+id/progress_view"-->
+    <!--        app:layout_constraintTop_toTopOf="@+id/progress_view" />-->
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_identifying"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="iv_identify_icon,progress_view" />
+
+    <!--  不可用状态  -->
+    <LinearLayout
+        android:id="@+id/ll_unavailable_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/dp_32"
+        android:paddingEnd="@dimen/dp_32"
+        android:paddingTop="@dimen/dp_16"
+        android:paddingBottom="@dimen/dp_16"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/iv_unavailable_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/temporarily_unavailable"
+            android:src="@mipmap/ic_fl_disabled" />
+
+        <Space
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="1dp" />
+
+        <TextView
+            android:id="@+id/tv_unavailable_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/temporarily_unavailable"
+            android:textColor="@color/white_40"
+            android:textSize="@dimen/sp_40" />
+    </LinearLayout>
+
+    <!--  已识别人员  -->
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/civ_header"
+        android:layout_width="@dimen/dp_56"
+        android:layout_height="@dimen/dp_56"
+        android:layout_marginStart="@dimen/dp_102"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@mipmap/ic_head_default"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="@+id/civ_header"
+        app:layout_constraintStart_toEndOf="@+id/civ_header"
+        app:layout_constraintTop_toTopOf="@+id/civ_header"
+        tools:text="刘玉杭" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_account_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_name,civ_header" />
+
+    <!--  已识别后准备提示  -->
+    <TextView
+        android:id="@+id/tv_identified_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_36"
+        android:text="@string/forward_flexion_prepare_tip"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_identified"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_identified_tips" />
+
+
+    <!--  已准备  -->
+    <ImageView
+        android:id="@+id/iv_prepared_bg"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_106"
+        android:layout_marginBottom="@dimen/dp_16"
+        android:background="@drawable/bg_forward_flexion_sport_card_prepared"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_prepared_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ready_state"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_64"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_prepared_bg"
+        app:layout_constraintEnd_toEndOf="@+id/iv_prepared_bg"
+        app:layout_constraintStart_toStartOf="@+id/iv_prepared_bg"
+        app:layout_constraintTop_toTopOf="@+id/iv_prepared_bg" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_prepared"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="iv_prepared_bg,tv_prepared_tips" />
+
+    <!--运动开始，无人-->
+    <TextView
+        android:id="@+id/tv_start_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_427"
+        android:text="@string/idle_state"
+        android:textColor="@color/white_60"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_start_no_user"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_start_tips" />
+
+    <!--第一次运功动画提示提示-->
+    <ImageView
+        android:id="@+id/iv_sport_ani"
+        android:layout_width="@dimen/dp_196"
+        android:layout_height="@dimen/dp_160"
+        android:layout_marginEnd="@dimen/dp_20"
+        android:src="@drawable/ani_forward_flexion_sport_tip"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!--  成绩列表  -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:itemCount="3"
+        tools:listitem="@layout/item_sit_reach_sport_score" />
+
+    <!--  最佳  -->
+    <ImageView
+        android:id="@+id/iv_best_top"
+        android:layout_width="@dimen/dp_32"
+        android:layout_height="@dimen/dp_32"
+        android:layout_marginStart="@dimen/dp_36"
+        android:layout_marginTop="@dimen/dp_119"
+        android:background="@mipmap/ic_todaybest"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_best_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="最佳"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_20"
+        app:layout_constraintEnd_toEndOf="@+id/iv_best_top"
+        app:layout_constraintStart_toStartOf="@+id/iv_best_top"
+        app:layout_constraintTop_toBottomOf="@+id/iv_best_top" />
+
+    <TextView
+        android:id="@+id/tv_best_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:text="11"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_best_best"
+        app:layout_constraintStart_toEndOf="@+id/iv_best_top"
+        app:layout_constraintTop_toTopOf="@+id/iv_best_top" />
+
+    <TextView
+        android:id="@+id/tv_best_score_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="cm"
+        android:textColor="#FDD401"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_best_score"
+        app:layout_constraintStart_toEndOf="@+id/tv_best_score" />
+    <!--  最佳  -->
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_best"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="tv_best_best,iv_best_top,tv_best_score,tv_best_score_unit" />
+    <!--运动过程中出成绩-->
+    <ImageView
+        android:id="@+id/iv_sporting_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#CC09245A" />
+
+    <TextView
+        android:id="@+id/tv_sport_times"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_17"
+        android:textColor="@color/white_80"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="第一次" />
+
+    <TextView
+        android:id="@+id/tv_sport_current_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_18"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_88"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_sport_current_result_unit"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="11.5" />
+
+    <TextView
+        android:id="@+id/tv_sport_current_result_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_8"
+        android:layout_marginBottom="@dimen/dp_8"
+        android:textColor="@color/white_80"
+        android:textSize="@dimen/sp_48"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_sport_current_result"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_sport_current_result"
+        tools:text="cm" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_result_in_sporting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="iv_sporting_bg,tv_sport_current_result_unit,tv_sport_current_result,tv_sport_times" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="@dimen/dp_760"
+    android:layout_height="@dimen/dp_120">
+
+    <ImageView
+        android:id="@+id/iv_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@mipmap/bg_card_completed_empty" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/civ_header"
+        android:layout_width="@dimen/dp_56"
+        android:layout_height="@dimen/dp_56"
+        android:layout_marginStart="@dimen/dp_60"
+        android:background="@mipmap/ic_head_default"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_16"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_40"
+        app:layout_constraintBottom_toBottomOf="@+id/civ_header"
+        app:layout_constraintStart_toEndOf="@+id/civ_header"
+        app:layout_constraintTop_toTopOf="@+id/civ_header"
+        tools:text="刘玉杭" />
+
+    <TextView
+        android:id="@+id/tv_score"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_10"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_56"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_score_unit"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="11.58" />
+
+    <TextView
+        android:id="@+id/tv_score_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/dp_60"
+        android:layout_marginBottom="@dimen/dp_6"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_score"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:text="cm" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="civ_header,tv_name,tv_score,tv_score_unit" />
+
+    <TextView
+        android:id="@+id/tv_idle"
+        android:layout_width="@dimen/dp_96"
+        android:layout_height="@dimen/dp_55"
+        android:gravity="center"
+        android:text="@string/idle_state"
+        android:textColor="@color/white_60"
+        android:textFontWeight="600"
+        android:textSize="@dimen/dp_40"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

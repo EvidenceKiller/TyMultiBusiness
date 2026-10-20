@@ -20,6 +20,7 @@ import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
+import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
@@ -28,6 +29,7 @@ import com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
+import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.tensitup.TenSitUpSportActivity
@@ -110,6 +112,17 @@ object UIMultiNavigation : BaseNavigation() {
     }
 
     @JvmStatic
+    fun goSitReachSix(
+        context: Context,
+        config: UINavConfig?,
+        ffConfig: ForwardFlexionConfig? = null
+    ) {
+        val intent = Intent(context, SitReachSixActivity::class.java)
+        intent.putExtra("sport_config", ffConfig)
+        startActivity(context, intent, config)
+    }
+
+    @JvmStatic
     fun goFiveSport(context: Context, config: UINavConfig?, sportConfig: FiveSportConfig? = null) {
         val intent = Intent(context, FiveSportActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
@@ -158,6 +171,13 @@ object UIMultiNavigation : BaseNavigation() {
      */
     fun goForwardFlexionSixSetting(context: Context) {
         context.startActivity(Intent(context, ForwardFlexionSixSettingActivity::class.java))
+    }
+
+    /**
+     * 6人坐位体前屈设置
+     */
+    fun goSitReachSixSetting(context: Context) {
+        context.startActivity(Intent(context, SitReachSixSettingActivity::class.java))
     }
 
     /**
