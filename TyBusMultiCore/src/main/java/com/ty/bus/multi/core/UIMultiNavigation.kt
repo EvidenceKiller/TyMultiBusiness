@@ -158,13 +158,11 @@ object UIMultiNavigation : BaseNavigation() {
     }
 
     /**
-     * 主屏 + 左右副屏 10 人运动框体设置（指定主屏框体保存Key，如30人仰卧起坐）
+     * 主屏 + 左右副屏 10 人运动框体设置
      */
-    fun goThirtySportSetting(context: Context, mainRegionKey: String? = null) {
+    fun goThirtySportSetting(context: Context) {
         context.startActivity(
-            Intent(context, ThirtySportSettingActivity::class.java).apply {
-                putExtra("main_region_key", mainRegionKey)
-            }
+            Intent(context, ThirtySportSettingActivity::class.java)
         )
     }
 
