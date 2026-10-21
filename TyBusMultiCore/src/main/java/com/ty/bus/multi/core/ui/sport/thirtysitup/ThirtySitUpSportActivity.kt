@@ -1,0 +1,654 @@
+package com.ty.bus.multi.core.ui.sport.thirtysitup
+
+import android.graphics.Color
+import android.os.Bundle
+import android.text.TextUtils
+import android.view.View
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
+import androidx.core.util.forEach
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
+import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlHandlerThread
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
+import com.adl.base.config.AdlUIConfig
+import com.adl.base.config.RoleConfigMulti
+import com.adl.base.log.AdlLogger
+import com.adl.base.overlay.OnRenderScene
+import com.adl.lib.AdlCameraPreviewInfo
+import com.adl.lib.AdlCameraPreviewView
+import com.adl.service.entity.MeetGroupDetailsEntity
+import com.adl.service.entity.SceneSportInfoEntity
+import com.ty.bus.multi.R
+import com.ty.bus.multi.core.base.BaseMultiSportActivity
+import com.ty.bus.multi.core.base.MultiSportCardViewState
+import com.ty.bus.multi.core.config.SportModel
+import com.ty.bus.multi.core.config.ThirtySitUpSportConfig
+import com.ty.bus.multi.core.constants.MultiCoreConstant
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
+import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
+import com.ty.bus.multi.core.view.thirtysport.ThirtySportResultView
+import com.ty.bus.multi.databinding.AcThirtySitUpBinding
+import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SceneConstants
+import com.ty.tybusbase.constants.SportConstant
+import com.ty.tybusbase.dialog.CommonTipDialog
+import com.ty.tybusbase.entity.DisplayType
+import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.helper.TypeFaceHelper
+import com.ty.tybusbase.utils.LogUtil
+import com.ty.tybusbase.utils.MMKVUtil
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
+
+/**
+ * 30人仰卧起坐：主屏 + 左副屏 + 右副屏，每屏10人，共30人。
+ *
+ * 按照三十人跳绳（ThirtySportActivity）扩展十人跳绳（TenSportActivity）的方式，
+ * 在十人仰卧起坐（TenSitUpSportActivity）基础上扩展为三屏协同运动：
+ * - 底部导航栏可在左区/中区/右区之间切换查看对应区域的道次卡片
+ * - 副屏识别/卡片状态/成绩通过 gRPC 上报，主屏统一渲染
+ * - 结果页合并三屏成绩统一排名展示
+ */
+class ThirtySitUpSportActivity :
+    BaseMultiSportActivity<AcThirtySitUpBinding, ThirtySitUpSportViewModel>() {
+
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/10_sit_up-2k.mp4"
+
+    /***************************视频播放调试*************************/
+
+    private lateinit var srrvResult: ThirtySportResultView
+
+    /** 每屏人数（10人），三屏共30人 */
+    private val number = 10
+
+    private var startDialog: CommonTipDialog? = null
+
+    /** "是否清空已识别结果"对话框（协同识别计数提示，展示期间内容可动态更新） */
+    private var clearIdentifyDialog: CommonTipDialog? = null
+
+    private var currentArea = DisplayType.MAIN
+    private var leftIdentifiedCount = 0
+    private var mainIdentifiedCount = 0
+    private var rightIdentifiedCount = 0
+
+    /** 导航区协同异常状态字体颜色 */
+    private val AREA_TAB_RED = "#F44134"
+
+    override fun initData() {
+        super.initData()
+        timeOutHelper.cancel()
+        val studentList =
+            intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
+        viewModel.personIndex = intent.getIntExtra("person_index", 0)
+        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
+        viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
+        viewModel.thirtySitUpSportConfig =
+            intent.getSerializableExtra("sport_config") as? ThirtySitUpSportConfig
+        if (viewModel.sportInfo == null) {
+            viewModel.sportInfo = SceneSportInfoEntity().apply {
+                sportSkuId = SportConstant.SPORT_SIT_UP + "0024"
+                sportItemCode = SportConstant.SPORT_SIT_UP
+                endValue = "60000"
+                testCount = "30"
+            }
+        }
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
+        viewModel.initEngine(number)
+        viewModel.loadPerson(studentList)
+        //注册Grpc指令
+        viewModel.registerGrpcCmd()
+        //检查左右屏连接并发送协同运动开始指令
+        viewModel.initCollaboration()
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
+        //如果是赛事，则隐藏当前最高
+        viewModel.matchId?.let {
+            mBinding.groupCurrentBest.visibility = View.GONE
+        }
+        //自主，组织，随堂测隐藏当前最高
+        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST || viewModel.sceneId == SceneConstants.INDEPENDENT_TEST || viewModel.sceneId == SceneConstants.CLASS_TEST) {
+            mBinding.groupCurrentBest.visibility = View.GONE
+        }
+
+        val isDebug =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.MODEL_DEBUG,
+                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+            )
+        mBinding.overlay.enableDraw(isDebug)
+        mBinding.overlay.enableDebug(isDebug)
+        mBinding.overlay.enableDrawBox(false)
+        mBinding.overlay.enableFace(true)
+        val debug =
+            MMKVUtil.decodeBoolean(
+                MMKVBusiKey.SKELETON_ABLE,
+                BusiBaseConstantsValue.DEFAULT_SKELETON
+            )
+        mBinding.overlay.skeletonDrawer.enableMarker(debug)
+        mBinding.overlay.skeletonDrawer.enableLine(debug)
+        mBinding.overlay.enableDrawSkeleton(debug)
+        val uiConfig = AdlUIConfig.instance().readConfig(
+            MultiCoreConstant.THIRTY_SIT_UP_REGION_KEY,
+            RoleConfigMulti::class.java
+        )
+        uiConfig.number = number
+        mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
+        viewModel.combineOverlay(mBinding.overlay)
+        mBinding.overlay.post {
+            viewModel.openTsProcess()
+        }
+        mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
+        mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
+
+        initAreaViews()
+
+        //倒计时、开始按钮、提示文案属于整个运动，统一由Activity管理，各区域面板共享引用
+        listOf(mBinding.sportViewMain, mBinding.sportViewLeft, mBinding.sportViewRight)
+            .forEach { it.bindCountDownViews(mBinding.tvCountDownNotice, mBinding.tvCountDownGo) }
+
+        mBinding.tvStartNow.setOnClickListener {
+            startDialog = CommonTipDialog().setCallback {
+                //如果是运动会模式，则切到准备状态
+                if (viewModel.thirtySitUpSportConfig?.sportModel == SportModel.MEETING) {
+                    viewModel.sitUpPersonArray.forEach { _, value ->
+                        mBinding.sportViewMain.changeState(
+                            value.number,
+                            MultiSportCardViewState.PREPARED
+                        )
+                    }
+                }
+                startDialog = null
+                viewModel.readyGo()
+            }
+            startDialog?.show(supportFragmentManager, "tips")
+        }
+
+        mBinding.sportViewMain.setSportStartedText(viewModel.thirtySitUpSportConfig?.sportStartText)
+        mBinding.sportViewLeft.setSportStartedText(viewModel.thirtySitUpSportConfig?.sportStartText)
+        mBinding.sportViewRight.setSportStartedText(viewModel.thirtySitUpSportConfig?.sportStartText)
+
+        if (viewModel.thirtySitUpSportConfig?.sportModel == SportModel.MEETING) {
+            mBinding.tvStartNow.visibility = View.VISIBLE
+        }
+        if (viewModel.streamType == 2) {
+            mBinding.groupVideo.visible()
+            initVideo()
+            initVideoView()
+        }
+    }
+
+    private fun initAreaViews() {
+        // 左副屏、右副屏的 UI 与主屏一致，后续收到 gRPC 消息再分别渲染
+
+        updateAreaTabs()
+        mBinding.tvTabLeft.setOnClickListener { switchArea(DisplayType.LEFT) }
+        mBinding.tvTabMain.setOnClickListener { switchArea(DisplayType.MAIN) }
+        mBinding.tvTabRight.setOnClickListener { switchArea(DisplayType.RIGHT) }
+
+        switchArea(DisplayType.MAIN)
+    }
+
+    private fun switchArea(area: DisplayType) {
+        currentArea = area
+        mBinding.sportViewMain.visibility =
+            if (area == DisplayType.MAIN) View.VISIBLE else View.GONE
+        mBinding.sportViewLeft.visibility =
+            if (area == DisplayType.LEFT) View.VISIBLE else View.GONE
+        mBinding.sportViewRight.visibility =
+            if (area == DisplayType.RIGHT) View.VISIBLE else View.GONE
+
+        mBinding.tvAreaName.text = when (area) {
+            DisplayType.LEFT -> getString(R.string.area_left)
+            DisplayType.MAIN -> getString(R.string.area_main)
+            DisplayType.RIGHT -> getString(R.string.area_right)
+            DisplayType.OTHER -> "Other"
+        }
+
+        updateAreaTabs()
+    }
+
+    private fun updateAreaTabs() {
+        //已识别人数从各区域人员数组中实时统计，避免重复计数
+        leftIdentifiedCount = viewModel.leftPersonArray.size()
+        mainIdentifiedCount = viewModel.sitUpPersonArray.size()
+        rightIdentifiedCount = viewModel.rightPersonArray.size()
+
+        //运动开始后，底部导航栏文案切换为"x人运动中"
+        val sporting = viewModel.sportStartedLD.value == true
+        updateAreaTab(
+            mBinding.tvTabLeft,
+            DisplayType.LEFT,
+            leftIdentifiedCount,
+            sporting,
+            R.string.area_left_identified,
+            R.string.area_left_sporting,
+            R.string.area_left_unconnected,
+            R.string.area_left_occupied
+        )
+        mBinding.tvTabMain.text = getString(
+            if (sporting) R.string.area_main_sporting else R.string.area_main_identified,
+            mainIdentifiedCount
+        )
+        updateAreaTab(
+            mBinding.tvTabRight,
+            DisplayType.RIGHT,
+            rightIdentifiedCount,
+            sporting,
+            R.string.area_right_identified,
+            R.string.area_right_sporting,
+            R.string.area_right_unconnected,
+            R.string.area_right_occupied
+        )
+
+        mBinding.tvTabLeft.isSelected = currentArea == DisplayType.LEFT
+        mBinding.tvTabMain.isSelected = currentArea == DisplayType.MAIN
+        mBinding.tvTabRight.isSelected = currentArea == DisplayType.RIGHT
+    }
+
+    /**
+     * 更新单个区域Tab：协同异常状态（未连接/设备占用中）显示红色且不可点击
+     */
+    private fun updateAreaTab(
+        tvTab: TextView,
+        displayType: DisplayType,
+        count: Int,
+        sporting: Boolean,
+        identifiedRes: Int,
+        sportingRes: Int,
+        unconnectedRes: Int,
+        occupiedRes: Int
+    ) {
+        //未有协同状态记录时按无连接处理，收到副屏回复后（NORMAL/OCCUPIED）自动刷新
+        val state = viewModel.collaborationStateLD.value[displayType]
+            ?: CollaborationAreaState.UNCONNECTED
+        when (state) {
+            CollaborationAreaState.UNCONNECTED -> {
+                tvTab.text = getString(unconnectedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+
+            CollaborationAreaState.OCCUPIED -> {
+                tvTab.text = getString(occupiedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+
+            else -> {
+                tvTab.text = getString(
+                    if (sporting) sportingRes else identifiedRes,
+                    count
+                )
+                tvTab.setTextColor(
+                    ContextCompat.getColorStateList(this, R.color.selector_area_tab_text)
+                )
+                tvTab.isEnabled = true
+            }
+        }
+    }
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray, width: Int, height: Int, time: Long) {
+                frameTime += 1000 / 24
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+                viewModel.onFrame(yuv, info)
+            }
+
+            override fun onComplete() {
+
+            }
+        })
+    }
+
+    /**
+     * 收集 Flow。页面处于 STARTED 及以上状态才派发事件，退到后台暂停。
+     * 注意：flowWithLifecycle 在每次回到 STARTED 时会重新订阅，因此 replay>0（粘性）的 Flow
+     * 会把最近一次缓存事件重放；一次性事件请在 ViewModel 侧用 replay=0 的非粘性流。
+     */
+    private fun <T> Flow<T>.collectOnLifecycle(block: suspend (T) -> Unit) {
+        lifecycleScope.launch {
+            flowWithLifecycle(lifecycle, Lifecycle.State.STARTED).collect(block)
+        }
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+        viewModel.startPreviewLD.collectOnLifecycle {
+            //开启摄像头
+            mBinding.cameraView.startPreview(it.first, object :
+                AdlCameraPreviewView.OnViewStatusListener {
+                override fun onAvailable() {
+
+                }
+
+                override fun onCameraOpen() {
+                    viewModel.onCameraOpen()
+                    hideTips()
+                }
+
+                override fun onCameraReOpen() {
+
+                }
+
+                override fun onDestroyed() {
+
+                }
+
+                override fun onStreamLoss() {
+                    setTips(getString(R.string.camera_loss_tips))
+                }
+
+                override fun onOpenFail() {
+                    setTips(getString(R.string.ipc_camera_fail_tip))
+                }
+            })
+            mBinding.cameraView.addFrameProcessor(it.second)
+            mBinding.cameraView.textureView.scaleX = -1f
+        }
+
+        viewModel.cameraLoginStateLD.collectOnLifecycle {
+            if (it) hideTips() else setTips(getString(R.string.ipc_camera_fail_tip))
+        }
+
+        viewModel.stopPreviewLD.collectOnLifecycle {
+            mBinding.cameraView.stopPreview()
+        }
+
+        viewModel.resultLD.collectOnLifecycle {
+            getAreaSportViewByDisplay(it.first).updateScore(it.second)
+        }
+
+        viewModel.singleResultLD.collectOnLifecycle {
+            getAreaSportViewByDisplay(it.first).updateScore(it.second.first, it.second.second)
+        }
+
+        viewModel.identifiedLD.collectOnLifecycle {
+            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.second.studentEntity!!.accountName}")
+            getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
+            timeOutHelper.cancel()
+            //识别到人员，刷新底部导航栏"已识别x人"文案
+            updateAreaTabs()
+        }
+
+        viewModel.sportStartedLD.collectOnLifecycle {
+            //运动开始，底部导航栏切换为"x人运动中"文案
+            updateAreaTabs()
+        }
+
+        //本次运动实时最高（主/左/右三屏），有成绩才显示
+        viewModel.currentBestLD.collectOnLifecycle { best ->
+            if (best == null) {
+                mBinding.groupCurrentBest.visibility = View.GONE
+                return@collectOnLifecycle
+            }
+            mBinding.tvCurrentBestName.text = "${best.areaName} | ${best.accountName}"
+            mBinding.tvCurrentBestCount.text = best.score.toString()
+            mBinding.tvCurrentBestCount.visibility = View.VISIBLE
+            mBinding.tvCurrentBestUnit.text = viewModel.measureUnit
+            mBinding.tvCurrentBestUnit.visibility = View.VISIBLE
+            mBinding.groupCurrentBest.visibility = View.VISIBLE
+        }
+
+        viewModel.collaborationStateLD.collectOnLifecycle {
+            //协同状态变化，刷新导航区（未连接/设备占用中红字不可点击）
+            updateAreaTabs()
+        }
+
+        viewModel.changeSportViewStateLD.collectOnLifecycle {
+            getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
+        }
+
+        //协同已识别人数变化：弹窗展示或更新"是否清空已识别结果"提示
+        viewModel.identifiedCountLD.collectOnLifecycle {
+            showOrUpdateClearIdentifyDialog()
+        }
+
+        viewModel.countDownNoticeLD.collectOnLifecycle {
+            //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
+            val configText = viewModel.thirtySitUpSportConfig?.countdownText
+            val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${it.second}" else "${
+                com.ty.tybusbase.expand.getString(
+                    R.string.race_start_countdown
+                )
+            }：${it.second}"
+            mBinding.tvCountDownNotice.text = str
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
+            mBinding.tvStartNow.visibility = View.VISIBLE
+        }
+
+        viewModel.countDownFinishLD.collectOnLifecycle {
+            startDialog?.dismiss()
+            //竞技开始，隐藏开始按钮与等待文案，显示运动倒计时时间栏
+            mBinding.tvStartNow.visibility = View.GONE
+            mBinding.tvCountDownNotice.visibility = View.GONE
+            getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
+                mBinding.llTime.visibility = View.VISIBLE
+                //左右副屏：只有已加入协同的才进入运动状态
+                if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
+                    getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
+                }
+                if (viewModel.isSubScreenJoined(DisplayType.RIGHT)) {
+                    getAreaSportViewByDisplay(DisplayType.RIGHT).onStarted()
+                }
+                viewModel.toStatusSportStart()
+            }
+        }
+
+        viewModel.sportCountDownLD.collectOnLifecycle {
+            //运动倒计时属于整个运动，统一在Activity层更新时间栏
+            mBinding.tvTime.text = it.second
+        }
+
+        viewModel.waitOtherAreaLD.collectOnLifecycle {
+            //主屏识别倒计时已结束，但已加入的副屏尚未倒计时结束：提示等待其他区域
+            mBinding.tvCountDownNotice.text = getString(R.string.wait_other_area_join)
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
+        }
+
+        viewModel.toDoneLD.collectOnLifecycle {
+            //结束清除骨骼数据等
+            mBinding.overlay.clearScreen()
+            addResultView(it)
+        }
+
+        viewModel.changeTimeTextBgLD.collectOnLifecycle {
+            //时间栏背景属于整个运动，统一在Activity层设置
+            mBinding.llTime.setBackgroundResource(R.mipmap.pic_time_warm_more)
+        }
+
+        viewModel.timeOutLD.observe(this) {
+            finish()
+        }
+    }
+
+    private fun addResultView(resultList: List<ThirtySportResultItem>) {
+        //创建结果页，并添加到页面中
+        srrvResult = ThirtySportResultView(this).apply {
+            measureUnit = viewModel.measureUnit
+            setEnergyPoint(viewModel.energyPoint)
+        }
+        //仰卧起坐暂不支持报告
+        srrvResult.setSupportReport(false)
+
+        val params =
+            ConstraintLayout.LayoutParams(
+                RecyclerView.LayoutParams.MATCH_PARENT,
+                mBinding.flResultViewContainer.height
+            )
+        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+        mBinding.flResultViewContainer.addView(
+            srrvResult,
+            RecyclerView.LayoutParams.MATCH_PARENT,
+            RecyclerView.LayoutParams.MATCH_PARENT
+        )
+        srrvResult.setConfirmOnclickListener {
+            finish()
+        }
+        srrvResult.setResultTitleText(viewModel.thirtySitUpSportConfig?.resultPageText)
+        if (viewModel.thirtySitUpSportConfig?.isSupportNextGroup == true) {
+            srrvResult.setNextOnclickListener {
+                mBinding.flResultViewContainer.removeView(srrvResult)
+                reset()
+            }
+        }
+
+        srrvResult.setResult(
+            resultList,
+            if (viewModel.matchId != null) 100000 else 0,
+            viewModel.thirtySitUpSportConfig?.isVoiceBroadcastSupported == true
+        )
+    }
+
+    private fun setTips(text: String) {
+        AdlLogger.d(text)
+        mBinding.tvCameraTips.visibility = View.VISIBLE
+        mBinding.tvCameraTips.text = text
+    }
+
+    private fun hideTips() {
+        mBinding.tvCameraTips.visibility = View.GONE
+    }
+
+    override fun onStatusIdentify() {
+    }
+
+    override fun onStatusIdentifySuccess() {
+    }
+
+    override fun onStatusEnd() {
+        super.onStatusEnd()
+        mBinding.cameraView.stopPreview()
+        viewModel.thirtySitUpSportConfig?.autoFinishTime?.let {
+            if (it > 0) {
+                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
+            }
+        }
+    }
+
+    fun reset() {
+        mBinding.sportViewMain.reset()
+        mBinding.sportViewLeft.reset()
+        mBinding.sportViewRight.reset()
+        mBinding.llTime.visibility = View.GONE
+        viewModel.reset()
+    }
+
+    /**
+     * 展示或更新"是否清空已识别结果"对话框。
+     * 可能左区先上报、右区后上报，或仅一端上报；对话框展示期间（含新用户到达）内容实时更新。
+     */
+    @Synchronized
+    private fun showOrUpdateClearIdentifyDialog() {
+        val text = buildClearIdentifyText()
+        val dialog = clearIdentifyDialog
+        if (dialog != null) {
+            LogUtil.d("更新内容：$text")
+            dialog.updateContent(text)
+            return
+        }
+        LogUtil.d("首次显示内容：$text")
+        clearIdentifyDialog = CommonTipDialog()
+            .setContent(text)
+            .setCallback {
+                //用户选择"是"：按需向已上报识别人数的区域发送清除指令
+                viewModel.confirmClearIdentifyInfo()
+                clearIdentifyDialog = null
+                //清空后刷新底部导航栏"已识别x人"文案
+                updateAreaTabs()
+            }
+            .setCancelCallback {
+                //用户选择"否"：关闭本次提示
+                viewModel.cancelClearIdentifyInfo()
+                clearIdentifyDialog = null
+            }
+        clearIdentifyDialog?.show(supportFragmentManager, "clear_identify")
+    }
+
+    private fun buildClearIdentifyText(): String {
+        val sb = StringBuilder()
+        viewModel.identifiedCountMap[DisplayType.LEFT]?.let {
+            sb.append("左区已识别${it}人，")
+        }
+        viewModel.identifiedCountMap[DisplayType.RIGHT]?.let {
+            sb.append("右区已识别${it}人，")
+        }
+        sb.append("是否清空已识别结果")
+        return sb.toString()
+    }
+
+    private fun getAreaSportViewByDisplay(displayType: DisplayType = DisplayType.MAIN) =
+        when (displayType) {
+            DisplayType.LEFT -> mBinding.sportViewLeft
+            DisplayType.MAIN -> mBinding.sportViewMain
+            DisplayType.RIGHT -> mBinding.sportViewRight
+            DisplayType.OTHER -> {
+                mBinding.sportViewMain
+            }
+        }
+
+    override fun onPause() {
+        super.onPause()
+        mBinding.cameraView.stopPreview()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面关闭")
+        mBinding.cameraView.release()
+        mBinding.sportViewMain.release()
+        mBinding.sportViewLeft.release()
+        mBinding.sportViewRight.release()
+        mBinding.overlay.release()
+        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
+    }
+}

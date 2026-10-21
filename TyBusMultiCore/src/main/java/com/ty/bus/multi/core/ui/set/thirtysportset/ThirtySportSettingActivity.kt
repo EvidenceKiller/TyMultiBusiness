@@ -14,8 +14,8 @@ import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
 import com.adl.lib.AdlCameraPreviewView
 import com.ty.bus.multi.R
-import com.ty.grpclib.GrpcManager
 import com.ty.bus.multi.databinding.ActivityThirtySportSettingBinding
+import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
@@ -40,6 +40,11 @@ class ThirtySportSettingActivity :
 
     private val number = 10
     private var currentMode = AreaMode.MAIN
+
+    /** 主屏（中区）框体配置保存Key：默认为多人运动通用Key，可通过Intent传入自定义Key（如30人仰卧起坐） */
+    private val mainRegionKey by lazy {
+        intent.getStringExtra("main_region_key") ?: BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY
+    }
 
     // 0:1920*1080; 1:2560*1440; 2:3840*2160
     private val resolutionType by lazy { intent.getIntExtra("res_type", 1) }
@@ -251,9 +256,9 @@ class ThirtySportSettingActivity :
     }
 
     private fun getSaveKey(mode: AreaMode): String = when (mode) {
-        AreaMode.MAIN -> "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number"
-        AreaMode.LEFT -> "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}left"
-        AreaMode.RIGHT -> "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}right"
+        AreaMode.MAIN -> "${mainRegionKey}$number"
+        AreaMode.LEFT -> "${mainRegionKey}left"
+        AreaMode.RIGHT -> "${mainRegionKey}right"
     }
 
     /**

@@ -11,16 +11,16 @@ import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SkipEightSportConfig
 import com.ty.bus.multi.core.config.TenSitUpSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThirtySitUpSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.ui.set.bmi.BmiSettingActivity
-import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
-import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
-import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
+import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
+import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
 import com.ty.bus.multi.core.ui.sport.doublegbsport.DoubleGbSportActivity
@@ -33,6 +33,8 @@ import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.tensitup.TenSitUpSportActivity
+import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
+import com.ty.bus.multi.core.ui.sport.thirtysitup.ThirtySitUpSportActivity
 import com.ty.bus.multi.core.ui.sport.thirtysport.ThirtySportActivity
 import com.ty.bus.multi.core.ui.sport.threesport.ThreeSportActivity
 import com.ty.tybusbase.base.BaseNavigation
@@ -156,10 +158,14 @@ object UIMultiNavigation : BaseNavigation() {
     }
 
     /**
-     * 主屏 + 左右副屏 10 人运动框体设置
+     * 主屏 + 左右副屏 10 人运动框体设置（指定主屏框体保存Key，如30人仰卧起坐）
      */
-    fun goThirtySportSetting(context: Context) {
-        context.startActivity(Intent(context, ThirtySportSettingActivity::class.java))
+    fun goThirtySportSetting(context: Context, mainRegionKey: String? = null) {
+        context.startActivity(
+            Intent(context, ThirtySportSettingActivity::class.java).apply {
+                putExtra("main_region_key", mainRegionKey)
+            }
+        )
     }
 
     fun goForwardFlexionSetting(context: Context) {
@@ -258,6 +264,7 @@ object UIMultiNavigation : BaseNavigation() {
     /**
      * 十人仰卧起坐
      */
+    @JvmStatic
     fun goTenSitUpSport(
         context: Context,
         config: UINavConfig?,
@@ -265,6 +272,22 @@ object UIMultiNavigation : BaseNavigation() {
         preCallback: Action1<Intent>? = null
     ) {
         val intent = Intent(context, TenSitUpSportActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
+
+    /**
+     * 30人仰卧起坐（主屏 + 左右副屏，每屏10人）
+     */
+    @JvmStatic
+    fun goThirtySitUpSport(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: ThirtySitUpSportConfig? = null,
+        preCallback: Action1<Intent>? = null
+    ) {
+        val intent = Intent(context, ThirtySitUpSportActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
         preCallback?.invoke(intent)
         startActivity(context, intent, config)

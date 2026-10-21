@@ -35,6 +35,7 @@ import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSitUpSportConfig
 import com.ty.bus.multi.core.config.TenSportConfig
+import com.ty.bus.multi.core.config.ThirtySitUpSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
@@ -569,6 +570,26 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 setVoiceBroadcastSupported(true)
                 setSupportNextGroup(false)
                 setSupportReport(true)
+            }
+            )
+        }
+        mBinding.btnThirtySitUp.setOnClickListener {
+            UIMultiNavigation.goThirtySitUpSport(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_SIT_UP + "0024"
+                    sportItemCode = SportConstant.SPORT_SIT_UP
+                    endValue = "60000"
+                    sportSkuName = "30人仰卧起坐"
+                    testCount = "30"
+                    sceneId = SceneConstants.INDEPENDENT_TEST
+                }
+                energyPoint = 10
+            }, ThirtySitUpSportConfig.builder {
+                setCountdownText("开始倒计时")
+                setResultPageText("测试结束")
+                setSportStartText("开始咯，开始咯")
+                setVoiceBroadcastSupported(true)
+                setSupportNextGroup(false)
             }
             )
         }
