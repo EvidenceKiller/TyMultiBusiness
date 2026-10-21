@@ -31,6 +31,9 @@ object GrpcCmdCode {
     //主设备IP payload = String
     const val CMD_MAIN_DEVICE_IP = 0x29
 
+    //副屏模式设置 payload = GrpcSubModelInfo
+    const val CMD_SUB_MODEL_SETTING = 0x30
+
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x50
@@ -48,12 +51,8 @@ object GrpcCmdCode {
     const val CMD_TEN_SPORT_REGION_SETTING = 0x54
 
 
-
-
     //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70
-
-
 
 
     //绕杆运动卡片状态 payload =
