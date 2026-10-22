@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@mipmap/bg_exe_cpt_5jumprope">
+
+    <com.adl.lib.AdlCameraPreviewView
+        android:id="@+id/camera_view"
+        android:layout_width="1px"
+        android:layout_height="1px"
+        android:layout_marginTop="-1px"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <SurfaceView
+            android:id="@+id/surface_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <!-- 主屏坐位体前屈控制器视图（主屏6人） -->
+    <com.adl.sport.controllers.sitandreach.SitAndReachLayout
+        android:id="@+id/sit_and_reach_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_45"
+        android:text="@string/forward_flexion"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_56"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 顶部区域标签：左区/中区/右区 -->
+    <LinearLayout
+        android:id="@+id/ll_area_indicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_32"
+        android:background="@drawable/bg_area_indicator"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintLeft_toRightOf="@+id/tv_title"
+        app:layout_constraintTop_toTopOf="@+id/tv_title">
+
+        <View
+            android:layout_width="@dimen/dp_12"
+            android:layout_height="@dimen/dp_12"
+            android:background="@drawable/shape_area_dot" />
+
+        <TextView
+            android:id="@+id/tv_area_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_8"
+            android:text="@string/area_main"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!--  场地构建失败提示  -->
+    <TextView
+        android:id="@+id/tv_unavailable_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_45"
+        android:layout_marginEnd="@dimen/dp_40"
+        android:background="@drawable/bg_unavailable_tip_shape"
+        android:paddingStart="@dimen/dp_32"
+        android:paddingTop="@dimen/dp_15"
+        android:paddingEnd="@dimen/dp_32"
+        android:paddingBottom="@dimen/dp_15"
+        android:text="@string/part_unavailable_tip"
+        android:textColor="@color/white_80"
+        android:textSize="@dimen/sp_24"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 三个区域运动面板，默认只显示中区（主屏） -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_sit_reach_sport_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachSportView
+            android:id="@+id/sport_view_main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachSportView
+            android:id="@+id/sport_view_left"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachSportView
+            android:id="@+id/sport_view_right"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+
+        <!-- 运动提示（倒计时）：属于整个运动，不随区域切换 -->
+        <TextView
+            android:id="@+id/tv_sporting_tips"
+            android:layout_width="@dimen/dp_1162"
+            android:layout_height="@dimen/dp_120"
+            android:layout_marginTop="@dimen/dp_24"
+            android:background="@drawable/bg_forward_flexion_sport_tips"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_72"
+            android:visibility="visible"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Space
+            android:id="@+id/space"
+            android:layout_width="@dimen/dp_1600"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/dp_104"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- 开始/结束/重测/下一组：属于整个运动，不随区域切换 -->
+        <TextView
+            android:id="@+id/tv_begin"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_r50_gradient_red"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_88"
+            android:paddingVertical="@dimen/dp_19"
+            android:text="@string/start_now"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/space"
+            app:layout_constraintEnd_toEndOf="@+id/space"
+            app:layout_constraintStart_toStartOf="@+id/space" />
+
+        <TextView
+            android:id="@+id/tv_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_round_r50_gradient_red"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_88"
+            android:paddingVertical="@dimen/dp_19"
+            android:text="@string/end_test"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            app:layout_constraintBottom_toBottomOf="@+id/space"
+            app:layout_constraintStart_toStartOf="@+id/space" />
+
+        <TextView
+            android:id="@+id/tv_retest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_40"
+            android:background="@drawable/bg_border_r50_white_shape"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_88"
+            android:paddingVertical="@dimen/dp_19"
+            android:text="@string/retest_once"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/space"
+            app:layout_constraintEnd_toStartOf="@+id/tv_next" />
+
+        <TextView
+            android:id="@+id/tv_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_60"
+            android:background="@drawable/bg_border_r50_white_shape"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_88"
+            android:paddingVertical="@dimen/dp_19"
+            android:text="@string/next_group"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="@+id/space"
+            app:layout_constraintEnd_toEndOf="@+id/space" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_camera_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_60"
+        android:text="@string/ipc_camera_fail_tip"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        android:visibility="gone"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- 底部区域切换 Tab -->
+    <LinearLayout
+        android:id="@+id/ll_area_tabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_32"
+        android:background="@drawable/bg_area_tab_container"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/tv_tab_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_left_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_12"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_main_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_right_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/fl_result_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!--  入场提示  -->
+    <ImageView
+        android:id="@+id/iv_in_tip_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/black_50" />
+
+    <TextView
+        android:id="@+id/tv_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_180"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_80"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/iv_in_tip"
+        android:layout_width="@dimen/dp_1200"
+        android:layout_height="@dimen/dp_330"
+        android:layout_marginTop="@dimen/dp_80"
+        android:background="@mipmap/pic_6rzwtqq_tips"
+        app:layout_constraintLeft_toLeftOf="@+id/tv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/tv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/tv_in_tip" />
+
+    <Button
+        android:id="@+id/btn_in_tip_confirm"
+        android:layout_width="@dimen/dp_232"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_120"
+        android:background="@drawable/pk_border_white_r50_bg"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintLeft_toLeftOf="@+id/iv_in_tip"
+        app:layout_constraintRight_toRightOf="@+id/iv_in_tip"
+        app:layout_constraintTop_toBottomOf="@+id/iv_in_tip" />
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_in_tip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="btn_in_tip_confirm,iv_in_tip,tv_in_tip,iv_in_tip_bg" />
+    <!--  入场提示  -->
+
+    <LinearLayout
+        android:id="@+id/ll_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_88"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/bnt_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="开始"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_change"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="重置"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+
+        <Button
+            android:id="@+id/bnt_next"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="下一帧"
+            android:textColor="@color/black"
+            android:textSize="@dimen/sp_12" />
+    </LinearLayout>
+
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/group_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:constraint_referenced_ids="layout,ll_btn" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

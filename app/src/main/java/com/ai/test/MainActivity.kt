@@ -31,6 +31,7 @@ import com.ty.bus.multi.core.UIMultiNavigation.goTenSport
 import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
+import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSitUpSportConfig
@@ -331,6 +332,21 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                     sportSkuName = "坐位体前屈"
                 }
             })
+        }
+
+        mBinding.btnSitReach18.setOnClickListener {
+            UIMultiNavigation.goSitReachEighteen(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
+                    sportItemCode = SportConstant.SPORT_FORWARD_FLEXION
+                    sportSkuName = "18人坐位体前屈"
+                    testCount = "18"
+                }
+            }, ForwardFlexionConfig.builder()
+                .setVoiceBroadcastSupported(true)
+                .setSupportNextGroup(false)
+                .build()
+            )
         }
 
         mBinding.btnSitReach6Set.setOnClickListener {

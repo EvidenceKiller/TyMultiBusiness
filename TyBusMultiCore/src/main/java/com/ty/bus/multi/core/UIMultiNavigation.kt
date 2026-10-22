@@ -30,6 +30,7 @@ import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
+import com.ty.bus.multi.core.ui.sport.sitreacheighteen.SitReachEighteenActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.tensitup.TenSitUpSportActivity
@@ -120,6 +121,20 @@ object UIMultiNavigation : BaseNavigation() {
         ffConfig: ForwardFlexionConfig? = null
     ) {
         val intent = Intent(context, SitReachSixActivity::class.java)
+        intent.putExtra("sport_config", ffConfig)
+        startActivity(context, intent, config)
+    }
+
+    /**
+     * 18人坐位体前屈（主屏 + 左右副屏，每屏6人）
+     */
+    @JvmStatic
+    fun goSitReachEighteen(
+        context: Context,
+        config: UINavConfig?,
+        ffConfig: ForwardFlexionConfig? = null
+    ) {
+        val intent = Intent(context, SitReachEighteenActivity::class.java)
         intent.putExtra("sport_config", ffConfig)
         startActivity(context, intent, config)
     }
