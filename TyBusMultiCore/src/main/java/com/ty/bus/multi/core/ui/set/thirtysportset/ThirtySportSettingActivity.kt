@@ -41,9 +41,12 @@ class ThirtySportSettingActivity :
     private val number = 10
     private var currentMode = AreaMode.MAIN
 
-    /** 主屏（中区）框体配置保存Key：默认为多人运动通用Key，可通过Intent传入自定义Key（如30人仰卧起坐） */
-    private val mainRegionKey by lazy {
-        BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY
+    private val saveKey: String? by lazy {
+        intent.getStringExtra("save_key")
+    }
+
+    private val commandCode: Int by lazy {
+        intent.getIntExtra("commandCode", GrpcCmdCode.CMD_TEN_SPORT_REGION_SETTING)
     }
 
     // 0:1920*1080; 1:2560*1440; 2:3840*2160
@@ -117,7 +120,7 @@ class ThirtySportSettingActivity :
         val payload = uiConfig?.targetRegion ?: ""
         GrpcManager.sendToClient(
             clientId,
-            GrpcCmdCode.CMD_TEN_SPORT_REGION_SETTING,
+            commandCode,
             payload,
             true,
             {
@@ -256,9 +259,9 @@ class ThirtySportSettingActivity :
     }
 
     private fun getSaveKey(mode: AreaMode): String = when (mode) {
-        AreaMode.MAIN -> "${mainRegionKey}$number"
-        AreaMode.LEFT -> "${mainRegionKey}left"
-        AreaMode.RIGHT -> "${mainRegionKey}right"
+        AreaMode.MAIN -> saveKey ?: "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number"
+        AreaMode.LEFT -> "${saveKey ?: BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}left"
+        AreaMode.RIGHT -> "${saveKey ?: BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}right"
     }
 
     /**

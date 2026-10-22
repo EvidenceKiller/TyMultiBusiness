@@ -160,9 +160,16 @@ object UIMultiNavigation : BaseNavigation() {
     /**
      * 主屏 + 左右副屏 10 人运动框体设置
      */
-    fun goThirtySportSetting(context: Context) {
+    fun goThirtySportSetting(
+        context: Context, commandCode: Int? = null, resolutionType: Int = 0, saveKey: String? = null
+    ) {
         context.startActivity(
-            Intent(context, ThirtySportSettingActivity::class.java)
+            Intent(context, ThirtySportSettingActivity::class.java).apply {
+                commandCode?.let { putExtra("commandCode", it) }
+                putExtra("commandCode", commandCode)
+                putExtra("res_type", resolutionType)
+                saveKey?.let { putExtra("save_key", it) }
+            }
         )
     }
 

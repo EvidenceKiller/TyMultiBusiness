@@ -142,8 +142,7 @@ class ThirtySitUpSportActivity :
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
         val uiConfig = AdlUIConfig.instance().readConfig(
-            MultiCoreConstant.THIRTY_SIT_UP_REGION_KEY,
-            RoleConfigMulti::class.java
+            MultiCoreConstant.TEN_SIT_UP_REGION_KEY, RoleConfigMulti::class.java
         )
         uiConfig.number = number
         mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)

@@ -50,6 +50,9 @@ object GrpcCmdCode {
     //十人框体设置 payload = String
     const val CMD_TEN_SPORT_REGION_SETTING = 0x54
 
+    //十人仰卧起坐
+    const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
+
 
     //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70
