@@ -349,6 +349,13 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             )
         }
 
+        mBinding.btnSitReach18Set.setOnClickListener {
+            UIMultiNavigation.goSitReachEighteenSetting(
+                this,
+                MultiCoreConstant.SIT_REACH_SIX_UI_KEY
+            )
+        }
+
         mBinding.btnSitReach6Set.setOnClickListener {
             UIMultiNavigation.goSitReachSixSetting(this)
         }

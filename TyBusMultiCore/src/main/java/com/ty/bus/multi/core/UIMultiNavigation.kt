@@ -19,6 +19,7 @@ import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActiv
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
+import com.ty.bus.multi.core.ui.set.sitreacheighteenset.SitReachEighteenSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
 import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
@@ -29,8 +30,8 @@ import com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
-import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sitreacheighteen.SitReachEighteenActivity
+import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
 import com.ty.bus.multi.core.ui.sport.tensitup.TenSitUpSportActivity
@@ -204,6 +205,19 @@ object UIMultiNavigation : BaseNavigation() {
      */
     fun goSitReachSixSetting(context: Context) {
         context.startActivity(Intent(context, SitReachSixSettingActivity::class.java))
+    }
+
+    /**
+     * 18人坐位体前屈设置（主屏 + 左右副屏，每屏6人）
+     */
+    fun goSitReachEighteenSetting(
+        context: Context, saveKey: String? = null
+    ) {
+        context.startActivity(
+            Intent(context, SitReachEighteenSettingActivity::class.java).apply {
+                saveKey?.let { putExtra("save_key", it) }
+            }
+        )
     }
 
     /**

@@ -212,6 +212,14 @@
                     android:textColor="@color/color_black"
                     android:textSize="16sp" />
 
+                <Button
+                    android:id="@+id/btn_sit_reach_18_set"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18人坐位体前屈设置"
+                    android:textColor="@color/color_black"
+                    android:textSize="16sp" />
+
             </LinearLayout>
 
             <LinearLayout

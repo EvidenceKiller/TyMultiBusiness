@@ -53,6 +53,9 @@ object GrpcCmdCode {
     //十人仰卧起坐
     const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
 
+    //六人体前屈
+    const val CMD_SIX_SIT_REACH_REGION_SETTING = 0x56
+
 
     //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70

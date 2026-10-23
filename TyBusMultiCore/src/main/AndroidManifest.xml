@@ -37,6 +37,9 @@
             android:name="com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity"
             android:exported="true" />
         <activity
+            android:name="com.ty.bus.multi.core.ui.set.sitreacheighteenset.SitReachEighteenSettingActivity"
+            android:exported="true" />
+        <activity
             android:name="com.ty.bus.multi.core.ui.sport.doublesport.DoubleSportActivity"
             android:exported="true" />
         <activity
