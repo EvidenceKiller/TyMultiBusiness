@@ -75,6 +75,9 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     /** "是否清空已识别结果"对话框（协同识别计数提示，展示期间内容可动态更新） */
     private var clearIdentifyDialog: CommonTipDialog? = null
 
+    /** "是否强制加入协同"对话框（副屏占用中提示，展示期间内容可动态更新） */
+    private var forceJoinDialog: CommonTipDialog? = null
+
     private var currentArea = DisplayType.MAIN
     private var leftIdentifiedCount = 0
     private var mainIdentifiedCount = 0
@@ -457,6 +460,11 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             showOrUpdateClearIdentifyDialog()
         }
 
+        //副屏占用中变化：弹窗展示或更新"是否强制加入协同"提示
+        viewModel.subScreenOccupiedLD.collectOnLifecycle {
+            showOrUpdateForceJoinDialog(it)
+        }
+
         viewModel.countDownNoticeLD.collectOnLifecycle {
             //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
             val configText = viewModel.thirtySportConfig?.countdownText
@@ -640,6 +648,53 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
                 clearIdentifyDialog = null
             }
         clearIdentifyDialog?.show(supportFragmentManager, "clear_identify")
+    }
+
+    /**
+     * 展示或更新"是否强制加入协同"对话框。
+     * 可能左屏先上报占用、右屏后上报，或两屏同时占用；对话框展示期间内容实时更新；
+     * 占用状态全部解除则关闭提示。
+     */
+    @Synchronized
+    private fun showOrUpdateForceJoinDialog(occupied: Set<DisplayType>) {
+        if (occupied.isEmpty()) {
+            //副屏已恢复空闲：关闭提示
+            forceJoinDialog?.dismiss()
+            forceJoinDialog = null
+            return
+        }
+        val text = buildForceJoinText(occupied)
+        val dialog = forceJoinDialog
+        if (dialog != null) {
+            LogUtil.d("更新内容：$text")
+            dialog.updateContent(text)
+            return
+        }
+        LogUtil.d("首次显示内容：$text")
+        forceJoinDialog = CommonTipDialog()
+            .setContent(text)
+            .setCallback {
+                //用户选择"是"：向占用中的设备发送强制加入协同指令
+                viewModel.confirmForceJoin()
+                forceJoinDialog = null
+            }
+            .setCancelCallback {
+                //用户选择"否"：仅关闭本次提示
+                viewModel.cancelForceJoin()
+                forceJoinDialog = null
+            }
+        forceJoinDialog?.show(supportFragmentManager, "force_join")
+    }
+
+    private fun buildForceJoinText(occupied: Set<DisplayType>): String {
+        val names = mutableListOf<String>()
+        if (DisplayType.LEFT in occupied) {
+            names.add(getString(R.string.left_screen))
+        }
+        if (DisplayType.RIGHT in occupied) {
+            names.add(getString(R.string.right_screen))
+        }
+        return getString(R.string.force_join_occupied_tip, names.joinToString("、"))
     }
 
     private fun buildClearIdentifyText(): String {

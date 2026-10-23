@@ -53,6 +53,9 @@
   <string name="save_successful">保存成功</string>
   <string name="save_failed">保存失败</string>
   <string name="reset_successful">重置成功</string>
+  <string name="left_screen">左屏</string>
+  <string name="right_screen">右屏</string>
+  <string name="force_join_occupied_tip">%1$s，已在运动中，是否强制加入协同</string>
   <string name="no_report">暂无报告</string>
   <string name="paint">画笔</string>
   <string name="rubber">橡皮</string>
