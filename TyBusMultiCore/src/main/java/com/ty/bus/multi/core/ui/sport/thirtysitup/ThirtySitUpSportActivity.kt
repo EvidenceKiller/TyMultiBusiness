@@ -64,7 +64,9 @@ class ThirtySitUpSportActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/10_sit_up-2k.mp4"
+
+    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/10_sit_up-2k.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/site_up_ten/10人仰卧起坐-2k.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -88,6 +90,7 @@ class ThirtySitUpSportActivity :
 
     override fun initData() {
         super.initData()
+//        viewModel.streamType = 2
         timeOutHelper.cancel()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
@@ -124,20 +127,16 @@ class ThirtySitUpSportActivity :
             mBinding.groupCurrentBest.visibility = View.GONE
         }
 
-        val isDebug =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.MODEL_DEBUG,
-                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
-            )
+        val isDebug = MMKVUtil.decodeBoolean(
+            MMKVBusiKey.MODEL_DEBUG, BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+        )
         mBinding.overlay.enableDraw(isDebug)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
-        val debug =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.SKELETON_ABLE,
-                BusiBaseConstantsValue.DEFAULT_SKELETON
-            )
+        val debug = MMKVUtil.decodeBoolean(
+            MMKVBusiKey.SKELETON_ABLE, BusiBaseConstantsValue.DEFAULT_SKELETON
+        )
         mBinding.overlay.skeletonDrawer.enableMarker(debug)
         mBinding.overlay.skeletonDrawer.enableLine(debug)
         mBinding.overlay.enableDrawSkeleton(debug)
@@ -472,14 +471,21 @@ class ThirtySitUpSportActivity :
             mBinding.tvCountDownNotice.visibility = View.GONE
             getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
                 mBinding.llTime.visibility = View.VISIBLE
+                viewModel.toStatusSportStart()
+                //按各区域已识别人员切换卡片到运动状态（未识别的道次置为无人运动）
+                getAreaSportViewByDisplay(DisplayType.MAIN)
+                    .onSportStarted(viewModel.sitUpPersonArray)
                 //左右副屏：只有已加入协同的才进入运动状态
                 if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
+                    getAreaSportViewByDisplay(DisplayType.LEFT)
+                        .onSportStarted(viewModel.leftPersonArray)
                     getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
                 }
                 if (viewModel.isSubScreenJoined(DisplayType.RIGHT)) {
+                    getAreaSportViewByDisplay(DisplayType.RIGHT)
+                        .onSportStarted(viewModel.rightPersonArray)
                     getAreaSportViewByDisplay(DisplayType.RIGHT).onStarted()
                 }
-                viewModel.toStatusSportStart()
             }
         }
 

@@ -190,10 +190,10 @@ class TenSitUpSportViewModel(application: Application) :
                 ) == null
             ) {
                 currentIdentifyNumber = tempNumber
-                changeMultiSportViewCardState(
-                    currentIdentifyNumber,
-                    MultiSportCardViewState.IDENTIFYING
-                )
+//                changeMultiSportViewCardState(
+//                    currentIdentifyNumber,
+//                    MultiSportCardViewState.IDENTIFYING
+//                )
                 findOk = true
                 break
             }

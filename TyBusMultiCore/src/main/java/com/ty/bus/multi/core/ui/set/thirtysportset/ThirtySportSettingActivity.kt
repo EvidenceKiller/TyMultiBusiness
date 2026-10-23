@@ -8,10 +8,14 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.TextView
+import com.adl.base.common.AdlAvReader
+import com.adl.base.common.AdlVideoReader
+import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
 import com.adl.base.config.RoleConfigMulti
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
+import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.ActivityThirtySportSettingBinding
@@ -21,6 +25,7 @@ import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -33,6 +38,16 @@ import com.ty.tybusbase.utils.ToastUtil
  */
 class ThirtySportSettingActivity :
     BaseActivity<ActivityThirtySportSettingBinding, BaseViewModel>() {
+    /***************************视频播放调试*************************/
+    var videoReader: AdlVideoReader? = null
+    var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
+    var enableRender: Boolean = true
+    var frameTime: Long = 0
+
+    //    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/10_sit_up-2k.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/site_up_ten/10人仰卧起坐-2k.mp4"
+
+    /***************************视频播放调试*************************/
 
     private enum class AreaMode {
         MAIN, LEFT, RIGHT
@@ -89,6 +104,59 @@ class ThirtySportSettingActivity :
         // 默认加载主屏（智慧屏多人运动）
         openCamera(getCameraKey(currentMode))
         reloadOverlay()
+
+//        mBinding.groupVideo.visible()
+//        initVideo()
+//        initVideoView()
+    }
+
+    private fun initVideoView() {
+        mBinding.bntStart.setOnClickListener {
+            videoReader?.onStart()
+        }
+        mBinding.btnPause.setOnClickListener {
+            videoReader?.onPause()
+        }
+        mBinding.bntNext.setOnClickListener {
+            videoReader?.nextFrame()
+        }
+
+        mBinding.bntChange.setOnClickListener {
+            playMode = when (playMode) {
+                AdlAvReader.PlayMode.Auto -> AdlAvReader.PlayMode.OneFrame
+                AdlAvReader.PlayMode.OneFrame -> AdlAvReader.PlayMode.Auto
+            }
+            videoReader?.setPlayMode(playMode)
+            videoReader?.onStart()
+        }
+
+        mBinding.bntReset.setOnClickListener {
+            videoReader?.onReset()
+        }
+    }
+
+    fun initVideo() {
+        videoReader = AdlVideoReader()
+        videoReader?.setPlayMode(playMode)
+        videoReader?.setSurface(mBinding.surfaceView.holder.surface)
+        videoReader?.enableRender(enableRender)
+        videoReader?.onReset(videoFilePath)
+        videoReader?.setCallback(object : VideoReaderCallback {
+            override fun onError(e: Exception?) {
+            }
+
+            override fun onFrame(yuv: ByteArray, width: Int, height: Int, time: Long) {
+                frameTime += 1000 / 24
+                val info = AdlCameraPreviewInfo(width, height)
+                info.frameTimestamp = frameTime
+                info.imageId = frameTime.toString()
+//                viewModel.onFrame(yuv, info)
+            }
+
+            override fun onComplete() {
+
+            }
+        })
     }
 
     private fun saveConfig() {
@@ -299,6 +367,11 @@ class ThirtySportSettingActivity :
         super.onPause()
         stopPreview()
         mBinding.previewView.release()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        videoReader?.release()
     }
 
     private fun openCamera(cameraKey: String) {

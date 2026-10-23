@@ -2,9 +2,13 @@ package com.ty.bus.multi.core.view.thirtysitup
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.SparseArray
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.TextView
 import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
+import com.ty.bus.multi.core.base.MultiSportCardViewState
+import com.ty.bus.multi.core.entity.MultiSportResult
 import com.ty.bus.multi.databinding.ThirtySitUpSportViewBinding
 
 /**
@@ -52,4 +56,31 @@ class ThirtySitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
     override fun getCountDownNoticeTv(): TextView = countDownNoticeTv ?: TextView(context)
 
     override fun getCountDownGoTv(): TextView = countDownGoTv ?: TextView(context)
+
+    /**
+     * 运动已开始：只收起倒计时文案，不改动卡片状态。
+     *
+     * 基类实现会按 preparedMap 把"未准备"的道次置为 NOBODY_SPORT（显示为空闲），
+     * 但仰卧起坐识别完成后卡片停在"已识别"，不会经历"已准备"，
+     * 会导致主屏所有道次在开始瞬间被重置成空闲，故此处不再重置卡片。
+     * 卡片状态统一由 [onSportStarted] 与 ViewModel/副屏上报驱动。
+     */
+    override fun onStarted() {
+        getCountDownGoTv().visibility = View.GONE
+        getCountDownNoticeTv().visibility = View.GONE
+    }
+
+    /**
+     * 按本区域已识别人员切换卡片到运动状态：有人的道次进运动状态，无人道次进"无人运动"状态
+     */
+    fun onSportStarted(personArray: SparseArray<MultiSportResult>?) {
+        cardMap.keys.forEach { index ->
+            val hasPerson = personArray?.get(index, null) != null
+            changeState(
+                index,
+                if (hasPerson) MultiSportCardViewState.SPORTING
+                else MultiSportCardViewState.NOBODY_SPORT
+            )
+        }
+    }
 }

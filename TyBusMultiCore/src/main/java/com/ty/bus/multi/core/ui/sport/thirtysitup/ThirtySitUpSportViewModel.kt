@@ -569,10 +569,10 @@ class ThirtySitUpSportViewModel(application: Application) :
                 ) == null
             ) {
                 currentIdentifyNumber = tempNumber
-                changeMultiIdentityCardState(
-                    currentIdentifyNumber,
-                    MultiSportCardViewState.IDENTIFYING
-                )
+//                changeMultiIdentityCardState(
+//                    currentIdentifyNumber,
+//                    MultiSportCardViewState.IDENTIFYING
+//                )
                 findOk = true
                 break
             }
@@ -730,12 +730,14 @@ class ThirtySitUpSportViewModel(application: Application) :
             LogUtil.d("处理位置状态：道数 ${sitUpMan.positionNum} 状态 $nextState")
             //处理进入状态
             when (nextState) {
-                //躺下就绪
+                //躺下就绪：运动开始后（仰卧起坐每次躺下都会再次触发）不再回退到"已准备"
                 GroupSportsBaseChannelStatus.layDown -> {
-                    changeMultiIdentityCardState(
-                        sitUpMan.positionNum,
-                        MultiSportCardViewState.PREPARED
-                    )
+                    if (sitUpState == MultiSportState.PREPARING || sitUpState == MultiSportState.IDENTIFYING || sitUpState == MultiSportState.COUNTDOWN) {
+                        changeMultiIdentityCardState(
+                            sitUpMan.positionNum,
+                            MultiSportCardViewState.PREPARED
+                        )
+                    }
                 }
 
                 else -> {}
@@ -998,7 +1000,8 @@ class ThirtySitUpSportViewModel(application: Application) :
         for (index in 0 until sitUpManCount) {
             val multiResult = sitUpPersonArray.get(index, null)
             if (multiResult != null) {
-                currentCardState[index] = MultiSportCardViewState.SPORTING
+                //必须通知UI层切换卡片到运动状态，仅记录状态不会刷新界面
+                changeMultiIdentityCardState(index, MultiSportCardViewState.SPORTING)
             } else {
                 changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY_SPORT)
             }
@@ -1636,6 +1639,10 @@ class ThirtySitUpSportViewModel(application: Application) :
             LogUtil.d("收到客户端（${GrpcManager.getClientIp(data.from)}）消息：${data.commandCode}")
             sportCardStatus?.let { card ->
                 MultiSportCardViewState.fromValue(card.status)?.let { state ->
+                    //运动中副屏上报的"已准备"会把卡片打回准备状态，忽略
+                    if (state == MultiSportCardViewState.PREPARED && sitUpState == MultiSportState.SPORTING) {
+                        return@registerServerHandler
+                    }
                     uiHandler.post {
                         _changeSportViewStateLD.tryEmit(
                             data.from.getDisplayType(
