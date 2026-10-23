@@ -663,16 +663,12 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
             forceJoinDialog = null
             return
         }
-        val text = buildForceJoinText(occupied)
         val dialog = forceJoinDialog
         if (dialog != null) {
-            LogUtil.d("更新内容：$text")
-            dialog.updateContent(text)
             return
         }
-        LogUtil.d("首次显示内容：$text")
         forceJoinDialog = CommonTipDialog()
-            .setContent(text)
+            .setContent(buildForceJoinText(occupied))
             .setCallback {
                 //用户选择"是"：向占用中的设备发送强制加入协同指令
                 viewModel.confirmForceJoin()
@@ -687,14 +683,7 @@ class ThirtySportActivity : BaseMultiSportActivity<AcThirtySportBinding, ThirtyS
     }
 
     private fun buildForceJoinText(occupied: Set<DisplayType>): String {
-        val names = mutableListOf<String>()
-        if (DisplayType.LEFT in occupied) {
-            names.add(getString(R.string.left_screen))
-        }
-        if (DisplayType.RIGHT in occupied) {
-            names.add(getString(R.string.right_screen))
-        }
-        return getString(R.string.force_join_occupied_tip, names.joinToString("、"))
+        return getString(R.string.force_join_occupied_tip)
     }
 
     private fun buildClearIdentifyText(): String {
