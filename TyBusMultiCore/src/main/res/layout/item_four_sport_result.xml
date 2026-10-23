@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="@dimen/dp_270"
+    android:layout_height="@dimen/dp_491"
+    android:background="@mipmap/pic_cpt_resultpage_no1">
+
+    <ImageView
+        android:id="@+id/iv_result"
+        android:layout_width="@dimen/dp_94"
+        android:layout_height="@dimen/dp_88"
+        android:layout_marginTop="@dimen/dp_36"
+        android:src="@mipmap/ic_sport_result_qualified"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.tybusbase.view.CircleImageView
+        android:id="@+id/iv_header"
+        android:layout_width="@dimen/dp_80"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginTop="@dimen/dp_38"
+        android:src="@mipmap/ic_head_default"
+        app:border_color="@color/white"
+        app:border_width="@dimen/dp_4"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_result" />
+
+    <ImageView
+        android:id="@+id/iv_header_bg"
+        android:layout_width="@dimen/dp_104"
+        android:layout_height="@dimen/dp_104"
+        android:background="@mipmap/icon_header_bg_vip"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_header"
+        app:layout_constraintEnd_toEndOf="@+id/iv_header"
+        app:layout_constraintStart_toStartOf="@+id/iv_header"
+        app:layout_constraintTop_toTopOf="@+id/iv_header" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_12"
+        android:ellipsize="end"
+        android:maxEms="5"
+        android:singleLine="true"
+        android:text="游客"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        android:typeface="sans"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/iv_header" />
+
+    <TextView
+        android:id="@+id/tv_result"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_78"
+        android:layout_marginBottom="@dimen/dp_73"
+        android:gravity="center"
+        android:text="200"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_60"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/tv_result_unit"
+        app:layout_constraintHorizontal_chainStyle="packed"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tv_result_unit"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/dp_56"
+        android:layout_marginStart="@dimen/dp_4"
+        android:gravity="center"
+        android:text="@string/ge"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_32"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_result"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_result" />
+
+    <TextView
+        android:id="@+id/btn_report"
+        android:layout_width="@dimen/dp_80"
+        android:layout_height="@dimen/dp_40"
+        android:layout_marginEnd="@dimen/dp_32"
+        android:background="@drawable/pk_bg_btn_gradient_blue"
+        android:gravity="center"
+        android:text="@string/report"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_20"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

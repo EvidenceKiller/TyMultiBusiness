@@ -7,6 +7,7 @@ import com.ty.bus.multi.core.config.DoubleSportConfig
 import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SkipEightSportConfig
 import com.ty.bus.multi.core.config.TenSitUpSportConfig
@@ -19,6 +20,7 @@ import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
 import com.ty.bus.multi.core.ui.sport.tensport.TenSportActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity
 import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettingActivity
+import com.ty.bus.multi.core.ui.set.fourgbsportset.FourSportGbSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
@@ -29,6 +31,7 @@ import com.ty.bus.multi.core.ui.sport.ettensport.EtTenSportActivity
 import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
+import com.ty.bus.multi.core.ui.sport.fourgbsport.FourSportGbActivity
 import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
 import com.ty.bus.multi.core.ui.sport.skiplikeeight.SkipLikeEightSportActivity
@@ -270,5 +273,17 @@ object UIMultiNavigation : BaseNavigation() {
         startActivity(context, intent, config)
     }
 
+    fun goFourSportGb(context: Context, config: UINavConfig?, sportConfig: FourSportConfig?, preCallback: Action1<Intent>? = null) {
+        val intent = Intent(context, FourSportGbActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
 
+    fun goFourSportGbSetting(context: Context, resolutionType: Int = 1, preCallback: Action1<Intent>? = null) {
+        val intent = Intent(context, FourSportGbSettingActivity::class.java)
+        intent.putExtra("res_type", resolutionType)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, null)
+    }
 }
