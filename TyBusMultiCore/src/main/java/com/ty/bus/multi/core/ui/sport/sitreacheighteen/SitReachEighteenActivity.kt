@@ -8,9 +8,7 @@ import android.os.SystemClock
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.core.util.forEach
 import androidx.core.view.isGone
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
@@ -78,7 +76,8 @@ class SitReachEighteenActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/site_up_six/坐位体前屈6人2k.mp4"
+
     /***************************视频播放调试*************************/
 
     private val mainHandler by lazy { Handler(Looper.getMainLooper()) }
@@ -132,6 +131,7 @@ class SitReachEighteenActivity :
 
     override fun initData() {
         super.initData()
+//        viewModel.streamType = 2
         timeOutHelper.cancel()
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
         viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
@@ -184,6 +184,8 @@ class SitReachEighteenActivity :
             mBinding.llBtn.visibility = View.GONE
             initCamera()
         } else {
+            mBinding.layout.visibility = View.VISIBLE
+            mBinding.llBtn.visibility = View.VISIBLE
             initVideoView()
             initVideo()
         }

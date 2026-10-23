@@ -138,7 +138,7 @@
             android:id="@+id/space"
             android:layout_width="@dimen/dp_1600"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/dp_104"
+            android:layout_marginBottom="@dimen/dp_96"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -155,7 +155,7 @@
             android:text="@string/start_now"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/space"
             app:layout_constraintEnd_toEndOf="@+id/space"
             app:layout_constraintStart_toStartOf="@+id/space" />
@@ -186,7 +186,7 @@
             android:text="@string/retest_once"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/space"
             app:layout_constraintEnd_toStartOf="@+id/tv_next" />
 
@@ -202,7 +202,7 @@
             android:text="@string/next_group"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_28"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="@+id/space"
             app:layout_constraintEnd_toEndOf="@+id/space" />
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -372,12 +372,5 @@
             android:textColor="@color/black"
             android:textSize="@dimen/sp_12" />
     </LinearLayout>
-
-    <androidx.constraintlayout.widget.Group
-        android:id="@+id/group_video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:visibility="gone"
-        app:constraint_referenced_ids="layout,ll_btn" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
