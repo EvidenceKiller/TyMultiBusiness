@@ -89,6 +89,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import androidx.core.net.toUri
+import com.ty.tybusbase.expand.checkHandUp
 
 class EtTenSportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
@@ -635,7 +636,7 @@ class EtTenSportViewModel(application: Application) :
             val skipRopeMan =
                 skipRopeManList.find { skipRopeMan -> skipRopeMan.positionNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
-            if (skipRopeMan == null) {
+            if (skipRopeMan == null || skipRopeMan.checkHandUp().not()) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 changeMultiIdentityCardState(
                     currentIdentifyNumber,
@@ -669,10 +670,9 @@ class EtTenSportViewModel(application: Application) :
         }
 
         skipRopeManList.forEach {
-            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown && skipPersonArray.get(
-                    it.positionNum,
-                    null
-                ) == null
+            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
+                && skipPersonArray.get(it.positionNum,null) == null
+                && it.checkHandUp()
             ) {
                 currentIdentifyNumber = it.positionNum
                 skipRoseState = MultiSportState.IDENTIFYING
@@ -1231,22 +1231,6 @@ class EtTenSportViewModel(application: Application) :
         }
         multiSportProcessor.onReset()
         openTsProcess()
-//        viewModelScope.launch(Dispatchers.IO) {
-//            /********************切换分辨率********************/
-//            ipcHik.pauseProcessor()
-//            setResolution(ipcHik, getIdentifyResolution())
-//            SystemClock.sleep(100)
-//            stopPreviewLD.postValue(true)
-//            SystemClock.sleep(100)
-//            changeResolution()
-//            ipcHik.restartProcessor()
-//            startPreviewLD.postValue(Pair(ipcHik, cameraDispatcher))
-//            SystemClock.sleep(200)
-//            /********************切换分辨率********************/
-//            multiSportProcessor.clearTransform()
-//            multiSportProcessor.onReset()
-//            openTsProcess()
-//        }
 
     }
 

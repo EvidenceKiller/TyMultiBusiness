@@ -5,7 +5,7 @@ ext {
                targetSdkVersion : 29,
                applicationId    : "com.aipower.test",
                versionCode      : 115,
-               versionName      : "2.2.3.0",
+               versionName      : "2.2.3.1",
     ]
     //  androidx支持库配置
     androidx = ["kotlinx-coroutines-android"          : "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.0",

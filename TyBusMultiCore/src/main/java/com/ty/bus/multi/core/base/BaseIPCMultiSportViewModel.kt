@@ -83,6 +83,7 @@ import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SportRecordEntity.RecordMeeting
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
+import com.ty.tybusbase.expand.checkHandUp
 
 open class BaseIPCMultiSportViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
@@ -637,7 +638,7 @@ open class BaseIPCMultiSportViewModel(application: Application) :
             val skipRopeMan =
                 skipRopeManList.find { skipRopeMan -> skipRopeMan.positionNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
-            if (skipRopeMan == null) {
+            if (skipRopeMan == null || skipRopeMan.checkHandUp().not()) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 changeMultiIdentityCardState(
                     currentIdentifyNumber,
@@ -671,10 +672,9 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         }
 
         skipRopeManList.forEach {
-            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown && skipPersonArray.get(
-                    it.positionNum,
-                    null
-                ) == null
+            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
+                && skipPersonArray.get(it.positionNum, null) == null
+                && it.checkHandUp()
             ) {
                 currentIdentifyNumber = it.positionNum
                 skipRoseState = MultiSportState.IDENTIFYING

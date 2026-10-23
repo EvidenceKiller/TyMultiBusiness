@@ -93,6 +93,7 @@ import androidx.core.net.toUri
 import com.adl.service.web.SportRecordService
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
+import com.ty.tybusbase.expand.checkHandUp
 import com.ty.tybusbase.expand.getDisplayType
 import com.ty.tybusbase.expand.toJson
 import com.ty.tybusbase.expand.toObject
@@ -822,7 +823,7 @@ class ThirtySportViewModel(application: Application) :
             val skipRopeMan =
                 skipRopeManList.find { skipRopeMan -> skipRopeMan.positionNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
-            if (skipRopeMan == null) {
+            if (skipRopeMan == null || skipRopeMan.checkHandUp().not()) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 changeMultiIdentityCardState(
                     currentIdentifyNumber,
@@ -856,10 +857,9 @@ class ThirtySportViewModel(application: Application) :
         }
 
         skipRopeManList.forEach {
-            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown && skipPersonArray.get(
-                    it.positionNum,
-                    null
-                ) == null
+            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
+                && skipPersonArray.get(it.positionNum, null) == null
+                && it.checkHandUp()
             ) {
                 currentIdentifyNumber = it.positionNum
                 skipRoseState = MultiSportState.IDENTIFYING
@@ -1670,9 +1670,9 @@ class ThirtySportViewModel(application: Application) :
                 LogUtil.d("当前运动状态指令不匹配：grpcskuid:${info?.skuId}--sportSkuId:${sportInfo?.sportSkuId}")
                 return@registerServerHandler
             }
-            val displayType = data.from.getDisplayType(leftSubScreenIp,rightSubScreenIp)
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
             val status = GrpcSportStatusEnum.fromCode(info.status)
-            if (status == GrpcSportStatusEnum.FINISHED){
+            if (status == GrpcSportStatusEnum.FINISHED) {
                 if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
                     LogUtil.d("收到${displayType.name}副屏运动结束")
                     subScreenSportFinished.add(displayType)

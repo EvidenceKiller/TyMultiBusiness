@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.google.gson.Gson
 import com.ty.grpclib.GrpcManager
 import com.ty.identifty.base.TyFaceInfo
@@ -273,4 +274,10 @@ fun String.getDisplayType(leftSubScreenIp: String?, rightSubScreenIp: String?): 
         rightSubScreenIp -> DisplayType.RIGHT
         else -> DisplayType.OTHER
     }
+}
+
+fun GroupSportBaseMan.checkHandUp(): Boolean {
+    if (skeleton == null || skeleton.lShoulder == null || skeleton.rWrist == null)
+        return false
+    return skeleton.lWrist.y < skeleton.lShoulder.y
 }
