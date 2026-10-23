@@ -8,6 +8,8 @@ interface ISportCardView {
      */
     fun setNumber(number: String)
 
+    fun setDebug(debug: Boolean)
+
     /**
      * 切换状态
      */

@@ -253,7 +253,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
                 //先用运动SkuID去匹配，再用itemCode去匹配
                 val uri: Uri? =
                     when (sportInfo?.testCount) {
-                        "3", "5", "10", "30" -> {
+                        "3", "4", "5", "10", "30" -> {
                             ("android.resource://" + getApplication<Application>().packageName + "/" + R.raw.skip_rope_multi_bgm).toUri()
                         }
 

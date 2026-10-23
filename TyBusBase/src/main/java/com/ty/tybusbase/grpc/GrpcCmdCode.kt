@@ -50,11 +50,15 @@ object GrpcCmdCode {
     //十人框体设置 payload = String
     const val CMD_TEN_SPORT_REGION_SETTING = 0x54
 
-    //十人仰卧起坐
-    const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
 
     //六人体前屈
     const val CMD_SIX_SIT_REACH_REGION_SETTING = 0x56
+
+    //十人仰卧起坐框体设置 payload = String
+    const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
+
+    //立定跳远框体设置 payload = RoleConfigJump 的 JSON
+    const val CMD_LONG_JUMP_REGION_SETTING = 0x56
 
 
     //实心球运动卡片状态 payload =

@@ -2,10 +2,6 @@ package com.ai.test
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.TextUtils
-import androidx.lifecycle.viewModelScope
-import com.adl.base.config.AdlUIConfig
-import com.adl.base.config.RoleConfigRopeSkip
 import com.adl.base.speech.AdlTextSpeaker
 import com.adl.mount.core.TsModelResCaller
 import com.adl.service.entity.FaceDataEntity
@@ -13,7 +9,6 @@ import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.UserCaller
-import com.adl.sport.standard.ui.SportOverlayRopeSkipEx
 import com.ai.ui.bodytest.BodyChooseTestActivity
 import com.ai.ui.doubleface.DoubleFaceTestActivity
 import com.ai.ui.facetest.FaceTestActivity
@@ -32,6 +27,7 @@ import com.ty.bus.multi.core.config.BluetoothSportConfig
 import com.ty.bus.multi.core.config.EtTenSportConfig
 import com.ty.bus.multi.core.config.FiveSportConfig
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
+import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.config.SixSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSitUpSportConfig
@@ -40,7 +36,8 @@ import com.ty.bus.multi.core.config.ThirtySitUpSportConfig
 import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
-import com.ty.bus.multi.core.dialog.HttpCameraSettingDialog
+import com.ty.bus.multi.core.ui.set.fourgbsportset.FourSportGbSettingActivity
+import com.ty.bus.multi.core.ui.sport.fourgbsport.FourSportGbActivity
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.base.BaseActivity
@@ -53,6 +50,7 @@ import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonIpcCameraSettingDialog
+import com.ty.tybusbase.entity.IpcCameraConfig
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.Dispatchers
@@ -464,6 +462,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         initThirty()
         initTenSitUp()
         initNewTenSport()
+        initFour()
     }
 
     private fun initNewTenSport() {
@@ -651,6 +650,42 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
         mBinding.btnThirtySportSet.setOnClickListener {
             UIMultiNavigation.goThirtySportSetting(this)
+        }
+    }
+
+    private fun initFour() {
+        mBinding.btnFourSport.setOnClickListener {
+            UIMultiNavigation.goFourSportGb(this, UINavConfig().apply {
+                sportInfo = SceneSportInfoEntity().apply {
+                    sportItemCode = SportConstant.SPORT_DOUBLE_SHAKE_JUMP
+                    sportSkuId = sportItemCode + "0002"
+                    sportSkuName = "4人双摇跳"
+                    endValue = "60000"
+                    testCount = "4"
+                    sceneId = SceneConstants.FREE
+                }
+            }, FourSportConfig.builder {
+                setCountdownText("开始倒计时")
+                setResultPageText("完成竞技")
+                setSportStartText("开始咯，开始咯")
+                setVoiceBroadcastSupported(true)
+                setSupportNextGroup(false)
+                setSupportReport(true)
+            }) { intent ->
+                val cameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
+                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY, cameraConfig)
+                MMKVUtil.encode(MMKVBusiKey.MODEL_DEBUG, true)
+                MMKVUtil.encode(MMKVBusiKey.SKELETON_ABLE, true)
+                intent.putExtra(FourSportGbActivity.INTENT_KEY_VIDEO_PATH, "/sdcard/zy.sport.cache/resCollect/shuangyao_1792724774282_clip.mp4")
+            }
+        }
+        mBinding.btnFourSportSetting.setOnClickListener {
+            UIMultiNavigation.goFourSportGbSetting(this, preCallback = { intent ->
+                val cameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
+                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY, cameraConfig)
+
+//                intent.putExtra(FourSportGbSettingActivity.INTENT_KEY_VIDEO_PATH, "/sdcard/zy.sport.cache/resCollect/shuangyao-20261021-142817.mp4")
+            })
         }
     }
 
