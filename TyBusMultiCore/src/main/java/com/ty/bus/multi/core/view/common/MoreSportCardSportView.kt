@@ -86,6 +86,9 @@ class MoreSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
         mBinding.tvNumber.text = number
     }
 
+    override fun setDebug(debug: Boolean) {
+    }
+
     /**
      * 切换状态
      */

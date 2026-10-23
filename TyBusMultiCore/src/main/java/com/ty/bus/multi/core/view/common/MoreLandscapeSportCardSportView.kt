@@ -71,6 +71,9 @@ class MoreLandscapeSportCardSportView(context: Context, attrs: AttributeSet?, de
         mBinding.tvNumber.text = number
     }
 
+    override fun setDebug(debug: Boolean) {
+    }
+
 
     /**
      * 切换状态

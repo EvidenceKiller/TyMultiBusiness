@@ -14,6 +14,10 @@ class TypeFaceHelper {
         return typeface
     }
 
+    fun getYouSheFont(context: Context): Typeface {
+        return Typeface.createFromAsset(context.resources.assets, "font/you_she_biao_ti_hei.ttf")
+    }
+
     companion object {
         @Volatile
         private var INSTANCE: TypeFaceHelper? = null

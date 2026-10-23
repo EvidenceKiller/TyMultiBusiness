@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#B2000000">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_700"
+        android:background="@mipmap/bg_cpt_resultpage"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SkipMultiGradientLeftView
+        android:id="@+id/sg_left"
+        android:layout_width="@dimen/dp_720"
+        android:layout_height="@dimen/dp_4"
+        android:layout_marginEnd="@dimen/dp_28"
+        app:layout_constraintBottom_toBottomOf="@+id/mtv_finish"
+        app:layout_constraintEnd_toStartOf="@+id/mtv_finish"
+        app:layout_constraintTop_toTopOf="@+id/mtv_finish" />
+
+    <com.ty.tybusbase.view.MyLinerGradientTextVIewType2
+        android:id="@+id/mtv_finish"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_90"
+        android:text="@string/complete_competition"
+        android:textSize="@dimen/sp_120"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.ty.bus.multi.core.view.common.SkipMultiGradientRightView
+        android:id="@+id/sg_right"
+        android:layout_width="@dimen/dp_720"
+        android:layout_height="@dimen/dp_4"
+        android:layout_marginStart="@dimen/dp_28"
+        app:layout_constraintBottom_toBottomOf="@+id/mtv_finish"
+        app:layout_constraintStart_toEndOf="@+id/mtv_finish"
+        app:layout_constraintTop_toTopOf="@+id/mtv_finish" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_result"
+        android:layout_width="@dimen/dp_1290"
+        android:layout_height="@dimen/dp_491"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_four_sport_result" />
+
+    <TextView
+        android:id="@+id/tv_confirm"
+        android:layout_width="@dimen/dp_360"
+        android:layout_height="@dimen/dp_80"
+        android:layout_marginBottom="@dimen/dp_68"
+        android:background="@drawable/bg_round_r50_gradient_red"
+        android:gravity="center"
+        android:paddingBottom="@dimen/dp_5"
+        android:text="@string/confirm"
+        android:textColor="@color/white"
+        android:textSize="@dimen/sp_28"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

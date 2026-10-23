@@ -4,6 +4,10 @@
         <attr name="pk_index" format="integer" />
     </declare-styleable>
 
+    <declare-styleable name="FourSportCardSportView">
+        <attr name="sport_index" format="integer" />
+    </declare-styleable>
+
     <declare-styleable name="IdentifyRectDragView">
         <attr name="img_res" format="reference" />
     </declare-styleable>
