@@ -36,6 +36,7 @@ abstract class BaseMultiSportViewNoAnimation(
 
     protected var startedText: String = getString(R.string.race_start_cheer)
 
+    private var onTickCallback: ((String) -> Unit)? = null
 
     abstract fun getCountDownNoticeTv(): TextView
 
@@ -76,6 +77,10 @@ abstract class BaseMultiSportViewNoAnimation(
         }
     }
 
+    fun setOnTickCallback(callback: (String) -> Unit) {
+        onTickCallback = callback
+    }
+
     /**
      * 倒计时准备开始
      */
@@ -90,6 +95,7 @@ abstract class BaseMultiSportViewNoAnimation(
                 } else {
                     countDownTime.toString()
                 }
+                onTickCallback?.invoke(text)
                 getCountDownGoTv().text = text
                 Executors.newSingleThreadExecutor().execute {
                     SpeechWrapper.speakAfterStop(text)
