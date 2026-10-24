@@ -66,8 +66,8 @@ class SitReachEighteenSettingActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
-    val streamType = 2 //1:camera , 2: video
+    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/body_bend_ai_six/坐位体前屈6人2k.mp4"
+    val streamType = 2 // todo 1:camera , 2: video
 
     /***************************视频播放调试*************************/
 
@@ -88,10 +88,7 @@ class SitReachEighteenSettingActivity :
 
     private val cameraDispatcher by lazy {
         DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
-            this.setPosition(
-                0f,
-                0f
-            )
+            this.setPosition(0f, 0f)
         })
     }
 
@@ -640,7 +637,8 @@ class SitReachEighteenSettingActivity :
     }
 
     private fun stopPreview() {
-        mBinding.sitAndReachLayout.cameraPreviewView.stopPreview()
+        mBinding.sitAndReachLayout.cameraPreviewView?.stopPreview()
+        mBinding.sitAndReachLayout.cameraPreviewView?.release()
     }
 
     override fun onPause() {
@@ -653,7 +651,6 @@ class SitReachEighteenSettingActivity :
         super.onDestroy()
         hideLoadingDialog()
         controller.release()
-        mBinding.sitAndReachLayout.cameraPreviewView.release()
         cameraDispatcher.quit()
         videoReader?.release()
         releaseModel()
