@@ -216,7 +216,7 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
     }
 
     private fun initOverlay() {
-        mBinding.overlay.enableDraw(isDebug)
+        mBinding.overlay.enableDraw(true)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(false)
         mBinding.overlay.enableFace(true)
