@@ -15,6 +15,7 @@ import com.adl.base.common.AdlExecutor
 import com.adl.base.common.AdlVideoReader
 import com.adl.base.common.VideoReaderCallback
 import com.adl.base.config.AdlUIConfig
+import com.adl.base.config.RoleConfigBase
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
@@ -35,7 +36,6 @@ import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.databinding.ActivitySitReachEighteenSettingBinding
-import com.ty.forwardflexion.config.FFlexionRoleConfig
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
@@ -67,7 +67,7 @@ class SitReachEighteenSettingActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/20260825-094549.mp4"
-    val streamType = 1 //1:camera , 2: video
+    val streamType = 2 //1:camera , 2: video
 
     /***************************视频播放调试*************************/
 
@@ -274,8 +274,7 @@ class SitReachEighteenSettingActivity :
             return
         }
         val uiConfig = AdlUIConfig.instance().readConfig(
-            getSaveKey(currentMode),
-            FFlexionRoleConfig::class.java
+            getSaveKey(currentMode), RoleConfigBase::class.java
         )
         val payload = uiConfig?.targetRegion ?: ""
         GrpcManager.sendToClient(
@@ -421,8 +420,7 @@ class SitReachEighteenSettingActivity :
         val overlay = mBinding.sitAndReachLayout.markerRecognizerOverlay
         overlay.setConfigKey(getSaveKey(currentMode))
         val uiConfig = AdlUIConfig.instance().readConfig(
-            getSaveKey(currentMode),
-            FFlexionRoleConfig::class.java
+            getSaveKey(currentMode), RoleConfigBase::class.java
         )
         if (uiConfig != null) {
             overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
