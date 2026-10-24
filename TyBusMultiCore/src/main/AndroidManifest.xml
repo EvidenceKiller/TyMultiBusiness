@@ -87,5 +87,8 @@
         <activity
             android:name="com.ty.bus.multi.core.ui.sport.foursport.FourSportActivity"
             android:exported="true" />
+        <activity
+            android:name="com.ty.bus.multi.core.ui.set.subscreenregionset.SubScreenRegionSettingActivity"
+            android:exported="true" />
     </application>
 </manifest>

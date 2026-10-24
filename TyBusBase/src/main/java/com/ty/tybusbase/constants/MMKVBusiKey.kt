@@ -144,4 +144,6 @@ object MMKVBusiKey {
 
     const val RIGHT_SUB_SCREEN_LED_IP_KEY = "right_sub_screen_led_ip_key" //右副屏LED IP地址存储KEY
 
+    const val SUB_SCREEN_SPORT_SELECT_REGION_CONFIG = "sub_screen_sport_select_region_config" //副屏选择运动框体设置Key
+
 }

@@ -34,6 +34,10 @@ object GrpcCmdCode {
     //副屏模式设置 payload = GrpcSubModelInfo
     const val CMD_SUB_MODEL_SETTING = 0x30
 
+    //副屏框体位置设置 payload = GrpcSportCommonRegionConfig
+    const val CMD_SPORT_COMMON_REGION_CONFIG = 0x31
+
+
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x50
