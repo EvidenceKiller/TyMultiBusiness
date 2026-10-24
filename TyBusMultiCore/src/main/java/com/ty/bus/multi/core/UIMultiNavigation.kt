@@ -23,6 +23,7 @@ import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreacheighteenset.SitReachEighteenSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
+import com.ty.bus.multi.core.ui.set.subscreenregionset.SubScreenRegionSettingActivity
 import com.ty.bus.multi.core.ui.set.thirtysportset.ThirtySportSettingActivity
 import com.ty.bus.multi.core.ui.set.threesportsetting.ThreeSportSettingActivity
 import com.ty.bus.multi.core.ui.sport.bluetoothsport.BluetoothSportActivity
@@ -170,6 +171,28 @@ object UIMultiNavigation : BaseNavigation() {
         context.startActivity(Intent(context, MultiRegionSettingActivity::class.java).apply {
             putExtra("test_count", number)
             putExtra("res_type", resolutionType)
+            saveKey?.let {
+                putExtra("save_key", it)
+            }
+        })
+    }
+
+    /**
+     * 副屏通用框体设置
+     */
+    fun goSubScreenRegionSetting(
+        context: Context,
+        number: Int,
+        subIp: String,
+        resolutionType: Int = 0,
+        ipcCameraKey: String? = null,
+        saveKey: String? = null
+    ) {
+        context.startActivity(Intent(context, SubScreenRegionSettingActivity::class.java).apply {
+            putExtra("test_count", number)
+            putExtra("res_type", resolutionType)
+            putExtra("sub_ip", subIp)
+            putExtra("ipc_key", ipcCameraKey)
             saveKey?.let {
                 putExtra("save_key", it)
             }

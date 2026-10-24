@@ -34,6 +34,10 @@ object GrpcCmdCode {
     //副屏模式设置 payload = GrpcSubModelInfo
     const val CMD_SUB_MODEL_SETTING = 0x30
 
+    //副屏框体位置设置 payload = GrpcSportCommonRegionConfig
+    const val CMD_SPORT_COMMON_REGION_CONFIG = 0x31
+
+
 
     //运动卡片状态 payload = GrpcSportCardStatus
     const val CMD_SPORT_CARD_STATUS = 0x50
@@ -50,11 +54,15 @@ object GrpcCmdCode {
     //十人框体设置 payload = String
     const val CMD_TEN_SPORT_REGION_SETTING = 0x54
 
-    //十人仰卧起坐
-    const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
 
     //六人坐位体前屈
     const val CMD_SIX_SIT_REACH_REGION_SETTING = 0x56
+
+    //十人仰卧起坐框体设置 payload = String
+    const val CMD_TEN_SITE_UP_REGION_SETTING = 0x55
+
+    //立定跳远框体设置 payload = RoleConfigJump 的 JSON
+    const val CMD_LONG_JUMP_REGION_SETTING = 0x56
 
 
     //实心球运动卡片状态 payload =
