@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.os.SystemClock
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -12,23 +13,21 @@ import android.widget.TextView
 import android.widget.Toast
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlExecutor
+import com.adl.base.common.AdlPreferences
 import com.adl.base.common.AdlVideoReader
 import com.adl.base.common.VideoReaderCallback
-import com.adl.base.config.AdlUIConfig
-import com.adl.base.config.RoleConfigBase
 import com.adl.base.element.ElementFpsCounter
-import com.adl.base.overlay.OnRenderScene
 import com.adl.lib.AdlCameraConfig
 import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraListener
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
-import com.adl.mount.core.TsModelResPool
 import com.adl.sport.ballBase.ResultCodeType
 import com.adl.sport.controllers.sitandreach.SitAndReachCallBack
 import com.adl.sport.controllers.sitandreach.SitAndReachController
 import com.adl.sport.controllers.sitandreach.SitAndReachControllerConfig
+import com.adl.sport.markerrecognizer.MarkerRecognizerConfig
 import com.adl.sport.sitandreach.SitAndReachConfig
 import com.adl.sport.sitandreach.SitAndReachObject
 import com.adl.sport.sitandreach.SitAndReachType
@@ -43,6 +42,8 @@ import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
+import com.ty.tybusbase.expand.toJson
+import com.ty.tybusbase.expand.toObject
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.utils.LogUtil
@@ -67,7 +68,7 @@ class SitReachEighteenSettingActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
     val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/body_bend_ai_six/坐位体前屈6人2k.mp4"
-    val streamType = 2 // todo 1:camera , 2: video
+    val streamType = 1 // todo 1:camera , 2: video
 
     /***************************视频播放调试*************************/
 
@@ -84,7 +85,40 @@ class SitReachEighteenSettingActivity :
     //板子几个点
     private var boardNum = 8
 
-    private lateinit var controller: SitAndReachController
+    private val controller: SitAndReachController by lazy {
+        SitAndReachController(sportConfig, mBinding.sitAndReachLayout)
+    }
+
+    private val sportConfig by lazy {
+        val sourceType = if (streamType == 1)
+            SitAndReachControllerConfig.InputSource.CAMERA
+        else
+            SitAndReachControllerConfig.InputSource.VIDEO
+
+        val diskNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
+        )
+
+        val config = SitAndReachControllerConfig()
+        config.drawSkeleton = BusiBaseConfig.getSkeletonEnable()
+        config.inputSource = sourceType
+        config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
+        val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM.also {
+            when (currentMode) {
+                AreaMode.LEFT -> it.sportName = "${it.sportName}_left"
+                AreaMode.RIGHT -> it.sportName = "${it.sportName}_right"
+                AreaMode.MAIN -> {}
+            }
+        }
+        sitAndReachType.num = diskNum
+        sitAndReachType.boardNum = boardNum
+        config.sitAndReachType = sitAndReachType
+        config.debug = BusiBaseConfig.getDebugEnable()
+        config.enableRecordVideo = false
+        config.needSetUI = true
+        config
+    }
 
     private val cameraDispatcher by lazy {
         DynamicSportFrameDispatcher(ElementFpsCounter("Camera").apply {
@@ -104,11 +138,6 @@ class SitReachEighteenSettingActivity :
 
     private var currentMode = AreaMode.MAIN
 
-    /** 主屏框体保存Key，默认使用坐位体前屈框体Key（与运动页读取保持一致） */
-    private val mainSaveKey by lazy {
-        intent.getStringExtra("save_key") ?: MultiCoreConstant.SIT_REACH_SIX_UI_KEY
-    }
-
     private var areaPopup: PopupWindow? = null
     private val areaOptions by lazy {
         resources.getStringArray(R.array.thirty_sport_area_options)
@@ -120,6 +149,11 @@ class SitReachEighteenSettingActivity :
     }
 
     override fun initData() {
+        currentMode = when (intent.getStringExtra("mode")) {
+            "left" -> AreaMode.LEFT
+            "right" -> AreaMode.RIGHT
+            else -> AreaMode.MAIN
+        }
         testPeopleCount = MMKVUtil.decodeInt(
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
@@ -270,10 +304,28 @@ class SitReachEighteenSettingActivity :
             ToastUtil.getInstance(this, getString(R.string.save_failed)).show()
             return
         }
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            getSaveKey(currentMode), RoleConfigBase::class.java
+
+        val markerRecognizerConfig =
+            AdlPreferences.initPreferences(this).getString(sportConfig.sitAndReachType.sportName)
+        val markerRecognizerRectanglesConfig = AdlPreferences.initPreferences(this)
+            .getString(sportConfig.sitAndReachType.sportName + "_recheckRectangles") ?: ""
+
+        //  修改 markerRecognizerName
+        val markerRecognizerConfigObj = markerRecognizerConfig.toObject<MarkerRecognizerConfig>()
+        markerRecognizerConfigObj?.markerRecognizerName = getSitAndReachTypeSportNameDefault()
+        val markerRecognizerConfigModify = markerRecognizerConfigObj?.toJson() ?: ""
+
+        Log.e(
+            "zjw",
+            "markerRecognizerConfigModify:${markerRecognizerConfigModify}"
         )
-        val payload = uiConfig?.targetRegion ?: ""
+
+        Log.e(
+            "zjw",
+            "markerRecognizerRectanglesConfig:${markerRecognizerRectanglesConfig}"
+        )
+
+        val payload = "${markerRecognizerConfigModify}&&${markerRecognizerRectanglesConfig}"
         GrpcManager.sendToClient(
             clientId,
             GrpcCmdCode.CMD_SIX_SIT_REACH_REGION_SETTING,
@@ -392,10 +444,20 @@ class SitReachEighteenSettingActivity :
         mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
         currentMode = mode
         stopPreview()
-        if (streamType == 1) {
-            openCamera(mode)
+        //  todo 直接重启页面设置
+//        if (streamType == 1) {
+//            openCamera(mode)
+//        }
+//        reloadOverlay()
+
+        val mode = when (mode) {
+            AreaMode.MAIN -> null
+            AreaMode.LEFT -> "left"
+            AreaMode.RIGHT -> "right"
         }
-        reloadOverlay()
+        intent.putExtra("mode", mode)
+        finish()
+        startActivity(intent)
     }
 
     private fun getCameraKey(mode: AreaMode): String = when (mode) {
@@ -404,51 +466,12 @@ class SitReachEighteenSettingActivity :
         AreaMode.RIGHT -> MMKVBusiKey.RIGHT_SUB_SCREEN_IPC_CAMERA_KEY
     }
 
-    private fun getSaveKey(mode: AreaMode): String = when (mode) {
-        AreaMode.MAIN -> mainSaveKey
-        AreaMode.LEFT -> "${mainSaveKey}left"
-        AreaMode.RIGHT -> "${mainSaveKey}right"
-    }
-
-    /**
-     * 加载当前区域的框体配置：按区域保存Key读取已有配置并应用到铺板视图
-     */
-    private fun reloadOverlay() {
-        val overlay = mBinding.sitAndReachLayout.markerRecognizerOverlay
-        overlay.setConfigKey(getSaveKey(currentMode))
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            getSaveKey(currentMode), RoleConfigBase::class.java
-        )
-        if (uiConfig != null) {
-            overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        }
-        overlay.loadView()
-        overlay.refresh()
-    }
     //--------------------- 三屏区域切换 ---------------------
-
     private fun initConfigAndController() {
-        val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
-            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
-        )
         showLoadingDialog(getString(R.string.model_loding))
-        val sourceType =
-            if (streamType == 1) SitAndReachControllerConfig.InputSource.CAMERA else SitAndReachControllerConfig.InputSource.VIDEO
-        mBinding.sitAndReachLayout.setInputSource(sourceType)
-        val config = SitAndReachControllerConfig()
-        config.drawSkeleton = BusiBaseConfig.getSkeletonEnable()
-        config.inputSource = sourceType
 
-        config.checkMethod = SitAndReachConfig.CheckMethod.TWO_HANDS
-        val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM
-        sitAndReachType.num = diskNum
-        sitAndReachType.boardNum = boardNum
-        config.sitAndReachType = sitAndReachType
-        config.debug = BusiBaseConfig.getDebugEnable()
-        config.enableRecordVideo = false
-        config.needSetUI = true
-        controller = SitAndReachController(config, mBinding.sitAndReachLayout)
+        mBinding.sitAndReachLayout.setInputSource(sportConfig.inputSource)
+
         controller.callBack = object : SitAndReachCallBack {
             override fun onInitPlayGround(isSuccess: Boolean, msg: String?) {
                 AdlExecutor.postUI(Runnable {
@@ -477,7 +500,6 @@ class SitReachEighteenSettingActivity :
             }
         }
         controller.combineLayout()
-        reloadOverlay()
     }
 
     private fun initVideoView() {
@@ -632,8 +654,13 @@ class SitReachEighteenSettingActivity :
         controller.initPlayGround()
     }
 
-    private fun releaseModel() {
-        TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
+    private fun restSitAndReachTypeSportName() {
+        SitAndReachType.SIT_AND_REACH_CUSTOM.sportName = getSitAndReachTypeSportNameDefault()
+    }
+
+    private fun getSitAndReachTypeSportNameDefault(): String {
+        return SitAndReachType.SIT_AND_REACH_CUSTOM.sportName.replace("_left", "")
+            .replace("_right", "")
     }
 
     private fun stopPreview() {
@@ -649,10 +676,10 @@ class SitReachEighteenSettingActivity :
 
     override fun onDestroy() {
         super.onDestroy()
+        restSitAndReachTypeSportName()
         hideLoadingDialog()
         controller.release()
         cameraDispatcher.quit()
         videoReader?.release()
-        releaseModel()
     }
 }
