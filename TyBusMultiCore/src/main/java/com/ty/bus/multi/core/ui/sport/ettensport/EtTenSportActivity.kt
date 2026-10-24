@@ -207,54 +207,6 @@ class EtTenSportActivity : BaseMultiSportActivity<AcEtTenSportBinding, EtTenSpor
         })
     }
 
-    //模拟
-    fun mockResult() {
-        srrvResult = EtTenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
-
-        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-            srrvResult.setReportOnclickListener {
-                viewReport(viewModel.getIndicatorsResultDto(it))
-            }
-        }
-
-        val params =
-            ConstraintLayout.LayoutParams(
-                RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
-            )
-        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
-            srrvResult,
-            params
-        )
-        srrvResult.setConfirmOnclickListener {
-            finish()
-        }
-        srrvResult.setNextOnclickListener {
-            mBinding.clSkipSportViewContainer.removeView(srrvResult)
-        }
-        doResultViewTranslateAnimation(srrvResult)
-        srrvResult.setResult(
-            mutableListOf(
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "张三"
-                        userFaceImgUrl = ""
-                    }
-                }, 1, 100, 1),
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "王五"
-                        userFaceImgUrl = ""
-                    }
-                }, 3, 10, 2)
-            ),
-            if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.etTenSportConfig?.isVoiceBroadcastSupported == true,
-            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
-        )
-    }
-
     override fun initObserver() {
         super.initObserver()
         viewModel.startPreviewLD.observe(this) {

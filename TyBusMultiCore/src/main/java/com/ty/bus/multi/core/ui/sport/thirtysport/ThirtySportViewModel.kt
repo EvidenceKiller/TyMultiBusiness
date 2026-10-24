@@ -94,6 +94,7 @@ import com.adl.service.web.SportRecordService
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.eventFlow
+import com.ty.tybusbase.expand.checkHandUp
 import com.ty.tybusbase.expand.getDisplayType
 import com.ty.tybusbase.expand.toJson
 import com.ty.tybusbase.expand.toObject
@@ -292,6 +293,13 @@ class ThirtySportViewModel(application: Application) :
     //已识别人数变化通知（弹窗展示/更新，含弹窗期间新用户到达的人数同步）
     private val _identifiedCountLD = eventFlow<Unit>()
     val identifiedCountLD: SharedFlow<Unit> = _identifiedCountLD.asSharedFlow()
+
+    //副屏占用中记录：正在运动中、无法直接加入协同的副屏
+    private val occupiedSubScreens = mutableSetOf<DisplayType>()
+
+    //副屏占用中变化通知（弹窗展示/更新，含弹窗期间另一屏也上报占用）
+    private val _subScreenOccupiedLD = eventFlow<Set<DisplayType>>()
+    val subScreenOccupiedLD: SharedFlow<Set<DisplayType>> = _subScreenOccupiedLD.asSharedFlow()
 
     //人员报告信息展示（一次性跳转消息：非粘性，避免从报告页返回时重放导致再次跳转）
     private val _showReportLD = eventFlow<String>()
@@ -811,7 +819,7 @@ class ThirtySportViewModel(application: Application) :
             val skipRopeMan =
                 skipRopeManList.find { skipRopeMan -> skipRopeMan.positionNum == currentIdentifyNumber }
             //没找到人，说明，人已离开位置，则重置状态
-            if (skipRopeMan == null) {
+            if (skipRopeMan == null || skipRopeMan.checkHandUp().not()) {
                 LogUtil.d("处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 changeMultiIdentityCardState(
                     currentIdentifyNumber,
@@ -845,10 +853,9 @@ class ThirtySportViewModel(application: Application) :
         }
 
         skipRopeManList.forEach {
-            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown && skipPersonArray.get(
-                    it.positionNum,
-                    null
-                ) == null
+            if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
+                && skipPersonArray.get(it.positionNum, null) == null
+                && it.checkHandUp()
             ) {
                 currentIdentifyNumber = it.positionNum
                 skipRoseState = MultiSportState.IDENTIFYING
@@ -1646,6 +1653,8 @@ class ThirtySportViewModel(application: Application) :
             }
             LogUtil.d("收到协同状态回复：$displayType, status=$status, state=$state")
             updateCollaborationState(displayType, state)
+            //运动中记录为占用中并提示是否强制加入；恢复空闲则移除记录
+            updateOccupiedSubScreens(displayType, state == CollaborationAreaState.OCCUPIED)
         }
     }
 
@@ -1659,9 +1668,9 @@ class ThirtySportViewModel(application: Application) :
                 LogUtil.d("当前运动状态指令不匹配：grpcskuid:${info?.skuId}--sportSkuId:${sportInfo?.sportSkuId}")
                 return@registerServerHandler
             }
-            val displayType = data.from.getDisplayType(leftSubScreenIp,rightSubScreenIp)
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
             val status = GrpcSportStatusEnum.fromCode(info.status)
-            if (status == GrpcSportStatusEnum.FINISHED){
+            if (status == GrpcSportStatusEnum.FINISHED) {
                 if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
                     LogUtil.d("收到${displayType.name}副屏运动结束")
                     subScreenSportFinished.add(displayType)
@@ -1776,6 +1785,47 @@ class ThirtySportViewModel(application: Application) :
      */
     fun cancelClearIdentifyInfo() {
         identifiedCountMap.clear()
+    }
+
+    /**
+     * 记录/移除副屏占用中状态，并在占用集合变化时通知界面更新"是否强制加入协同"提示
+     */
+    private fun updateOccupiedSubScreens(displayType: DisplayType, occupied: Boolean) {
+        if (displayType != DisplayType.LEFT && displayType != DisplayType.RIGHT) return
+        val changed =
+            if (occupied) occupiedSubScreens.add(displayType) else occupiedSubScreens.remove(displayType)
+        if (!changed) return
+        uiHandler.post {
+            LogUtil.d("副屏占用中变化：${occupiedSubScreens.map { it.name }}")
+            _subScreenOccupiedLD.tryEmit(occupiedSubScreens.toSet())
+        }
+    }
+
+    /**
+     * 用户确认强制加入：向占用中的副屏发送强制加入协同指令
+     */
+    fun confirmForceJoin() {
+        occupiedSubScreens.forEach { displayType ->
+            val ip = when (displayType) {
+                DisplayType.LEFT -> leftSubScreenIp
+                DisplayType.RIGHT -> rightSubScreenIp
+                else -> null
+            }
+            val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
+            if (clientId == null) {
+                LogUtil.d("${displayType.name}副屏未连接，无法发送强制加入指令：$ip")
+                return@forEach
+            }
+            LogUtil.d("发送强制加入协同指令到${displayType.name}副屏：$ip")
+            sendCollaborationCommand(clientId, CollaborationCmdEnum.FORCE_JOIN)
+        }
+    }
+
+    /**
+     * 用户取消强制加入：仅关闭本次提示，保留占用记录，等待副屏重新上报状态
+     */
+    fun cancelForceJoin() {
+        LogUtil.d("取消强制加入协同")
     }
 
     /**
