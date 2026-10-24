@@ -447,7 +447,7 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
     }
 
     private fun initOverlay() {
-        mBinding.overlay.enableDraw(isDebug)
+        mBinding.overlay.enableDraw(true)
         mBinding.overlay.enableDebug(isDebug)
         mBinding.overlay.enableDrawBox(isDebug)
         mBinding.overlay.enableFace(true)

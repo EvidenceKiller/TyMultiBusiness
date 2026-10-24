@@ -30,6 +30,7 @@ import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.entity.FaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
+import com.ty.tybusbase.expand.checkHandUp
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.face.FaceDetectorHelper
 import com.ty.tybusbase.helper.SpeechWrapper
@@ -372,7 +373,7 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         skipRopeManList.forEach {
             if (it.channelStatus == GroupSportsBaseChannelStatus.checkDown
                 && sportPersonArray.get(it.positionNum, null) == null
-                && checkHandUp(it)
+                && it.checkHandUp()
             ) {
                 currentIdentifyNumber = it.positionNum
                 multiIdentityEngine.reset()
@@ -511,12 +512,6 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
 
             resultLD.postValue(result)
         }
-    }
-
-    private fun checkHandUp(it: GroupSportBaseMan): Boolean {
-        if (it.skeleton == null || it.skeleton.lShoulder == null || it.skeleton.rWrist == null)
-            return false
-        return it.skeleton.lWrist.y < it.skeleton.lShoulder.y
     }
 
     private fun getIdentityRect(it: TsSportChannel?): Rect {

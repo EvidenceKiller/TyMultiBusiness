@@ -6,6 +6,7 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
+import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.google.gson.Gson
 import com.ty.grpclib.GrpcManager
 import com.ty.identifty.base.TyFaceInfo
@@ -289,3 +290,9 @@ fun <T> eventFlow(replay: Int = 0): MutableSharedFlow<T> =
         extraBufferCapacity = 64,
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
+
+fun GroupSportBaseMan.checkHandUp(): Boolean {
+    if (skeleton == null || skeleton.lShoulder == null || skeleton.rWrist == null)
+        return false
+    return skeleton.lWrist.y < skeleton.lShoulder.y
+}
