@@ -236,13 +236,9 @@ object UIMultiNavigation : BaseNavigation() {
     /**
      * 18人坐位体前屈设置（主屏 + 左右副屏，每屏6人）
      */
-    fun goSitReachEighteenSetting(
-        context: Context, saveKey: String? = null
-    ) {
+    fun goSitReachEighteenSetting(context: Context) {
         context.startActivity(
-            Intent(context, SitReachEighteenSettingActivity::class.java).apply {
-                saveKey?.let { putExtra("save_key", it) }
-            }
+            Intent(context, SitReachEighteenSettingActivity::class.java)
         )
     }
 

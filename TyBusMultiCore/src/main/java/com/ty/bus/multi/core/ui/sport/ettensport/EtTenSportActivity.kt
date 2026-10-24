@@ -65,7 +65,7 @@ class EtTenSportActivity : BaseMultiSportActivity<AcEtTenSportBinding, EtTenSpor
     private var startDialog: CommonTipDialog? = null
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
         timeOutHelper.cancel()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
