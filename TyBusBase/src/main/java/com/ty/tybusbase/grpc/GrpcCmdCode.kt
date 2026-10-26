@@ -68,4 +68,6 @@ object GrpcCmdCode {
 
     //绕杆运动卡片状态 payload =
     const val CMD_CONE_DRIBBLING_SPORT_CARD_STATUS = 0x90
+
+    const val CMD_FOUR_SPORT_GB_REGION_SETTING = 0xA0
 }
