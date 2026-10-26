@@ -13,7 +13,6 @@ import androidx.core.view.isGone
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlExecutor
 import com.adl.base.common.AdlVideoReader
@@ -42,7 +41,6 @@ import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
-import com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachResultView
 import com.ty.bus.multi.databinding.AcSitReachEighteenBinding
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
@@ -99,8 +97,6 @@ class SitReachEighteenActivity :
     private lateinit var ipcHik: NsCameraHKSource
     private var tipsHide = false //位置提示是否隐藏
     private var tipCountDownCount = 3  //提示的倒计时时间
-
-    private lateinit var srrvResult: EighteenSitReachResultView
 
     private var currentArea = DisplayType.MAIN
     private var leftIdentifiedCount = 0
@@ -159,17 +155,11 @@ class SitReachEighteenActivity :
 
         //开始/结束测试/重测/下一组属于整个运动
         mBinding.tvBegin.setOnClickListener {
-            mBinding.tvBegin.visibility = View.GONE
-            viewModel.toStatusPrepare()
+            //点击"立即开始"：跳过识别倒计时，主副屏立即同时开始运动（开始后由sportStartLD收起按钮）
+            viewModel.startSportNow()
         }
         mBinding.tvFinish.setOnClickListener {
             showExitDialog()
-        }
-        mBinding.tvRetest.setOnClickListener {
-            retest()
-        }
-        mBinding.tvNext.setOnClickListener {
-            next()
         }
 
         mainHandler.postDelayed(tipRunnable, 1000)
@@ -487,17 +477,19 @@ class SitReachEighteenActivity :
             showOrUpdateClearIdentifyDialog()
         }
 
-        viewModel.waitOtherAreaLD.collectOnLifecycle {
-            //主屏已就绪，但已加入的副屏尚未就绪：提示等待其他区域
-            mBinding.tvSportingTips.visibility = View.VISIBLE
-            mBinding.tvSportingTips.text = getString(R.string.wait_other_area_join)
+        viewModel.identifyCountDownLD.collectOnLifecycle {
+            //主屏或副屏有人员识别成功：开始识别倒计时，"立即开始"按钮展示剩余秒数
+            if (viewModel.sportStartedLD.value) return@collectOnLifecycle
+            mBinding.tvBegin.visibility = View.VISIBLE
+            mBinding.tvBegin.text = if (it > 0) {
+                getString(R.string.start_now_num, it)
+            } else {
+                getString(R.string.start_now)
+            }
         }
 
         viewModel.toDoneLD.collectOnLifecycle {
-            //三屏都结束，展示合并结果页
-            mBinding.tvRetest.visibility = View.GONE
-            mBinding.tvNext.visibility = View.GONE
-            addResultView(it)
+
         }
 
         viewModel.timeOutLD.observe(this) {
@@ -506,25 +498,6 @@ class SitReachEighteenActivity :
     }
 
     private fun addResultView(resultList: List<ThirtySportResultItem>) {
-        srrvResult = EighteenSitReachResultView(this)
-        mBinding.flResultViewContainer.addView(
-            srrvResult,
-            RecyclerView.LayoutParams.MATCH_PARENT,
-            RecyclerView.LayoutParams.MATCH_PARENT
-        )
-        srrvResult.setConfirmOnclickListener {
-            finish()
-        }
-        if (viewModel.ffSportConfig?.isSupportNextGroup == true) {
-            srrvResult.setNextOnclickListener {
-                mBinding.flResultViewContainer.removeView(srrvResult)
-                next()
-            }
-        }
-        srrvResult.setResult(
-            resultList,
-            viewModel.ffSportConfig?.isVoiceBroadcastSupported == true
-        )
     }
 
     /**
@@ -688,10 +661,7 @@ class SitReachEighteenActivity :
 
     override fun onStatusPrepare() {
         timeOutHelper.cancel()
-        //本屏已就绪，等待协同开始；未开始时展示"开始"按钮，可手动触发
-        if (viewModel.sportStartedLD.value.not()) {
-            mBinding.tvBegin.visibility = View.VISIBLE
-        }
+        //主屏已就绪，触发识别倒计时；"立即开始"按钮由识别倒计时驱动展示剩余秒数
     }
 
     override fun onStatusIdentifySuccess() {
@@ -707,46 +677,10 @@ class SitReachEighteenActivity :
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
         mBinding.tvBegin.visibility = View.GONE
         mBinding.tvSportingTips.visibility = View.GONE
-        //本屏运动结束，展示重测/下一组，等待其他区域结束后再出合并结果页
-        if (viewModel.ffSportConfig?.isSupportNextGroup == true) {
-            mBinding.tvNext.visibility = View.VISIBLE
-        }
-        mBinding.tvRetest.visibility = View.VISIBLE
     }
 
     private fun releaseModel() {
         TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
-    }
-
-    /**
-     * 下一组
-     */
-    private fun next() {
-        timeOutHelper.start()
-        mBinding.tvRetest.visibility = View.GONE
-        mBinding.tvNext.visibility = View.GONE
-        mBinding.sportViewMain.reset()
-        mBinding.sportViewLeft.reset()
-        mBinding.sportViewRight.reset()
-        viewModel.reset()
-        viewModel.toStatusIdentifyFace()
-    }
-
-    /**
-     * 重测试
-     */
-    private fun retest() {
-        controller.resetObject()
-        mBinding.root.postDelayed({
-            controller.combineLayoutAndPrepare()
-            controller.start()
-            mBinding.tvRetest.visibility = View.GONE
-            mBinding.tvNext.visibility = View.GONE
-            mBinding.sportViewMain.reset()
-            mBinding.sportViewLeft.reset()
-            mBinding.sportViewRight.reset()
-            viewModel.retest()
-        }, 1000)
     }
 
     /**
