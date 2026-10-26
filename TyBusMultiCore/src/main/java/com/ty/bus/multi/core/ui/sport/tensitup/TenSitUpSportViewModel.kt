@@ -448,7 +448,7 @@ class TenSitUpSportViewModel(application: Application) :
     }
 
     private fun checkHandUp(it: GroupSportBaseMan): Boolean {
-        if (it.skeleton == null || it.skeleton.lShoulder == null || it.skeleton.rWrist == null)
+        if (it.skeleton == null || it.skeleton.lShoulder == null || it.skeleton.lWrist == null)
             return false
         return it.skeleton.lWrist.y < it.skeleton.lShoulder.y
 //        return true
