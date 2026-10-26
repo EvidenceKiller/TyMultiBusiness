@@ -41,6 +41,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.ui.set.fourgbsportset.FourSportGbSettingActivity
 import com.ty.bus.multi.databinding.AcFourGbSportBinding
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.SportConstant
@@ -67,6 +68,8 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
         const val INTENT_KEY_VIDEO_PATH: String = "FourSportGbVideoPath"
 
         private const val TAG = "ZXN_TEST"
+
+        private const val RECOGNIZER_CONFIG_KEY = "FourSportGbMarkerRecognizerConfig"
     }
 
     private val jumpConfig: JumpConfig by lazy { JumpConfig() }
@@ -419,6 +422,7 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
         jumpConfig.drawSkeleton = true
         jumpConfig.drawRope = isDebug
         jumpConfig.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_FOUR
+        jumpConfig.setMarkerRecognizerName(RECOGNIZER_CONFIG_KEY)
         jumpConfig.setJumpType(JumpType.doubleShakeJump, object: TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
                 showLoadingDialog("模型加载中")
