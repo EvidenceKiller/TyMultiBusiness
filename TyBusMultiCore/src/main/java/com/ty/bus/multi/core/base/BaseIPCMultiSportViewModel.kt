@@ -81,6 +81,7 @@ import java.util.concurrent.ConcurrentHashMap
 import androidx.core.util.isEmpty
 import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SportRecordEntity.RecordMeeting
+import com.adl.service.entity.SportStartRecordEntity.SportStartAccountDetail
 import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
 import com.ty.tybusbase.expand.checkHandUp
@@ -832,10 +833,20 @@ open class BaseIPCMultiSportViewModel(application: Application) :
         sportingCountDownTimer?.start()
         multiSportParser.checkSkipScore = true
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until skipPersonArray.size) {
-            val multiResult = skipPersonArray.valueAt(index)
+        val sportDetail = mutableListOf<SportStartAccountDetail>()
+        skipPersonArray.forEach { _, multiResult ->
             currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
+            sportDetail.add(SportStartAccountDetail().apply {
+                this.accountId = multiResult.accountInfo.studentEntity?.accountId
+                this.sportStartTime = startSportTime
+            })
         }
+
+//        for (index in 0 until skipPersonArray.size) {
+//            val multiResult = skipPersonArray.valueAt(index)
+//            currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
+//        }
+        uploadSportStartRecord(sportDetail)
     }
 
     private fun startRecord() {

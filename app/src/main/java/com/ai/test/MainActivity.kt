@@ -118,10 +118,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sportSkuName = "五人"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
-                }, FiveSportConfig.builder()
-                    .setSupportReport(false)
-                    .setAutoFinishTime(15_1000)
-                    .build()
+                }, FiveSportConfig.builder {
+                    setSupportReport(false)
+                    setAutoFinishTime(15_1000)
+                }
             )
         }
 
