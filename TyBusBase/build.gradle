@@ -73,7 +73,7 @@ dependencies {
     api(name: 'NzSportGeneral-v1.1.0-2026-10-15', ext: 'aar')
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')
     api(name: 'AdlRopeSkipLite-2026-10-20', ext: 'aar')
-    api(name: 'AiPowerSpecial-v2.0.0-2026-10-24', ext: 'aar')
+    api(name: 'AiPowerSpecial-v2.0.0-2026-10-26', ext: 'aar')
     api(name: 'TyInference-ClassicAlgoJ-2026-09-11', ext: 'aar')
     api(name: 'grpclib-1.0.0-2026-10-14', ext: 'aar')
 

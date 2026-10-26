@@ -1219,6 +1219,7 @@ class SitReachEighteenViewModel(application: Application) :
                     when (displayType) {
                         DisplayType.LEFT -> {
                             leftPersonArray[result.index]?.count = score
+                            leftPersonArray[result.index]?.status = result.status
                             leftPersonArray[result.index]?.recordId = result.recordId
                             leftPersonArray[result.index]?.let { person ->
                                 _sportResultLD.tryEmit(
@@ -1229,6 +1230,7 @@ class SitReachEighteenViewModel(application: Application) :
 
                         DisplayType.RIGHT -> {
                             rightPersonArray[result.index]?.count = score
+                            rightPersonArray[result.index]?.status = result.status
                             rightPersonArray[result.index]?.recordId = result.recordId
                             rightPersonArray[result.index]?.let { person ->
                                 _sportResultLD.tryEmit(

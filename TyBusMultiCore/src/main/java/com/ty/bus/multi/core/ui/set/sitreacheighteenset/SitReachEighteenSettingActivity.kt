@@ -68,7 +68,7 @@ class SitReachEighteenSettingActivity :
     var enableRender: Boolean = true
     var frameTime: Long = 0
     val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/body_bend_ai_six/坐位体前屈6人2k.mp4"
-    val streamType = 1 // todo 1:camera , 2: video
+    val streamType = 2 // todo 1:camera , 2: video
 
     /***************************视频播放调试*************************/
 
@@ -90,6 +90,7 @@ class SitReachEighteenSettingActivity :
     }
 
     private val sportConfig by lazy {
+        val modelGroupName = SitAndReachType.SIT_AND_REACH_CUSTOM.sportName
         val sourceType = if (streamType == 1)
             SitAndReachControllerConfig.InputSource.CAMERA
         else
@@ -117,6 +118,7 @@ class SitReachEighteenSettingActivity :
         config.debug = BusiBaseConfig.getDebugEnable()
         config.enableRecordVideo = false
         config.needSetUI = true
+        config.modelGroupName = modelGroupName
         config
     }
 

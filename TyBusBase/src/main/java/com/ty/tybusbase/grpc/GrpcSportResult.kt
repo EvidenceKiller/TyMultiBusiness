@@ -6,6 +6,7 @@ package com.ty.tybusbase.grpc
 data class GrpcSportResult(
     val index: Int = 1,   //道次
     val sportResult: String = "",    // 运动成绩
+    var status:Int = 0,  //成绩状态，0: 正常，1: 违规,2: 未完成
     val totalScore: Int = 0,         // 总分
     val sportTime: Long = 0,          // 运动时长
     var accountName: String = "",
