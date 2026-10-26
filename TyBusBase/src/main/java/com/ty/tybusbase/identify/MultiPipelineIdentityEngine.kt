@@ -75,7 +75,7 @@ class MultiPipelineIdentityEngine {
             override fun onFindStudent(user: StudentEntity?) {
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
+            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType?) {
 
             }
 
