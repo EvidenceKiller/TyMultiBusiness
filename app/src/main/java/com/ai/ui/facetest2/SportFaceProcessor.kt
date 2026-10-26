@@ -117,7 +117,7 @@ class SportFaceProcessor : SportCameraYuv("人脸识别"), SportLifecycle {
             override fun onFindUserId(userId: String?, score: Float) {
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
+            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType?) {
             }
 
         })

@@ -77,7 +77,7 @@ class MultiIdentityEngine {
                 }
             }
 
-            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType) {
+            override fun onFindFail(info: TyFaceInfo<*>?, type: FailType?) {
 
             }
 

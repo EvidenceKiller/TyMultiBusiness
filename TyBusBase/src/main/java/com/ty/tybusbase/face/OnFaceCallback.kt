@@ -9,5 +9,5 @@ interface OnFaceCallback {
     fun onFindStudent(user: StudentEntity?)
     fun onFindTeacher(user: TeacherEntity?) {}
     fun onFindUserId(userId:String?,score:Float)
-    fun onFindFail(info: TyFaceInfo<*>?,type: FailType)
+    fun onFindFail(info: TyFaceInfo<*>?,type: FailType?)
 }
