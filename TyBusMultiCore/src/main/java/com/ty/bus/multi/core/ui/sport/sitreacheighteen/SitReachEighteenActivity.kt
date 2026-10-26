@@ -18,7 +18,6 @@ import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlExecutor
 import com.adl.base.common.AdlVideoReader
 import com.adl.base.common.VideoReaderCallback
-import com.adl.base.config.AdlUIConfig
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.log.AdlLogger
 import com.adl.lib.AdlCameraConfig
@@ -45,7 +44,6 @@ import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
 import com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachResultView
 import com.ty.bus.multi.databinding.AcSitReachEighteenBinding
-import com.ty.forwardflexion.config.FFlexionRoleConfig
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
@@ -76,7 +74,7 @@ class SitReachEighteenActivity :
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
-    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/site_up_six/坐位体前屈6人2k.mp4"
+    val videoFilePath = "/sdcard/com.adl.sport/testDebugVideo/body_bend_ai_six/坐位体前屈6人2k.mp4"
 
     /***************************视频播放调试*************************/
 
@@ -86,7 +84,6 @@ class SitReachEighteenActivity :
     /** 每屏人数（6人），三屏共18人 */
     private val number = 6
 
-    private var uiConfig: FFlexionRoleConfig? = null
     private var isModelOk = false //模型是否加载成功
     private var isInit = false //是否开始流程
 
@@ -682,11 +679,6 @@ class SitReachEighteenActivity :
     }
 
     private fun initOverlay() {
-        uiConfig = AdlUIConfig.instance()
-            .readConfig(
-                MultiCoreConstant.SIT_REACH_SIX_UI_KEY,
-                FFlexionRoleConfig::class.java
-            )
     }
 
     override fun onStatusIdentify() {
