@@ -424,25 +424,12 @@ class FourSportGbViewModel(application: Application) : BaseMultiPipelineIdentify
 
     override fun identifyFail(index: Int) {
         Log.w(TAG, "FourSportGbViewModel::identifyFail: $index")
-        changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
-        //处理下一道是否有人
-        var tempNumber = (currentIdentifyNumber + 1) % SPORT_NUMBER
-        var findOk = false
-        while (tempNumber < SPORT_NUMBER) {
-            //找到下一道，状态为checkDown且还没有识别的位置
-            if (sportResultMap[tempNumber] == null) {
-                currentIdentifyNumber = tempNumber
-                changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFYING)
-                findOk = true
-                break
-            }
-            tempNumber++
+        val failIndex = if (index in 0 until SPORT_NUMBER) index else currentIdentifyNumber
+        if (failIndex in 0 until SPORT_NUMBER) {
+            // 人还在则 STANDBY；人已走则下一帧在位同步改 NOBODY
+            changeMultiIdentityCardState(failIndex, MultiSportCardViewState.STANDBY)
         }
-        //没有找到下一道，置为-1，再从头开始识别
-        if (!findOk) {
-            currentIdentifyNumber = -1
-        }
-
+        currentIdentifyNumber = -1
     }
 
     override fun identifyOk(accountIndex: Int, accountInfo: AccountInfo) {
@@ -579,18 +566,40 @@ class FourSportGbViewModel(application: Application) : BaseMultiPipelineIdentify
     }
 
 
+    /**
+     * 每帧同步未入册道次的在位 UI：离区 → NOBODY（请站到运动区内），在区非当前识别道 → STANDBY（请举手准备）。
+     * 须在识别早退之前调用，避免识别占用时离区提示卡住。
+     */
+    private fun syncIdentifyPresence(jumpers: List<Jumper>) {
+        jumpers.forEachIndexed { index, jumper ->
+            if (sportResultMap[index] != null) return@forEachIndexed
+            if (jumper.skeleton == null) {
+                changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY)
+                if (index == currentIdentifyNumber) {
+                    currentIdentifyNumber = -1
+                }
+            } else if (index != currentIdentifyNumber) {
+                changeMultiIdentityCardState(index, MultiSportCardViewState.STANDBY)
+            }
+        }
+    }
+
     @Synchronized
     private fun handleIdentify(jumpers: List<Jumper>) {
         if (sportState != MultiSportState.IDENTIFYING) {
             return
         }
+        syncIdentifyPresence(jumpers)
         if (currentIdentifyNumber != -1) {
             Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
+            if (currentIdentifyNumber !in jumpers.indices) {
+                currentIdentifyNumber = -1
+                return
+            }
             val jumper = jumpers[currentIdentifyNumber]
-            //没找到人，说明，人已离开位置，则重置状态
+            //没找到人，说明，人已离开位置，则重置状态（在位同步已刷 NOBODY）
             if (jumper.skeleton == null) {
                 Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
-                changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.NOBODY)
                 currentIdentifyNumber = -1
             } else {
                 if (judgeHandUp(currentIdentifyNumber, jumper.skeleton)) {
@@ -612,7 +621,7 @@ class FourSportGbViewModel(application: Application) : BaseMultiPipelineIdentify
         }
         //如果正在识别，则等待识别完再处理下一个人脸识别
         if (isIdentifying()) {
-            Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：人已离开位置，但正在识别人脸; 道数 $currentIdentifyNumber")
+            Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：引擎忙，等待; 道数 $currentIdentifyNumber")
             return
         }
 
@@ -627,20 +636,6 @@ class FourSportGbViewModel(application: Application) : BaseMultiPipelineIdentify
                     changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFYING)
                     Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
                     return@identify
-                }
-            }
-        }
-        jumpers.forEachIndexed { index, jumper ->
-            if (sportResultMap[index] != null) {
-                return@forEachIndexed
-            }
-            if (jumper.skeleton == null) {
-                changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY)
-            } else {
-                if (index == currentIdentifyNumber) {
-                    changeMultiIdentityCardState(index, MultiSportCardViewState.IDENTIFYING)
-                } else {
-                    changeMultiIdentityCardState(index, MultiSportCardViewState.STANDBY)
                 }
             }
         }
