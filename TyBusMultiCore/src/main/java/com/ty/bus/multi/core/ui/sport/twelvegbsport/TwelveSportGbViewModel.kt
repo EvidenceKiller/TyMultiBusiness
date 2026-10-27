@@ -39,6 +39,7 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
 import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.config.BusiBaseConfig
@@ -182,8 +183,8 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     val countDownFinishLD: SharedFlow<Pair<DisplayType, Boolean>> = _countDownFinishLD.asSharedFlow()
 
     //比赛结束事件（一次性消息：非粘性，返回页面不会重放，避免重复 clearScreen/addResultView）
-    private val _toDoneLD = eventFlow<Array<MultiSportResult>>()
-    val toDoneLD: SharedFlow<Array<MultiSportResult>> = _toDoneLD.asSharedFlow()
+    private val _toDoneLD = eventFlow<List<ThirtySportResultItem>>()
+    val toDoneLD: SharedFlow<List<ThirtySportResultItem>> = _toDoneLD.asSharedFlow()
 
     //切换运动卡片状态（区域 → (位置, 卡片状态)）
     private val _changeSportViewStateLD = eventFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>>()
@@ -1216,35 +1217,18 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     }
 
     /**
-     * 合并主屏与已连接副屏成绩，按高优排序，计算名次，并生成结果页数据
+     * 合并主屏与已连接副屏成绩，生成带区域信息的结果项，按高优排序并计算总排名
      */
     private fun handleMergedResult() {
         if (sportInfo == null) return
-        val resultList = mutableListOf<MultiSportResult>()
-        sportResultMap.values.forEach { resultList.add(it) }
-        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
-            leftPersonArray.forEach { _, result -> resultList.add(result) }
-        }
-        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
-            rightPersonArray.forEach { _, result -> resultList.add(result) }
-        }
-        if (resultList.isEmpty()) {
+        val mergedItems = mergeAllAreaResults()
+        if (mergedItems.isEmpty()) {
             Log.w(TAG, "TwelveSportGbViewModel::handleMergedResult: empty result list")
             return
         }
-        resultList.sortWith(compareBy { -it.count })
-        var preRank = 0
-        var preScore = -1
-        for (index in resultList.indices) {
-            val item = resultList[index]
-            val rank = if (item.count == preScore) preRank else preRank + 1
-            preRank = rank
-            preScore = item.count
-            item.rank = rank
-        }
-        val topSummary = resultList.take(3).joinToString { "${it.accountInfo.studentEntity?.accountName}:${it.count}" }
-        Log.i(TAG, "TwelveSportGbViewModel::handleMergedResult: total=${resultList.size}, top=$topSummary")
-        _toDoneLD.tryEmit(resultList.toTypedArray())
+        val topSummary = mergedItems.take(3).joinToString { "${it.name}:${it.count}" }
+        Log.i(TAG, "TwelveSportGbViewModel::handleMergedResult: total=${mergedItems.size}, top=$topSummary")
+        _toDoneLD.tryEmit(mergedItems)
         // 主屏本地成绩仍按本屏道次上传
         val mainUpload = Array(SPORT_NUMBER) { MultiSportResult(AccountInfo(), 0) }
         sportResultMap.forEach { (index, value) ->
@@ -1253,6 +1237,67 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
             }
         }
         handleUploadResult(mainUpload.toMutableList())
+    }
+
+    /**
+     * 合并主屏与已连接副屏成绩，生成结果页统一数据项，按成绩高优排序并重新计算总排名
+     */
+    private fun mergeAllAreaResults(): List<ThirtySportResultItem> {
+        val areaNameMap = mapOf(
+            DisplayType.MAIN to getString(R.string.area_main),
+            DisplayType.LEFT to getString(R.string.area_left),
+            DisplayType.RIGHT to getString(R.string.area_right)
+        )
+        val merged = mutableListOf<ThirtySportResultItem>()
+        sportResultMap.values.forEach { result ->
+            merged.add(
+                ThirtySportResultItem(
+                    result = result,
+                    displayType = DisplayType.MAIN,
+                    areaName = areaNameMap[DisplayType.MAIN] ?: "",
+                    isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                    trackNumber = result.number
+                )
+            )
+        }
+        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            leftPersonArray.forEach { _, result ->
+                merged.add(
+                    ThirtySportResultItem(
+                        result = result,
+                        displayType = DisplayType.LEFT,
+                        areaName = areaNameMap[DisplayType.LEFT] ?: "",
+                        isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                        trackNumber = result.number,
+                        recordId = result.recordId
+                    )
+                )
+            }
+        }
+        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            rightPersonArray.forEach { _, result ->
+                merged.add(
+                    ThirtySportResultItem(
+                        result = result,
+                        displayType = DisplayType.RIGHT,
+                        areaName = areaNameMap[DisplayType.RIGHT] ?: "",
+                        isVisitor = result.accountInfo.studentEntity?.accountId == BusiBaseConstantsValue.VISITOR_USER_ID,
+                        trackNumber = result.number,
+                        recordId = result.recordId
+                    )
+                )
+            }
+        }
+        merged.sortWith(compareBy { -it.count })
+        var preRank = 0
+        var preScore = -1
+        merged.forEach { item ->
+            val rank = if (item.count == preScore) preRank else preRank + 1
+            preRank = rank
+            preScore = item.count
+            item.result.rank = rank
+        }
+        return merged
     }
 
     /**

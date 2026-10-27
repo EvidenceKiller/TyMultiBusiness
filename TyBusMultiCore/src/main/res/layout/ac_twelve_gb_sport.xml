@@ -174,11 +174,10 @@
             android:textSize="@dimen/sp_22" />
     </LinearLayout>
 
-    <com.ty.bus.multi.core.view.foursport.FourSportResultView
-        android:id="@+id/result_view"
+    <FrameLayout
+        android:id="@+id/fl_result_view_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone" />
+        android:layout_height="match_parent" />
 
     <!-- 倒计时提示文案（属于整个运动，不随区域切换） -->
     <com.ty.tybusbase.view.MyLinerGradientTextVIewType1

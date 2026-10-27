@@ -1,5 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.twelvegbsport
 
+import adl.ssp.common.report.model.IndicatorsResultDto
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.SurfaceTexture
@@ -19,6 +20,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.RecyclerView
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlHandlerThread
 import com.adl.base.common.AdlToast
@@ -43,8 +45,9 @@ import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.config.SportModel
-import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
+import com.ty.bus.multi.core.view.twelvegbsport.TwelveSportResultView
 import com.ty.bus.multi.databinding.AcTwelveGbSportBinding
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.SportConstant
@@ -52,9 +55,10 @@ import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.gone
-import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
+import com.ty.tybusbase.ui.report.SportReportActivity
 import com.ty.tybusbase.ui.webview.CommonWebViewActivity
+import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -108,6 +112,7 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
     private var leftIdentifiedCount = 0
     private var mainIdentifiedCount = 0
     private var rightIdentifiedCount = 0
+    private lateinit var srrvResult: TwelveSportResultView
 
     private val AREA_TAB_RED = "#FF4D4F"
 
@@ -322,11 +327,11 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
             mBinding.tvTime.text = simpleFormat.format(Date((it.second) * 1000))
         }
 
-        viewModel.toDoneLD.collectOnLifecycle { resultArray ->
+        viewModel.toDoneLD.collectOnLifecycle { resultList ->
             Log.i(TAG, "TwelveSportGbActivity::initObserver::toDoneLD")
             //结束清除骨骼数据等
             mBinding.overlay.clearScreen()
-            setResultView(resultArray.toList())
+            setResultView(resultList)
         }
 
         viewModel.changeTimeTextBgLD.collectOnLifecycle {
@@ -810,14 +815,64 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         }
     }
 
-    private fun setResultView(resultList: List<MultiSportResult>) {
-        mBinding.resultView.visible()
-        mBinding.resultView.setConfirmOnclickListener {
+    private fun setResultView(resultList: List<ThirtySportResultItem>) {
+        srrvResult = TwelveSportResultView(this).apply {
+            measureUnit = viewModel.measureUnit
+            setEnergyPoint(viewModel.energyPoint)
+        }
+        srrvResult.setSupportReport(viewModel.isSupportReport())
+        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
+            srrvResult.setReportOnclickListener {
+                when (it.displayType) {
+                    DisplayType.MAIN -> viewReport(viewModel.getIndicatorsResultDto(it.trackNumber))
+                    DisplayType.LEFT -> viewModel.queryOnlineReport(viewModel.leftPersonArray[it.trackNumber].recordId)
+                    DisplayType.RIGHT -> viewModel.queryOnlineReport(viewModel.rightPersonArray[it.trackNumber].recordId)
+                    else -> {}
+                }
+            }
+        }
+        mBinding.flResultViewContainer.addView(
+            srrvResult,
+            RecyclerView.LayoutParams.MATCH_PARENT,
+            RecyclerView.LayoutParams.MATCH_PARENT
+        )
+        srrvResult.setConfirmOnclickListener {
             finish()
         }
-        mBinding.resultView.setResultTitleText(viewModel.fourSportConfig?.resultPageText)
+        srrvResult.setResultTitleText(viewModel.fourSportConfig?.resultPageText)
+        if (viewModel.fourSportConfig?.isSupportNextGroup == true) {
+            srrvResult.setNextOnclickListener {
+                mBinding.flResultViewContainer.removeView(srrvResult)
+                resetForNextGroup()
+            }
+        }
+        srrvResult.setResult(
+            resultList,
+            if (viewModel.matchId != null) 100000 else 0,
+            viewModel.fourSportConfig?.isVoiceBroadcastSupported == true
+        )
+    }
 
-        mBinding.resultView.setResult(resultList)
+    private fun resetForNextGroup() {
+        mBinding.sportViewMain.reset()
+        mBinding.sportViewLeft.reset()
+        mBinding.sportViewRight.reset()
+        mBinding.llTime.visibility = View.GONE
+        jumpProcessor.changeStatus(BaseSportState.Standby)
+        jumpProcessor.setStart(false)
+        viewModel.reset()
+        viewModel.toStatusIdentifyFace()
+    }
+
+    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
+        indicatorDo?.apply {
+            val intent = Intent(this@TwelveSportGbActivity, SportReportActivity::class.java)
+            intent.putExtra("report_indicator", this@apply)
+            intent.putExtra("type", 1)
+            startActivity(intent)
+        } ?: run {
+            ToastUtil.getInstance(this, getString(R.string.no_report)).show()
+        }
     }
 
     private fun setTips(text: String) {
