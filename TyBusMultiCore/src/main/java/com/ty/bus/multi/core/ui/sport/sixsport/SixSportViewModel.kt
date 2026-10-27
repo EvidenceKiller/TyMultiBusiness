@@ -13,6 +13,7 @@ import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.mount.sport.TsSportChannel
 import com.adl.service.entity.SportRecordEntity
+import com.adl.service.entity.SportStartRecordEntity.SportStartAccountDetail
 import com.adl.sport.general.groupsportbase.GroupSportBaseMan
 import com.adl.sport.general.groupsportbase.GroupSportsBaseChannelStatus
 import com.adl.sport.general.multi.MultiSportProcessor
@@ -624,16 +625,22 @@ class SixSportViewModel(application: Application) : BaseMultiSportViewModel(appl
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
+        val sportDetail = mutableListOf<SportStartAccountDetail>()
         for (index in 0 until sportManCount) {
             val multiResult = sportPersonArray.get(index)
             if (multiResult != null) {
                 changeMultiSportViewCardState(multiResult.number, MultiSportCardViewState.SPORTING)
-
+                sportDetail.add(SportStartAccountDetail().apply {
+                    this.accountId = multiResult.accountInfo.studentEntity?.accountId
+                    this.sportStartTime = startSportTime
+                })
             } else {
                 changeMultiSportViewCardState(index, MultiSportCardViewState.NOBODY_SPORT)
             }
 //            currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
         }
+        uploadSportStartRecord(sportDetail)
+
     }
 
     @SuppressLint("ImplicitSamInstance")

@@ -118,10 +118,10 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                         sportSkuName = "五人"
                         sceneId = SceneConstants.INDEPENDENT_TEST
                     }
-                }, FiveSportConfig.builder()
-                    .setSupportReport(false)
-                    .setAutoFinishTime(15_1000)
-                    .build()
+                }, FiveSportConfig.builder {
+                    setSupportReport(false)
+                    setAutoFinishTime(15_1000)
+                }
             )
         }
 
@@ -678,8 +678,14 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
         mBinding.btnFourSportSetting.setOnClickListener {
             UIMultiNavigation.goFourSportGbSetting(this, preCallback = { intent ->
-                val cameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
+                val cameraConfig = IpcCameraConfig("172.16.30.211", "admin", "zy132456")
                 BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY, cameraConfig)
+
+                val leftCameraConfig = IpcCameraConfig("172.16.30.222", "admin", "zy132456")
+                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.LEFT_SUB_SCREEN_IPC_CAMERA_KEY, leftCameraConfig)
+
+                val rightCameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
+                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.RIGHT_SUB_SCREEN_IPC_CAMERA_KEY, rightCameraConfig)
 
 //                intent.putExtra(FourSportGbSettingActivity.INTENT_KEY_VIDEO_PATH, "/sdcard/zy.sport.cache/resCollect/shuangyao-20261021-142817.mp4")
             })

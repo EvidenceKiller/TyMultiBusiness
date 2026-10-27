@@ -38,6 +38,7 @@ import kotlin.math.max
 import kotlin.math.min
 import androidx.core.util.size
 import com.adl.service.entity.SportRecordEntity
+import com.adl.service.entity.SportStartRecordEntity.SportStartAccountDetail
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.withContext
@@ -566,10 +567,19 @@ class ThreeSportViewModel(application: Application) : BaseMultiSportViewModel(ap
         sportState = MultiSportState.SPORTING
         startTime = System.currentTimeMillis()
         //比赛开始设置卡片状态为运动状态
-        for (index in 0 until sportPersonArray.size) {
-            val multiResult = sportPersonArray.valueAt(index)
+//        for (index in 0 until sportPersonArray.size) {
+//            val multiResult = sportPersonArray.valueAt(index)
+//            currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
+//        }
+        val sportDetail = mutableListOf<SportStartAccountDetail>()
+        sportPersonArray.forEach { _, multiResult ->
             currentCardState[multiResult.number] = MultiSportCardViewState.SPORTING
+            sportDetail.add(SportStartAccountDetail().apply {
+                this.accountId = multiResult.accountInfo.studentEntity?.accountId
+                this.sportStartTime = startSportTime
+            })
         }
+        uploadSportStartRecord(sportDetail)
     }
 
     @SuppressLint("ImplicitSamInstance")

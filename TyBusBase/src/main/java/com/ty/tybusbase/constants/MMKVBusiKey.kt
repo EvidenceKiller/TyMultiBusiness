@@ -146,4 +146,6 @@ object MMKVBusiKey {
 
     const val SUB_SCREEN_SPORT_SELECT_REGION_CONFIG = "sub_screen_sport_select_region_config" //副屏选择运动框体设置Key
 
+    const val TEACH_LEARN_INFO = "teach_learn_info" //存储课程信息
+
 }

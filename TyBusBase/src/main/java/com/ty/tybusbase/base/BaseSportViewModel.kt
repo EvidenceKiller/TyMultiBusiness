@@ -43,10 +43,18 @@ import java.util.concurrent.ConcurrentHashMap
 import androidx.core.net.toUri
 import com.adl.auth.core.AdlAuthFactory
 import com.adl.base.common.AdlVideoAsyncRecorder
+import com.adl.service.entity.SportStartRecordEntity
+import com.adl.service.entity.SportStartRecordEntity.SportStartAccountDetail
+import com.adl.service.outer.UserCaller
 import com.adl.service.web.SportPlanService
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
+import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.entity.LearnClassInfo
 import com.ty.tybusbase.expand.Action1
+import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.helper.TeachHelper
 import com.ty.tybusbase.utils.BusiCoreEngine
+import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.VideoUtil
 import kotlinx.coroutines.withContext
 
@@ -65,6 +73,7 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
     var energyPoint: Int = 0
     var streamType = 1 //1:摄像头播放，2:视频播放
     var canPlayBgm = true //是否能播背景音乐，用于上层业务控制音乐播放
+    var sportStartId = ""
 
     val sportResult: SportResult by lazy { SportResult() }
 
@@ -394,6 +403,38 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
         }
     }
 
+    fun uploadSportStartRecord(
+        sportDetail: MutableList<SportStartAccountDetail>? = null
+    ) {
+        if (sceneId != SceneConstants.CLASS_TEST && sceneId != SceneConstants.CLASS_EXERCISE && sceneId != SceneConstants.CLASS_COMPETITION) {
+            return
+        }
+        viewModelScope.launch(Dispatchers.IO) {
+            val sportStartInfo = SportStartRecordEntity().apply {
+                val org = UserCaller.instance().currentOrg
+                if (org != null) {
+                    this.orgId = org.orgId
+                }
+                val learnInfo =
+                    MMKVUtil.decodeString(MMKVBusiKey.TEACH_LEARN_INFO)?.toObject<LearnClassInfo>()
+                this.lessonId = learnInfo?.lessonId
+                this.classId = TeachHelper.classId
+                this.deviceId = MMKVUtil.decodeString(MMKVBusiKey.REGISTER_CODE)
+                this.sportItemCode = sportInfo?.sportItemCode
+                this.sportSkuId = sportInfo?.sportSkuId
+                this.sportDetails = sportDetail ?: mutableListOf<SportStartAccountDetail>(
+                    SportStartAccountDetail().apply {
+                        accountId = accountInfoLD.value?.studentEntity?.accountId
+                        this.sportStartTime = startSportTime
+                    }
+                )
+
+            }
+            val rere = SportRecordService.uploadSportStartRecord(sportStartInfo)
+            sportStartId = rere.sportStartId
+        }
+    }
+
     fun saveSportResultToDB(sportRecordEntity: SportRecordEntity) {
         AdlService.getService().recordUploadDao.insert(sportRecordEntity)
     }
@@ -448,6 +489,13 @@ open class BaseSportViewModel(application: Application) : BaseViewModel(applicat
             }
             sportPlan = recordPlan
             //处理视频
+
+            if (sportStartId.isNullOrEmpty().not()){
+                this.sportStartId = this@BaseSportViewModel.sportStartId
+                this.lessonId =
+                    MMKVUtil.decodeString(MMKVBusiKey.TEACH_LEARN_INFO)
+                        ?.toObject<LearnClassInfo>()?.lessonId
+            }
 
             if (result.videoFile != null && result.videoFile!!.exists()) {
                 if (result.videoCover == null) {

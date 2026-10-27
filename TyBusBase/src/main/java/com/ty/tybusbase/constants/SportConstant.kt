@@ -263,6 +263,9 @@ object SportConstant {
     // 足球绕杆
     const val CONE_DRIBBLING_FOOT_BALL = "110101"
 
+    //足球踩球
+    const val SPORT_SOCCER_BALL_STEPPING = "110401"
+
     /**
      * @hide
      */

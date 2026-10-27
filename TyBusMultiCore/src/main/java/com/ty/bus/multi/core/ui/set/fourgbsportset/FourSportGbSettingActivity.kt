@@ -1,7 +1,8 @@
 package com.ty.bus.multi.core.ui.set.fourgbsportset
 
+import android.graphics.Color
 import android.graphics.SurfaceTexture
-import android.media.MediaFormat
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
@@ -9,13 +10,18 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.Surface
 import android.view.TextureView
+import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
+import android.widget.PopupWindow
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.adl.base.common.AdlAvReader
 import com.adl.base.common.AdlHandlerThread
+import com.adl.base.common.AdlJsonUtil
+import com.adl.base.common.AdlPreferences
 import com.adl.base.common.AdlToast
 import com.adl.base.common.AdlVideoReader
-import com.adl.base.common.VideoParserCallback
 import com.adl.base.common.VideoReaderCallback
 import com.adl.base.element.ElementFpsCounter
 import com.adl.base.overlay.OnRenderScene
@@ -27,15 +33,23 @@ import com.adl.mount.core.TsModelResPool
 import com.adl.sport.standard.JumpConfig
 import com.adl.sport.standard.JumpType
 import com.adl.sport.standard.jumpcore.JumpRopeProcessor
+import com.adl.sport.standard.markerrecognizer.MarkerRecognizerConfig
+import com.adl.sport.standard.markerrecognizer.MarkerRecognizerType
+import com.adl.sport.standard.markerrecognizer.MarkerTypeInfo
 import com.ty.bus.multi.R
 import com.ty.bus.multi.databinding.ActivityFourGbSportSettingBinding
+import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.base.BaseActivity
 import com.ty.tybusbase.base.BaseViewModel
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
+import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.expand.visible
+import com.ty.tybusbase.grpc.GrpcCmdCode
 import com.ty.tybusbase.utils.ToastUtil
 import java.io.File
+import kotlin.getValue
 import kotlin.math.min
 
 class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBinding, BaseViewModel>() {
@@ -44,9 +58,13 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
         const val INTENT_KEY_VIDEO_PATH: String = "FourSportGbSettingVideoPath"
 
         private const val TAG = "ZXN_TEST"
+
+        private const val RECOGNIZER_CONFIG_KEY = "FourSportGbMarkerRecognizerConfig"
     }
 
-    private val resolutionType by lazy { intent.getIntExtra("res_type", 1) }
+    private enum class AreaMode { MAIN, LEFT, RIGHT }
+
+    private val resolutionType by lazy { intent.getIntExtra("res_type", 0) }
 
     private val cameraPreviewSize: Size by lazy {
         when (resolutionType) {
@@ -68,6 +86,13 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
 
     private val isDebug: Boolean by lazy { BusiBaseConfig.getDebugEnable() }
     private val skeletonEnable: Boolean by lazy { BusiBaseConfig.getSkeletonEnable() }
+
+    private var currentArea = AreaMode.MAIN
+
+    private var areaPopup: PopupWindow? = null
+    private val areaOptions by lazy {
+        resources.getStringArray(R.array.thirty_sport_area_options)
+    }
 
     /***************************视频播放调试*************************/
     private var videoDebug: Boolean = false
@@ -108,6 +133,7 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
     override fun initView(savedInstanceState: Bundle?) {
         Log.i(TAG, "FourSportGbSettingActivity::initView")
         initListener()
+        initAreaSpinner()
         initJumpConfig()
         initJumpProcessor()
         initFrameDispatcher()
@@ -152,12 +178,32 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
     private fun initListener() {
         mBinding.ivBack.setOnClickListener { finish() }
         mBinding.btnSave.setOnClickListener {
-            mBinding.overlay.saveConfig()
-            ToastUtil.getInstance(this, getString(R.string.save_successful)).show()
+            saveConfig()
+//            mBinding.overlay.saveConfig()
+//            ToastUtil.getInstance(this, getString(R.string.save_successful)).show()
         }
         mBinding.btnReset.setOnClickListener {
             mBinding.overlay.restoreSportSetting()
             ToastUtil.getInstance(this, getString(R.string.reset_successful)).show()
+        }
+    }
+
+    private fun initAreaSpinner() {
+        val modes = availableAreaModes()
+        if (modes.size <= 1) {
+            mBinding.llAreaSelector.visibility = View.GONE
+            currentArea = AreaMode.MAIN
+            return
+        }
+        mBinding.llAreaSelector.visible()
+        updateAreaText(currentArea)
+        updateAreaArrow(false)
+        mBinding.llAreaSelector.setOnClickListener {
+            if (areaPopup?.isShowing == true) {
+                areaPopup?.dismiss()
+            } else {
+                showAreaPopup(modes)
+            }
         }
     }
 
@@ -168,6 +214,8 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
         jumpConfig.drawSkeleton = true
         jumpConfig.drawRope = isDebug
         jumpConfig.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_FOUR
+        jumpConfig.setMarkerRecognizerName(getRecognizerConfigKey(currentArea))
+
         jumpConfig.setJumpType(JumpType.doubleShakeJump, object: TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
                 Log.i(TAG, "FourSportGbSettingActivity::initJumpConfig::onStart")
@@ -182,7 +230,7 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
                     }
                 }
                 Log.i(TAG, "FourSportGbSettingActivity::initJumpConfig::onSuccess: $sb")
-                jumpProcessor.initPlayGround()
+//                jumpProcessor.initPlayGround()
             }
 
             override fun onFinish(p0: List<TsModelInfo?>?, p1: List<TsModelInfo?>?) {
@@ -225,6 +273,7 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
         mBinding.overlay.enableDrawSkeleton(skeletonEnable)
         mBinding.overlay.setMarkerRecognizerConfig(jumpConfig.markerRecognizerConfig, OnRenderScene.StatusSportSet)
         mBinding.overlay.setListener {
+            Log.i(TAG, "FourSportGbSettingActivity::initOverlay::SportOverlayListener: combineJumpRopeOverlay")
             jumpProcessor.combineJumpRopeOverlay(mBinding.overlay)
         }
         mBinding.overlay.refresh()
@@ -361,6 +410,166 @@ class FourSportGbSettingActivity : BaseActivity<ActivityFourGbSportSettingBindin
 
             AdlHandlerThread.getUIHandler().postDelayed({ videoReader?.onStart() }, 500)
         }
+    }
+
+    private fun availableAreaModes(): List<AreaMode> {
+        val modes = mutableListOf(AreaMode.MAIN)
+        if (isSubScreenConnected(BusiBaseConfig.readLeftSubScreenIp())) {
+            modes.add(AreaMode.LEFT)
+        }
+        if (isSubScreenConnected(BusiBaseConfig.readRightSubScreenIp())) {
+            modes.add(AreaMode.RIGHT)
+        }
+        return modes
+    }
+
+    private fun isSubScreenConnected(ip: String?): Boolean = !ip.isNullOrEmpty() && GrpcManager.getClientIdByIp(ip) != null
+
+    private fun showAreaPopup(modes: List<AreaMode>) {
+        val content = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundResource(R.drawable.bg_area_popup)
+        }
+        val checkedColor = Color.parseColor("#FDD401")
+        modes.forEach { mode ->
+            val item = LayoutInflater.from(this)
+                .inflate(R.layout.item_area_option, content, false) as TextView
+            item.text = areaOptions[mode.ordinal]
+            item.setTextColor(if (mode == currentArea) checkedColor else Color.WHITE)
+            item.setOnClickListener {
+                areaPopup?.dismiss()
+                onAreaModeSelected(mode)
+            }
+            content.addView(item)
+        }
+        areaPopup = PopupWindow(
+            content,
+            mBinding.llAreaSelector.width,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true
+        ).apply {
+            isFocusable = true
+            isOutsideTouchable = true
+            setBackgroundDrawable(ColorDrawable(0))
+            setOnDismissListener {
+                updateAreaArrow(false)
+                areaPopup = null
+            }
+        }
+        updateAreaArrow(true)
+        val yOffset = (8 * resources.displayMetrics.density).toInt()
+        areaPopup?.showAsDropDown(mBinding.llAreaSelector, 0, yOffset)
+    }
+
+    private fun onAreaModeSelected(mode: AreaMode) {
+        updateAreaText(mode)
+        if (mode != currentArea) {
+            switchArea(mode)
+        }
+    }
+
+    private fun updateAreaText(mode: AreaMode) {
+        mBinding.tvAreaSelected.text = areaOptions[mode.ordinal]
+    }
+
+    private fun updateAreaArrow(open: Boolean) {
+        mBinding.ivAreaArrow.setImageResource(
+            if (open) R.drawable.ic_area_arrow_up else R.drawable.ic_area_arrow_down
+        )
+    }
+
+    private fun switchArea(mode: AreaMode) {
+        if (videoDebug) {
+            currentArea = mode
+            reloadOverlay(mode)
+        } else {
+            mBinding.overlay.saveConfig()
+            currentArea = mode
+            stopCamera()
+            reloadOverlay(mode)
+            openCamera(mode)
+        }
+    }
+
+    private fun reloadOverlay(mode: AreaMode) {
+        jumpConfig.setMarkerRecognizerName(getRecognizerConfigKey(mode))
+        mBinding.overlay.setMarkerRecognizerConfig(jumpConfig.markerRecognizerConfig, OnRenderScene.StatusSportSet)
+        mBinding.overlay.refresh()
+    }
+
+    private fun getRecognizerConfigKey(mode: AreaMode): String {
+        return when (mode) {
+            AreaMode.MAIN -> RECOGNIZER_CONFIG_KEY
+            AreaMode.LEFT -> "${RECOGNIZER_CONFIG_KEY}_left"
+            AreaMode.RIGHT -> "${RECOGNIZER_CONFIG_KEY}_right"
+        }
+    }
+
+    private fun getCameraKey(mode: AreaMode): String = when (mode) {
+        AreaMode.MAIN -> MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY
+        AreaMode.LEFT -> MMKVBusiKey.LEFT_SUB_SCREEN_IPC_CAMERA_KEY
+        AreaMode.RIGHT -> MMKVBusiKey.RIGHT_SUB_SCREEN_IPC_CAMERA_KEY
+    }
+
+    private fun saveConfig() {
+        mBinding.overlay.saveConfig()
+        if (currentArea == AreaMode.MAIN) {
+            ToastUtil.getInstance(this, getString(R.string.save_successful)).show()
+            return
+        }
+        val subScreenIp = when (currentArea) {
+            AreaMode.LEFT -> BusiBaseConfig.readLeftSubScreenIp()
+            AreaMode.RIGHT -> BusiBaseConfig.readRightSubScreenIp()
+            else -> null
+        }
+        val clientId = subScreenIp?.let { GrpcManager.getClientIdByIp(it) }
+        if (clientId.isNullOrEmpty()) {
+            ToastUtil.getInstance(this, getString(R.string.save_failed)).show()
+            return
+        }
+        val payload = AdlJsonUtil.toJson(jumpConfig.markerRecognizerConfig)
+        GrpcManager.sendToClient(clientId, GrpcCmdCode.CMD_FOUR_SPORT_GB_REGION_SETTING, payload, true, {
+            ToastUtil.getInstance(this@FourSportGbSettingActivity, getString(R.string.save_successful)).show()
+        }, { _, _ ->
+            ToastUtil.getInstance(this@FourSportGbSettingActivity, getString(R.string.save_failed)).show()
+        })
+    }
+
+    private fun stopCamera() {
+        cameraView?.removeFrameProcessor(frameDispatcher)
+        cameraView?.stopPreview()
+        cameraView?.release()
+    }
+
+    private fun openCamera(mode: AreaMode) {
+        Log.i(TAG, "FourSportGbSettingActivity::openCamera mode=$mode")
+        val cameraConfig = BusiBaseConfig.readIpcCameraConfig(getCameraKey(mode))
+
+        val camera = AdlCameraConfig.builder()
+            .setPreviewSize(cameraPreviewSize.width, cameraPreviewSize.height)
+            .setCameraType(AdlCameraConfig.CameraType.HK)
+            .setCameraId(AdlCameraConfig.CameraId.Back)
+            .setConnect(cameraConfig.ip, cameraConfig.port, cameraConfig.account, cameraConfig.psw)
+            .setPreviewFps(20)
+            .setPreviewEnable(true)
+            .setAutoFocus(true)
+            .setStreamType(0)
+            .build()
+        cameraView?.startPreview(camera, object : AdlCameraPreviewView.OnViewStatusListener {
+            override fun onAvailable() {}
+            override fun onCameraOpen() {
+                Log.i(TAG, "FourSportGbSettingActivity::openCamera::onCameraOpen")
+            }
+
+            override fun onCameraReOpen() {}
+            override fun onDestroyed() {}
+            override fun onStreamLoss() {}
+            override fun onOpenFail() {
+                Log.e(TAG, "FourSportGbSettingActivity::openCamera : onOpenFail")
+            }
+        })
+        cameraView?.scaleX = -1f
+        cameraView?.addFrameProcessor(frameDispatcher)
     }
 
     private fun calPreviewLayoutSize(previewSize: Size): Size {

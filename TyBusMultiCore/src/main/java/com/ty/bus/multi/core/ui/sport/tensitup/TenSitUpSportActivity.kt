@@ -626,6 +626,7 @@ class TenSitUpSportActivity :
 
     override fun onPause() {
         super.onPause()
+        mBinding.readyView.stop()
         mBinding.cameraView.stopPreview()
     }
 

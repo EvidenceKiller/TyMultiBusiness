@@ -53,6 +53,10 @@ object MultiSportProduceFactory {
                 TenSideToSideJumpFactory()
             }
 
+            SportConstant.SPORT_SOCCER_BALL_STEPPING -> {
+                TenSoccerBallStepping()
+            }
+
             else -> FiveSportSquatsFactory()
 
         }
