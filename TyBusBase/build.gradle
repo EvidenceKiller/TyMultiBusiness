@@ -62,15 +62,15 @@ dependencies {
     api rootProject.ext.dependencies["gson"]
 
     api(name: 'AdlPose-2025-04-29', ext: 'aar')
-    api(name: 'AdlPoseSdk-2026-10-14', ext: 'aar')
+    api(name: 'AdlPoseSdk-2026-10-27', ext: 'aar')
     api(name: 'AdlPoseGt-2026-05-27', ext: 'aar')
-    api(name: 'NzPoseCore-v1.0.0-2026-05-27', ext: 'aar')
+    api(name: 'NzPoseCore-v1.0.0-2026-10-27', ext: 'aar')
     api(name: 'AdlCamera-2026-07-29', ext: 'aar')
     api(name: 'NzWebSerivce-2026-10-26', ext: 'aar')
     api(name: 'AdlBase-2026-10-08', ext: 'aar')
     api(name: 'NzAuthCore-v2.0.1-2026-04-28', ext: 'aar')
     api(name: 'ZySportCore-2025-04-08', ext: 'aar')
-    api(name: 'NzSportGeneral-v1.1.0-2026-10-15', ext: 'aar')
+    api(name: 'NzSportGeneral-v1.1.0-2026-10-26', ext: 'aar')
     api(name: 'NzBluetooth-2026-01-22', ext: 'aar')
     api(name: 'AdlRopeSkipLite-2026-10-26', ext: 'aar')
     api(name: 'AiPowerSpecial-v2.0.0-2026-10-24', ext: 'aar')
