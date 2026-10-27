@@ -23,6 +23,7 @@ import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.GridSpaceDecoration
 import com.ty.tybusbase.helper.SpeechWrapper
+import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.MMKVUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -71,6 +72,7 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun initView() {
+        mBinding.mtvFinish.typeface = TypeFaceHelper.instance?.getYouSheFont(context)
         mBinding.rvResult.layoutManager = GridLayoutManager(context, 2)
         mBinding.rvResult.addItemDecoration(GridSpaceDecoration(12, 56))
         mBinding.rvResult.adapter =
@@ -113,12 +115,8 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
                         holder.vb.ivHeaderBg.visible()
                     }
                     if (item.isVisitor) {
-                        holder.vb.tvVisitorNumber.text =
-                            getString(
-                                R.string.visitor_number_with_area,
-                                item.areaName,
-                                item.trackNumber + 1
-                            )
+                        holder.vb.tvVisitorNumber.text = getString(R.string.visitor_with_area, item.areaName,
+                            item.trackNumber + 1)
                         holder.vb.tvVisitorNumber.visibility = VISIBLE
                     } else {
                         holder.vb.tvVisitorNumber.visibility = GONE

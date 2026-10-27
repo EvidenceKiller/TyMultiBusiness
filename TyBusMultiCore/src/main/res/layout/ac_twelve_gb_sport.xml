@@ -176,6 +176,7 @@
 
     <FrameLayout
         android:id="@+id/fl_result_view_container"
+        android:layout_marginHorizontal="@dimen/dp_220"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

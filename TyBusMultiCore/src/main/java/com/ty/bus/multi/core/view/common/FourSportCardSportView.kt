@@ -361,10 +361,17 @@ class FourSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
     }
 
     /**
-     * 开始运动状态
+     * 开始运动状态（含离区后回区：清离开文案并恢复计数）
      */
     fun enterSporting() {
         mBinding.groupSport.visible()
+        mBinding.ivBg.setBackgroundResource(R.mipmap.pic_cpt_already_four)
+        if (isDebug) {
+            mBinding.ivBg.alpha = 0.6f
+        }
+        mBinding.tvLeaveNotice.gone()
+        mBinding.tvCount.visibility = VISIBLE
+        mBinding.tvUnit.visibility = VISIBLE
         if (::accountInfo.isInitialized) {
             mBinding.tvNameSport.text = accountInfo.studentEntity!!.accountName
             Glide.with(context)
@@ -376,9 +383,6 @@ class FourSportCardSportView(context: Context, attrs: AttributeSet?, defStyleAtt
                 mBinding.ivHeaderBg2.visible()
             }
         }
-        //隐藏准备中的UI
-//        mBinding.groupPrepared.gone()
-//        mBinding.tvNotice.gone()
     }
 
     private fun exitSportingToLeave() {
