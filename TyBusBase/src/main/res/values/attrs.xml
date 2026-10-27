@@ -130,6 +130,7 @@
     <declare-styleable name="BSCameraPreview">
         <attr name="preview_fps" format="integer" />
         <attr name="callback_fps" format="integer" />
+        <attr name="enablePreview" format="boolean" />
     </declare-styleable>
 
     <declare-styleable name="DirectionPadView">

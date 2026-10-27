@@ -37,12 +37,14 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
     private var onCameraOpenListener: Action? = null
     private var previewFps = 30
     private var callbackFps = 30
+    private var enablePreview = true
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.BSCameraPreview)
             .apply {
                 previewFps = getInteger(R.styleable.BSCameraPreview_preview_fps, 30)
                 callbackFps = getInteger(R.styleable.BSCameraPreview_callback_fps, 30)
+                enablePreview = getBoolean(R.styleable.BSCameraPreview_enablePreview,true)
                 recycle()
             }
         loadView(context)
@@ -81,6 +83,7 @@ class BSCameraPreview(context: Context, attrs: AttributeSet?) : FrameLayout(
                 BusiBaseConstantsValue.CAMERA_PREVIEW_WIDTH,
                 BusiBaseConstantsValue.CAMERA_PREVIEW_HEIGHT
             )
+            .setPreviewEnable(enablePreview)
             .setPreviewFps(previewFps)
             .setCallbackFps(callbackFps)
             .setDisplayOrientation(0)
