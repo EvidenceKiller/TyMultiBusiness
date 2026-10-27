@@ -48,14 +48,131 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.ty.bus.multi.core.view.foursport.FourSportSportView
-        android:id="@+id/sport_view"
+    <!-- 顶部区域标签 -->
+    <LinearLayout
+        android:id="@+id/ll_area_indicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/dp_246"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginLeft="@dimen/dp_32"
+        android:background="@drawable/bg_area_indicator"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="@dimen/dp_16"
+        android:paddingVertical="@dimen/dp_8"
+        app:layout_constraintBottom_toBottomOf="@+id/tv_title"
+        app:layout_constraintLeft_toRightOf="@+id/tv_title"
+        app:layout_constraintTop_toTopOf="@+id/tv_title">
+
+        <View
+            android:layout_width="@dimen/dp_12"
+            android:layout_height="@dimen/dp_12"
+            android:background="@drawable/shape_area_dot" />
+
+        <TextView
+            android:id="@+id/tv_area_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_8"
+            android:text="@string/area_main"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- 三区卡片容器（倒计时控件放容器内，不随区域销毁） -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_sport_area"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/dp_24"
+        android:layout_marginBottom="@dimen/dp_24"
+        app:layout_constraintBottom_toTopOf="@+id/ll_area_tabs"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_title">
+
+        <com.ty.bus.multi.core.view.foursport.FourSportSportView
+            android:id="@+id/sport_view_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_80"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.ty.bus.multi.core.view.foursport.FourSportSportView
+            android:id="@+id/sport_view_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_80"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.ty.bus.multi.core.view.foursport.FourSportSportView
+            android:id="@+id/sport_view_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_80"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- 底部区域 Tab -->
+    <LinearLayout
+        android:id="@+id/ll_area_tabs"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_32"
+        android:background="@drawable/bg_area_tab_container"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_6"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <TextView
+            android:id="@+id/tv_tab_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_left_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_main"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/dp_12"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_main_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+
+        <TextView
+            android:id="@+id/tv_tab_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selector_area_tab"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_32"
+            android:paddingVertical="@dimen/dp_14"
+            android:text="@string/area_right_identified"
+            android:textColor="@color/selector_area_tab_text"
+            android:textSize="@dimen/sp_22" />
+    </LinearLayout>
 
     <com.ty.bus.multi.core.view.foursport.FourSportResultView
         android:id="@+id/result_view"

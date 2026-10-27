@@ -6,12 +6,16 @@ import com.ty.tybusbase.constants.SceneConstants
  * 协同运动信息Grpc消息
  * @param cmd 协同指令int值，对应 [CollaborationCmdEnum] 的 ordinal
  * @param sportSkuId 协同运动ID
+ * @param isDebug 主屏调试开关，副屏开页前写入 [com.ty.tybusbase.constants.MMKVBusiKey.MODEL_DEBUG]
+ * @param skeletonEnable 主屏骨骼开关，副屏开页前写入 [com.ty.tybusbase.constants.MMKVBusiKey.SKELETON_ABLE]
  */
 data class GrpcCollaborationSportInfo(
     val cmd: Int = 0,          //协同指令
     val sportSkuId: String,    //协同运动ID
     val testCount: Int = 1,    //协同运动人数
     val sceneId: String = SceneConstants.FREE,   //场景ID
+    val isDebug: Boolean = false, // 主屏调试模式，副屏沿用
+    val skeletonEnable: Boolean = false, // 主屏骨骼开关，副屏沿用
 )
 
 /**

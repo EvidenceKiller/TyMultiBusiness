@@ -102,5 +102,5 @@
     <string name="visitor">遊客</string>
     <string name="lie_supine_ready">请仰卧准备</string>
     <string name="sit_down_raise_right_hand">请坐下并举右手</string>
-
+    <string name="sub_screen_sport_ongoing_tip">檢測到副屏運動進行中，發起當前運動將結束副屏運動，是否繼續？</string>
 </resources>

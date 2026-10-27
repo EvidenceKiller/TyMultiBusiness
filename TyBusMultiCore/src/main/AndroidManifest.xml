@@ -85,7 +85,7 @@
             android:name="com.ty.bus.multi.core.ui.sport.fourgbsport.FourSportGbActivity"
             android:exported="true" />
         <activity
-            android:name="com.ty.bus.multi.core.ui.sport.foursport.FourSportActivity"
+            android:name="com.ty.bus.multi.core.ui.sport.twelvegbsport.TwelveSportGbActivity"
             android:exported="true" />
         <activity
             android:name="com.ty.bus.multi.core.ui.set.subscreenregionset.SubScreenRegionSettingActivity"

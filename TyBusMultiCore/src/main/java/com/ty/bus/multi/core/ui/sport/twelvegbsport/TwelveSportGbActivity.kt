@@ -1,6 +1,7 @@
 package com.ty.bus.multi.core.ui.sport.twelvegbsport
 
 import android.content.Intent
+import android.graphics.Color
 import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.text.TextUtils
@@ -12,7 +13,9 @@ import android.view.Surface
 import android.view.TextureView
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -41,12 +44,13 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.entity.MultiSportResult
-import com.ty.bus.multi.databinding.AcFourGbSportBinding
+import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
 import com.ty.bus.multi.databinding.AcTwelveGbSportBinding
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.SportConstant
 import com.ty.tybusbase.dialog.CommonTipDialog
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
+import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 import com.ty.tybusbase.helper.TypeFaceHelper
@@ -67,6 +71,8 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         const val INTENT_KEY_VIDEO_PATH: String = "TwelveSportGbVideoPath"
 
         private const val TAG = "ZXN_TEST"
+
+        private const val RECOGNIZER_CONFIG_KEY = "FourSportGbMarkerRecognizerConfig"
     }
 
     private val jumpConfig: JumpConfig by lazy { JumpConfig() }
@@ -95,6 +101,15 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
             AdlCameraFrameProcessor { bytes, _ -> viewModel.videoRecorder.inputNv21(bytes, "") }
         }
     }
+
+
+    private var currentArea = DisplayType.MAIN
+    private var forceJoinDialog: CommonTipDialog? = null
+    private var leftIdentifiedCount = 0
+    private var mainIdentifiedCount = 0
+    private var rightIdentifiedCount = 0
+
+    private val AREA_TAB_RED = "#FF4D4F"
 
     /***************************视频播放调试*************************/
     private var videoDebug: Boolean = false
@@ -150,6 +165,9 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         Log.i(TAG, "TwelveSportGbActivity::initData : videoFilePath = $videoFilePath")
         viewModel.loadPerson(studentList)
         timeOutHelper.cancel()
+        viewModel.registerGrpcCmd()
+        viewModel.initCollaboration()
+        Log.i(TAG, "TwelveSportGbActivity::initData : registerGrpcCmd + initCollaboration done, sku=${viewModel.sportInfo?.sportSkuId}")
     }
 
     override fun initObserver() {
@@ -213,17 +231,20 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         }
 
         viewModel.resultLD.collectOnLifecycle {
-            mBinding.sportView.updateScore(it.second)
+            getAreaSportViewByDisplay(it.first).updateScore(it.second)
         }
 
         viewModel.singleResultLD.collectOnLifecycle {
-            mBinding.sportView.updateScore(it.second.first, it.second.second)
+            Log.i(TAG, "TwelveSportGbActivity::initObserver::singleResultLD: display=${it.first}, index=${it.second.first}, score=${it.second.second}")
+            getAreaSportViewByDisplay(it.first).updateScore(it.second.first, it.second.second)
         }
 
         viewModel.identifiedLD.collectOnLifecycle {
-            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity!!.accountName}")
-            mBinding.sportView.setUserInfo(it)
+            AdlLogger.d("identifiedLD: 道次：${it.second.first}--人员：${it.second.second.studentEntity?.accountName}")
+            Log.i(TAG, "TwelveSportGbActivity::initObserver::identifiedLD: display=${it.first}, index=${it.second.first}, name=${it.second.second.studentEntity?.accountName}")
+            getAreaSportViewByDisplay(it.first).setUserInfo(it.second)
             timeOutHelper.cancel()
+            updateAreaTabs()
         }
 
         viewModel.sportStartedLD.collectOnLifecycle {
@@ -235,6 +256,7 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
             if (!videoDebug) {
                 startRecord()
             }
+            updateAreaTabs()
         }
 
         viewModel.sportStopLD.collectOnLifecycle {
@@ -251,7 +273,16 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         }
 
         viewModel.changeSportViewStateLD.collectOnLifecycle {
-            mBinding.sportView.changeState(it.second.first, it.second.second)
+            Log.i(TAG, "TwelveSportGbActivity::initObserver::changeSportViewStateLD: display=${it.first}, index=${it.second.first}, state=${it.second.second}")
+            getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
+        }
+        viewModel.collaborationStateLD.collectOnLifecycle { updateAreaTabs() }
+        viewModel.identifiedCountLD.collectOnLifecycle { showOrUpdateClearIdentifyDialog() }
+        viewModel.subScreenOccupiedLD.collectOnLifecycle { showOrUpdateForceJoinDialog(it) }
+        viewModel.waitOtherAreaLD.collectOnLifecycle {
+            Log.i(TAG, "TwelveSportGbActivity::initObserver::waitOtherAreaLD")
+            mBinding.tvCountDownNotice.text = getString(R.string.wait_other_area_join)
+            mBinding.tvCountDownNotice.visibility = View.VISIBLE
         }
 
         viewModel.countDownNoticeLD.collectOnLifecycle {
@@ -272,8 +303,15 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
             //竞技开始，隐藏开始按钮与等待文案，显示运动倒计时时间栏
             mBinding.tvStartNow.visibility = View.GONE
             mBinding.tvCountDownNotice.visibility = View.GONE
-            mBinding.sportView.readyGo {
+            // LEFT/RIGHT onStarted 必须放在 readyGo 完成回调内，否则会立刻 GONE 共享的 tvCountDownGo，导致 3-2-1 不显示
+            getAreaSportViewByDisplay(DisplayType.MAIN).readyGo {
                 mBinding.llTime.visibility = View.VISIBLE
+                if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
+                    getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
+                }
+                if (viewModel.isSubScreenJoined(DisplayType.RIGHT)) {
+                    getAreaSportViewByDisplay(DisplayType.RIGHT).onStarted()
+                }
                 viewModel.toStatusSportStart()
             }
         }
@@ -319,7 +357,7 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
                 //如果是运动会模式，则切到准备状态
                 if (viewModel.fourSportConfig?.sportModel == SportModel.MEETING) {
                     viewModel.sportResultMap.forEach { (index, _) ->
-                        mBinding.sportView.changeState(index, MultiSportCardViewState.PREPARED)
+                        mBinding.sportViewMain.changeState(index, MultiSportCardViewState.PREPARED)
                     }
                 }
                 startDialog = null
@@ -328,9 +366,13 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
             startDialog?.show(supportFragmentManager, "tips")
         }
 
-        mBinding.sportView.setDebug(isDebug)
-        mBinding.sportView.setSportStartedText(viewModel.fourSportConfig?.sportStartText)
-        mBinding.sportView.bindCountDownViews(mBinding.tvCountDownNotice, mBinding.tvCountDownGo)
+        // 倒计时、开始按钮、提示文案属于整个运动，统一由 Activity 管理，各区域面板共享引用
+        listOf(mBinding.sportViewMain, mBinding.sportViewLeft, mBinding.sportViewRight).forEach {
+            it.setDebug(isDebug)
+            it.setSportStartedText(viewModel.fourSportConfig?.sportStartText)
+            it.bindCountDownViews(mBinding.tvCountDownNotice, mBinding.tvCountDownGo)
+        }
+        initAreaViews()
 
         if (viewModel.fourSportConfig?.sportModel == SportModel.MEETING) {
             mBinding.tvStartNow.visibility = View.VISIBLE
@@ -355,7 +397,10 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
     override fun onDestroy() {
         super.onDestroy()
         Log.i(TAG, "TwelveSportGbActivity::onDestroy")
-        mBinding.sportView.release()
+//        mBinding.sportView.release()
+        mBinding.sportViewMain.release()
+        mBinding.sportViewLeft.release()
+        mBinding.sportViewRight.release()
 
         frameDispatcher?.removeFrameProcessor(jumpProcessor)
         frameDispatcher?.quit()
@@ -379,7 +424,11 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
 
     override fun onStatusPrepare() {
         Log.i(TAG, "TwelveSportGbActivity::onStatusPrepare")
-        mBinding.sportView.reset()
+//        mBinding.sportView.reset()
+        mBinding.sportViewMain.reset()
+        mBinding.sportViewLeft.reset()
+        mBinding.sportViewRight.reset()
+
         mBinding.llTime.visibility = View.GONE
 
         jumpProcessor.changeStatus(BaseSportState.Standby)
@@ -419,6 +468,7 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         jumpConfig.drawSkeleton = true
         jumpConfig.drawRope = isDebug
         jumpConfig.multiPersonType = JumpConfig.MultiPersonType.MULTI_PERSON_FOUR
+        jumpConfig.setMarkerRecognizerName(RECOGNIZER_CONFIG_KEY)
         jumpConfig.setJumpType(JumpType.doubleShakeJump, object: TsModelResPool.OnLoadModelCallback {
             override fun onStart() {
                 showLoadingDialog("模型加载中")
@@ -603,10 +653,151 @@ class TwelveSportGbActivity : BaseMultiSportActivity<AcTwelveGbSportBinding, Twe
         return Size((previewW * scale).toInt(), (previewH * scale).toInt())
     }
 
+    private fun initAreaViews() {
+        updateAreaTabs()
+        mBinding.tvTabLeft.setOnClickListener { switchArea(DisplayType.LEFT) }
+        mBinding.tvTabMain.setOnClickListener { switchArea(DisplayType.MAIN) }
+        mBinding.tvTabRight.setOnClickListener { switchArea(DisplayType.RIGHT) }
+        switchArea(DisplayType.MAIN)
+    }
 
+    private fun switchArea(area: DisplayType) {
+        Log.i(TAG, "TwelveSportGbActivity::switchArea: area=$area")
+        currentArea = area
+        mBinding.sportViewMain.visibility =
+            if (area == DisplayType.MAIN) View.VISIBLE else View.GONE
+        mBinding.sportViewLeft.visibility =
+            if (area == DisplayType.LEFT) View.VISIBLE else View.GONE
+        mBinding.sportViewRight.visibility =
+            if (area == DisplayType.RIGHT) View.VISIBLE else View.GONE
+        mBinding.tvAreaName.text = when (area) {
+            DisplayType.LEFT -> getString(R.string.area_left)
+            DisplayType.MAIN -> getString(R.string.area_main)
+            DisplayType.RIGHT -> getString(R.string.area_right)
+            else -> ""
+        }
+        updateAreaTabs()
+    }
 
+    private fun getAreaSportViewByDisplay(displayType: DisplayType) = when (displayType) {
+        DisplayType.LEFT -> mBinding.sportViewLeft
+        DisplayType.RIGHT -> mBinding.sportViewRight
+        else -> mBinding.sportViewMain
+    }
 
+    private fun updateAreaTabs() {
+        leftIdentifiedCount = viewModel.leftPersonArray.size()
+        mainIdentifiedCount = viewModel.sportResultMap.size
+        rightIdentifiedCount = viewModel.rightPersonArray.size()
+        val sporting = viewModel.isSportStarted() // 见步骤3，或用内部标志
+        updateAreaTab(
+            mBinding.tvTabLeft, DisplayType.LEFT, leftIdentifiedCount, sporting,
+            R.string.area_left_identified, R.string.area_left_sporting,
+            R.string.area_left_unconnected, R.string.area_left_occupied
+        )
+        mBinding.tvTabMain.text = getString(
+            if (sporting) R.string.area_main_sporting else R.string.area_main_identified,
+            mainIdentifiedCount
+        )
+        updateAreaTab(
+            mBinding.tvTabRight, DisplayType.RIGHT, rightIdentifiedCount, sporting,
+            R.string.area_right_identified, R.string.area_right_sporting,
+            R.string.area_right_unconnected, R.string.area_right_occupied
+        )
+        mBinding.tvTabLeft.isSelected = currentArea == DisplayType.LEFT
+        mBinding.tvTabMain.isSelected = currentArea == DisplayType.MAIN
+        mBinding.tvTabRight.isSelected = currentArea == DisplayType.RIGHT
+    }
+    private fun updateAreaTab(
+        tvTab: TextView,
+        displayType: DisplayType,
+        count: Int,
+        sporting: Boolean,
+        identifiedRes: Int,
+        sportingRes: Int,
+        unconnectedRes: Int,
+        occupiedRes: Int
+    ) {
+        val state = viewModel.collaborationStateLD.value[displayType]
+            ?: CollaborationAreaState.UNCONNECTED
+        when (state) {
+            CollaborationAreaState.UNCONNECTED -> {
+                tvTab.text = getString(unconnectedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+            CollaborationAreaState.OCCUPIED -> {
+                tvTab.text = getString(occupiedRes)
+                tvTab.setTextColor(Color.parseColor(AREA_TAB_RED))
+                tvTab.isEnabled = false
+            }
+            else -> {
+                tvTab.text = getString(if (sporting) sportingRes else identifiedRes, count)
+                tvTab.setTextColor(
+                    ContextCompat.getColorStateList(this, R.color.selector_area_tab_text)
+                )
+                tvTab.isEnabled = true
+            }
+        }
+    }
 
+    @Synchronized
+    private fun showOrUpdateClearIdentifyDialog() {
+        if (isFinishing || isDestroyed || supportFragmentManager.isStateSaved) return
+        val text = buildClearIdentifyText()
+        clearIdentifyDialog?.let {
+            it.updateContent(text)
+            return
+        }
+        Log.i(TAG, "TwelveSportGbActivity::showOrUpdateClearIdentifyDialog: show, text=$text")
+        clearIdentifyDialog = CommonTipDialog()
+            .setContent(text)
+            .setCallback {
+                Log.i(TAG, "TwelveSportGbActivity::showOrUpdateClearIdentifyDialog: confirm clear")
+                viewModel.confirmClearIdentifyInfo()
+                clearIdentifyDialog = null
+                updateAreaTabs()
+            }
+            .setCancelCallback {
+                Log.i(TAG, "TwelveSportGbActivity::showOrUpdateClearIdentifyDialog: cancel clear")
+                viewModel.cancelClearIdentifyInfo()
+                clearIdentifyDialog = null
+            }
+        clearIdentifyDialog?.show(supportFragmentManager, "clear_identify")
+    }
+
+    @Synchronized
+    private fun showOrUpdateForceJoinDialog(occupied: Set<DisplayType>) {
+        if (isFinishing || isDestroyed || supportFragmentManager.isStateSaved) return
+        if (occupied.isEmpty()) {
+            forceJoinDialog?.dismiss()
+            forceJoinDialog = null
+            return
+        }
+        if (forceJoinDialog != null) return
+        Log.i(TAG, "TwelveSportGbActivity::showOrUpdateForceJoinDialog: show, occupied=$occupied")
+        forceJoinDialog = CommonTipDialog()
+            .setContent(getString(R.string.force_join_occupied_tip))
+            .setCallback {
+                Log.i(TAG, "TwelveSportGbActivity::showOrUpdateForceJoinDialog: confirm force join")
+                viewModel.confirmForceJoin()
+                forceJoinDialog = null
+            }
+            .setCancelCallback {
+                Log.i(TAG, "TwelveSportGbActivity::showOrUpdateForceJoinDialog: cancel force join")
+                viewModel.cancelForceJoin()
+                forceJoinDialog = null
+            }
+        forceJoinDialog?.show(supportFragmentManager, "force_join")
+    }
+
+    private fun buildClearIdentifyText(): String {
+        val sb = StringBuilder()
+        viewModel.identifiedCountMap[DisplayType.LEFT]?.let { sb.append("左区已识别${it}人，") }
+        viewModel.identifiedCountMap[DisplayType.RIGHT]?.let { sb.append("右区已识别${it}人，") }
+        sb.append("是否清空已识别结果")
+        return sb.toString()
+    }
 
     /**
      * 收集 Flow。页面处于 STARTED 及以上状态才派发事件，退到后台暂停。

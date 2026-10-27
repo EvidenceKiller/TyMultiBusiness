@@ -14,6 +14,7 @@ import android.util.Log
 import android.util.Size
 import android.util.SparseArray
 import androidx.core.net.toUri
+import androidx.core.util.forEach
 import androidx.lifecycle.viewModelScope
 import com.adl.lib.AdlCamera
 import com.adl.lib.AdlCameraConfig
@@ -38,6 +39,8 @@ import com.ty.bus.multi.core.base.MultiSportCardViewState
 import com.ty.bus.multi.core.base.MultiSportState
 import com.ty.bus.multi.core.config.FourSportConfig
 import com.ty.bus.multi.core.entity.MultiSportResult
+import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
+import com.ty.grpclib.GrpcManager
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.IndicatorsConstants
@@ -48,7 +51,21 @@ import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.entity.PipelineFaceIdentifyConfig
 import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.eventFlow
+import com.ty.tybusbase.expand.getDisplayType
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.expand.toJson
+import com.ty.tybusbase.expand.toObject
+import com.ty.tybusbase.grpc.CollaborationCmdEnum
+import com.ty.tybusbase.grpc.CollaborationStatusEnum
+import com.ty.tybusbase.grpc.GrpcAccountInfo
+import com.ty.tybusbase.grpc.GrpcCmdCode
+import com.ty.tybusbase.grpc.GrpcCollaborationSportInfo
+import com.ty.tybusbase.grpc.GrpcCollaborationStatus
+import com.ty.tybusbase.grpc.GrpcSportCardStatus
+import com.ty.tybusbase.grpc.GrpcSportIdentifiedCount
+import com.ty.tybusbase.grpc.GrpcSportResult
+import com.ty.tybusbase.grpc.GrpcSportStatus
+import com.ty.tybusbase.grpc.GrpcSportStatusEnum
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.SportHelper
@@ -59,8 +76,11 @@ import com.ty.tybusbase.utils.SoundPlayUtils
 import com.ty.tybusbase.utils.ToastUtil
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
@@ -170,24 +190,12 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     val changeSportViewStateLD: SharedFlow<Pair<DisplayType, Pair<Int, MultiSportCardViewState>>> = _changeSportViewStateLD.asSharedFlow()
 
     //已识别人员（区域 → (位置, 人员信息)）
-    private val _identifiedLD = eventFlow<Pair<Int, AccountInfo>>()
-    val identifiedLD: SharedFlow<Pair<Int, AccountInfo>> = _identifiedLD.asSharedFlow()
+    private val _identifiedLD = eventFlow<Pair<DisplayType, Pair<Int, AccountInfo>>>()
+    val identifiedLD: SharedFlow<Pair<DisplayType, Pair<Int, AccountInfo>>> = _identifiedLD.asSharedFlow()
 
     //人员报告信息展示（一次性跳转消息：非粘性，避免从报告页返回时重放导致再次跳转）
     private val _showReportLD = eventFlow<String>()
     val showReportLD: SharedFlow<String> = _showReportLD.asSharedFlow()
-
-    //协同开始条件跟踪：主屏倒计时是否结束
-    private var mainCountDownEnded = false
-
-    //协同开始条件跟踪：已倒计时结束的副屏
-    private val subScreenCountDownEnded = mutableSetOf<DisplayType>()
-
-    //协同开始条件跟踪：主屏是否真正开始
-    private var mainSportStarted = false
-
-    //协同开始条件跟踪：开始运动指令是否已发送
-    private var startCommandSent = false
 
     //改变时间显示UI的背景色（区域 → 背景色资源）
     private val _changeTimeTextBgLD = eventFlow<Pair<DisplayType, Int>>()
@@ -225,6 +233,51 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
     //运动倒计时任务
     private var sportingCountDownTimer: CountDownTimer? = null
+
+    private val GRPC_KEY = "TwelveSportGbViewModel"
+
+    private val leftSubScreenIp by lazy { BusiBaseConfig.readLeftSubScreenIp() }
+    private val rightSubScreenIp by lazy { BusiBaseConfig.readRightSubScreenIp() }
+
+    val leftPersonArray by lazy { SparseArray<MultiSportResult>() }
+    val rightPersonArray by lazy { SparseArray<MultiSportResult>() }
+
+    private val collaborationStateMap = mutableMapOf(
+        DisplayType.LEFT to CollaborationAreaState.UNCONNECTED,
+        DisplayType.RIGHT to CollaborationAreaState.UNCONNECTED
+    )
+    private val _collaborationStateLD = MutableStateFlow(collaborationStateMap.toMap())
+    val collaborationStateLD: StateFlow<Map<DisplayType, CollaborationAreaState>> = _collaborationStateLD.asStateFlow()
+
+    val identifiedCountMap = mutableMapOf<DisplayType, Int>()
+    private val _identifiedCountLD = eventFlow<Unit>()
+    val identifiedCountLD = _identifiedCountLD.asSharedFlow()
+
+    private val occupiedSubScreens = mutableSetOf<DisplayType>()
+
+    private val _subScreenOccupiedLD = eventFlow<Set<DisplayType>>()
+    val subScreenOccupiedLD = _subScreenOccupiedLD.asSharedFlow()
+
+    //协同开始条件跟踪：已倒计时结束的副屏
+    private val subScreenCountDownEnded = mutableSetOf<DisplayType>()
+    private val subScreenSportFinished = mutableSetOf<DisplayType>()
+
+    //协同开始条件跟踪：开始运动指令是否已发送
+    private var startCommandSent = false
+
+    private var sportStartedFlag = false
+
+    //协同开始条件跟踪：主屏倒计时是否结束
+    private var mainCountDownEnded = false
+
+    //协同开始条件跟踪：主屏是否真正开始
+    private var mainSportStarted = false
+
+    /** 主屏运动是否已结束（等待副屏结束后再出成绩） */
+    private var mainSportFinished = false
+
+    private val _waitOtherAreaLD = eventFlow<Unit>()
+    val waitOtherAreaLD: SharedFlow<Unit> = _waitOtherAreaLD.asSharedFlow()
 
     override fun toStatusPrepare() {
         super.toStatusPrepare()
@@ -296,6 +349,8 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                 changeMultiIdentityCardState(index, MultiSportCardViewState.SPORTING)
             }
         }
+
+        sportStartedFlag = true
     }
 
     override fun toStatusSportEnd() {
@@ -307,7 +362,9 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
         SoundPlayUtils.play(24)
 
-        handleResult(sportResultMap)
+        // 主屏结束：等已加入协同的副屏都结束后再统一出成绩
+        mainSportFinished = true
+        checkAllSportFinished()
     }
 
     fun initCamera() {
@@ -369,6 +426,10 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     fun loadPerson(data: ArrayList<MeetGroupDetailsEntity>?) {
         if (data.isNullOrEmpty()) return
         data.forEachIndexed { index, meetGroupDetailsEntity ->
+            if (index !in 0 until SPORT_NUMBER) {
+                Log.w(TAG, "TwelveSportGbViewModel::loadPerson: skip out-of-range index=$index")
+                return@forEachIndexed
+            }
             //给accountInfo赋值，用来获取存储视频的地址
             val accountInfo = AccountInfo().apply {
                 studentEntity = StudentEntity().apply {
@@ -381,7 +442,7 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                 accountInfoLD.postValue(accountInfo)
             }
             sportResultMap[index] = MultiSportResult(accountInfo, index, meetGroup = meetGroupDetailsEntity)
-            _identifiedLD.tryEmit(Pair(index, accountInfo))
+            _identifiedLD.tryEmit(DisplayType.MAIN to Pair(index, accountInfo))
             changeMultiIdentityCardState(index, MultiSportCardViewState.PRECAST_PERSON)
         }
     }
@@ -402,10 +463,13 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         }
 
         override fun onFinish() {
-            //主屏倒计时结束，统一检查协同开始条件
+            //主屏识别倒计时结束，统一检查协同开始条件
             mainCountDownEnded = true
             sportState = MultiSportState.WAITING_START
-            startSport()
+            checkCollaborationSportStart()
+            if (needWaitOtherAreaJoin()) {
+                _waitOtherAreaLD.tryEmit(Unit)
+            }
         }
     }
 
@@ -419,6 +483,295 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         val deviceItem = hkSource.deviceItem
         if (deviceItem == null || deviceItem.m_lUserID == -1) return
         DevConfigGuider.setCompressionResolutionCfg(deviceItem.m_lUserID, cameraSize.hkCode, 27, 17)
+    }
+
+    fun isSportStarted(): Boolean = sportStartedFlag
+
+    fun isSubScreenJoined(displayType: DisplayType): Boolean = displayType != DisplayType.MAIN && _collaborationStateLD.value[displayType] == CollaborationAreaState.NORMAL
+
+    fun registerGrpcCmd() {
+        Log.i(TAG, "TwelveSportGbViewModel::registerGrpcCmd")
+        registerSportCardStatus()
+        registerAccountInfo()
+        registerResult()
+        registerCollaborationStatus()
+        registerIdentifiedCount()
+        registerCountDownEnd()
+        registerGrpcSportStatusHandler()
+    }
+
+    fun initCollaboration() {
+        Log.i(TAG, "TwelveSportGbViewModel::initCollaboration: leftIp=$leftSubScreenIp, rightIp=$rightSubScreenIp")
+        checkSubScreen(DisplayType.LEFT, leftSubScreenIp)
+        checkSubScreen(DisplayType.RIGHT, rightSubScreenIp)
+    }
+
+    private fun checkSubScreen(displayType: DisplayType, ip: String?) {
+        val clientId = ip?.let { GrpcManager.getClientIdByIp(it) }
+        if (clientId == null) {
+            Log.w(TAG, "TwelveSportGbViewModel::checkSubScreen: $displayType unconnected, ip=$ip")
+            updateCollaborationState(displayType, CollaborationAreaState.UNCONNECTED)
+            return
+        }
+        Log.i(TAG, "TwelveSportGbViewModel::checkSubScreen: $displayType connected, clientId=$clientId, send START")
+        sendCollaborationCommand(clientId, CollaborationCmdEnum.START)
+    }
+
+    private fun sendCollaborationCommand(clientId: String, cmd: CollaborationCmdEnum) {
+        val payload = GrpcCollaborationSportInfo(
+            cmd = cmd.ordinal,
+            sportSkuId = sportInfo?.sportSkuId ?: "",
+            testCount = sportInfo?.testCount?.toInt() ?: 12,
+            sceneId = sceneId ?: SceneConstants.PK,
+            isDebug = BusiBaseConfig.getDebugEnable(),
+            skeletonEnable = BusiBaseConfig.getSkeletonEnable()
+        )
+        Log.i(
+            TAG,
+            "TwelveSportGbViewModel::sendCollaborationCommand: clientId=$clientId, cmd=$cmd, " +
+                "skuId=${payload.sportSkuId}, testCount=${payload.testCount}, " +
+                "isDebug=${payload.isDebug}, skeletonEnable=${payload.skeletonEnable}"
+        )
+        GrpcManager.sendToClient(
+            clientId, GrpcCmdCode.CMD_COLLABORATION_SPORT, payload.toJson(), false, null, null
+        )
+    }
+
+    fun sendCollaborationFinish() {
+        Log.i(TAG, "TwelveSportGbViewModel::sendCollaborationFinish")
+        leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.FINISH)
+        }
+        rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.FINISH)
+        }
+    }
+
+    private fun updateCollaborationState(displayType: DisplayType, state: CollaborationAreaState) {
+        Log.i(TAG, "TwelveSportGbViewModel::updateCollaborationState: display=$displayType, state=$state")
+        uiHandler.post {
+            collaborationStateMap[displayType] = state
+            _collaborationStateLD.value = collaborationStateMap.toMap()
+        }
+    }
+
+    private fun sendSportCommand() {
+        if (startCommandSent) {
+            Log.w(TAG, "TwelveSportGbViewModel::sendSportCommand: already sent, skip")
+            return
+        }
+        startCommandSent = true
+        Log.i(TAG, "TwelveSportGbViewModel::sendSportCommand: send SPORT to joined sub screens")
+        leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.SPORT)
+        }
+        rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) }?.let {
+            sendCollaborationCommand(it, CollaborationCmdEnum.SPORT)
+        }
+    }
+
+    fun registerSportCardStatus() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_CARD_STATUS, GRPC_KEY) {
+            val card = it.payload.toObject<GrpcSportCardStatus>() ?: return@registerServerHandler
+            val type = it.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            MultiSportCardViewState.fromValue(card.status)?.let { state ->
+                Log.i(TAG, "TwelveSportGbViewModel::registerSportCardStatus: display=$type, index=${card.index}, state=$state")
+                uiHandler.post {
+                    _changeSportViewStateLD.tryEmit(type to (card.index to state))
+                }
+            }
+        }
+    }
+
+    fun registerAccountInfo() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_ACCOUNT_INFO, GRPC_KEY) { data ->
+            val info = data.payload.toObject<GrpcAccountInfo>() ?: return@registerServerHandler
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            val account = AccountInfo().apply {
+                studentEntity = StudentEntity().apply {
+                    accountName = info.name
+                    userFaceImgUrl = info.avatar
+                    accountId = info.accountId
+                }
+            }
+            Log.i(TAG, "TwelveSportGbViewModel::registerAccountInfo: display=$displayType, index=${info.index}, name=${info.name}")
+            if (displayType != DisplayType.LEFT && displayType != DisplayType.RIGHT) return@registerServerHandler
+            uiHandler.post {
+                when (displayType) {
+                    DisplayType.LEFT -> {
+                        leftPersonArray.put(info.index, MultiSportResult(account, info.index))
+                        _identifiedLD.tryEmit(DisplayType.LEFT to (info.index to account))
+                        syncIdentifiedCountWhileTip(DisplayType.LEFT)
+                        checkCollaborationSportStart()
+                    }
+                    DisplayType.RIGHT -> {
+                        rightPersonArray.put(info.index, MultiSportResult(account, info.index))
+                        _identifiedLD.tryEmit(DisplayType.RIGHT to (info.index to account))
+                        syncIdentifiedCountWhileTip(DisplayType.RIGHT)
+                        checkCollaborationSportStart()
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun registerResult() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_RESULT, GRPC_KEY) { data ->
+            val result = data.payload.toObject<GrpcSportResult>() ?: return@registerServerHandler
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            val score = result.sportResult.toIntOrNull() ?: 0
+            Log.i(TAG, "TwelveSportGbViewModel::registerResult: display=$displayType, index=${result.index}, score=$score")
+            uiHandler.post {
+                when (displayType) {
+                    DisplayType.LEFT -> {
+                        leftPersonArray[result.index]?.count = score
+                        leftPersonArray[result.index]?.recordId = result.recordId
+                    }
+                    DisplayType.RIGHT -> {
+                        rightPersonArray[result.index]?.count = score
+                        rightPersonArray[result.index]?.recordId = result.recordId
+                    }
+                    else -> {}
+                }
+                _singleResultLD.tryEmit(displayType to (result.index to score))
+            }
+        }
+    }
+
+    private fun registerCollaborationStatus() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_COLLABORATION_STATUS, GRPC_KEY) { data ->
+            val status = data.payload.toObject<GrpcCollaborationStatus>()?.status
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            val statusEnum = CollaborationStatusEnum.fromCode(status ?: -1)
+            val state = when (statusEnum) {
+                CollaborationStatusEnum.SPORTING -> CollaborationAreaState.OCCUPIED
+                else -> CollaborationAreaState.NORMAL
+            }
+            Log.i(TAG, "TwelveSportGbViewModel::registerCollaborationStatus: display=$displayType, statusEnum=$statusEnum, state=$state")
+            updateCollaborationState(displayType, state)
+            updateOccupiedSubScreens(displayType, state == CollaborationAreaState.OCCUPIED)
+        }
+    }
+
+    private fun registerIdentifiedCount() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_IDENTIFIED_COUNT, GRPC_KEY) { data ->
+            val count = data.payload.toObject<GrpcSportIdentifiedCount>()?.count ?: 0
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            Log.i(TAG, "TwelveSportGbViewModel::registerIdentifiedCount: display=$displayType, count=$count")
+            uiHandler.post {
+                if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
+                    identifiedCountMap[displayType] = count
+                    _identifiedCountLD.tryEmit(Unit)
+                }
+            }
+        }
+    }
+
+    private fun registerCountDownEnd() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_COUNTDOWN_END, GRPC_KEY) {
+            val displayType = it.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            Log.i(TAG, "TwelveSportGbViewModel::registerCountDownEnd: display=$displayType")
+            uiHandler.post {
+                subScreenCountDownEnded.add(displayType)
+                checkCollaborationSportStart()
+            }
+        }
+    }
+
+    private fun registerGrpcSportStatusHandler() {
+        GrpcManager.registerServerHandler(GrpcCmdCode.CMD_SPORT_STATUS, GRPC_KEY) { data ->
+            val info = data.payload.toObject<GrpcSportStatus>() ?: return@registerServerHandler
+            val displayType = data.from.getDisplayType(leftSubScreenIp, rightSubScreenIp)
+            if (info.skuId != sportInfo?.sportSkuId) {
+                Log.w(
+                    TAG,
+                    "TwelveSportGbViewModel::registerGrpcSportStatusHandler: sku mismatch grpc=${info.skuId}, local=${sportInfo?.sportSkuId}, still mark FINISHED if applicable display=$displayType"
+                )
+            }
+            if (GrpcSportStatusEnum.fromCode(info.status) == GrpcSportStatusEnum.FINISHED) {
+                if (displayType == DisplayType.LEFT || displayType == DisplayType.RIGHT) {
+                    Log.i(TAG, "TwelveSportGbViewModel::registerGrpcSportStatusHandler: FINISHED from $displayType")
+                    LogUtil.d("收到${displayType.name}副屏运动结束")
+                    uiHandler.post {
+                        subScreenSportFinished.add(displayType)
+                        checkAllSportFinished()
+                    }
+                }
+            }
+        }
+    }
+
+    fun confirmClearIdentifyInfo() {
+        Log.i(TAG, "TwelveSportGbViewModel::confirmClearIdentifyInfo: targets=${identifiedCountMap.keys}")
+        identifiedCountMap.keys.forEach { displayType ->
+            val ip = when (displayType) {
+                DisplayType.LEFT -> leftSubScreenIp
+                DisplayType.RIGHT -> rightSubScreenIp
+                else -> null
+            }
+            ip?.let { GrpcManager.getClientIdByIp(it) }?.let { clientId ->
+                GrpcManager.sendToClient(
+                    clientId, GrpcCmdCode.CMD_CLEAR_IDENTIFY_INFO, "", false, null, null
+                )
+            }
+            clearSubScreenIdentifiedData(displayType)
+        }
+        identifiedCountMap.clear()
+    }
+
+    fun cancelClearIdentifyInfo() { identifiedCountMap.clear() }
+
+    fun confirmForceJoin() {
+        Log.i(TAG, "TwelveSportGbViewModel::confirmForceJoin: occupied=$occupiedSubScreens")
+        occupiedSubScreens.forEach { displayType ->
+            val ip = when (displayType) {
+                DisplayType.LEFT -> leftSubScreenIp
+                DisplayType.RIGHT -> rightSubScreenIp
+                else -> null
+            }
+            ip?.let { GrpcManager.getClientIdByIp(it) }?.let { clientId ->
+                sendCollaborationCommand(clientId, CollaborationCmdEnum.FORCE_JOIN)
+            }
+        }
+    }
+
+    fun cancelForceJoin() {}
+
+    private fun clearSubScreenIdentifiedData(displayType: DisplayType) {
+        val personArray = when (displayType) {
+            DisplayType.LEFT -> leftPersonArray
+            DisplayType.RIGHT -> rightPersonArray
+            else -> return
+        }
+        val indexes = mutableListOf<Int>()
+        for (i in 0 until personArray.size()) indexes.add(personArray.keyAt(i))
+        personArray.clear()
+        uiHandler.post {
+            indexes.forEach { index ->
+                _changeSportViewStateLD.tryEmit(displayType to (index to MultiSportCardViewState.NOBODY))
+            }
+        }
+    }
+
+    private fun syncIdentifiedCountWhileTip(displayType: DisplayType) {
+        uiHandler.post {
+            if (identifiedCountMap.containsKey(displayType)) {
+                identifiedCountMap[displayType] =
+                    if (displayType == DisplayType.LEFT) leftPersonArray.size()
+                    else rightPersonArray.size()
+                _identifiedCountLD.tryEmit(Unit)
+            }
+        }
+    }
+
+    private fun updateOccupiedSubScreens(displayType: DisplayType, occupied: Boolean) {
+        if (displayType != DisplayType.LEFT && displayType != DisplayType.RIGHT) return
+        uiHandler.post {
+            val changed = if (occupied) occupiedSubScreens.add(displayType)
+            else occupiedSubScreens.remove(displayType)
+            if (changed) _subScreenOccupiedLD.tryEmit(occupiedSubScreens.toSet())
+        }
     }
 
 
@@ -454,10 +807,14 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         Log.w(TAG, "FourSportGbViewModel::identifyOk: index: $accountIndex, accountName: ${accountInfo.studentEntity?.accountName}")
         synchronized(this) {
             viewModelScope.launch(Dispatchers.Main) {
+                val student = accountInfo.studentEntity ?: run {
+                    Log.w(TAG, "TwelveSportGbViewModel::identifyOk: studentEntity null, skip index=$accountIndex")
+                    return@launch
+                }
                 //需要检测是否已经识别此人，如已识别，则清掉上次识别的位置,非游客
-                if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
+                if (student.accountId != BusiBaseConstantsValue.VISITOR_USER_ID) {
                     val duplicated = sportResultMap
-                        .filter { it.value.accountInfo.studentEntity?.accountId == accountInfo.studentEntity?.accountId }
+                        .filter { it.value.accountInfo.studentEntity?.accountId == student.accountId }
                         .keys
                         .toList()
                     duplicated.forEach { index ->
@@ -468,18 +825,18 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
                 //如果是组织测试，校验学生是否在计划中
                 val checkResult = withContext(Dispatchers.IO) {
-                    checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
+                    checkStudent(student.accountId, ptPlanId)
                 }
                 if (checkResult) {
                     //存已识别的人信息
                     //识别到人，且有效时，取消倒计时再处理显示逻辑
 //                    startCountDownTimer.cancel()
-                    SpeechWrapper.speech(getString(R.string.identified_someone, accountInfo.studentEntity!!.accountName))
+                    SpeechWrapper.speech(getString(R.string.identified_someone, student.accountName))
                     sportResultMap[accountIndex] = MultiSportResult(accountInfo, accountIndex)
-                    Log.i(TAG, "FourSportGbViewModel::identifyOk: 人脸识别结果：姓名：${accountInfo.studentEntity?.accountName}; 道数 $accountIndex")
-                    _identifiedLD.tryEmit(Pair(accountIndex, accountInfo))
+                    Log.i(TAG, "FourSportGbViewModel::identifyOk: 人脸识别结果：姓名：${student.accountName}; 道数 $accountIndex")
+                    _identifiedLD.tryEmit(DisplayType.MAIN to Pair(accountIndex, accountInfo))
                     //给accountInfo赋值，用来获取存储视频的地址
-                    if (accountInfo.studentEntity!!.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
+                    if (student.accountId != BusiBaseConstantsValue.VISITOR_USER_ID && accountInfoLD.value == null) {
                         accountInfoLD.postValue(accountInfo)
                     }
                     changeMultiIdentityCardState(accountIndex, MultiSportCardViewState.PREPARED)
@@ -491,10 +848,9 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                         startCountDownTimer?.start()
 //                        playCutDown()
                     }
-                    //如果已识别五人，则直接开始
+                    //如果已识别满员，统一检查协同开始条件
                     if (sportResultMap.size == SPORT_NUMBER) {
-//                        skipRoseState = MultiSportState.WAITING_START
-                        startSport()
+                        checkCollaborationSportStart()
                         return@launch
                     }
                     //重新复位倒计时时间
@@ -507,7 +863,7 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                     timeOutHelper.cancel()
                 } else {
                     currentIdentifyNumber = -1
-                    ToastUtil.getInstance(getApplication(), getString(R.string.busi_base_name_without_plan, accountInfo.studentEntity!!.accountName)).show()
+                    ToastUtil.getInstance(getApplication(), getString(R.string.busi_base_name_without_plan, student.accountName)).show()
                 }
             }
 
@@ -538,7 +894,8 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         }
         jumpers.forEachIndexed { index, jumper ->
             if (jumper.skeleton == null) return@forEachIndexed
-            sportResultMap[index]?.count = jumper.score
+            val personResult = sportResultMap[index] ?: return@forEachIndexed
+            personResult.count = jumper.score
             jumper.exercisePrescription?.let { pre -> prescriptions.put(index, pre) }
             _singleResultLD.tryEmit(DisplayType.MAIN to (index to jumper.score))
         }
@@ -586,6 +943,10 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         }
         if (currentIdentifyNumber != -1) {
             Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：当前正在识别人脸 道数 $currentIdentifyNumber")
+            if (currentIdentifyNumber !in jumpers.indices) {
+                currentIdentifyNumber = -1
+                return
+            }
             val jumper = jumpers[currentIdentifyNumber]
             //没找到人，说明，人已离开位置，则重置状态
             if (jumper.skeleton == null) {
@@ -597,10 +958,11 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                     //送数据进行人脸识别
                     Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：送数据进行人脸识别: 道数 $currentIdentifyNumber")
                     val currentYuvData = multiProcessor.getCurrentYuvData()
+                    val yuvBytes = currentYuvData.yuv ?: return
                     val skeleton = jumper.skeleton ?: return
                     identify(
                         getIdentityRect(skeleton, currentYuvData.width, currentYuvData.height),
-                        currentYuvData.yuv, currentYuvData.width, currentYuvData.height, currentIdentifyNumber)
+                        yuvBytes, currentYuvData.width, currentYuvData.height, currentIdentifyNumber)
                 } else {
                     //手已放下：让出识别通道（不算识别失败，人还在），让其他举手的位置优先识别
                     Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：手已放下，让出识别通道; 道数 $currentIdentifyNumber")
@@ -621,8 +983,9 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                 if (jumper.skeleton != null && sportResultMap[index] == null && judgeHandUp(index, jumper.skeleton)) {
                     //只有举手的位置才送人脸识别
                     currentIdentifyNumber = index
-                    val yuv = multiProcessor.getCurrentYuvData()
-                    identify(getIdentityRect(jumper.skeleton, yuv.width, yuv.height), yuv.yuv, yuv.width, yuv.height,
+                    val yuvData = multiProcessor.getCurrentYuvData()
+                    val yuvBytes = yuvData.yuv ?: return
+                    identify(getIdentityRect(jumper.skeleton, yuvData.width, yuvData.height), yuvBytes, yuvData.width, yuvData.height,
                         currentIdentifyNumber)
                     changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFYING)
                     Log.i(TAG, "FourSportGbViewModel::handleIdentify: 处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
@@ -706,28 +1069,99 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     fun getHandRaisedType(index: Int): HandUpType = handRaisedMap.get(index, HandUpType.NONE)
 
     /**
-     * 主屏触发准备开始（倒计时结束/满员），统一检查协同开始条件
+     * 主屏手动开始：直接进入协同开始流程
      */
     fun readyGo() {
         startSport()
     }
 
     /**
-     * 检查并真正开始主屏3-2-1倒计时，只执行一次
+     * 协同开始条件变化时统一调用：满足则开始主屏 3-2-1，并向副屏发 SPORT
      */
+    private fun checkCollaborationSportStart() {
+        val canStart = canStartCollaborationSport()
+        Log.i(
+            TAG,
+            "TwelveSportGbViewModel::checkCollaborationSportStart: canStart=$canStart, " +
+                "mainCount=${sportResultMap.size}, leftCount=${leftPersonArray.size()}, " +
+                "rightCount=${rightPersonArray.size()}, mainCountDownEnded=$mainCountDownEnded, " +
+                "subCountDownEnded=$subScreenCountDownEnded, collabState=$collaborationStateMap"
+        )
+        if (!canStart) {
+            Log.w(TAG, "TwelveSportGbViewModel::checkCollaborationSportStart: conditions not met")
+            return
+        }
+        startSport()
+    }
+
     private fun startSport() {
-        if (mainSportStarted) return
+        Log.i(TAG, "TwelveSportGbViewModel::startSport")
+        tryStartSport()
+        sendSportCommand()
+    }
+
+    /**
+     * 协同运动开始条件（任一满足即可开始）：
+     * 条件1：所有屏（主屏+已加入副屏）都识别满员
+     * 条件2：所有屏（主屏+已加入副屏）都倒计时结束
+     */
+    private fun canStartCollaborationSport(): Boolean {
+        val connectedSubScreens = connectedSubScreenTypes()
+        if (sportResultMap.isEmpty()) return false
+        if (DisplayType.LEFT in connectedSubScreens &&
+            collaborationStateMap[DisplayType.LEFT] == CollaborationAreaState.NORMAL &&
+            leftPersonArray.size() <= 0
+        ) return false
+        if (DisplayType.RIGHT in connectedSubScreens &&
+            collaborationStateMap[DisplayType.RIGHT] == CollaborationAreaState.NORMAL &&
+            rightPersonArray.size() <= 0
+        ) return false
+        val allScreenFull = sportResultMap.size >= SPORT_NUMBER &&
+            (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size() >= SPORT_NUMBER) &&
+            (DisplayType.RIGHT !in connectedSubScreens || rightPersonArray.size() >= SPORT_NUMBER)
+        if (allScreenFull) return true
+        if (!mainCountDownEnded) return false
+        return connectedSubScreens.all {
+            it in subScreenCountDownEnded ||
+                collaborationStateMap[it] != CollaborationAreaState.NORMAL
+        }
+    }
+
+    private fun needWaitOtherAreaJoin(): Boolean {
+        if (!mainCountDownEnded) return false
+        return connectedSubScreenTypes().any {
+            collaborationStateMap[it] == CollaborationAreaState.NORMAL &&
+                it !in subScreenCountDownEnded
+        }
+    }
+
+    private fun connectedSubScreenTypes(): List<DisplayType> {
+        val result = mutableListOf<DisplayType>()
+        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            result.add(DisplayType.LEFT)
+        }
+        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            result.add(DisplayType.RIGHT)
+        }
+        return result
+    }
+
+    /**
+     * 检查并真正开始主屏 3-2-1 倒计时，只执行一次
+     */
+    private fun tryStartSport() {
+        if (mainSportStarted) {
+            Log.w(TAG, "TwelveSportGbViewModel::tryStartSport: already started, skip")
+            return
+        }
         mainSportStarted = true
+        Log.i(TAG, "TwelveSportGbViewModel::tryStartSport: enter 3-2-1 countdown")
         //停止倒计时音效
         stopPlayCutDown()
         startCountDownTimer?.cancel()
         _countDownFinishLD.tryEmit(DisplayType.MAIN to true)
         //开始3-2-1倒计时就表示比赛已经开始
         sportState = MultiSportState.COUNTDOWN
-        //处理开始后摄像头分辨率
-//        if (streamType == 1) {
-//            handleStartCameraResolution()
-//        }
     }
 
     private fun changeTo4K() {
@@ -763,18 +1197,62 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     }
 
     /**
-     * 处理成绩：合并主屏与已连接副屏成绩，按高优排序，计算名次，并生成结果页统一数据
+     * 运动结束统一检查：主屏结束且所有已加入协同的副屏都结束后，再合并成绩展示
      */
-    private fun handleResult(resultMap: Map<Int, MultiSportResult>) {
-        if (sportInfo == null || resultMap.isEmpty()) {
+    private fun checkAllSportFinished() {
+        if (!mainSportFinished) {
+            Log.w(TAG, "TwelveSportGbViewModel::checkAllSportFinished: main not finished yet")
             return
         }
-        val resultList = Array(SPORT_NUMBER) { MultiSportResult(AccountInfo(), 0) }
-        resultMap.forEach { (index, value) ->
-            resultList[index] = value
+        val joinedSubScreens =
+            listOf(DisplayType.LEFT, DisplayType.RIGHT).filter { isSubScreenJoined(it) }
+        if (joinedSubScreens.any { it !in subScreenSportFinished }) {
+            Log.w(TAG, "TwelveSportGbViewModel::checkAllSportFinished: waiting, joined=$joinedSubScreens, finished=$subScreenSportFinished")
+            LogUtil.d("等待副屏运动结束：已加入=$joinedSubScreens，已结束=$subScreenSportFinished")
+            return
         }
-        _toDoneLD.tryEmit(resultList)
-        handleUploadResult(resultList.toMutableList())
+        Log.i(TAG, "TwelveSportGbViewModel::checkAllSportFinished: all finished, merge results")
+        handleMergedResult()
+    }
+
+    /**
+     * 合并主屏与已连接副屏成绩，按高优排序，计算名次，并生成结果页数据
+     */
+    private fun handleMergedResult() {
+        if (sportInfo == null) return
+        val resultList = mutableListOf<MultiSportResult>()
+        sportResultMap.values.forEach { resultList.add(it) }
+        if (leftSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            leftPersonArray.forEach { _, result -> resultList.add(result) }
+        }
+        if (rightSubScreenIp?.let { GrpcManager.getClientIdByIp(it) } != null) {
+            rightPersonArray.forEach { _, result -> resultList.add(result) }
+        }
+        if (resultList.isEmpty()) {
+            Log.w(TAG, "TwelveSportGbViewModel::handleMergedResult: empty result list")
+            return
+        }
+        resultList.sortWith(compareBy { -it.count })
+        var preRank = 0
+        var preScore = -1
+        for (index in resultList.indices) {
+            val item = resultList[index]
+            val rank = if (item.count == preScore) preRank else preRank + 1
+            preRank = rank
+            preScore = item.count
+            item.rank = rank
+        }
+        val topSummary = resultList.take(3).joinToString { "${it.accountInfo.studentEntity?.accountName}:${it.count}" }
+        Log.i(TAG, "TwelveSportGbViewModel::handleMergedResult: total=${resultList.size}, top=$topSummary")
+        _toDoneLD.tryEmit(resultList.toTypedArray())
+        // 主屏本地成绩仍按本屏道次上传
+        val mainUpload = Array(SPORT_NUMBER) { MultiSportResult(AccountInfo(), 0) }
+        sportResultMap.forEach { (index, value) ->
+            if (index in mainUpload.indices) {
+                mainUpload[index] = value
+            }
+        }
+        handleUploadResult(mainUpload.toMutableList())
     }
 
     /**
@@ -794,7 +1272,12 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                     continue
                 }
                 var sportResult = SportResult()
-                sportResult.sportDuration = sportInfo!!.endValue.toInt()
+                val duration = sportInfo?.endValue?.toIntOrNull()
+                if (duration == null) {
+                    Log.w(TAG, "TwelveSportGbViewModel::handleUploadResult: invalid endValue=${sportInfo?.endValue}, skip upload")
+                    return@launch
+                }
+                sportResult.sportDuration = duration
                 sportResult.maxComboCount = 0
                 sportResult.sportAchievement = multiResult.count
                 sportResult.perfectCount = 0
@@ -1073,6 +1556,15 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         }
         sportResultMap.clear()
         handRaisedMap.clear()
+        leftPersonArray.clear()
+        rightPersonArray.clear()
+        subScreenCountDownEnded.clear()
+        subScreenSportFinished.clear()
+        startCommandSent = false
+        sportStartedFlag = false
+        mainCountDownEnded = false
+        mainSportStarted = false
+        mainSportFinished = false
 
         //重置人脸识别
         initFaceIdentify()
@@ -1105,6 +1597,8 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
     override fun onDestroy() {
         super.onDestroy()
+        sendCollaborationFinish()
+        GrpcManager.unregisterHandler(GRPC_KEY)
         sportingCountDownTimer?.cancel()
         startCountDownTimer?.cancel()
         multiProcessor.onRelease()

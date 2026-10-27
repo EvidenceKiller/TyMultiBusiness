@@ -34,6 +34,7 @@ import com.ty.bus.multi.core.ui.sport.fivesport.FiveSportActivity
 import com.ty.bus.multi.core.ui.sport.forwardfelxion.ForwardFlexionActivity
 import com.ty.bus.multi.core.ui.sport.forwardflexionsix.ForwardFlexionSixActivity
 import com.ty.bus.multi.core.ui.sport.fourgbsport.FourSportGbActivity
+import com.ty.bus.multi.core.ui.sport.twelvegbsport.TwelveSportGbActivity
 import com.ty.bus.multi.core.ui.sport.sitreacheighteen.SitReachEighteenActivity
 import com.ty.bus.multi.core.ui.sport.sitreachsix.SitReachSixActivity
 import com.ty.bus.multi.core.ui.sport.sixsport.SixSportActivity
@@ -356,6 +357,18 @@ object UIMultiNavigation : BaseNavigation() {
         preCallback: Action1<Intent>? = null
     ) {
         val intent = Intent(context, FourSportGbActivity::class.java)
+        intent.putExtra("sport_config", sportConfig)
+        preCallback?.invoke(intent)
+        startActivity(context, intent, config)
+    }
+
+    fun goTwelveSportGb(
+        context: Context,
+        config: UINavConfig?,
+        sportConfig: FourSportConfig?,
+        preCallback: Action1<Intent>? = null
+    ) {
+        val intent = Intent(context, TwelveSportGbActivity::class.java)
         intent.putExtra("sport_config", sportConfig)
         preCallback?.invoke(intent)
         startActivity(context, intent, config)
