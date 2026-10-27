@@ -302,6 +302,10 @@ open class SingleIdentityProcessor(val customIdentifyRect: ICustomIdentifyRect =
         )
     }
 
+    fun setIdentityConfig(config: FaceIdentifyConfig) {
+        identityEngine.addIdentityConfig(0, config)
+    }
+
     interface ICustomIdentifyRect {
         fun calcRect(skeleton: AdlPoseSkeleton?, width: Int, height: Int): Rect
     }
