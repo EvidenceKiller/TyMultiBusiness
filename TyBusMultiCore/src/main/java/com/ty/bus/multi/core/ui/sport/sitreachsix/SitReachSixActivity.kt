@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
+import android.text.TextUtils
 import android.view.View
 import android.widget.Toast
 import com.adl.base.common.AdlAvReader
@@ -20,6 +21,8 @@ import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
 import com.adl.mount.core.TsModelResPool
+import com.adl.service.entity.BestRankTopEntity
+import com.adl.service.outer.AdlService
 import com.adl.sport.ballBase.ResultCodeType
 import com.adl.sport.controllers.sitandreach.SitAndReachCallBack
 import com.adl.sport.controllers.sitandreach.SitAndReachController
@@ -27,6 +30,7 @@ import com.adl.sport.controllers.sitandreach.SitAndReachControllerConfig
 import com.adl.sport.sitandreach.SitAndReachConfig
 import com.adl.sport.sitandreach.SitAndReachObject
 import com.adl.sport.sitandreach.SitAndReachType
+import com.bumptech.glide.Glide
 import com.hcnetsdk.control.DevConfigGuider
 import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
@@ -41,6 +45,7 @@ import com.ty.forwardflexion.config.FFlexionRoleConfig
 import com.ty.tybusbase.config.BusiBaseConfig
 import com.ty.tybusbase.constants.BusiBaseConstantsValue
 import com.ty.tybusbase.constants.MMKVBusiKey
+import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.dispatcher.DynamicSportFrameDispatcher
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
@@ -114,11 +119,20 @@ class SitReachSixActivity :
         viewModel.ffSportConfig =
             intent.getSerializableExtra("sport_config") as? ForwardFlexionConfig
         viewModel.initData()
+        viewModel.getBestRankTop()
         SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        //如果是赛事，则隐藏今日最佳
+        viewModel.matchId?.let {
+            mBinding.groupTodayTop.visibility = View.GONE
+        }
+        //自主，组织，随堂测隐藏今日最佳
+        if (viewModel.sceneId == SceneConstants.ORGANIZE_TEST || viewModel.sceneId == SceneConstants.INDEPENDENT_TEST || viewModel.sceneId == SceneConstants.CLASS_TEST) {
+            mBinding.groupTodayTop.visibility = View.GONE
+        }
         mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
         mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
         mBinding.tvInTip.text = getString(R.string.forward_flexion_in_tip)
@@ -361,6 +375,26 @@ class SitReachSixActivity :
             mBinding.sportView.addScore(it.first, it.second)
         }
 
+        viewModel.bestRankLD.observe(this) {
+            initTopView(it)
+        }
+
+    }
+
+    /**
+     * 初始化今日最佳
+     */
+    private fun initTopView(topEntity: BestRankTopEntity) {
+        if (!TextUtils.isEmpty(topEntity.originalSportResult)) {
+            mBinding.tvCount.visibility = View.VISIBLE
+            mBinding.tvUnit.visibility = View.VISIBLE
+            mBinding.tvUnit.text = viewModel.measureUnit
+            mBinding.tvName.text = topEntity.accountName
+            mBinding.tvCount.text = topEntity.originalSportResult
+            Glide.with(this).load(AdlService.getService().facePrefix + topEntity.faceImgUrl)
+                .placeholder(R.mipmap.ic_head_default)
+                .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
+        }
     }
 
 
