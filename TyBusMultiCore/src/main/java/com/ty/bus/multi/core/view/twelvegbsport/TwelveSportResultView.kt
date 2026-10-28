@@ -91,21 +91,21 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no1)
                             holder.vb.ivRank.visibility = VISIBLE
                             holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_1)
-                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
+                            holder.vb.tvName.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
                         }
 
                         2 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no2)
                             holder.vb.ivRank.visibility = VISIBLE
                             holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_2)
-                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
+                            holder.vb.tvName.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
                         }
 
                         3 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no3)
                             holder.vb.ivRank.visibility = VISIBLE
                             holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_3)
-                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
+                            holder.vb.tvName.typeface = Typeface.defaultFromStyle(Typeface.BOLD)
                         }
 
                         else -> {
