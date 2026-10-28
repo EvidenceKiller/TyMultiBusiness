@@ -1793,11 +1793,18 @@ class ThirtySportViewModel(application: Application) :
     private fun updateOccupiedSubScreens(displayType: DisplayType, occupied: Boolean) {
         if (displayType != DisplayType.LEFT && displayType != DisplayType.RIGHT) return
         val changed =
-            if (occupied) occupiedSubScreens.add(displayType) else occupiedSubScreens.remove(displayType)
+            if (occupied) occupiedSubScreens.add(displayType) else occupiedSubScreens.remove(
+                displayType
+            )
         if (!changed) return
         uiHandler.post {
             LogUtil.d("副屏占用中变化：${occupiedSubScreens.map { it.name }}")
-            _subScreenOccupiedLD.tryEmit(occupiedSubScreens.toSet())
+            if (skipRoseState != MultiSportState.COUNTDOWN
+                && skipRoseState != MultiSportState.SPORTING
+            ) {
+                _subScreenOccupiedLD.tryEmit(occupiedSubScreens.toSet())
+
+            }
         }
     }
 
