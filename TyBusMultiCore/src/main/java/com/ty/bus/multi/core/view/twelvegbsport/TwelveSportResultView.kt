@@ -1,6 +1,7 @@
 package com.ty.bus.multi.core.view.twelvegbsport
 
 import android.content.Context
+import android.graphics.Typeface
 import android.os.CountDownTimer
 import android.text.TextUtils
 import android.util.AttributeSet
@@ -41,7 +42,7 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
 
     var measureUnit: String = getString(R.string.ge)
 
-    private val mBinding: TwelveSportResultViewBinding
+    private val mBinding = TwelveSportResultViewBinding.inflate(LayoutInflater.from(context), this, true)
     var top1Count: Int = Int.MAX_VALUE
 
     protected var reportClickListener: Action1<ThirtySportResultItem>? = null
@@ -59,7 +60,6 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
     private var coroutineScope = CoroutineScope(Dispatchers.Main)
 
     init {
-        mBinding = TwelveSportResultViewBinding.inflate(LayoutInflater.from(context), this, true)
         initView()
     }
 
@@ -90,20 +90,27 @@ class TwelveSportResultView(context: Context, attrs: AttributeSet?, defStyleAttr
                         1 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no1)
                             holder.vb.ivRank.visibility = VISIBLE
+                            holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_1)
+                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
                         }
 
                         2 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no2)
                             holder.vb.ivRank.visibility = VISIBLE
+                            holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_2)
+                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
                         }
 
                         3 -> {
                             holder.vb.ivRank.setBackgroundResource(R.mipmap.ic_result_list_no3)
                             holder.vb.ivRank.visibility = VISIBLE
+                            holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_rank_3)
+                            holder.vb.tvName.setTypeface(holder.vb.tvName.typeface, Typeface.BOLD)
                         }
 
                         else -> {
                             holder.vb.tvRank.visibility = VISIBLE
+                            holder.vb.root.setBackgroundResource(R.mipmap.bg_multi_sport_result_normal)
                         }
                     }
                     Glide.with(context)
