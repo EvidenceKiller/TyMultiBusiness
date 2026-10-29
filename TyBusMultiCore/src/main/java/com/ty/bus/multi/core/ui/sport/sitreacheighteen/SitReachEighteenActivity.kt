@@ -57,8 +57,10 @@ import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
+import com.ty.tybusbase.utils.StringKt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import java.math.RoundingMode
 
 /**
  * 18人坐位体前屈：主屏 + 左副屏 + 右副屏，每屏6人，共18人。
@@ -522,12 +524,16 @@ class SitReachEighteenActivity :
      * 初始化今日最佳
      */
     private fun initTopView(topEntity: BestRankTopEntity) {
-        if (!TextUtils.isEmpty(topEntity.sportResult)) {
+        if (!TextUtils.isEmpty(topEntity.originalSportResult)) {
             mBinding.tvCount.visibility = View.VISIBLE
             mBinding.tvUnit.visibility = View.VISIBLE
             mBinding.tvUnit.text = viewModel.measureUnit
             mBinding.tvName.text = topEntity.accountName
-            mBinding.tvCount.text = topEntity.sportResult
+            //originalSportResult 单位为毫米，展示需转成厘米
+            val originalSportResult = StringKt.bigDecimalDivideToString(
+                topEntity.originalSportResult, 10, 2, RoundingMode.HALF_UP
+            )
+            mBinding.tvCount.text = originalSportResult
             Glide.with(this).load(AdlService.getService().facePrefix + topEntity.faceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
