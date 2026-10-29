@@ -522,12 +522,12 @@ class SitReachEighteenActivity :
      * 初始化今日最佳
      */
     private fun initTopView(topEntity: BestRankTopEntity) {
-        if (!TextUtils.isEmpty(topEntity.originalSportResult)) {
+        if (!TextUtils.isEmpty(topEntity.sportResult)) {
             mBinding.tvCount.visibility = View.VISIBLE
             mBinding.tvUnit.visibility = View.VISIBLE
             mBinding.tvUnit.text = viewModel.measureUnit
             mBinding.tvName.text = topEntity.accountName
-            mBinding.tvCount.text = topEntity.originalSportResult
+            mBinding.tvCount.text = topEntity.sportResult
             Glide.with(this).load(AdlService.getService().facePrefix + topEntity.faceImgUrl)
                 .placeholder(R.mipmap.ic_head_default)
                 .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
