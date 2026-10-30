@@ -99,6 +99,12 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
         private const val SPORT_NUMBER = 4
 
+        /**
+         * 连续多少帧 skeleton 对象 identityHashCode 不变，视为离区残留骨骼。
+         * 日志显示人在区时 sk id 会换新对象，离区后同一 id 长期冻结。
+         */
+        private const val SKELETON_STALE_FRAME_THRESHOLD = 5
+
         /** 裁剪框最小边长 */
         private const val MIN_RECT_SIZE = 40
 
@@ -136,6 +142,16 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     var personIndex = 0
 
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
+
+    /** 最近一帧 jumpers，供 identifyFail 判定离区 */
+    @Volatile
+    private var lastJumpers: List<Jumper> = emptyList()
+
+    /** 各道次上一帧 skeleton 的 identityHashCode，0 表示无骨骼 */
+    private val lastSkeletonIdentity = IntArray(SPORT_NUMBER)
+
+    /** 各道次 skeleton 对象 id 连续未变化的帧数 */
+    private val skeletonStaleFrameCount = IntArray(SPORT_NUMBER)
 
     /**
      * 举手判定手型：0左手 / 1右手 / 2左右手皆可 / 3不检测举手。
@@ -291,6 +307,7 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         super.toStatusIdentifyFace()
         Log.i(TAG, "FourSportGbViewModel::toStatusIdentifyFace")
         sportState = MultiSportState.IDENTIFYING
+        clearSkeletonStaleTracking()
         cardStateMap.clear()
         for (index in 0 until SPORT_NUMBER) {
             cardStateMap[index] = MultiSportCardViewState.NOBODY
@@ -451,6 +468,7 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     @Synchronized
     fun processFrame(jumpers: List<Jumper>) {
         val list = jumpers.toList()
+        lastJumpers = list
         when (sportState) {
             MultiSportState.IDENTIFYING -> handleIdentify(list)
             MultiSportState.SPORTING -> handleSportResult(list)
@@ -776,12 +794,14 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     }
 
 
+    @Synchronized
     override fun identifyFail(index: Int) {
         Log.w(TAG, "TwelveSportGbViewModel::identifyFail: $index")
         val failIndex = if (index in 0 until SPORT_NUMBER) index else currentIdentifyNumber
         if (failIndex in 0 until SPORT_NUMBER) {
-            // 人还在则 STANDBY；人已走则下一帧在位同步改 NOBODY
-            changeMultiIdentityCardState(failIndex, MultiSportCardViewState.STANDBY)
+            val state = resolveIdentifyReleaseState(failIndex, lastJumpers.getOrNull(failIndex))
+            Log.i(TAG, "TwelveSportGbViewModel::identifyFail: failIndex=$failIndex -> $state")
+            changeMultiIdentityCardState(failIndex, state)
         }
         currentIdentifyNumber = -1
     }
@@ -924,14 +944,65 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     }
 
 
+    private fun clearSkeletonStaleTracking() {
+        lastSkeletonIdentity.fill(0)
+        skeletonStaleFrameCount.fill(0)
+        lastJumpers = emptyList()
+    }
+
     /**
-     * 每帧同步未入册道次的在位 UI：离区 → NOBODY（请站到运动区内），在区非当前识别道 → STANDBY（请举手准备）。
-     * 须在识别早退之前调用，避免识别占用时离区提示卡住。
+     * 更新骨架冻结计数。skeleton==null 或同一对象连续达到阈值 → 离区。
+     */
+    private fun updateSkeletonStale(index: Int, jumper: Jumper?): Boolean {
+        if (index !in lastSkeletonIdentity.indices) return true
+        val skeleton = jumper?.skeleton
+        if (skeleton == null) {
+            lastSkeletonIdentity[index] = 0
+            skeletonStaleFrameCount[index] = SKELETON_STALE_FRAME_THRESHOLD
+            return true
+        }
+        val identity = System.identityHashCode(skeleton)
+        if (identity != 0 && identity == lastSkeletonIdentity[index]) {
+            skeletonStaleFrameCount[index] =
+                (skeletonStaleFrameCount[index] + 1).coerceAtMost(SKELETON_STALE_FRAME_THRESHOLD + 1)
+        } else {
+            lastSkeletonIdentity[index] = identity
+            skeletonStaleFrameCount[index] = 0
+        }
+        return skeletonStaleFrameCount[index] >= SKELETON_STALE_FRAME_THRESHOLD
+    }
+
+    private fun isLaneVacant(index: Int, jumper: Jumper?): Boolean {
+        if (index !in 0 until SPORT_NUMBER) return true
+        if (jumper?.skeleton == null) return true
+        return skeletonStaleFrameCount[index] >= SKELETON_STALE_FRAME_THRESHOLD
+    }
+
+    private fun resolveIdentifyReleaseState(index: Int, jumper: Jumper?): MultiSportCardViewState =
+        if (isLaneVacant(index, jumper)) MultiSportCardViewState.NOBODY
+        else MultiSportCardViewState.STANDBY
+
+    /**
+     * 每帧同步未入册道次的在位 UI：离区 → NOBODY，在区非当前识别道 → STANDBY。
+     * 离区判定：skeleton 为空，或 identityHashCode 连续阈值帧不变（残留骨骼）。
      */
     private fun syncIdentifyPresence(jumpers: List<Jumper>) {
         jumpers.forEachIndexed { index, jumper ->
-            if (sportResultMap[index] != null) return@forEachIndexed
-            if (jumper.skeleton == null) {
+            if (sportResultMap[index] != null) {
+                if (index in lastSkeletonIdentity.indices) {
+                    lastSkeletonIdentity[index] = 0
+                    skeletonStaleFrameCount[index] = 0
+                }
+                return@forEachIndexed
+            }
+            if (updateSkeletonStale(index, jumper)) {
+                if (cardStateMap[index] != MultiSportCardViewState.NOBODY) {
+                    Log.i(
+                        TAG,
+                        "TwelveSportGbViewModel::syncIdentifyPresence: lane=$index vacant " +
+                            "skId=${lastSkeletonIdentity[index]} stale=${skeletonStaleFrameCount[index]} -> NOBODY"
+                    )
+                }
                 changeMultiIdentityCardState(index, MultiSportCardViewState.NOBODY)
                 if (index == currentIdentifyNumber) {
                     currentIdentifyNumber = -1
@@ -955,13 +1026,11 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                 return
             }
             val jumper = jumpers[currentIdentifyNumber]
-            //没找到人，说明，人已离开位置，则重置状态（在位同步已刷 NOBODY）
-            if (jumper.skeleton == null) {
+            if (isLaneVacant(currentIdentifyNumber, jumper)) {
                 Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：人已离开位置，重置状态; 道数 $currentIdentifyNumber")
                 currentIdentifyNumber = -1
             } else {
                 if (judgeHandUp(currentIdentifyNumber, jumper.skeleton)) {
-                    //送数据进行人脸识别
                     Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：送数据进行人脸识别: 道数 $currentIdentifyNumber")
                     val currentYuvData = multiProcessor.getCurrentYuvData()
                     val yuvBytes = currentYuvData.yuv ?: return
@@ -970,15 +1039,15 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                         getIdentityRect(skeleton, currentYuvData.width, currentYuvData.height),
                         yuvBytes, currentYuvData.width, currentYuvData.height, currentIdentifyNumber)
                 } else {
-                    //手已放下：让出识别通道（不算识别失败，人还在），让其他举手的位置优先识别
-                    Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：手已放下，让出识别通道; 道数 $currentIdentifyNumber")
-                    changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.STANDBY)
+                    val releaseIndex = currentIdentifyNumber
+                    val state = resolveIdentifyReleaseState(releaseIndex, jumper)
+                    Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 手已放下 -> $state; 道数 $releaseIndex")
+                    changeMultiIdentityCardState(releaseIndex, state)
                     currentIdentifyNumber = -1
                 }
             }
             return
         }
-        //如果正在识别，则等待识别完再处理下一个人脸识别
         if (isIdentifying()) {
             Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：引擎忙，等待; 道数 $currentIdentifyNumber")
             return
@@ -986,12 +1055,16 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
 
         run identify@{
             jumpers.forEachIndexed { index, jumper ->
-                if (jumper.skeleton != null && sportResultMap[index] == null && judgeHandUp(index, jumper.skeleton)) {
-                    //只有举手的位置才送人脸识别
+                if (!isLaneVacant(index, jumper) &&
+                    jumper.skeleton != null &&
+                    sportResultMap[index] == null &&
+                    judgeHandUp(index, jumper.skeleton)
+                ) {
                     currentIdentifyNumber = index
                     val yuvData = multiProcessor.getCurrentYuvData()
                     val yuvBytes = yuvData.yuv ?: return
-                    identify(getIdentityRect(jumper.skeleton, yuvData.width, yuvData.height), yuvBytes, yuvData.width, yuvData.height,
+                    val skeleton = jumper.skeleton ?: return@identify
+                    identify(getIdentityRect(skeleton, yuvData.width, yuvData.height), yuvBytes, yuvData.width, yuvData.height,
                         currentIdentifyNumber)
                     changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFYING)
                     Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
@@ -1592,6 +1665,7 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
         }
         sportResultMap.clear()
         handRaisedMap.clear()
+        clearSkeletonStaleTracking()
         leftPersonArray.clear()
         rightPersonArray.clear()
         subScreenCountDownEnded.clear()
