@@ -815,10 +815,12 @@ class ThirtySitUpSportViewModel(application: Application) :
     }
 
     /**
-     * 主屏触发准备开始（倒计时结束/满员/点击开始按钮），统一检查协同开始条件
+     * 主屏手动开始（点击「立即开始」）：与 12 人跳绳一致，直接开赛，不校验副屏是否已有识别结果。
+     * 自动开赛仍走 [checkCollaborationSportStart] / [canStartCollaborationSport]。
      */
     fun readyGo() {
-        checkCollaborationSportStart()
+        mainCountDownEnded = true
+        startSport()
     }
 
     /**

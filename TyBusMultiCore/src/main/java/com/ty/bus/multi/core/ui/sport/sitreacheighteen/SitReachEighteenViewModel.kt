@@ -521,7 +521,8 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 点击"立即开始"：跳过识别倒计时，按协同开赛条件开始（已加入副屏 0 人则不开始）
+     * 点击"立即开始"：与 12 人跳绳 readyGo 一致，跳过识别倒计时并直接开赛，
+     * 不因已加入副屏 0 人而拦截；自动开赛仍走 [canStartCollaborationSport]。
      */
     fun startSportNow() {
         if (sitReachPersonArray.size() <= 0 &&
@@ -530,7 +531,8 @@ class SitReachEighteenViewModel(application: Application) :
         ) return
         mainCountDownEnded = true
         stopIdentifyCountDown()
-        checkCollaborationSportStart()
+        tryStartSport()
+        sendSportCommand()
     }
 
     /**
