@@ -112,6 +112,16 @@ class SitReachSixViewModel(application: Application) :
     @Volatile
     private var currentRoundFinishing = false
 
+    /**
+     * 成绩写回世代：下一组/重测时递增。
+     * 用于丢弃上一轮已排队到 Main 的迟到 addScore，避免新一轮识别后刷出旧「最佳」。
+     */
+    @Volatile
+    private var scoreEpoch = 0
+
+    /** 本轮开测后该道是否出现过非 END，用于屏蔽算法残留 END */
+    private val laneScoreArmed = BooleanArray(7) { false }
+
     private val recordProcess = object : AdlCameraFrameProcessor {
         override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
             videoRecorder.inputNv21(p0, "")
@@ -221,16 +231,10 @@ class SitReachSixViewModel(application: Application) :
                 "$TAG::identifyOk: name=${accountInfo.studentEntity!!.accountName}, " +
                     "lane=$index, identified=${sportPersonArray.size}/$sportManCount"
             )
-            //识别完成
+            // 满员直接开测；未满员则等「立即开始」倒计时/点击（不再用首人空闲超时抢跑）
             if (sportPersonArray.size == sportManCount) {
                 LogUtil.d("$TAG::identifyOk: full, toStatusPrepare")
                 toStatusPrepare()
-            } else if (sportPersonArray.size == 1) {
-                LogUtil.d("$TAG::identifyOk: first person, schedule prepare in ${identifyTimeOut}ms")
-                mHandler.postDelayed({
-                    LogUtil.d("$TAG::identifyIdleTimeout: fire toStatusPrepare, state=$sportState")
-                    toStatusPrepare()
-                }, identifyTimeOut)
             }
 
         }
@@ -325,7 +329,7 @@ class SitReachSixViewModel(application: Application) :
         if (sportState != MultiSportState.SPORTING) {
             LogUtil.d(
                 "$TAG::handlePrepareStatus: start sport, round=$currentSportTimes/$sportTimes, " +
-                    "people=${sportPersonArray.size}, isRetest=$isRetest"
+                    "people=${sportPersonArray.size}, isRetest=$isRetest, epoch=$scoreEpoch"
             )
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
@@ -339,6 +343,10 @@ class SitReachSixViewModel(application: Application) :
                 )
             } else {
                 SpeechWrapper.speakAfterStop(getString(R.string.forward_flexion_start_speech))
+            }
+            // 开测时解除残留 END 门闩，须先见到非 END 才接受成绩
+            for (i in laneScoreArmed.indices) {
+                laneScoreArmed[i] = false
             }
             sportStartLD.postValue(currentSportTimes)
             startSportCountDown()
@@ -542,28 +550,42 @@ class SitReachSixViewModel(application: Application) :
 
     fun handleResult(result: MutableList<SitAndReachObject>) {
         if (sportState != MultiSportState.SPORTING) return
+        val epoch = scoreEpoch
         viewModelScope.launch(Dispatchers.IO) {
             result.forEach {
-                val person = sportPersonArray.get(it.indexNum)
+                val lane = it.indexNum
+                if (lane !in 1..6) return@forEach
+                if (it.state != SitAndReachObject.State.END) {
+                    // 开测后先见到非 END，才允许本道出分（挡住上一轮残留 END）
+                    laneScoreArmed[lane] = true
+                    return@forEach
+                }
+                val person = sportPersonArray.get(lane)
                 if (person == null) return@forEach
-                if (it.state == SitAndReachObject.State.END && resultStatusList[it.indexNum - 1].not()) {
-                    person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
-                    person.status = calcViolation(it)
-                    resultStatusList[it.indexNum - 1] = true
-                    LogUtil.d(
-                        "$TAG::handleResult: lane=${it.indexNum} END count=${person.count} status=${person.status}"
-                    )
-                    withContext(Dispatchers.Main) {
-                        // 下一组 reset 后丢弃迟到成绩，避免写回新一轮卡片
-                        if (sportState != MultiSportState.SPORTING) {
-                            LogUtil.d("$TAG::handleResult: drop stale score lane=${it.indexNum}, state=$sportState")
-                            return@withContext
-                        }
-                        sportResultLd.value = it.indexNum to person
+                if (resultStatusList[lane - 1]) return@forEach
+                if (!laneScoreArmed[lane]) {
+                    LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
+                    return@forEach
+                }
+                person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
+                person.status = calcViolation(it)
+                resultStatusList[lane - 1] = true
+                LogUtil.d(
+                    "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} epoch=$epoch"
+                )
+                withContext(Dispatchers.Main) {
+                    // 下一组/重测后世代变化，或已离开测试态：丢弃迟到写回
+                    if (sportState != MultiSportState.SPORTING || epoch != scoreEpoch) {
+                        LogUtil.d(
+                            "$TAG::handleResult: drop stale score lane=$lane, " +
+                                "state=$sportState, epoch=$epoch/$scoreEpoch"
+                        )
+                        return@withContext
                     }
+                    sportResultLd.value = lane to person
                 }
             }
-            if (sportState != MultiSportState.SPORTING) return@launch
+            if (sportState != MultiSportState.SPORTING || epoch != scoreEpoch) return@launch
             val list = resultStatusList.filter { it }
             val checkSize = checkMap.filter { it.value }.size
             //还有人未出成绩
@@ -705,6 +727,11 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun toStatusPrepare() {
+        // 满员已开测时，「立即开始」倒计时结束可能再次回调，避免打回 COUNTDOWN
+        if (sportState == MultiSportState.COUNTDOWN || sportState == MultiSportState.SPORTING) {
+            LogUtil.d("$TAG::toStatusPrepare: skip, already state=$sportState")
+            return
+        }
         super.toStatusPrepare()
         LogUtil.d(
             "$TAG::toStatusPrepare: people=${sportPersonArray.size}, round=$currentSportTimes/$sportTimes"
@@ -785,6 +812,10 @@ class SitReachSixViewModel(application: Application) :
     fun retest() {
         LogUtil.d("$TAG::retest: people=${sportPersonArray.size}")
         isRetest = true
+        scoreEpoch++
+        for (i in laneScoreArmed.indices) {
+            laneScoreArmed[i] = false
+        }
         sportPersonArray.forEach { index, result ->
             result.count = -1000
         }
@@ -804,6 +835,10 @@ class SitReachSixViewModel(application: Application) :
         stopSportCountDown()
         mHandler.removeCallbacksAndMessages(null)
         currentRoundFinishing = false
+        scoreEpoch++
+        for (i in laneScoreArmed.indices) {
+            laneScoreArmed[i] = false
+        }
         isRetest = false
         prepareStatusList.clear()
         resultStatusList.clear()
@@ -817,6 +852,7 @@ class SitReachSixViewModel(application: Application) :
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
         videoFile = null
+        LogUtil.d("$TAG::reset: scoreEpoch=$scoreEpoch")
     }
 
 }

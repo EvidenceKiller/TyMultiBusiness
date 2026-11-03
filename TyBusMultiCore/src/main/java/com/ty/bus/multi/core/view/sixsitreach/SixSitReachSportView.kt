@@ -63,6 +63,8 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
     private val countDownTime = 10000L
     private var currentTime = 10
     private var countDownTimer: CountDownTimer? = null
+    /** 防止 onTick(0) 与 onFinish / 点击重复触发开测 */
+    private var beginStartFired = false
 
     init {
         initView()
@@ -76,8 +78,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         cardMap.put(5, mBinding.ffsSport5)
         cardMap.put(6, mBinding.ffsSport6)
         mBinding.tvBegin.setOnClickListener {
-            countDownTimer?.cancel()
-            startListener?.invoke()
+            fireBeginStart("click")
         }
         mBinding.tvNext.setOnClickListener {
             next()
@@ -96,12 +97,19 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         startListener = listener
     }
 
+    private fun fireBeginStart(from: String) {
+        if (beginStartFired || isStarted) return
+        beginStartFired = true
+        countDownTimer?.cancel()
+        countDownTimer = null
+        mBinding.tvBegin.visibility = GONE
+        LogUtil.d("SitReachSix::SportView: begin start from=$from")
+        startListener?.invoke()
+    }
+
     private fun setConfirmText(lng: Int) {
         if (lng <= 0) {
-            LogUtil.d("SitReachSix::SportView: begin countdown end -> startListener")
-            countDownTimer?.cancel()
-            startListener?.invoke()
-            mBinding.tvBegin.visibility = GONE
+            fireBeginStart("countdown")
         } else {
             mBinding.tvBegin.text = getString(R.string.start_now_num, lng)
         }
@@ -122,28 +130,33 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         if (isStarted && state == ForwardFlexionCardState.PREPARED) {
             return
         }
-        if (state == ForwardFlexionCardState.IDENTIFIED) {
-            currentTime = 10
-            if (countDownTimer == null) {
+        if (state == ForwardFlexionCardState.IDENTIFIED && !isStarted) {
+            // 仅首次识别启动倒计时；后续道次识别不得重置 currentTime，否则会与真实倒计时错位
+            if (countDownTimer == null && !beginStartFired) {
+                currentTime = 10
+                beginStartFired = false
                 LogUtil.d("SitReachSix::SportView: show begin button, lane=$index")
                 mBinding.tvBegin.visibility = VISIBLE
+                mBinding.tvBegin.text = getString(R.string.start_now_num, currentTime)
                 countDownTimer = object : CountDownTimer(
                     countDownTime,
                     1000L
                 ) {
                     override fun onTick(millisUntilFinished: Long) {
-                        currentTime--
-
-                        setConfirmText(currentTime)
+                        // 用剩余毫秒计算；>0 才刷新，到 0 交给 onFinish，避免与 onFinish 双触发
+                        val sec = ((millisUntilFinished + 999) / 1000).toInt()
+                        if (sec > 0) {
+                            currentTime = sec
+                            setConfirmText(sec)
+                        }
                     }
 
                     override fun onFinish() {
+                        setConfirmText(0)
                     }
                 }
                 countDownTimer?.start()
             }
-
-
         }
         cardMap[index]?.changeState(state)
     }
@@ -199,6 +212,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         LogUtil.d("SitReachSix::SportView.next: clear cards then onNextClick")
         mHandler.removeCallbacks(runnable)
         isStarted = false
+        beginStartFired = false
         countDownTimer?.cancel()
         countDownTimer = null
         currentTime = 10

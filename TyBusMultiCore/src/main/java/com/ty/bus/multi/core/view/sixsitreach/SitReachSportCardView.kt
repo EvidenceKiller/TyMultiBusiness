@@ -264,6 +264,10 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
 
     private fun enterIdentified() {
         stopDots()
+        // 识别态不应带上轮最佳；防止迟到 addScore / Group 可见性残留
+        bestScore = -1000
+        mBinding.groupBest.visibility = GONE
+        mBinding.tvBestScore.text = ""
         mBinding.ivBg.setBackgroundResource(R.mipmap.bg_card_ready_ready)
         mBinding.groupAccountInfo.visibility = VISIBLE
         mBinding.groupIdentified.visibility = VISIBLE
@@ -454,6 +458,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         mBinding.rvScore.visibility = GONE
         mBinding.groupResultInSporting.visibility = GONE
         mBinding.groupBest.visibility = GONE
+        mBinding.tvBestScore.text = ""
         changeState(ForwardFlexionCardState.IDLE)
     }
 
