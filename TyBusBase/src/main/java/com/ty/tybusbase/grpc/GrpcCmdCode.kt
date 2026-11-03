@@ -62,6 +62,9 @@ object GrpcCmdCode {
     //六人坐位体前屈
     const val CMD_SIX_SIT_REACH_REGION_SETTING = 0x57
 
+    //排球对空框体设置 payload = VolleyballAirRoleConfig 的 JSON
+    const val CMD_VOLLEYBALL_AIR_REGION_SETTING = 0x58
+
     //实心球运动卡片状态 payload =
     const val CMD_SOLID_BALL_SPORT_CARD_STATUS = 0x70
 
