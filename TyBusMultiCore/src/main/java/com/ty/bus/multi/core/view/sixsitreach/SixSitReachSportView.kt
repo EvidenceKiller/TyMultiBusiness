@@ -16,6 +16,7 @@ import com.ty.bus.multi.databinding.ViewSixSitReachSportBinding
 import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
+import com.ty.tybusbase.utils.LogUtil
 
 class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
     ConstraintLayout(context, attrs, defStyleAttr) {
@@ -97,6 +98,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
 
     private fun setConfirmText(lng: Int) {
         if (lng <= 0) {
+            LogUtil.d("SitReachSix::SportView: begin countdown end -> startListener")
             countDownTimer?.cancel()
             startListener?.invoke()
             mBinding.tvBegin.visibility = GONE
@@ -123,6 +125,7 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
         if (state == ForwardFlexionCardState.IDENTIFIED) {
             currentTime = 10
             if (countDownTimer == null) {
+                LogUtil.d("SitReachSix::SportView: show begin button, lane=$index")
                 mBinding.tvBegin.visibility = VISIBLE
                 countDownTimer = object : CountDownTimer(
                     countDownTime,
@@ -147,24 +150,32 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
 
     //运动已开始
     fun sportStarted() {
+        LogUtil.d("SitReachSix::SportView.sportStarted: hide begin button")
         isStarted = true
         mBinding.tvBegin.visibility = GONE
         countDownTimer?.cancel()
+        countDownTimer = null
     }
 
     fun sportingTips(text: String) {
-        mBinding.tvSportingTips.visibility = VISIBLE
-        mBinding.tvSportingTips.text = text
+        if (text.isBlank()) {
+            mBinding.tvSportingTips.visibility = GONE
+        } else {
+            mBinding.tvSportingTips.visibility = VISIBLE
+            mBinding.tvSportingTips.text = text
+        }
     }
 
     fun sportFinish() {
+        LogUtil.d("SitReachSix::SportView.sportFinish: showRetest=true, showNext=$isShowNext")
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
+        mHandler.removeCallbacks(runnable)
         mBinding.tvRetest.visibility = VISIBLE
         mBinding.tvSportingTips.visibility = GONE
         if (isShowNext) {
+            // 组织测试：仅展示「下一组」，不自动倒计时跳组
             mBinding.tvNext.visibility = VISIBLE
-            updateNextText(NEXT_COUNT_DOWN_TIME)
-            mHandler.postDelayed(runnable, 1000)
+            mBinding.tvNext.text = getString(R.string.next_group)
         }
     }
 
@@ -185,21 +196,28 @@ class SixSitReachSportView(context: Context, attrs: AttributeSet?, defStyleAttr:
      * 重置，恢复初始状态（下一组）
      */
     fun next() {
+        LogUtil.d("SitReachSix::SportView.next: clear cards then onNextClick")
         mHandler.removeCallbacks(runnable)
-        listener?.onNextClick()
         isStarted = false
+        countDownTimer?.cancel()
+        countDownTimer = null
+        currentTime = 10
+        mBinding.tvBegin.visibility = GONE
         mBinding.tvRetest.visibility = GONE
         mBinding.tvNext.visibility = GONE
+        // 先清卡片成绩 UI，再通知业务 reset/识别，避免迟到成绩写回
         cardMap.forEach { (_, value) ->
             value.reset()
         }
         mBinding.tvSportingTips.visibility = GONE
+        listener?.onNextClick()
     }
 
     /**
      * 重测，当前人员继续测试
      */
     fun retest() {
+        LogUtil.d("SitReachSix::SportView.retest")
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         listener?.onRetestClick()
         mBinding.tvRetest.visibility = GONE

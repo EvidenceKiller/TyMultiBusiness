@@ -47,6 +47,10 @@ import kotlin.math.max
 class SitReachSixViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
 
+    companion object {
+        private const val TAG = "SitReachSix"
+    }
+
     var ffSportConfig: ForwardFlexionConfig? = null
 
     private val previewSize = 2560 to 1440
@@ -103,6 +107,10 @@ class SitReachSixViewModel(application: Application) :
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
 
     private var isRetest = false //是否为重测
+
+    /** 本轮收尾进行中，防止 handleResult 与超时 finish 重复结束 */
+    @Volatile
+    private var currentRoundFinishing = false
 
     private val recordProcess = object : AdlCameraFrameProcessor {
         override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
@@ -209,12 +217,18 @@ class SitReachSixViewModel(application: Application) :
             checkMap[index] = true
             changeSportCardState(index, ForwardFlexionCardState.IDENTIFIED)
 
-            LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $index")
+            LogUtil.d(
+                "$TAG::identifyOk: name=${accountInfo.studentEntity!!.accountName}, " +
+                    "lane=$index, identified=${sportPersonArray.size}/$sportManCount"
+            )
             //识别完成
             if (sportPersonArray.size == sportManCount) {
+                LogUtil.d("$TAG::identifyOk: full, toStatusPrepare")
                 toStatusPrepare()
             } else if (sportPersonArray.size == 1) {
+                LogUtil.d("$TAG::identifyOk: first person, schedule prepare in ${identifyTimeOut}ms")
                 mHandler.postDelayed({
+                    LogUtil.d("$TAG::identifyIdleTimeout: fire toStatusPrepare, state=$sportState")
                     toStatusPrepare()
                 }, identifyTimeOut)
             }
@@ -224,6 +238,7 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
+        LogUtil.d("$TAG::identifyFail: lane=$index")
         changeSportCardState(index, ForwardFlexionCardState.IDENTIFY_FAIL)
         //处理下一道是否有人
         calcNextNumber(index + 1)
@@ -308,6 +323,10 @@ class SitReachSixViewModel(application: Application) :
 //        LogUtil.d("准备完成人数：${prepareList.size} 开始运动 ${sportState.name}")
 //        if (prepareList.size == checkPerson.size && sportState != MultiSportState.SPORTING) {
         if (sportState != MultiSportState.SPORTING) {
+            LogUtil.d(
+                "$TAG::handlePrepareStatus: start sport, round=$currentSportTimes/$sportTimes, " +
+                    "people=${sportPersonArray.size}, isRetest=$isRetest"
+            )
             if (currentSportTimes == 1) {
                 startSportTime = System.currentTimeMillis()
             }
@@ -360,8 +379,11 @@ class SitReachSixViewModel(application: Application) :
     private fun updateStatusMap(objects: MutableList<SitAndReachObject>) {
         statusMap.clear()
         objects.forEach {
+            // 已识别道次不再被不可用/空闲覆盖，避免下一组铺板重建时冲掉识别回显
+            if (sportPersonArray.get(it.indexNum) != null) return@forEach
             when {
                 it.isCompliant.not() -> {
+                    LogUtil.d("$TAG::updateStatusMap: lane=${it.indexNum} UNAVAILABLE")
                     changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE)
                 }
 
@@ -528,52 +550,34 @@ class SitReachSixViewModel(application: Application) :
                     person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
                     person.status = calcViolation(it)
                     resultStatusList[it.indexNum - 1] = true
+                    LogUtil.d(
+                        "$TAG::handleResult: lane=${it.indexNum} END count=${person.count} status=${person.status}"
+                    )
                     withContext(Dispatchers.Main) {
+                        // 下一组 reset 后丢弃迟到成绩，避免写回新一轮卡片
+                        if (sportState != MultiSportState.SPORTING) {
+                            LogUtil.d("$TAG::handleResult: drop stale score lane=${it.indexNum}, state=$sportState")
+                            return@withContext
+                        }
                         sportResultLd.value = it.indexNum to person
                     }
                 }
             }
+            if (sportState != MultiSportState.SPORTING) return@launch
             val list = resultStatusList.filter { it }
             val checkSize = checkMap.filter { it.value }.size
             //还有人未出成绩
             if (list.size != checkSize) {
-                LogUtil.d("总是被人数：${checkSize} -- 已出成绩:${list.size}")
+                LogUtil.d("$TAG::handleResult: waiting scores done=${list.size}/$checkSize")
                 return@launch
             }
             //冗余数据，超过了测试次数
             if (currentSportTimes > sportTimes) {
+                LogUtil.d("$TAG::handleResult: skip redundant, times=$currentSportTimes/$sportTimes")
                 return@launch
             }
-            stopSportCountDown()
-            LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
-            currentSportTimes++
-            sportPersonArray.forEach { index, value ->
-                changeSportCardState(index, ForwardFlexionCardState.SPORTING)
-            }
-            withContext(Dispatchers.Main) {
-                testOnceFinishLD.postValue(true)
-            }
-            if (currentSportTimes > sportTimes) {
-                //测试次数超标，运动结束,等2秒结束，方便查看最后一次成绩
-                SpeechWrapper.speech(
-                    getString(
-                        R.string.end_test,
-                        currentSportTimes - 1
-                    )
-                )
-                sportState = MultiSportState.IDLE
-                toStatusSportEnd()
-            } else {
-                SpeechWrapper.speech(
-                    getString(
-                        R.string.forward_flexion_sport_times_end,
-                        currentSportTimes - 1
-                    )
-                )
-                SystemClock.sleep(2000)
-                sportState = MultiSportState.PREPARING
-                toStatusPrepare()
-            }
+            LogUtil.d("$TAG::handleResult: all scores ready, finishCurrentRound")
+            finishCurrentRound()
         }
     }
 
@@ -595,7 +599,7 @@ class SitReachSixViewModel(application: Application) :
     }
 
     private fun startSportCountDown() {
-        LogUtil.d("开始倒计时  开始倒计时  开始倒计时")
+        LogUtil.d("$TAG::startSportCountDown: timeoutSec=$sportTimeOut")
         Handler(Looper.getMainLooper()).post {
             sportCountDownTimer?.cancel()
             sportCountDown = sportTimeOut
@@ -611,7 +615,7 @@ class SitReachSixViewModel(application: Application) :
                 }
 
                 override fun onFinish() {
-                    //结束运动
+                    LogUtil.d("$TAG::startSportCountDown: onFinish -> finishWithTimeout")
                     finishWithTimeout()
                 }
             }.start()
@@ -619,17 +623,79 @@ class SitReachSixViewModel(application: Application) :
     }
 
     private fun finishWithTimeout() {
+        if (sportState != MultiSportState.SPORTING) {
+            LogUtil.d("$TAG::finishWithTimeout: skip, state=$sportState")
+            return
+        }
+        LogUtil.d("$TAG::finishWithTimeout: mark unfinished lanes")
         for (i in resultStatusList.indices) {
             val index = i + 1
             val person = sportPersonArray.get(index)
             if (person != null) {
                 if (resultStatusList[i].not()) {
                     //未完成
-                    LogUtil.d("${person.number}道未完成=============")
+                    LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished")
                     person.status = 2
                     sportResultLd.value = index to person
                 }
                 resultStatusList[i] = true
+            }
+        }
+        // 超时后无新结果帧时也必须收尾，否则顶部倒计时不消、无再测/下一组
+        finishCurrentRound()
+    }
+
+    /**
+     * 本轮全部出分（含超时补未完成）后的统一收尾，与 handleResult / finishWithTimeout 共用。
+     */
+    @Synchronized
+    private fun finishCurrentRound() {
+        if (sportState != MultiSportState.SPORTING) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, state=$sportState")
+            return
+        }
+        if (currentRoundFinishing) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, already finishing")
+            return
+        }
+        if (currentSportTimes > sportTimes) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, times=$currentSportTimes/$sportTimes")
+            return
+        }
+        currentRoundFinishing = true
+
+        stopSportCountDown()
+        sportTipsInfoLD.postValue("")
+        LogUtil.d(
+            "$TAG::finishCurrentRound: round done, beforeInc times=$currentSportTimes/$sportTimes"
+        )
+        currentSportTimes++
+        sportPersonArray.forEach { index, _ ->
+            changeSportCardState(index, ForwardFlexionCardState.SPORTING)
+        }
+        testOnceFinishLD.postValue(true)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (currentSportTimes > sportTimes) {
+                LogUtil.d("$TAG::finishCurrentRound: all rounds done -> sportEnd")
+                SpeechWrapper.speech(
+                    getString(R.string.end_test, currentSportTimes - 1)
+                )
+                sportState = MultiSportState.IDLE
+                withContext(Dispatchers.Main) {
+                    toStatusSportEnd()
+                }
+            } else {
+                LogUtil.d("$TAG::finishCurrentRound: next round=$currentSportTimes -> prepare")
+                SpeechWrapper.speech(
+                    getString(R.string.forward_flexion_sport_times_end, currentSportTimes - 1)
+                )
+                SystemClock.sleep(2000)
+                sportState = MultiSportState.PREPARING
+                withContext(Dispatchers.Main) {
+                    currentRoundFinishing = false
+                    toStatusPrepare()
+                }
             }
         }
     }
@@ -640,7 +706,11 @@ class SitReachSixViewModel(application: Application) :
 
     override fun toStatusPrepare() {
         super.toStatusPrepare()
+        LogUtil.d(
+            "$TAG::toStatusPrepare: people=${sportPersonArray.size}, round=$currentSportTimes/$sportTimes"
+        )
         mHandler.removeCallbacksAndMessages(null)
+        currentRoundFinishing = false
         sportState = MultiSportState.COUNTDOWN
         for (i in 0 until sportManCount) {
             prepareStatusList[i] = false
@@ -695,6 +765,7 @@ class SitReachSixViewModel(application: Application) :
 
     //结束处理成绩
     override fun toStatusSportEnd() {
+        LogUtil.d("$TAG::toStatusSportEnd")
         super.toStatusSportEnd()
         sportState = MultiSportState.IDLE
     }
@@ -712,6 +783,7 @@ class SitReachSixViewModel(application: Application) :
      * 重测，只测一次
      */
     fun retest() {
+        LogUtil.d("$TAG::retest: people=${sportPersonArray.size}")
         isRetest = true
         sportPersonArray.forEach { index, result ->
             result.count = -1000
@@ -727,7 +799,11 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun reset() {
+        LogUtil.d("$TAG::reset: clear people=${sportPersonArray.size}, state=$sportState")
         super.reset()
+        stopSportCountDown()
+        mHandler.removeCallbacksAndMessages(null)
+        currentRoundFinishing = false
         isRetest = false
         prepareStatusList.clear()
         resultStatusList.clear()

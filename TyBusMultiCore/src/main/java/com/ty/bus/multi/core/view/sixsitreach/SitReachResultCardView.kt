@@ -41,16 +41,19 @@ class SitReachResultCardView(context: Context, attrs: AttributeSet?, defStyleAtt
             tvScore.text = when(result.status) {
                 0 ->{
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_default)
+                    tvScoreUnit.visibility = VISIBLE
                     tvScoreUnit.text = "cm"
                     "${item / 10.0}"
                 }
                 1 -> {
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
+                    tvScoreUnit.visibility = GONE
                     getString(R.string.violations)
                 }
 
                 else -> {
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
+                    tvScoreUnit.visibility = GONE
                     getString(R.string.un_do)
                 }
 

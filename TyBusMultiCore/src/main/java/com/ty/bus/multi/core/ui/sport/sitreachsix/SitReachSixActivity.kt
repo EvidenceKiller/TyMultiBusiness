@@ -167,6 +167,11 @@ class SitReachSixActivity :
 
         mainHandler.postDelayed(tipRunnable, 1000)
 
+        if (isDebug) {
+            mBinding.ivBg.visibility = View.GONE
+        } else {
+            mBinding.ivBg.visibility = View.VISIBLE
+        }
         initOverlay()
         initConfigAndController()
         if (viewModel.streamType == 1) {
@@ -347,6 +352,7 @@ class SitReachSixActivity :
         }
 
         viewModel.sportStartLD.observe(this) {
+            LogUtil.d("SitReachSix::Activity.sportStartLD: round=$it")
             startRecording()
             if (it == 1) {
                 if (isDebug) {
@@ -356,11 +362,11 @@ class SitReachSixActivity :
             }
             controller.start()
             frameTime = System.currentTimeMillis()
-            LogUtil.d("开始运动")
         }
 
         //一次测试完毕
         viewModel.testOnceFinishLD.observe(this) {
+            LogUtil.d("SitReachSix::Activity.testOnceFinishLD: uploadResult")
 //            controller.reset()
             stopRecording()
             viewModel.uploadResult()
@@ -371,7 +377,10 @@ class SitReachSixActivity :
         }
 
         viewModel.sportResultLd.observe(this) {
-            LogUtil.d("最终成绩：${it.first} -- ${it.second}")
+            LogUtil.d(
+                "SitReachSix::Activity.sportResultLd: lane=${it.first}, " +
+                    "count=${it.second.count}, status=${it.second.status}"
+            )
             mBinding.sportView.addScore(it.first, it.second)
         }
 
@@ -544,7 +553,7 @@ class SitReachSixActivity :
     }
 
     override fun onStatusIdentify() {
-        LogUtil.d("开始人脸识别")
+        LogUtil.d("SitReachSix::Activity.onStatusIdentifyFace")
         mBinding.sportView.visibility = View.VISIBLE
         hideBackBtn()
     }
@@ -567,7 +576,7 @@ class SitReachSixActivity :
 
     override fun onStatusEnd() {
         super.onStatusEnd()
-        LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
+        LogUtil.d("SitReachSix::Activity.onStatusEnd -> sportFinish")
         mBinding.sportView.sportFinish()
     }
 
@@ -601,15 +610,24 @@ class SitReachSixActivity :
      * 下一组
      */
     private fun next() {
+        LogUtil.d("SitReachSix::Activity.next: reset controller + schedule identify in 1s")
         timeOutHelper.start()
+        // 重置算法侧对象，避免残留 END 导致开测后立刻出上轮成绩并结束
+        controller.resetObject()
         viewModel.reset()
-        viewModel.toStatusIdentifyFace()
+        // 对齐重测：铺板稳定后再进入识别，减少 isCompliant 短暂为 false 刷成不可用
+        mBinding.root.postDelayed({
+            LogUtil.d("SitReachSix::Activity.next: combineLayoutAndPrepare + toStatusIdentifyFace")
+            controller.combineLayoutAndPrepare()
+            viewModel.toStatusIdentifyFace()
+        }, 1000)
     }
 
     /**
      * 重测试
      */
     private fun retest() {
+        LogUtil.d("SitReachSix::Activity.retest")
         controller.resetObject()
         mBinding.root.postDelayed({
             controller.combineLayoutAndPrepare()

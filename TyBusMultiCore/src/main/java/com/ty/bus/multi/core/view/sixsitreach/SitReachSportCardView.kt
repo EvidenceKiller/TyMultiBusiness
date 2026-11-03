@@ -319,7 +319,9 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
     }
 
     private fun exitResultInSporting() {
+        exitSporting()
         mBinding.groupResultInSporting.visibility = GONE
+        // 保留 groupBest：结果浮层关闭后仍显示本轮最佳，仅下一组 reset() 时清除
     }
 
     private fun enterCurrentSportEnd() {
@@ -380,17 +382,20 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         mBinding.tvSportCurrentResult.text = when (result.status) {
             0 -> {
                 mBinding.tvSportCurrentResult.setTextColor(Color.WHITE)
+                mBinding.tvSportCurrentResultUnit.visibility = VISIBLE
                 mBinding.tvSportCurrentResultUnit.text = "cm"
                 "${result.count / 10.0}"
             }
 
             1 -> {
                 mBinding.tvSportCurrentResult.setTextColor(Color.RED)
+                mBinding.tvSportCurrentResultUnit.visibility = GONE
                 getString(R.string.violations)
             }
 
             else -> {
                 mBinding.tvSportCurrentResult.setTextColor(Color.RED)
+                mBinding.tvSportCurrentResultUnit.visibility = GONE
                 getString(R.string.un_do)
             }
         }
@@ -416,17 +421,20 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                     holder.vb.tvScore.text = when (item.status) {
                         0 -> {
                             holder.vb.tvScore.setTextColor(Color.WHITE)
+                            holder.vb.tvScoreUnit.visibility = VISIBLE
                             holder.vb.tvScoreUnit.text = "cm"
                             "${item.count / 10.0}"
                         }
 
                         1 -> {
                             holder.vb.tvScore.setTextColor(Color.RED)
+                            holder.vb.tvScoreUnit.visibility = GONE
                             getString(R.string.violations)
                         }
 
                         else -> {
                             holder.vb.tvScore.setTextColor(Color.RED)
+                            holder.vb.tvScoreUnit.visibility = GONE
                             getString(R.string.un_do)
                         }
                     }
@@ -442,6 +450,9 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         tickTimes = 0f
         scoreList.clear()
         bestScore = -1000
+        mBinding.rvScore.adapter?.notifyDataSetChanged()
+        mBinding.rvScore.visibility = GONE
+        mBinding.groupResultInSporting.visibility = GONE
         mBinding.groupBest.visibility = GONE
         changeState(ForwardFlexionCardState.IDLE)
     }
