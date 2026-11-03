@@ -82,6 +82,10 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
     private val isDebug: Boolean by lazy { BusiBaseConfig.getDebugEnable() }
     private val skeletonEnable: Boolean by lazy { BusiBaseConfig.getSkeletonEnable() }
 
+    private var modelLoadSucceeded = false
+    private var overlayCombined = false
+    private var playGroundInited = false
+
     private val initFlag = AtomicInteger(0)
 
     private var startDialog: CommonTipDialog? = null
@@ -430,8 +434,8 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
 
             override fun onSucceed(p0: List<TsModelInfo?>?) {
                 hideLoadingDialog()
-                jumpProcessor.initPlayGround()
-                viewModel.modelLoaded()
+                modelLoadSucceeded = true
+                tryInitPlayGround()
             }
 
             override fun onFinish(p0: List<TsModelInfo?>?, p1: List<TsModelInfo?>?) {
@@ -461,8 +465,18 @@ class FourSportGbActivity : BaseMultiSportActivity<AcFourGbSportBinding, FourSpo
         mBinding.overlay.setMarkerRecognizerConfig(jumpConfig.markerRecognizerConfig, OnRenderScene.StatusSportDoing)
         mBinding.overlay.setListener {
             jumpProcessor.combineJumpRopeOverlay(mBinding.overlay)
+            overlayCombined = true
+            tryInitPlayGround()
             mBinding.overlay.refresh()
         }
+    }
+
+    private fun tryInitPlayGround() {
+        if (playGroundInited) return
+        if (!modelLoadSucceeded || !overlayCombined) return
+        playGroundInited = true
+        jumpProcessor.initPlayGround()
+        viewModel.modelLoaded()
     }
 
     private fun initFrameDispatcher() {

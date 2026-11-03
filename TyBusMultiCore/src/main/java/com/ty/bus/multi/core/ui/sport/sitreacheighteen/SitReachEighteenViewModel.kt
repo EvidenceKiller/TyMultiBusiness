@@ -144,6 +144,9 @@ class SitReachEighteenViewModel(application: Application) :
     //主屏是否已就绪（识别完成，进入准备状态）
     private var mainReady = false
 
+    //主屏识别倒计时是否已结束（对齐 12 人跳绳 mainCountDownEnded）
+    private var mainCountDownEnded = false
+
     //已就绪（倒计时结束）的副屏
     private val subScreenCountDownEnded = mutableSetOf<DisplayType>()
 
@@ -205,7 +208,7 @@ class SitReachEighteenViewModel(application: Application) :
     private val _sportStartedLD = MutableStateFlow(false)
     val sportStartedLD: StateFlow<Boolean> = _sportStartedLD.asStateFlow()
 
-    //识别倒计时剩余秒数：主屏或任一副屏有人员识别成功即开始，倒计时结束主副屏同时开始运动
+    //识别倒计时剩余秒数：有人识别成功即开始；结束后按协同开赛条件决定是否发令
     private val _identifyCountDownLD = eventFlow<Int>()
     val identifyCountDownLD: SharedFlow<Int> = _identifyCountDownLD.asSharedFlow()
 
@@ -402,33 +405,68 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 协同识别状态变化时统一调用：主屏或任一副屏有人员识别成功，即开始识别倒计时，
-     * 倒计时结束后由 [startSport] 统一开始主屏运动并通知副屏同时开始
+     * 协同识别状态变化时统一调用：
+     * 1）满足条件则拉起主屏识别倒计时
+     * 2）满足协同开赛条件则开始主屏运动并通知已加入副屏（对齐 12 人跳绳）
      */
     private fun checkCollaborationSportStart() {
+        if (canStartCollaborationSport()) {
+            LogUtil.d(
+                "协同开赛条件满足：main=${sitReachPersonArray.size()}, " +
+                    "left=${leftPersonArray.size()}, right=${rightPersonArray.size()}, " +
+                    "mainCountDownEnded=$mainCountDownEnded, subEnded=$subScreenCountDownEnded, " +
+                    "collab=$collaborationStateMap"
+            )
+            startSport()
+            return
+        }
         if (!canStartIdentifyCountDown()) return
         startIdentifyCountDown()
     }
 
     private fun startSport() {
-        //主屏与副屏合计没有识别成功的人员，暂不开始
-        if (!hasAnyIdentifiedPerson()) return
+        if (!canStartCollaborationSport()) return
+        stopIdentifyCountDown()
         tryStartSport()
         sendSportCommand()
     }
 
     /**
-     * 运动开始条件：主屏与副屏合计只要有1人识别成功即可开始
+     * 协同运动开始条件（对齐 12 人跳绳 canStartCollaborationSport）：
+     * - 主屏至少 1 人识别成功
+     * - 已加入（NORMAL）的副屏不得为 0 人
+     * - 条件1：主屏+已连接副屏均满员
+     * - 条件2：主屏倒计时已结束，且已加入副屏均倒计时结束（或未加入）
      */
-    private fun hasAnyIdentifiedPerson(): Boolean =
-        sitReachPersonArray.size() > 0 || leftPersonArray.size() > 0 || rightPersonArray.size() > 0
+    private fun canStartCollaborationSport(): Boolean {
+        val connectedSubScreens = connectedSubScreenTypes()
+        if (sitReachPersonArray.size() <= 0) return false
+        if (DisplayType.LEFT in connectedSubScreens &&
+            collaborationStateMap[DisplayType.LEFT] == CollaborationAreaState.NORMAL &&
+            leftPersonArray.size() <= 0
+        ) return false
+        if (DisplayType.RIGHT in connectedSubScreens &&
+            collaborationStateMap[DisplayType.RIGHT] == CollaborationAreaState.NORMAL &&
+            rightPersonArray.size() <= 0
+        ) return false
+        val allScreenFull = sitReachPersonArray.size() >= sportManCount &&
+            (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size() >= sportManCount) &&
+            (DisplayType.RIGHT !in connectedSubScreens || rightPersonArray.size() >= sportManCount)
+        if (allScreenFull) return true
+        if (!mainCountDownEnded) return false
+        return connectedSubScreens.all {
+            it in subScreenCountDownEnded ||
+                collaborationStateMap[it] != CollaborationAreaState.NORMAL
+        }
+    }
 
     /**
-     * 识别倒计时触发条件（任一满足即可，不再等待所有屏就绪/满员）：
-     * 条件1：主屏已就绪（识别完成进入准备状态）或已有人员识别成功
+     * 识别倒计时触发条件（任一满足即可）：
+     * 条件1：主屏已就绪或已有人员识别成功
      * 条件2：任一副屏已有人员识别成功，或副屏倒计时结束（就绪）
      */
     private fun canStartIdentifyCountDown(): Boolean {
+        if (mainCountDownEnded || mainSportStarted || identifyCountDownRunning) return false
         //主屏已就绪或已识别到人员
         if (mainReady || sitReachPersonArray.size() > 0) return true
         //副屏已识别到人员，或副屏倒计时结束（就绪）
@@ -437,12 +475,13 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 开始识别倒计时：倒计时期间继续识别，"立即开始"按钮展示剩余秒数，
-     * 倒计时结束即开始主屏运动并向已连接副屏发送开始运动指令（主副屏同时开始）
+     * 开始识别倒计时：倒计时期间继续识别，"立即开始"按钮展示剩余秒数；
+     * 倒计时结束后按 [canStartCollaborationSport] 决定是否开赛（已加入副屏 0 人则等待）
      */
     private fun startIdentifyCountDown() {
         if (identifyCountDownRunning) return
         if (mainSportStarted) return
+        if (mainCountDownEnded) return
         identifyCountDownRunning = true
         uiHandler.post {
             identifyCountDownTimer?.cancel()
@@ -462,8 +501,9 @@ class SitReachEighteenViewModel(application: Application) :
                     override fun onFinish() {
                         if (!identifyCountDownRunning) return
                         identifyCountDownRunning = false
-                        //倒计时结束：主屏与副屏合计只要有1人识别成功，主屏与已连接副屏同时开始运动
-                        startSport()
+                        //主屏识别倒计时结束，统一检查协同开始条件（已加入副屏 0 人则不发令）
+                        mainCountDownEnded = true
+                        checkCollaborationSportStart()
                     }
                 }.start()
         }
@@ -481,13 +521,18 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 点击"立即开始"：跳过识别倒计时，主屏与已连接副屏立即同时开始运动
+     * 点击"立即开始"：与 12 人跳绳 readyGo 一致，跳过识别倒计时并直接开赛，
+     * 不因已加入副屏 0 人而拦截；自动开赛仍走 [canStartCollaborationSport]。
      */
     fun startSportNow() {
-        //没有人员识别成功，不允许开始
-        if (!hasAnyIdentifiedPerson()) return
+        if (sitReachPersonArray.size() <= 0 &&
+            leftPersonArray.size() <= 0 &&
+            rightPersonArray.size() <= 0
+        ) return
+        mainCountDownEnded = true
         stopIdentifyCountDown()
-        startSport()
+        tryStartSport()
+        sendSportCommand()
     }
 
     /**
@@ -1009,6 +1054,7 @@ class SitReachEighteenViewModel(application: Application) :
         //重置协同状态
         stopIdentifyCountDown()
         mainReady = false
+        mainCountDownEnded = false
         mainSportStarted = false
         startCommandSent = false
         mainSportFinished = false
