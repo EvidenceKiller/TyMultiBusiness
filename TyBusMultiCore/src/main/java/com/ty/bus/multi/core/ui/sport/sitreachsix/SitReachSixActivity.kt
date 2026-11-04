@@ -115,6 +115,7 @@ class SitReachSixActivity :
     }
 
     override fun initData() {
+        LogUtil.d("SitReachSix::Activity.initData: enter")
         super.initData()
 //        viewModel.streamType = 2
         viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
@@ -123,9 +124,15 @@ class SitReachSixActivity :
             intent.getSerializableExtra("sport_config") as? ForwardFlexionConfig
         viewModel.initData()
         viewModel.getBestRankTop()
+        LogUtil.d(
+            "SitReachSix::Activity.initData: done, ptPlanId=${viewModel.ptPlanId}, " +
+                "sceneId=${viewModel.sceneId}, streamType=${viewModel.streamType}, " +
+                "sportSku=${viewModel.sportInfo?.sportSkuName}"
+        )
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+        LogUtil.d("SitReachSix::Activity.initView: enter")
         super.initView(savedInstanceState)
         //如果是赛事，则隐藏今日最佳
         viewModel.matchId?.let {
@@ -184,7 +191,10 @@ class SitReachSixActivity :
             initVideoView()
             initVideo()
         }
-
+        LogUtil.d(
+            "SitReachSix::Activity.initView: done, streamType=${viewModel.streamType}, " +
+                "supportNext=${viewModel.ffSportConfig?.isSupportNextGroup}"
+        )
     }
 
     private fun initConfigAndController() {
@@ -251,8 +261,9 @@ class SitReachSixActivity :
                     if (obj.skeleton != null) {
                         sb.append("道次: ").append(obj.indexNum)
                             .append("  方向: ").append(obj.direction)
-                            .append("  成绩: ").append(obj.distanceMax)
-                            .append("  成绩Live: ").append(obj.distanceLive)
+                            .append("  成绩(max): ").append(obj.distanceMax)
+                            .append("  loose: ").append(obj.distanceMaxLoose)
+                            .append("  live: ").append(obj.distanceLive)
                             .append("  手部: ").append(obj.fingerDistance)
                             .append("  双手水平: ")
                             .append(if (obj.handParallel) "达标" else "未水平")
@@ -339,6 +350,7 @@ class SitReachSixActivity :
     }
 
     override fun initObserver() {
+        LogUtil.d("SitReachSix::Activity.initObserver: enter")
         super.initObserver()
         viewModel.sportCardStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
@@ -385,7 +397,7 @@ class SitReachSixActivity :
         viewModel.bestRankLD.observe(this) {
             initTopView(it)
         }
-
+        LogUtil.d("SitReachSix::Activity.initObserver: done")
     }
 
     /**
@@ -580,6 +592,7 @@ class SitReachSixActivity :
     }
 
     override fun onResume() {
+        LogUtil.d("SitReachSix::Activity.onResume")
         super.onResume()
         cameraLogin()
     }
@@ -683,6 +696,7 @@ class SitReachSixActivity :
     }
 
     override fun onPause() {
+        LogUtil.d("SitReachSix::Activity.onPause")
         super.onPause()
         controller.reset()
         if (mBinding.sitAndReachLayout.cameraPreviewView != null) {
@@ -691,6 +705,7 @@ class SitReachSixActivity :
     }
 
     override fun onDestroy() {
+        LogUtil.d("SitReachSix::Activity.onDestroy")
         super.onDestroy()
         SpeechWrapper.stop()
         hideLoadingDialog()

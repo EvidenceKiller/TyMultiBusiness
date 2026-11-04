@@ -49,6 +49,10 @@ class SitReachSixViewModel(application: Application) :
 
     companion object {
         private const val TAG = "SitReachSix"
+
+        /** loose≥该值(cm) 且与 max 相差过大时，改用 distanceMax，避免脏峰值 */
+        private const val LOOSE_HIGH_CM = 57f
+        private const val MAX_LOOSE_DIFF_CM = 15f
     }
 
     var ffSportConfig: ForwardFlexionConfig? = null
@@ -546,12 +550,20 @@ class SitReachSixViewModel(application: Application) :
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
                 }
+                val distanceMax = it.distanceMax
+                val distanceLoose = it.distanceMaxLoose
+                LogUtil.d("$TAG::handleResult: prefer distanceMax lane=$lane, loose=$distanceLoose, max=$distanceMax")
+                val useDistance = if (distanceLoose >= LOOSE_HIGH_CM && abs(distanceLoose - distanceMax) >= MAX_LOOSE_DIFF_CM) {
+                    distanceMax
+                } else {
+                    distanceLoose
+                }
                 // 同步占坑：并发双帧 END 时同一道只出一次分
                 val accepted = synchronized(resultStatusList) {
                     if (resultStatusList[lane - 1]) {
                         false
                     } else {
-                        person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
+                        person.count = max((useDistance * 10 - 200).toInt(), -200)
                         // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
                         person.status = if (person.count == -200) 2 else calcViolation(it)
                         resultStatusList[lane - 1] = true
@@ -562,9 +574,8 @@ class SitReachSixViewModel(application: Application) :
                     LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
                     return@forEach
                 }
-                LogUtil.d(
-                    "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} epoch=$epoch"
-                )
+                LogUtil.d("$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
+                        "epoch=$epoch max=$distanceMax loose=$distanceLoose use=$useDistance")
                 withContext(Dispatchers.Main) {
                     // 仅丢弃跨组（epoch 变化）的迟到写回；本轮占坑后必须先发出 UI，再允许 finish
                     if (epoch != scoreEpoch) {
