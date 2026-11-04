@@ -617,6 +617,7 @@ class SitReachSixViewModel(application: Application) :
         return if ((param.checkFoot && srj.failMsgList.getOrNull(2) == false)
             || (param.checkHand && srj.failMsgList.getOrNull(0) == false)
             || (param.checkLeg && srj.failMsgList.getOrNull(1) == false)
+            || (param.checkInertia && srj.failMsgList.getOrNull(3) == true)
         ) 1 else 0
     }
 

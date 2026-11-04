@@ -16,6 +16,8 @@ class ForwardFlexionParam {
 
     var checkHand = false//双手平行
 
+    var checkInertia = true//惯性前冲
+
     var ssdqTh = 8 //双手对齐阈值
 
     fun getAngle() = minAngle + ((szth * (maxAngle - minAngle)) / 100.0).toInt()
