@@ -51,7 +51,7 @@ import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
-import androidx.core.view.isGone
+import java.util.TreeSet
 
 
 class SitReachSixActivity :
@@ -82,6 +82,9 @@ class SitReachSixActivity :
     private var uiConfig: FFlexionRoleConfig? = null
     private var isModelOk = false //模型是否加载成功
     private var isInit = false //是否开始流程
+
+    /** 当前不可用道次（有序），用于右上角提示 */
+    private val unavailableLanes = TreeSet<Int>()
 
     //板子几个点
     private var boardNum = 8
@@ -120,7 +123,6 @@ class SitReachSixActivity :
             intent.getSerializableExtra("sport_config") as? ForwardFlexionConfig
         viewModel.initData()
         viewModel.getBestRankTop()
-        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -340,11 +342,7 @@ class SitReachSixActivity :
         super.initObserver()
         viewModel.sportCardStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
-            //切换不可用状态时，页面右上角提示"场地构建失败，部分位置暂不可用"
-            if (mBinding.tvUnavailableTip.isGone){
-                mBinding.tvUnavailableTip.visibility =
-                    if (it.second == ForwardFlexionCardState.UNAVAILABLE) View.VISIBLE else View.GONE
-            }
+            updateUnavailableLanes(it.first, it.second)
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -556,6 +554,7 @@ class SitReachSixActivity :
         LogUtil.d("SitReachSix::Activity.onStatusIdentifyFace")
         mBinding.sportView.visibility = View.VISIBLE
         hideBackBtn()
+        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun onStatusPrepare() {
@@ -607,6 +606,30 @@ class SitReachSixActivity :
 
 
     /**
+     * 根据卡片状态维护不可用道次，并刷新右上角提示。
+     */
+    private fun updateUnavailableLanes(lane: Int, state: ForwardFlexionCardState) {
+        val changed = if (state == ForwardFlexionCardState.UNAVAILABLE) {
+            unavailableLanes.add(lane)
+        } else {
+            unavailableLanes.remove(lane)
+        }
+        if (changed) {
+            refreshUnavailableTip()
+        }
+    }
+
+    private fun refreshUnavailableTip() {
+        if (unavailableLanes.isEmpty()) {
+            mBinding.tvUnavailableTip.visibility = View.GONE
+            return
+        }
+        val lanesText = unavailableLanes.joinToString("、")
+        mBinding.tvUnavailableTip.text = getString(R.string.position_unavailable_tip, lanesText)
+        mBinding.tvUnavailableTip.visibility = View.VISIBLE
+    }
+
+    /**
      * 下一组
      */
     private fun next() {
@@ -615,6 +638,8 @@ class SitReachSixActivity :
         // 重置算法侧对象，避免残留 END 导致开测后立刻出上轮成绩并结束
         controller.resetObject()
         viewModel.reset()
+        unavailableLanes.clear()
+        refreshUnavailableTip()
         // 对齐重测：铺板稳定后再进入识别，减少 isCompliant 短暂为 false 刷成不可用
         mBinding.root.postDelayed({
             LogUtil.d("SitReachSix::Activity.next: combineLayoutAndPrepare + toStatusIdentifyFace")

@@ -6,6 +6,7 @@
     <string name="identifying">识别中...</string>
     <string name="temporarily_unavailable">Temporarily unavailable</string>
     <string name="part_unavailable_tip">Field construction failed, some positions are temporarily unavailable</string>
+    <string name="position_unavailable_tip">Field construction failed, position %1$s are temporarily unavailable</string>
     <string name="lie_on_back_and_face_screen">请侧对屏幕仰卧准备</string>
     <string name="pull_up_start_tips">"Ensure mat \nis in marked area"</string>
     <string name="violations">违规</string>

@@ -528,6 +528,8 @@ class SitReachSixViewModel(application: Application) :
         if (sportState != MultiSportState.SPORTING) return
         val epoch = scoreEpoch
         viewModelScope.launch(Dispatchers.IO) {
+            // 本协程是否已在 Main 发出过成绩；未发出则禁止齐人收尾，避免抢在 UI 前把状态打成 IDLE
+            var emittedUi = false
             result.forEach {
                 val lane = it.indexNum
                 if (lane !in 1..6) return@forEach
@@ -542,31 +544,49 @@ class SitReachSixViewModel(application: Application) :
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
                 }
-                person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
-                // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
-                person.status = if (person.count == -200) 2 else calcViolation(it)
-                resultStatusList[lane - 1] = true
+                // 同步占坑：并发双帧 END 时同一道只出一次分
+                val accepted = synchronized(resultStatusList) {
+                    if (resultStatusList[lane - 1]) {
+                        false
+                    } else {
+                        person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
+                        // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
+                        person.status = if (person.count == -200) 2 else calcViolation(it)
+                        resultStatusList[lane - 1] = true
+                        true
+                    }
+                }
+                if (!accepted) {
+                    LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
+                    return@forEach
+                }
                 LogUtil.d(
                     "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} epoch=$epoch"
                 )
                 withContext(Dispatchers.Main) {
-                    // 下一组/重测后世代变化，或已离开测试态：丢弃迟到写回
-                    if (sportState != MultiSportState.SPORTING || epoch != scoreEpoch) {
+                    // 仅丢弃跨组（epoch 变化）的迟到写回；本轮占坑后必须先发出 UI，再允许 finish
+                    if (epoch != scoreEpoch) {
                         LogUtil.d(
                             "$TAG::handleResult: drop stale score lane=$lane, " +
-                                "state=$sportState, epoch=$epoch/$scoreEpoch"
+                                "epoch=$epoch/$scoreEpoch"
                         )
                         return@withContext
                     }
                     sportResultLd.value = lane to person
+                    emittedUi = true
                 }
             }
-            if (sportState != MultiSportState.SPORTING || epoch != scoreEpoch) return@launch
+            if (epoch != scoreEpoch) return@launch
             val list = resultStatusList.filter { it }
             val checkSize = checkMap.filter { it.value }.size
             //还有人未出成绩
             if (list.size != checkSize) {
                 LogUtil.d("$TAG::handleResult: waiting scores done=${list.size}/$checkSize")
+                return@launch
+            }
+            // 齐人收尾只允许「本协程已发出 sportResultLd」的路径触发，避免旁路协程抢先 IDLE
+            if (!emittedUi) {
+                LogUtil.d("$TAG::handleResult: all ready but skip finish, waiting emitter UI")
                 return@launch
             }
             //冗余数据，超过了测试次数
@@ -627,17 +647,19 @@ class SitReachSixViewModel(application: Application) :
             return
         }
         LogUtil.d("$TAG::finishWithTimeout: mark unfinished lanes")
-        for (i in resultStatusList.indices) {
-            val index = i + 1
-            val person = sportPersonArray.get(index)
-            if (person != null) {
-                if (resultStatusList[i].not()) {
-                    //未完成
-                    LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished")
-                    person.status = 2
-                    sportResultLd.value = index to person
+        synchronized(resultStatusList) {
+            for (i in resultStatusList.indices) {
+                val index = i + 1
+                val person = sportPersonArray.get(index)
+                if (person != null) {
+                    if (resultStatusList[i].not()) {
+                        //未完成
+                        LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished")
+                        person.status = 2
+                        resultStatusList[i] = true
+                        sportResultLd.value = index to person
+                    }
                 }
-                resultStatusList[i] = true
             }
         }
         // 超时后无新结果帧时也必须收尾，否则顶部倒计时不消、无再测/下一组
