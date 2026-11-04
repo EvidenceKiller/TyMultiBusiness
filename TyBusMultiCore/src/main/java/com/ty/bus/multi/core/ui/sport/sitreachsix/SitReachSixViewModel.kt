@@ -161,14 +161,20 @@ class SitReachSixViewModel(application: Application) :
 
 
     override fun identifyOk(index: Int, accountInfo: AccountInfo) {
+        LogUtil.d("$TAG::identifyOk: lane=$index, account=${accountInfo.studentEntity?.accountName}")
         //正在运动，不处理识别
         if (sportState != MultiSportState.IDENTIFYING) {
             LogUtil.d("识别到人脸：但已不是识别状态 $index")
+            // 业务未接纳：清引擎该道 isOk，并放开独占道次
+            multiIdentityEngine.clearIdentified(index)
+            currentIdentifyNumber = -1
             return
         }
 
         if (accountInfo.studentEntity == null) {
             LogUtil.d("识别到人员为空")
+            multiIdentityEngine.clearIdentified(index)
+            currentIdentifyNumber = -1
             return
         }
 
@@ -207,15 +213,11 @@ class SitReachSixViewModel(application: Application) :
             }
             calcNextNumber(index + 1)
             if (!checkResult) {
-                //重置识别道次
-                ToastUtil.getInstance(
-                    getApplication(),
-                    getString(
-                        R.string.busi_base_name_without_plan,
-                        accountInfo.studentEntity!!.accountName
-                    )
-                )
-                    .show()
+                // 计划拒游客等：清引擎 isOk，放开该道后续 fail/再识别
+                LogUtil.d("$TAG::identifyOk: checkStudent reject lane=$index, " + "name=${accountInfo.studentEntity!!.accountName}, clearIdentified")
+                multiIdentityEngine.clearIdentified(index)
+                currentIdentifyNumber = -1
+                ToastUtil.getInstance(getApplication(), getString(R.string.busi_base_name_without_plan, accountInfo.studentEntity!!.accountName)).show()
                 return@launch
             }
             //存已识别的人信息

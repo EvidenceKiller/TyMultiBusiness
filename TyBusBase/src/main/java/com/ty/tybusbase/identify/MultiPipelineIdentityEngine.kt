@@ -231,4 +231,11 @@ class MultiPipelineIdentityEngine {
         identifiedMap.clear()
     }
 
+    /**
+     * 业务未接纳该道识别结果时调用：清除 isOk / 累计帧，允许该道重新识别与失败回调。
+     */
+    fun clearIdentified(index: Int) {
+        identifiedMap.remove(index)
+    }
+
 }
