@@ -427,21 +427,9 @@ class SitReachSixViewModel(application: Application) :
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val data = if (streamType == 1) {
-                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                    AdlYUVUtil.YV12toNV21(
-                        currentYuvData.yuv,
-                        nv21,
-                        currentYuvData.width,
-                        currentYuvData.height
-                    )
-                    nv21
-                } else {
-                    currentYuvData.yuv
-                }
                 identify(
                     getIdentityRect(flexionBody),
-                    data,
+                    currentYuvData.yuv,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -463,21 +451,9 @@ class SitReachSixViewModel(application: Application) :
                 currentIdentifyNumber = it.indexNum
                 sportState = MultiSportState.IDENTIFYING
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val data = if (streamType == 1) {
-                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                    AdlYUVUtil.YV12toNV21(
-                        currentYuvData.yuv,
-                        nv21,
-                        currentYuvData.width,
-                        currentYuvData.height
-                    )
-                    nv21
-                } else {
-                    currentYuvData.yuv
-                }
                 identify(
                     getIdentityRect(it),
-                    data,
+                    currentYuvData.yuv,
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -562,13 +538,13 @@ class SitReachSixViewModel(application: Application) :
                 }
                 val person = sportPersonArray.get(lane)
                 if (person == null) return@forEach
-                if (resultStatusList[lane - 1]) return@forEach
                 if (!laneScoreArmed[lane]) {
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
                 }
                 person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
-                person.status = calcViolation(it)
+                // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
+                person.status = if (person.count == -200) 2 else calcViolation(it)
                 resultStatusList[lane - 1] = true
                 LogUtil.d(
                     "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} epoch=$epoch"
