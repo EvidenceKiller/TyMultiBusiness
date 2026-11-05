@@ -715,7 +715,6 @@ class SitReachSixActivity :
         }
         cameraDispatcher.quit()
         videoReader?.release()
-        releaseModel()
     }
 
 }
