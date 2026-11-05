@@ -602,7 +602,7 @@ class SitReachSixActivity :
      * 开始检测垫子
      */
     private fun startMatDetect() {
-        if (isInit || tipsHide.not()) return
+        if (isInit || tipsHide.not() || isFinishing) return
         isInit = true
         hideLoadingDialog()
 //        runOnUiThread {
