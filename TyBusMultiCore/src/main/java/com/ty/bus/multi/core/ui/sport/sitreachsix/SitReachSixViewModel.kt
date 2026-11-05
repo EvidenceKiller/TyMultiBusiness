@@ -1,7 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.sitreachsix
 
 import android.app.Application
-import android.graphics.Rect
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
@@ -35,6 +34,7 @@ import com.ty.tybusbase.entity.SportResult
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.OnceCacheProcessor
+import com.ty.tybusbase.identify.facecroprect.FaceCropRectHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -60,6 +60,9 @@ class SitReachSixViewModel(application: Application) :
     private val previewSize = 2560 to 1440
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
+
+    /** 人脸裁剪框：与四人运动相同 Eyes→Ears→Shoulder；空框则跳过识别 */
+    private val faceCropRectHelper = FaceCropRectHelper()
 
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
@@ -433,13 +436,22 @@ class SitReachSixViewModel(application: Application) :
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                identify(
-                    getIdentityRect(flexionBody),
-                    currentYuvData.yuv,
+                val rect = faceCropRectHelper.getRect(
+                    flexionBody.skeleton,
                     currentYuvData.width,
-                    currentYuvData.height,
-                    currentIdentifyNumber
+                    currentYuvData.height
                 )
+                if (rect.isEmpty) {
+                    LogUtil.d("$TAG::handleIdentify: 裁剪框为空，跳过识别 道数 $currentIdentifyNumber")
+                } else {
+                    identify(
+                        rect,
+                        currentYuvData.yuv,
+                        currentYuvData.width,
+                        currentYuvData.height,
+                        currentIdentifyNumber
+                    )
+                }
             }
             return
         }
@@ -454,11 +466,20 @@ class SitReachSixViewModel(application: Application) :
                 && it.skeleton != null
                 && checkHandUp(it.skeleton)
             ) {
+                val currentYuvData = onceCacheProcessor.getCurrentYuvData()
+                val rect = faceCropRectHelper.getRect(
+                    it.skeleton,
+                    currentYuvData.width,
+                    currentYuvData.height
+                )
+                if (rect.isEmpty) {
+                    LogUtil.d("$TAG::handleIdentify: 裁剪框为空，跳过道数 ${it.indexNum}")
+                    return@forEach
+                }
                 currentIdentifyNumber = it.indexNum
                 sportState = MultiSportState.IDENTIFYING
-                val currentYuvData = onceCacheProcessor.getCurrentYuvData()
                 identify(
-                    getIdentityRect(it),
+                    rect,
                     currentYuvData.yuv,
                     currentYuvData.width,
                     currentYuvData.height,
@@ -484,52 +505,6 @@ class SitReachSixViewModel(application: Application) :
 //        return true
     }
 
-    fun getIdentityRect(it: SitAndReachObject?): Rect {
-        var rect = Rect(0, 0, 50, 50)
-        val skeleton = it?.skeleton
-        if (it == null || skeleton == null) return rect
-        //用头框
-//        if (it.headBox != null) {
-//            LogUtil.d("处理人脸识别：用头框")
-//            return Rect(
-//                it.headBox.x,
-//                it.headBox.y,
-//                it.headBox.right.toInt(),
-//                it.headBox.bottom.toInt()
-//            )
-//        } else {
-        //无头框，用骨骼推测
-        LogUtil.d("处理人脸识别：用骨骼")
-        val width = 180
-        val header = skeleton.headTop
-        if (header != null) {
-            rect.top = header.y.toInt()
-            rect.left = header.x.toInt() - width / 2
-            rect.right = header.x.toInt() + width / 2
-            rect.bottom = header.y.toInt() + width
-        } else {
-            val lShouder = skeleton.lShoulder
-            val rShouder = skeleton.rShoulder
-            if (lShouder == null || rShouder == null) return rect
-            val centerX: Double = (lShouder.x + rShouder.x) / 2.0
-            val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
-            rect.bottom = max(lShouder.y, rShouder.y).toInt()
-            rect.left = (centerX - shoulderWidth / 2.0).toInt()
-            rect.right = (centerX + shoulderWidth / 2).toInt()
-            rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
-        }
-
-        if (rect.width() < 40 || rect.height() < 40) {
-            rect.left = rect.left - 20
-            rect.right = rect.left + 40
-            rect.top = rect.top - 20
-            rect.bottom = rect.top + 40
-        }
-        return rect
-//        }
-
-    }
-
     fun handleResult(result: MutableList<SitAndReachObject>) {
         if (sportState != MultiSportState.SPORTING) return
         val epoch = scoreEpoch
@@ -544,8 +519,7 @@ class SitReachSixViewModel(application: Application) :
                     laneScoreArmed[lane] = true
                     return@forEach
                 }
-                val person = sportPersonArray.get(lane)
-                if (person == null) return@forEach
+                val person = sportPersonArray.get(lane) ?: return@forEach
                 if (!laneScoreArmed[lane]) {
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
@@ -565,7 +539,14 @@ class SitReachSixViewModel(application: Application) :
                     } else {
                         person.count = max((useDistance * 10 - 200).toInt(), -200)
                         // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
-                        person.status = if (person.count == -200) 2 else calcViolation(it)
+                        if (person.count == -200) {
+                            person.status = 2
+                            person.violationDesc = null
+                        } else {
+                            val (status, desc) = calcViolation(it)
+                            person.status = status
+                            person.violationDesc = desc
+                        }
                         resultStatusList[lane - 1] = true
                         true
                     }
@@ -574,8 +555,11 @@ class SitReachSixViewModel(application: Application) :
                     LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
                     return@forEach
                 }
-                LogUtil.d("$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
-                        "epoch=$epoch max=$distanceMax loose=$distanceLoose use=$useDistance")
+                LogUtil.d(
+                    "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
+                        "violationDesc=${person.violationDesc} epoch=$epoch " +
+                        "max=$distanceMax loose=$distanceLoose use=$useDistance"
+                )
                 withContext(Dispatchers.Main) {
                     // 仅丢弃跨组（epoch 变化）的迟到写回；本轮占坑后必须先发出 UI，再允许 finish
                     if (epoch != scoreEpoch) {
@@ -612,22 +596,30 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
-    private fun calcViolation(srj: SitAndReachObject): Int {
+    /**
+     * @return first=status(0正常/1违规/2未完成), second=违规文案（多项时只取第一个）
+     */
+    private fun calcViolation(srj: SitAndReachObject): Pair<Int, String?> {
         if (srj.direction == SitAndReachObject.Direction.UNKNOWN) {
-            return 2
+            return 2 to null
         }
         LogUtil.d(
             "====================${srj.failMsgList.getOrNull(0)}--${
-                srj.failMsgList.getOrNull(
-                    1
-                )
-            }--${srj.failMsgList.getOrNull(2)}"
+                srj.failMsgList.getOrNull(1)
+            }--${srj.failMsgList.getOrNull(2)}--${srj.failMsgList.getOrNull(3)}"
         )
-        return if ((param.checkFoot && srj.failMsgList.getOrNull(2) == false)
-            || (param.checkHand && srj.failMsgList.getOrNull(0) == false)
-            || (param.checkLeg && srj.failMsgList.getOrNull(1) == false)
-            || (param.checkInertia && srj.failMsgList.getOrNull(3) == true)
-        ) 1 else 0
+        // 命中多项时只取第一个：手 → 腿 → 脚 → 前冲
+        when {
+            param.checkHand && srj.failMsgList.getOrNull(0) == false ->
+                return 1 to getString(R.string.sit_reach_violation_hand)
+            param.checkLeg && srj.failMsgList.getOrNull(1) == false ->
+                return 1 to getString(R.string.sit_reach_violation_leg)
+            param.checkFoot && srj.failMsgList.getOrNull(2) == false ->
+                return 1 to getString(R.string.sit_reach_violation_foot)
+            param.checkInertia && srj.failMsgList.getOrNull(3) == true ->
+                return 1 to getString(R.string.sit_reach_violation_inertia)
+        }
+        return 0 to null
     }
 
     private fun startSportCountDown() {
@@ -669,6 +661,7 @@ class SitReachSixViewModel(application: Application) :
                         //未完成
                         LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished")
                         person.status = 2
+                        person.violationDesc = null
                         resultStatusList[i] = true
                         sportResultLd.value = index to person
                     }

@@ -2,9 +2,8 @@ package com.ty.bus.multi.core.view.sixsitreach
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
-import android.widget.ImageView
-import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bumptech.glide.Glide
 import com.ty.bus.multi.R
@@ -38,20 +37,32 @@ class SitReachResultCardView(context: Context, attrs: AttributeSet?, defStyleAtt
             tvName.text = result.accountInfo.studentEntity?.accountName
             val item = result.count
             LogUtil.d("=======================${result.status}")
-            tvScore.text = when(result.status) {
-                0 ->{
+            tvScore.text = when (result.status) {
+                0 -> {
+                    tvScore.setTextSize(
+                        TypedValue.COMPLEX_UNIT_PX,
+                        resources.getDimension(R.dimen.sp_56)
+                    )
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_default)
                     tvScoreUnit.visibility = VISIBLE
                     tvScoreUnit.text = "cm"
                     "${item / 10.0}"
                 }
                 1 -> {
+                    tvScore.setTextSize(
+                        TypedValue.COMPLEX_UNIT_PX,
+                        resources.getDimension(R.dimen.sp_28)
+                    )
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
                     tvScoreUnit.visibility = GONE
-                    getString(R.string.violations)
+                    result.violationDesc ?: getString(R.string.violations)
                 }
 
                 else -> {
+                    tvScore.setTextSize(
+                        TypedValue.COMPLEX_UNIT_PX,
+                        resources.getDimension(R.dimen.sp_56)
+                    )
                     ivBg.setBackgroundResource(R.mipmap.bg_card_completed_failed)
                     tvScoreUnit.visibility = GONE
                     getString(R.string.un_do)

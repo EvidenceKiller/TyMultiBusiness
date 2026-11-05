@@ -10,6 +10,10 @@
     <string name="position_unavailable_tip">场地构建失败，%1$s位置暂不可用</string>
     <string name="lie_on_back_and_face_screen">请侧对屏幕仰卧准备</string>
     <string name="violations">违规</string>
+    <string name="sit_reach_violation_hand">手未水平</string>
+    <string name="sit_reach_violation_leg">腿未伸直</string>
+    <string name="sit_reach_violation_foot">脚未触板</string>
+    <string name="sit_reach_violation_inertia">前冲过快</string>
     <string name="un_do">未完成</string>
     <string name="forward_flexion">坐位体前屈</string>
     <string name="sit_reach_six_direction_title">选中后点击按钮微调</string>

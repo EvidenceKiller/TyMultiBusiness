@@ -2,7 +2,6 @@ package com.ty.bus.multi.core.ui.sport.twelvegbsport
 
 import adl.ssp.common.report.model.IndicatorsResultDto
 import android.app.Application
-import android.graphics.Rect
 import android.media.AsyncPlayer
 import android.media.AudioManager
 import android.net.Uri
@@ -69,8 +68,8 @@ import com.ty.tybusbase.grpc.GrpcSportStatus
 import com.ty.tybusbase.grpc.GrpcSportStatusEnum
 import com.ty.tybusbase.helper.IndicatorsHelper
 import com.ty.tybusbase.helper.SpeechWrapper
-import com.ty.tybusbase.helper.SportHelper
 import com.ty.tybusbase.identify.OnceCacheProcessor
+import com.ty.tybusbase.identify.facecroprect.FaceCropRectHelper
 import com.ty.tybusbase.utils.ApplicationUtil
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.SoundPlayUtils
@@ -85,9 +84,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
 
 class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdentifyViewModel(application) {
 
@@ -104,12 +100,6 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
          * 日志显示人在区时 sk id 会换新对象，离区后同一 id 长期冻结。
          */
         private const val SKELETON_STALE_FRAME_THRESHOLD = 5
-
-        /** 裁剪框最小边长 */
-        private const val MIN_RECT_SIZE = 40
-
-        /** 无头顶点时，由肩线向上反推头高的系数（2倍肩宽） */
-        private const val SHOULDER_WIDTH_TO_HEAD_RATIO = 1.5f
     }
 
     private enum class CameraSize(val size: Size, val hkCode: Byte) {
@@ -126,6 +116,9 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     private var createTime: Long = 0
 
     private val multiProcessor by lazy { OnceCacheProcessor() }
+
+    /** 人脸裁剪框：默认 Eyes→Ears→Shoulder；空框则跳过识别 */
+    private val faceCropRectHelper = FaceCropRectHelper()
 
     val sportResultMap: MutableMap<Int, MultiSportResult> by lazy { mutableMapOf() }
     private val cardStateMap: MutableMap<Int, MultiSportCardViewState> = mutableMapOf()
@@ -1035,9 +1028,20 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                     val currentYuvData = multiProcessor.getCurrentYuvData()
                     val yuvBytes = currentYuvData.yuv ?: return
                     val skeleton = jumper.skeleton ?: return
-                    identify(
-                        getIdentityRect(skeleton, currentYuvData.width, currentYuvData.height),
-                        yuvBytes, currentYuvData.width, currentYuvData.height, currentIdentifyNumber)
+                    val rect = faceCropRectHelper.getRect(
+                        skeleton, currentYuvData.width, currentYuvData.height
+                    )
+                    if (rect.isEmpty) {
+                        Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 裁剪框为空，跳过识别 道数 $currentIdentifyNumber")
+                    } else {
+                        identify(
+                            rect,
+                            yuvBytes,
+                            currentYuvData.width,
+                            currentYuvData.height,
+                            currentIdentifyNumber
+                        )
+                    }
                 } else {
                     val releaseIndex = currentIdentifyNumber
                     val state = resolveIdentifyReleaseState(releaseIndex, jumper)
@@ -1060,12 +1064,16 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
                     sportResultMap[index] == null &&
                     judgeHandUp(index, jumper.skeleton)
                 ) {
-                    currentIdentifyNumber = index
                     val yuvData = multiProcessor.getCurrentYuvData()
                     val yuvBytes = yuvData.yuv ?: return
                     val skeleton = jumper.skeleton ?: return@identify
-                    identify(getIdentityRect(skeleton, yuvData.width, yuvData.height), yuvBytes, yuvData.width, yuvData.height,
-                        currentIdentifyNumber)
+                    val rect = faceCropRectHelper.getRect(skeleton, yuvData.width, yuvData.height)
+                    if (rect.isEmpty) {
+                        Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 裁剪框为空，跳过道数 $index")
+                        return@forEachIndexed
+                    }
+                    currentIdentifyNumber = index
+                    identify(rect, yuvBytes, yuvData.width, yuvData.height, currentIdentifyNumber)
                     changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFYING)
                     Log.i(TAG, "TwelveSportGbViewModel::handleIdentify: 处理人脸识别：人位置状态OK，开始识别该位置，道数 $currentIdentifyNumber")
                     return@identify
@@ -1465,183 +1473,6 @@ class TwelveSportGbViewModel(application: Application) : BaseMultiPipelineIdenti
     }
 
     fun getCountDownBgmUri(): Uri = ("android.resource://" + ApplicationUtil.getContext().packageName + "/" + R.raw.bgm_15_prepare).toUri()
-
-
-    private fun getIdentityRect(skeleton: AdlPoseSkeleton, width: Int, height: Int): Rect {
-//        val rect = Rect(0, 0, 50, 50)
-//        val chin = skeleton.chin
-//        val headTop = skeleton.headTop
-//        if (chin != null && headTop != null) {
-//            val faceH = (chin.y - headTop.y) * 1.2f
-//            rect.top = headTop.y.toInt().coerceAtLeast(0)
-//            rect.bottom = (chin.y + faceH / 8).toInt().coerceAtMost(height)
-//            rect.left = (headTop.x - faceH / 2).toInt().coerceAtLeast(0)
-//            rect.right = (headTop.x + faceH / 2).toInt().coerceAtMost(width)
-//            return rect
-//        }
-//        return rect
-
-
-        if (width <= 0 || height <= 0) return Rect()
-
-        if (skeleton == null) {
-            LogUtil.d("CustomIdentifyRectHelper: skeleton is null, use fallback rect", true)
-            return fallbackRect()
-        }
-
-        val rect = faceRect(skeleton)
-            ?: headRect(skeleton)
-            ?: shoulderRect(skeleton)
-            ?: fallbackRect().also {
-                LogUtil.d("CustomIdentifyRectHelper: key point is missing, use fallback rect", true)
-            }
-
-        correctRect(rect, width, height)
-        return rect
-    }
-
-    /**
-     * 脸部框：鼻子 + 双眼可用时优先，人脸占比最高。
-     * 以鼻子为中心，2倍眼距为边长。
-     */
-    private fun faceRect(skeleton: AdlPoseSkeleton): Rect? {
-        val nose = skeleton.nose ?: return null
-        val lEye = skeleton.lEye
-        val rEye = skeleton.rEye
-        if (lEye == null && rEye == null) return null
-        val eyeSpan = (if (lEye != null && rEye != null) {
-            max(SportHelper.getDistance(nose, lEye), SportHelper.getDistance(nose, rEye)) * 2f
-        } else if (lEye != null) {
-            SportHelper.getDistance(nose, lEye) * 2f
-        } else {
-            SportHelper.getDistance(nose, rEye) * 2f
-        }).toFloat()
-        if (eyeSpan <= 1f) return null
-        val left = nose.x - eyeSpan * 2f
-        val right = nose.x + eyeSpan * 2f
-        val estimatedTop = if (lEye != null && rEye != null) {
-            min(nose.y, min(lEye.y, rEye.y)) - eyeSpan * 2f
-        } else if (lEye != null) {
-            min(nose.y, lEye.y) - eyeSpan * 2f
-        } else {
-            min(nose.y, rEye.y) - eyeSpan * 2f
-        }
-        val top = skeleton.headTop?.y?.let { min(it, estimatedTop) } ?: estimatedTop
-        val estimatedBottom = if (lEye != null && rEye != null) {
-            max(nose.y, max(lEye.y, rEye.y)) + eyeSpan * 2f
-        } else if (lEye != null) {
-            max(nose.y, lEye.y) + eyeSpan * 2f
-        } else {
-            max(nose.y, rEye.y) + eyeSpan * 2f
-        }
-        val bottom = skeleton.chin?.y?.let { max(it, estimatedBottom) } ?: estimatedBottom
-        return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-    }
-
-    /**
-     * 头部框：鼻子 + 双耳可用时优先，人脸占比最高。
-     * 以鼻子为中心，1.4倍耳距为边长。
-     */
-    private fun headRect(skeleton: AdlPoseSkeleton): Rect? {
-        val nose = skeleton.nose ?: return null
-        val lEar = skeleton.lEar
-        val rEar = skeleton.rEar
-        if (lEar == null && rEar == null) return null
-        val earSpan = if (lEar != null && rEar != null) {
-            max(abs(nose.x - lEar.x), abs(nose.x - rEar.x)) * 2f
-        } else if (lEar != null) {
-            abs(nose.x - lEar.x) * 2f
-        } else {
-            abs(nose.x - rEar.x) * 2f
-        }
-        if (earSpan <= 1f) return null
-        val left = nose.x - earSpan * 1.4f
-        val right = nose.x + earSpan * 1.4f
-        val estimatedTop = if (lEar != null && rEar != null) {
-            min(nose.y, min(lEar.y, rEar.y)) - earSpan * 1.4f
-        } else if (lEar != null) {
-            min(nose.y, lEar.y) - earSpan * 1.4f
-        } else {
-            min(nose.y, rEar.y) - earSpan * 1.4f
-        }
-        val top = skeleton.headTop?.y?.let { min(it, estimatedTop) } ?: estimatedTop
-        val estimatedBottom = if (lEar != null && rEar != null) {
-            max(nose.y, max(lEar.y, rEar.y)) + earSpan * 1.4f
-        } else if (lEar != null) {
-            max(nose.y, lEar.y) + earSpan * 1.4f
-        } else {
-            max(nose.y, rEar.y) + earSpan * 1.4f
-        }
-        val bottom = skeleton.chin?.y?.let { max(it, estimatedBottom) } ?: estimatedBottom
-        return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-    }
-
-    /**
-     * 头肩框：双肩可用时使用。
-     * left/right = 两肩的 x 范围，bottom = 较低的肩点（肩线），
-     * top = 头顶；无头顶点时由肩线向上反推 1.5 倍肩宽。
-     */
-    private fun shoulderRect(skeleton: AdlPoseSkeleton): Rect? {
-        val lShoulder = skeleton.lShoulder ?: return null
-        val rShoulder = skeleton.rShoulder ?: return null
-        val shoulderWidth = abs(lShoulder.x - rShoulder.x)
-        if (shoulderWidth <= 0f) return null
-
-        val shoulderWidthRedundancy = shoulderWidth * 0.2f
-        val left = min(lShoulder.x, rShoulder.x) - shoulderWidthRedundancy
-        val right = max(lShoulder.x, rShoulder.x) + shoulderWidthRedundancy
-        val bottom = max(lShoulder.y, rShoulder.y) + shoulderWidthRedundancy
-        val expectTop = bottom - shoulderWidth * SHOULDER_WIDTH_TO_HEAD_RATIO
-        val top = skeleton.headTop?.let { min(it.y, expectTop) } ?: expectTop
-        return Rect(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-    }
-
-    /**
-     * 兜底框：默认整帧。
-     * 若业务不允许「全帧识别」（怕误识别/耗时长），重写返回 Rect() 空框，
-     * 并配合调用处的 rect.isEmpty 判断跳过本次识别。
-     */
-    private fun fallbackRect(): Rect = Rect(0, 0, 50, 50)
-
-    /**
-     * 边界夹紧 + 最小尺寸纠正。
-     * 同时保证 left <= right、top <= bottom，避免传给 detectFace 越界。
-     */
-    private fun correctRect(rect: Rect, width: Int, height: Int) {
-        if (rect.width() < MIN_RECT_SIZE) {
-            val centerX = (rect.left + rect.right) / 2
-            rect.left = centerX - MIN_RECT_SIZE / 2
-            rect.right = rect.left + MIN_RECT_SIZE
-        }
-        if (rect.height() < MIN_RECT_SIZE) {
-            val centerY = (rect.top + rect.bottom) / 2
-            rect.top = centerY - MIN_RECT_SIZE / 2
-            rect.bottom = rect.top + MIN_RECT_SIZE
-        }
-        if (rect.left < 0) {
-            rect.right -= rect.left
-            rect.left = 0
-        }
-        if (rect.right > width) {
-            val overflow = rect.right - width
-            rect.left -= overflow
-            rect.right = width
-        }
-        if (rect.top < 0) {
-            rect.bottom -= rect.top
-            rect.top = 0
-        }
-        if (rect.bottom > height) {
-            val overflow = rect.bottom - height
-            rect.top -= overflow
-            rect.bottom = height
-        }
-        rect.left = rect.left.coerceIn(0, width)
-        rect.right = rect.right.coerceIn(0, width)
-        rect.top = rect.top.coerceIn(0, height)
-        rect.bottom = rect.bottom.coerceIn(0, height)
-    }
-
 
     fun getIndicatorsResultDto(number: Int): IndicatorsResultDto? = indicatorsMap.getOrDefault(number, null)
 

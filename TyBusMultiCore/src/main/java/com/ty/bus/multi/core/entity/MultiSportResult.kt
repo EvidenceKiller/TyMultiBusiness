@@ -13,4 +13,6 @@ open class MultiSportResult(
     var hasVoice: Boolean = false,
     var recordId:String? = null,
     var status:Int = 0,  //成绩状态，0: 正常，1: 违规,2: 未完成
+    /** 违规时的具体文案（仅取首个违规类型）；非违规为 null */
+    var violationDesc: String? = null,
 )

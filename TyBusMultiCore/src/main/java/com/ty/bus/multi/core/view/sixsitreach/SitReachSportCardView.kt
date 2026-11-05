@@ -8,7 +8,9 @@ import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
+import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -363,7 +365,8 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                 score.accountInfo,
                 score.number,
                 count = score.count,
-                status = score.status
+                status = score.status,
+                violationDesc = score.violationDesc
             )
         )
         changeState(ForwardFlexionCardState.RESULT_IN_SPORTING)
@@ -381,10 +384,15 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
         mBinding.tvBestScore.text = "${bestScore / 10.0}"
     }
 
+    private fun setScoreTextSize(tv: TextView, dimenRes: Int) {
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(dimenRes))
+    }
+
     private fun setCurrentScore(result: MultiSportResult) {
         mBinding.tvSportTimes.text = getString(R.string.how_many_times, scoreList.size)
         mBinding.tvSportCurrentResult.text = when (result.status) {
             0 -> {
+                setScoreTextSize(mBinding.tvSportCurrentResult, R.dimen.sp_88)
                 mBinding.tvSportCurrentResult.setTextColor(Color.WHITE)
                 mBinding.tvSportCurrentResultUnit.visibility = VISIBLE
                 mBinding.tvSportCurrentResultUnit.text = "cm"
@@ -392,12 +400,15 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             }
 
             1 -> {
+                // 违规文案较长，缩小字号
+                setScoreTextSize(mBinding.tvSportCurrentResult, R.dimen.sp_40)
                 mBinding.tvSportCurrentResult.setTextColor(Color.RED)
                 mBinding.tvSportCurrentResultUnit.visibility = GONE
-                getString(R.string.violations)
+                result.violationDesc ?: getString(R.string.violations)
             }
 
             else -> {
+                setScoreTextSize(mBinding.tvSportCurrentResult, R.dimen.sp_88)
                 mBinding.tvSportCurrentResult.setTextColor(Color.RED)
                 mBinding.tvSportCurrentResultUnit.visibility = GONE
                 getString(R.string.un_do)
@@ -424,6 +435,7 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                     LogUtil.d("===================${item.number} -- ${item.status}")
                     holder.vb.tvScore.text = when (item.status) {
                         0 -> {
+                            setScoreTextSize(holder.vb.tvScore, R.dimen.sp_56)
                             holder.vb.tvScore.setTextColor(Color.WHITE)
                             holder.vb.tvScoreUnit.visibility = VISIBLE
                             holder.vb.tvScoreUnit.text = "cm"
@@ -431,12 +443,14 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
                         }
 
                         1 -> {
+                            setScoreTextSize(holder.vb.tvScore, R.dimen.sp_32)
                             holder.vb.tvScore.setTextColor(Color.RED)
                             holder.vb.tvScoreUnit.visibility = GONE
-                            getString(R.string.violations)
+                            item.violationDesc ?: getString(R.string.violations)
                         }
 
                         else -> {
+                            setScoreTextSize(holder.vb.tvScore, R.dimen.sp_32)
                             holder.vb.tvScore.setTextColor(Color.RED)
                             holder.vb.tvScoreUnit.visibility = GONE
                             getString(R.string.un_do)
