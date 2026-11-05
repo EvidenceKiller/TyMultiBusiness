@@ -185,12 +185,6 @@ class SitReachSixViewModel(application: Application) :
             return
         }
 
-        SpeechWrapper.speech(
-            getString(
-                R.string.identified_someone,
-                accountInfo.studentEntity?.accountName ?: ""
-            )
-        )
         //取消超时任务
         timeOutHelper.cancel()
         viewModelScope.launch {
@@ -227,6 +221,7 @@ class SitReachSixViewModel(application: Application) :
                 ToastUtil.getInstance(getApplication(), getString(R.string.busi_base_name_without_plan, accountInfo.studentEntity!!.accountName)).show()
                 return@launch
             }
+            SpeechWrapper.speech(getString(R.string.identified_someone, accountInfo.studentEntity?.accountName ?: ""))
             //存已识别的人信息
             sportPersonArray.put(
                 index,

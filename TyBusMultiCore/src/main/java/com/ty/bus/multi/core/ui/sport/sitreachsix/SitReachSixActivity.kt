@@ -354,7 +354,7 @@ class SitReachSixActivity :
         super.initObserver()
         viewModel.sportCardStateLD.observe(this) {
             mBinding.sportView.changeState(it.first, it.second)
-            updateUnavailableLanes(it.first, it.second)
+//            updateUnavailableLanes(it.first, it.second)
         }
 
         viewModel.identifiedLD.observe(this) {
@@ -652,7 +652,7 @@ class SitReachSixActivity :
         controller.resetObject()
         viewModel.reset()
         unavailableLanes.clear()
-        refreshUnavailableTip()
+//        refreshUnavailableTip()
         // 对齐重测：铺板稳定后再进入识别，减少 isCompliant 短暂为 false 刷成不可用
         mBinding.root.postDelayed({
             LogUtil.d("SitReachSix::Activity.next: combineLayoutAndPrepare + toStatusIdentifyFace")
