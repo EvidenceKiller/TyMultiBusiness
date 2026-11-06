@@ -129,6 +129,9 @@ class SitReachSixViewModel(application: Application) :
     /** 本轮开测后该道是否出现过非 END，用于屏蔽算法残留 END */
     private val laneScoreArmed = BooleanArray(7) { false }
 
+    /** 运动中每道最新有效伸距（preferUseDistance 快照），超时无 END 时用其出分 */
+    private val lastUseDistanceByLane = arrayOfNulls<Float>(7)
+
     private val recordProcess = object : AdlCameraFrameProcessor {
         override fun onFrame(p0: ByteArray?, p1: AdlCameraPreviewInfo?) {
             videoRecorder.inputNv21(p0, "")
@@ -352,6 +355,7 @@ class SitReachSixViewModel(application: Application) :
             for (i in laneScoreArmed.indices) {
                 laneScoreArmed[i] = false
             }
+            clearLastUseDistances()
             sportStartLD.postValue(currentSportTimes)
             startSportCountDown()
             //切换卡片状态，方便重置
@@ -509,43 +513,26 @@ class SitReachSixViewModel(application: Application) :
             result.forEach {
                 val lane = it.indexNum
                 if (lane !in 1..6) return@forEach
+                val person = sportPersonArray.get(lane)
+                if (person != null) {
+                    lastUseDistanceByLane[lane] = preferUseDistance(it)
+                }
                 if (it.state != SitAndReachObject.State.END) {
                     // 开测后先见到非 END，才允许本道出分（挡住上一轮残留 END）
                     laneScoreArmed[lane] = true
                     return@forEach
                 }
-                val person = sportPersonArray.get(lane) ?: return@forEach
+                if (person == null) return@forEach
                 if (!laneScoreArmed[lane]) {
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
                 }
-                val distanceMax = it.distanceMax
-                val distanceLoose = it.distanceMaxLoose
-                LogUtil.d("$TAG::handleResult: prefer distanceMax lane=$lane, loose=$distanceLoose, max=$distanceMax")
-                val useDistance = if (distanceLoose >= LOOSE_HIGH_CM && abs(distanceLoose - distanceMax) >= MAX_LOOSE_DIFF_CM) {
-                    distanceMax
-                } else {
-                    distanceLoose
-                }
-                // 同步占坑：并发双帧 END 时同一道只出一次分
-                val accepted = synchronized(resultStatusList) {
-                    if (resultStatusList[lane - 1]) {
-                        false
-                    } else {
-                        person.count = max((useDistance * 10 - 200).toInt(), -200)
-                        // -200（展示 -20cm）为有效伸距地板值，按未完成处理，与播报/上传注释对齐
-                        if (person.count == -200) {
-                            person.status = 2
-                            person.violationDesc = null
-                        } else {
-                            val (status, desc) = calcViolation(it)
-                            person.status = status
-                            person.violationDesc = desc
-                        }
-                        resultStatusList[lane - 1] = true
-                        true
-                    }
-                }
+                val useDistance = lastUseDistanceByLane[lane] ?: preferUseDistance(it)
+                LogUtil.d(
+                    "$TAG::handleResult: prefer distance lane=$lane, " +
+                        "loose=${it.distanceMaxLoose}, max=${it.distanceMax}, use=$useDistance"
+                )
+                val accepted = applyScoreFromObject(lane, person, it)
                 if (!accepted) {
                     LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
                     return@forEach
@@ -553,7 +540,7 @@ class SitReachSixViewModel(application: Application) :
                 LogUtil.d(
                     "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
                         "violationDesc=${person.violationDesc} epoch=$epoch " +
-                        "max=$distanceMax loose=$distanceLoose use=$useDistance"
+                        "max=${it.distanceMax} loose=${it.distanceMaxLoose} use=$useDistance"
                 )
                 withContext(Dispatchers.Main) {
                     // 仅丢弃跨组（epoch 变化）的迟到写回；本轮占坑后必须先发出 UI，再允许 finish
@@ -588,6 +575,72 @@ class SitReachSixViewModel(application: Application) :
             }
             LogUtil.d("$TAG::handleResult: all scores ready, finishCurrentRound")
             finishCurrentRound()
+        }
+    }
+
+    private fun clearLastUseDistances() {
+        for (i in lastUseDistanceByLane.indices) {
+            lastUseDistanceByLane[i] = null
+        }
+    }
+
+    /** 高 loose 且与 max 差大时用 max，否则用 loose */
+    private fun preferUseDistance(obj: SitAndReachObject): Float {
+        val distanceMax = obj.distanceMax
+        val distanceLoose = obj.distanceMaxLoose
+        return if (distanceLoose >= LOOSE_HIGH_CM && abs(distanceLoose - distanceMax) >= MAX_LOOSE_DIFF_CM) {
+            distanceMax
+        } else {
+            distanceLoose
+        }
+    }
+
+    /**
+     * END 出分：按对象写成绩并占坑（含违规判定）；已出分返回 false。
+     */
+    private fun applyScoreFromObject(
+        lane: Int,
+        person: MultiSportResult,
+        obj: SitAndReachObject
+    ): Boolean {
+        synchronized(resultStatusList) {
+            if (resultStatusList[lane - 1]) return false
+            val useDistance = preferUseDistance(obj)
+            person.count = max((useDistance * 10 - 200).toInt(), -200)
+            // -200（展示 -20cm）为有效伸距地板值，按未完成处理
+            if (person.count == -200) {
+                person.status = 2
+                person.violationDesc = null
+            } else {
+                val (status, desc) = calcViolation(obj)
+                person.status = status
+                person.violationDesc = desc
+            }
+            resultStatusList[lane - 1] = true
+            return true
+        }
+    }
+
+    /**
+     * 超时补分：仅用缓存的有效伸距；无违规上下文，非地板值按正常分。
+     */
+    private fun applyScoreFromUseDistance(
+        lane: Int,
+        person: MultiSportResult,
+        useDistance: Float
+    ): Boolean {
+        synchronized(resultStatusList) {
+            if (resultStatusList[lane - 1]) return false
+            person.count = max((useDistance * 10 - 200).toInt(), -200)
+            if (person.count == -200) {
+                person.status = 2
+                person.violationDesc = null
+            } else {
+                person.status = 0
+                person.violationDesc = null
+            }
+            resultStatusList[lane - 1] = true
+            return true
         }
     }
 
@@ -646,21 +699,30 @@ class SitReachSixViewModel(application: Application) :
             LogUtil.d("$TAG::finishWithTimeout: skip, state=$sportState")
             return
         }
-        LogUtil.d("$TAG::finishWithTimeout: mark unfinished lanes")
-        synchronized(resultStatusList) {
-            for (i in resultStatusList.indices) {
-                val index = i + 1
-                val person = sportPersonArray.get(index)
-                if (person != null) {
-                    if (resultStatusList[i].not()) {
-                        //未完成
-                        LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished")
-                        person.status = 2
-                        person.violationDesc = null
-                        resultStatusList[i] = true
-                        sportResultLd.value = index to person
-                    }
+        LogUtil.d("$TAG::finishWithTimeout: fill missing scores from last useDistance")
+        for (i in resultStatusList.indices) {
+            val index = i + 1
+            val person = sportPersonArray.get(index) ?: continue
+            if (resultStatusList[i]) continue
+            val useDistance = lastUseDistanceByLane[index]
+            if (useDistance != null) {
+                val accepted = applyScoreFromUseDistance(index, person, useDistance)
+                if (accepted) {
+                    LogUtil.d(
+                        "$TAG::finishWithTimeout: lane=$index from cache " +
+                            "use=$useDistance count=${person.count} status=${person.status}"
+                    )
+                    sportResultLd.value = index to person
                 }
+            } else {
+                synchronized(resultStatusList) {
+                    if (resultStatusList[i]) return@synchronized
+                    person.status = 2
+                    person.violationDesc = null
+                    resultStatusList[i] = true
+                }
+                LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished, no cache")
+                sportResultLd.value = index to person
             }
         }
         // 超时后无新结果帧时也必须收尾，否则顶部倒计时不消、无再测/下一组
@@ -668,7 +730,7 @@ class SitReachSixViewModel(application: Application) :
     }
 
     /**
-     * 本轮全部出分（含超时补未完成）后的统一收尾，与 handleResult / finishWithTimeout 共用。
+     * 本轮全部出分（含超时补分）后的统一收尾，与 handleResult / finishWithTimeout 共用。
      */
     @Synchronized
     private fun finishCurrentRound() {
@@ -685,6 +747,7 @@ class SitReachSixViewModel(application: Application) :
             return
         }
         currentRoundFinishing = true
+        clearLastUseDistances()
 
         stopSportCountDown()
         sportTipsInfoLD.postValue("")
@@ -816,6 +879,7 @@ class SitReachSixViewModel(application: Application) :
         for (i in laneScoreArmed.indices) {
             laneScoreArmed[i] = false
         }
+        clearLastUseDistances()
         sportPersonArray.forEach { index, result ->
             result.count = -1000
         }
@@ -839,6 +903,7 @@ class SitReachSixViewModel(application: Application) :
         for (i in laneScoreArmed.indices) {
             laneScoreArmed[i] = false
         }
+        clearLastUseDistances()
         isRetest = false
         prepareStatusList.clear()
         resultStatusList.clear()
