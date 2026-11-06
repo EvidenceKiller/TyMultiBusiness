@@ -507,17 +507,25 @@ class SitReachSixViewModel(application: Application) :
     fun handleResult(result: MutableList<SitAndReachObject>) {
         if (sportState != MultiSportState.SPORTING) return
         val epoch = scoreEpoch
+        // 快照，避免 SDK 同列表并发改写导致 CME / 半帧数据
+        val snapshot = result.toList()
         viewModelScope.launch(Dispatchers.IO) {
             // 本协程是否已在 Main 发出过成绩；未发出则禁止齐人收尾，避免抢在 UI 前把状态打成 IDLE
             var emittedUi = false
-            result.forEach {
-                val lane = it.indexNum
-                if (lane !in 1..6) return@forEach
+            snapshot.forEach { obj ->
+                val lane = obj.indexNum
+                // 须落在配置人数内，否则 resultStatusList[lane-1] 会越界
+                if (!isValidScoreLane(lane)) {
+                    LogUtil.d(
+                        "$TAG::handleResult: drop invalid lane=$lane, sportManCount=$sportManCount"
+                    )
+                    return@forEach
+                }
                 val person = sportPersonArray.get(lane)
                 if (person != null) {
-                    lastUseDistanceByLane[lane] = preferUseDistance(it)
+                    lastUseDistanceByLane[lane] = preferUseDistance(obj)
                 }
-                if (it.state != SitAndReachObject.State.END) {
+                if (obj.state != SitAndReachObject.State.END) {
                     // 开测后先见到非 END，才允许本道出分（挡住上一轮残留 END）
                     laneScoreArmed[lane] = true
                     return@forEach
@@ -527,12 +535,12 @@ class SitReachSixViewModel(application: Application) :
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane, epoch=$epoch")
                     return@forEach
                 }
-                val useDistance = lastUseDistanceByLane[lane] ?: preferUseDistance(it)
+                val useDistance = lastUseDistanceByLane[lane] ?: preferUseDistance(obj)
                 LogUtil.d(
                     "$TAG::handleResult: prefer distance lane=$lane, " +
-                        "loose=${it.distanceMaxLoose}, max=${it.distanceMax}, use=$useDistance"
+                        "loose=${obj.distanceMaxLoose}, max=${obj.distanceMax}, use=$useDistance"
                 )
-                val accepted = applyScoreFromObject(lane, person, it)
+                val accepted = applyScoreFromObject(lane, person, obj)
                 if (!accepted) {
                     LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
                     return@forEach
@@ -540,7 +548,7 @@ class SitReachSixViewModel(application: Application) :
                 LogUtil.d(
                     "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
                         "violationDesc=${person.violationDesc} epoch=$epoch " +
-                        "max=${it.distanceMax} loose=${it.distanceMaxLoose} use=$useDistance"
+                        "max=${obj.distanceMax} loose=${obj.distanceMaxLoose} use=$useDistance"
                 )
                 withContext(Dispatchers.Main) {
                     // 仅丢弃跨组（epoch 变化）的迟到写回；本轮占坑后必须先发出 UI，再允许 finish
@@ -556,11 +564,17 @@ class SitReachSixViewModel(application: Application) :
                 }
             }
             if (epoch != scoreEpoch) return@launch
-            val list = resultStatusList.filter { it }
-            val checkSize = checkMap.filter { it.value }.size
+            val doneCount: Int
+            val checkSize: Int
+            synchronized(resultStatusList) {
+                doneCount = resultStatusList.count { it }
+            }
+            synchronized(checkMap) {
+                checkSize = checkMap.count { it.value }
+            }
             //还有人未出成绩
-            if (list.size != checkSize) {
-                LogUtil.d("$TAG::handleResult: waiting scores done=${list.size}/$checkSize")
+            if (doneCount != checkSize) {
+                LogUtil.d("$TAG::handleResult: waiting scores done=$doneCount/$checkSize")
                 return@launch
             }
             // 齐人收尾只允许「本协程已发出 sportResultLd」的路径触发，避免旁路协程抢先 IDLE
@@ -576,6 +590,11 @@ class SitReachSixViewModel(application: Application) :
             LogUtil.d("$TAG::handleResult: all scores ready, finishCurrentRound")
             finishCurrentRound()
         }
+    }
+
+    /** 出分道号必须在 1..sportManCount，与 resultStatusList 长度对齐 */
+    private fun isValidScoreLane(lane: Int): Boolean {
+        return lane in 1..sportManCount && lane - 1 < resultStatusList.size
     }
 
     private fun clearLastUseDistances() {
@@ -603,7 +622,9 @@ class SitReachSixViewModel(application: Application) :
         person: MultiSportResult,
         obj: SitAndReachObject
     ): Boolean {
+        if (!isValidScoreLane(lane)) return false
         synchronized(resultStatusList) {
+            if (lane - 1 !in resultStatusList.indices) return false
             if (resultStatusList[lane - 1]) return false
             val useDistance = preferUseDistance(obj)
             person.count = max((useDistance * 10 - 200).toInt(), -200)
@@ -629,7 +650,9 @@ class SitReachSixViewModel(application: Application) :
         person: MultiSportResult,
         useDistance: Float
     ): Boolean {
+        if (!isValidScoreLane(lane)) return false
         synchronized(resultStatusList) {
+            if (lane - 1 !in resultStatusList.indices) return false
             if (resultStatusList[lane - 1]) return false
             person.count = max((useDistance * 10 - 200).toInt(), -200)
             if (person.count == -200) {
@@ -651,20 +674,25 @@ class SitReachSixViewModel(application: Application) :
         if (srj.direction == SitAndReachObject.Direction.UNKNOWN) {
             return 2 to null
         }
+        val failMsgList = srj.failMsgList
+        if (failMsgList == null) {
+            LogUtil.d("$TAG::calcViolation: failMsgList null, treat as normal")
+            return 0 to null
+        }
         LogUtil.d(
-            "====================${srj.failMsgList.getOrNull(0)}--${
-                srj.failMsgList.getOrNull(1)
-            }--${srj.failMsgList.getOrNull(2)}--${srj.failMsgList.getOrNull(3)}"
+            "====================${failMsgList.getOrNull(0)}--${
+                failMsgList.getOrNull(1)
+            }--${failMsgList.getOrNull(2)}--${failMsgList.getOrNull(3)}"
         )
         // 命中多项时只取第一个：手 → 腿 → 脚 → 前冲
         when {
-            param.checkHand && srj.failMsgList.getOrNull(0) == false ->
+            param.checkHand && failMsgList.getOrNull(0) == false ->
                 return 1 to getString(R.string.sit_reach_violation_hand)
-            param.checkLeg && srj.failMsgList.getOrNull(1) == false ->
+            param.checkLeg && failMsgList.getOrNull(1) == false ->
                 return 1 to getString(R.string.sit_reach_violation_leg)
-            param.checkFoot && srj.failMsgList.getOrNull(2) == false ->
+            param.checkFoot && failMsgList.getOrNull(2) == false ->
                 return 1 to getString(R.string.sit_reach_violation_foot)
-            param.checkInertia && srj.failMsgList.getOrNull(3) == true ->
+            param.checkInertia && failMsgList.getOrNull(3) == true ->
                 return 1 to getString(R.string.sit_reach_violation_inertia)
         }
         return 0 to null
@@ -700,10 +728,15 @@ class SitReachSixViewModel(application: Application) :
             return
         }
         LogUtil.d("$TAG::finishWithTimeout: fill missing scores from last useDistance")
-        for (i in resultStatusList.indices) {
-            val index = i + 1
+        val pendingLanes: List<Int>
+        synchronized(resultStatusList) {
+            pendingLanes = resultStatusList.indices
+                .filter { !resultStatusList[it] }
+                .map { it + 1 }
+        }
+        for (index in pendingLanes) {
+            if (!isValidScoreLane(index)) continue
             val person = sportPersonArray.get(index) ?: continue
-            if (resultStatusList[i]) continue
             val useDistance = lastUseDistanceByLane[index]
             if (useDistance != null) {
                 val accepted = applyScoreFromUseDistance(index, person, useDistance)
@@ -716,7 +749,8 @@ class SitReachSixViewModel(application: Application) :
                 }
             } else {
                 synchronized(resultStatusList) {
-                    if (resultStatusList[i]) return@synchronized
+                    val i = index - 1
+                    if (i !in resultStatusList.indices || resultStatusList[i]) return@synchronized
                     person.status = 2
                     person.violationDesc = null
                     resultStatusList[i] = true
