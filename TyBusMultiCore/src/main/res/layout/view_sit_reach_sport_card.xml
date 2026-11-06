@@ -337,13 +337,15 @@
         android:id="@+id/tv_sport_current_result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/dp_18"
+        android:gravity="center"
+        android:includeFontPadding="false"
         android:textColor="@color/white"
         android:textSize="@dimen/sp_88"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tv_sport_current_result_unit"
         app:layout_constraintHorizontal_chainStyle="packed"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_sport_times"
         tools:text="11.5" />
 
     <TextView
