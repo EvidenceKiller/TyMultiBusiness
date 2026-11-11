@@ -10,7 +10,6 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.core.view.isGone
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
@@ -25,7 +24,6 @@ import com.adl.lib.AdlCameraFrameProcessor
 import com.adl.lib.AdlCameraListener
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.camera.hk.NsCameraHKSource
-import com.adl.mount.core.TsModelResPool
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.outer.AdlService
 import com.adl.sport.ballBase.ResultCodeType
@@ -41,9 +39,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
-import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ThirtySportResultItem
-import com.ty.bus.multi.core.state.ForwardFlexionCardState
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
 import com.ty.bus.multi.databinding.AcSitReachEighteenBinding
 import com.ty.tybusbase.config.BusiBaseConfig
@@ -143,7 +139,6 @@ class SitReachEighteenActivity :
         viewModel.registerGrpcCmd()
         //检查左右屏连接并发送协同运动开始指令
         viewModel.initCollaboration()
-        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -263,7 +258,7 @@ class SitReachEighteenActivity :
      * 开始检测垫子
      */
     private fun startMatDetect() {
-        if (isInit || tipsHide.not()) return
+        if (isInit || tipsHide.not() || isFinishing) return
         isInit = true
         hideLoadingDialog()
         controller.combineLayoutAndPrepare()
@@ -436,11 +431,7 @@ class SitReachEighteenActivity :
 
         viewModel.sportCardStateLD.collectOnLifecycle {
             getAreaSportViewByDisplay(it.first).changeState(it.second.first, it.second.second)
-            //切换不可用状态时，页面右上角提示"场地构建失败，部分位置暂不可用"
-            if (mBinding.tvUnavailableTip.isGone) {
-                mBinding.tvUnavailableTip.visibility =
-                    if (it.second.second == ForwardFlexionCardState.UNAVAILABLE) View.VISIBLE else View.GONE
-            }
+            // 对齐六人最终态：不再刷新右上角不可用道次提示
         }
 
         viewModel.identifiedLD.collectOnLifecycle {
@@ -474,8 +465,12 @@ class SitReachEighteenActivity :
         }
 
         viewModel.sportTipsInfoLD.collectOnLifecycle {
-            mBinding.tvSportingTips.visibility = View.VISIBLE
-            mBinding.tvSportingTips.text = it
+            if (it.isBlank()) {
+                mBinding.tvSportingTips.visibility = View.GONE
+            } else {
+                mBinding.tvSportingTips.visibility = View.VISIBLE
+                mBinding.tvSportingTips.text = it
+            }
         }
 
         viewModel.sportResultLD.collectOnLifecycle {
@@ -685,8 +680,9 @@ class SitReachEighteenActivity :
     }
 
     override fun onStatusIdentify() {
-        LogUtil.d("开始人脸识别")
+        LogUtil.d("SitReachEighteen::Activity.onStatusIdentifyFace")
         hideBackBtn()
+        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
 
     override fun onStatusPrepare() {
@@ -707,10 +703,6 @@ class SitReachEighteenActivity :
         LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
         mBinding.tvBegin.visibility = View.GONE
         mBinding.tvSportingTips.visibility = View.GONE
-    }
-
-    private fun releaseModel() {
-        TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
     }
 
     /**
@@ -760,6 +752,5 @@ class SitReachEighteenActivity :
         }
         cameraDispatcher.quit()
         videoReader?.release()
-        releaseModel()
     }
 }

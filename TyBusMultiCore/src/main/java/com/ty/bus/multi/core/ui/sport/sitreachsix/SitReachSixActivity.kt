@@ -20,7 +20,6 @@ import com.adl.lib.AdlCameraListener
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.lib.camera.hk.NsCameraHKSource
-import com.adl.mount.core.TsModelResPool
 import com.adl.service.entity.BestRankTopEntity
 import com.adl.service.outer.AdlService
 import com.adl.sport.ballBase.ResultCodeType
@@ -571,10 +570,6 @@ class SitReachSixActivity :
 
     override fun onStatusPrepare() {
         processorPrepare()
-    }
-
-    private fun releaseModel() {
-        TsModelResPool.instance().markReleaseGroup(MultiCoreConstant.FORWARD_FLEXION_MODEL_NAME)
     }
 
     override fun onStatusIdentifySuccess() {

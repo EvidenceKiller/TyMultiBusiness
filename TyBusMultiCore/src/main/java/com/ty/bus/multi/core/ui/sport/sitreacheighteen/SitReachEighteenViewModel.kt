@@ -1,7 +1,6 @@
 package com.ty.bus.multi.core.ui.sport.sitreacheighteen
 
 import android.app.Application
-import android.graphics.Rect
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Looper
@@ -54,6 +53,7 @@ import com.ty.tybusbase.grpc.GrpcSportStatus
 import com.ty.tybusbase.grpc.GrpcSportStatusEnum
 import com.ty.tybusbase.helper.SpeechWrapper
 import com.ty.tybusbase.identify.OnceCacheProcessor
+import com.ty.tybusbase.identify.facecroprect.FaceCropRectHelper
 import com.ty.tybusbase.utils.LogUtil
 import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
@@ -82,6 +82,14 @@ import kotlin.math.max
 class SitReachEighteenViewModel(application: Application) :
     BaseMultiPipelineIdentifyViewModel(application) {
 
+    companion object {
+        private const val TAG = "SitReachEighteen"
+
+        /** loose≥该值(cm) 且与 max 相差过大时，改用 distanceMax，避免脏峰值 */
+        private const val LOOSE_HIGH_CM = 57f
+        private const val MAX_LOOSE_DIFF_CM = 15f
+    }
+
     private val GRPC_KEY = "SitReachEighteenViewModel" //注册Grpc消息的ID
     private val leftSubScreenIp by lazy { BusiBaseConfig.readLeftSubScreenIp() }
     private val rightSubScreenIp by lazy { BusiBaseConfig.readRightSubScreenIp() }
@@ -91,6 +99,9 @@ class SitReachEighteenViewModel(application: Application) :
     private val previewSize = 2560 to 1440
 
     val onceCacheProcessor by lazy { OnceCacheProcessor() } //人脸识别缓存
+
+    /** 人脸裁剪框：与六人坐位体前屈相同 Eyes→Ears→Shoulder；空框则跳过识别 */
+    private val faceCropRectHelper = FaceCropRectHelper()
 
     private val mHandler by lazy { Handler(Looper.getMainLooper()) }
 
@@ -139,6 +150,16 @@ class SitReachEighteenViewModel(application: Application) :
     private var currentIdentifyNumber = -1 //记录当前正在识别的位置
 
     private var isRetest = false //是否为重测
+
+    /** 本轮收尾进行中，防止 handleResult 与超时 finish 重复结束 */
+    @Volatile
+    private var currentRoundFinishing = false
+
+    /** 本轮开测后该道是否出现过非 END，用于屏蔽算法残留 END */
+    private val laneScoreArmed = BooleanArray(7) { false }
+
+    /** 运动中每道最新有效伸距（preferUseDistance 快照），超时无 END 时用其出分 */
+    private val lastUseDistanceByLane = arrayOfNulls<Float>(7)
 
     //---------- 三屏协同 ----------
     //主屏是否已就绪（识别完成，进入准备状态）
@@ -553,6 +574,9 @@ class SitReachEighteenViewModel(application: Application) :
             SpeechWrapper.speakAfterStop(getString(R.string.forward_flexion_start_speech))
         }
         _sportStartLD.tryEmit(currentSportTimes)
+        laneScoreArmed.fill(false)
+        clearLastUseDistances()
+        currentRoundFinishing = false
         startSportCountDown()
         //切换卡片状态
         if (currentSportTimes == 1 && isRetest.not()) {
@@ -640,25 +664,22 @@ class SitReachEighteenViewModel(application: Application) :
                 //送数据进行人脸识别
                 LogUtil.d("处理人脸识别：送数据进行人脸识别： 道数 $currentIdentifyNumber")
                 val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val identifyData = if (streamType == 1) {
-                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                    AdlYUVUtil.YV12toNV21(
-                        currentYuvData.yuv,
-                        nv21,
-                        currentYuvData.width,
-                        currentYuvData.height
-                    )
-                    nv21
-                } else {
-                    currentYuvData.yuv
-                }
-                identify(
-                    getIdentityRect(flexionBody),
-                    identifyData,
+                val rect = faceCropRectHelper.getRect(
+                    flexionBody.skeleton,
                     currentYuvData.width,
-                    currentYuvData.height,
-                    currentIdentifyNumber
+                    currentYuvData.height
                 )
+                if (rect.isEmpty) {
+                    LogUtil.d("$TAG::handleIdentify: 裁剪框为空，跳过识别 道数 $currentIdentifyNumber")
+                } else {
+                    identify(
+                        rect,
+                        toIdentifyYuv(currentYuvData.yuv, currentYuvData.width, currentYuvData.height),
+                        currentYuvData.width,
+                        currentYuvData.height,
+                        currentIdentifyNumber
+                    )
+                }
             }
             return
         }
@@ -673,24 +694,21 @@ class SitReachEighteenViewModel(application: Application) :
                 && it.skeleton != null
                 && checkHandUp(it.skeleton)
             ) {
+                val currentYuvData = onceCacheProcessor.getCurrentYuvData()
+                val rect = faceCropRectHelper.getRect(
+                    it.skeleton,
+                    currentYuvData.width,
+                    currentYuvData.height
+                )
+                if (rect.isEmpty) {
+                    LogUtil.d("$TAG::handleIdentify: 裁剪框为空，跳过道数 ${it.indexNum}")
+                    return@forEach
+                }
                 currentIdentifyNumber = it.indexNum
                 sportState = MultiSportState.IDENTIFYING
-                val currentYuvData = onceCacheProcessor.getCurrentYuvData()
-                val identifyData = if (streamType == 1) {
-                    val nv21 = ByteArray(currentYuvData.width * currentYuvData.height * 3 / 2)
-                    AdlYUVUtil.YV12toNV21(
-                        currentYuvData.yuv,
-                        nv21,
-                        currentYuvData.width,
-                        currentYuvData.height
-                    )
-                    nv21
-                } else {
-                    currentYuvData.yuv
-                }
                 identify(
-                    getIdentityRect(it),
-                    identifyData,
+                    rect,
+                    toIdentifyYuv(currentYuvData.yuv, currentYuvData.width, currentYuvData.height),
                     currentYuvData.width,
                     currentYuvData.height,
                     currentIdentifyNumber
@@ -706,6 +724,14 @@ class SitReachEighteenViewModel(application: Application) :
         }
     }
 
+    /** 相机取流为 YV12 时转 NV21 再送人脸识别 */
+    private fun toIdentifyYuv(yuv: ByteArray, width: Int, height: Int): ByteArray {
+        if (streamType != 1) return yuv
+        val nv21 = ByteArray(width * height * 3 / 2)
+        AdlYUVUtil.YV12toNV21(yuv, nv21, width, height)
+        return nv21
+    }
+
     private fun checkHandUp(skeleton: AdlPoseSkeleton?): Boolean {
         val lWrist = skeleton?.lWrist
         val lShoulder = skeleton?.lShoulder
@@ -715,114 +741,187 @@ class SitReachEighteenViewModel(application: Application) :
         return lWrist.y < lShoulder.y || rWrist.y < rShoulder.y
     }
 
-    fun getIdentityRect(it: SitAndReachObject?): Rect {
-        var rect = Rect(0, 0, 50, 50)
-        val skeleton = it?.skeleton
-        if (it == null || skeleton == null) return rect
-        LogUtil.d("处理人脸识别：用骨骼")
-        val width = 180
-        val header = skeleton.headTop
-        if (header != null) {
-            rect.top = header.y.toInt()
-            rect.left = header.x.toInt() - width / 2
-            rect.right = header.x.toInt() + width / 2
-            rect.bottom = header.y.toInt() + width
-        } else {
-            val lShouder = skeleton.lShoulder
-            val rShouder = skeleton.rShoulder
-            if (lShouder == null || rShouder == null) return rect
-            val centerX: Double = (lShouder.x + rShouder.x) / 2.0
-            val shoulderWidth = abs(lShouder.x - rShouder.x) * 2.7
-            rect.bottom = max(lShouder.y, rShouder.y).toInt()
-            rect.left = (centerX - shoulderWidth / 2.0).toInt()
-            rect.right = (centerX + shoulderWidth / 2).toInt()
-            rect.top = (rect.bottom - 1.2 * shoulderWidth).toInt()
-        }
-        if (rect.width() < 40 || rect.height() < 40) {
-            rect.left = rect.left - 20
-            rect.right = rect.left + 40
-            rect.top = rect.top - 20
-            rect.bottom = rect.top + 40
-        }
-        return rect
-    }
-
     /**
-     * 处理主屏成绩
+     * 处理主屏成绩（对齐六人：prefer 伸距、armed、齐人后 finishCurrentRound）
      */
     fun handleResult(result: MutableList<SitAndReachObject>) {
         if (sportState != MultiSportState.SPORTING) return
+        // 快照，避免 SDK 同列表并发改写导致 CME / 半帧数据
+        val snapshot = result.toList()
         viewModelScope.launch(Dispatchers.IO) {
-            result.forEach {
-                val person = sitReachPersonArray.get(it.indexNum)
+            var emittedUi = false
+            snapshot.forEach { obj ->
+                val lane = obj.indexNum
+                if (!isValidScoreLane(lane)) {
+                    LogUtil.d(
+                        "$TAG::handleResult: drop invalid lane=$lane, sportManCount=$sportManCount"
+                    )
+                    return@forEach
+                }
+                val person = sitReachPersonArray.get(lane)
+                if (person != null) {
+                    lastUseDistanceByLane[lane] = preferUseDistance(obj)
+                }
+                if (obj.state != SitAndReachObject.State.END) {
+                    laneScoreArmed[lane] = true
+                    return@forEach
+                }
                 if (person == null) return@forEach
-                if (it.state == SitAndReachObject.State.END && resultStatusList[it.indexNum - 1].not()) {
-                    person.count = max((it.distanceMaxLoose * 10 - 200).toInt(), -200)
-                    person.status = calcViolation(it)
-                    resultStatusList[it.indexNum - 1] = true
-                    withContext(Dispatchers.Main) {
-                        _sportResultLD.tryEmit(
-                            DisplayType.MAIN to Pair(it.indexNum, person)
-                        )
-                    }
+                if (!laneScoreArmed[lane]) {
+                    LogUtil.d("$TAG::handleResult: drop residual END lane=$lane")
+                    return@forEach
+                }
+                val useDistance = lastUseDistanceByLane[lane] ?: preferUseDistance(obj)
+                LogUtil.d(
+                    "$TAG::handleResult: prefer distance lane=$lane, " +
+                        "loose=${obj.distanceMaxLoose}, max=${obj.distanceMax}, use=$useDistance"
+                )
+                val accepted = applyScoreFromObject(lane, person, obj)
+                if (!accepted) {
+                    LogUtil.d("$TAG::handleResult: drop duplicate END lane=$lane")
+                    return@forEach
+                }
+                LogUtil.d(
+                    "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
+                        "violationDesc=${person.violationDesc} " +
+                        "max=${obj.distanceMax} loose=${obj.distanceMaxLoose} use=$useDistance"
+                )
+                withContext(Dispatchers.Main) {
+                    _sportResultLD.tryEmit(DisplayType.MAIN to Pair(lane, person))
+                    emittedUi = true
                 }
             }
-            val list = resultStatusList.filter { it }
-            val checkSize = checkMap.filter { it.value }.size
-            //还有人未出成绩
-            if (list.size != checkSize) {
-                LogUtil.d("总识别人数：${checkSize} -- 已出成绩:${list.size}")
+            val doneCount: Int
+            val checkSize: Int
+            synchronized(resultStatusList) {
+                doneCount = resultStatusList.count { it }
+            }
+            synchronized(checkMap) {
+                checkSize = checkMap.count { it.value }
+            }
+            if (doneCount != checkSize) {
+                LogUtil.d("$TAG::handleResult: waiting scores done=$doneCount/$checkSize")
                 return@launch
             }
-            //冗余数据，超过了测试次数
-            if (currentSportTimes > sportTimes) {
+            if (!emittedUi) {
+                LogUtil.d("$TAG::handleResult: all ready but skip finish, waiting emitter UI")
                 return@launch
             }
-            stopSportCountDown()
-            LogUtil.d("测试结束：总测试次数:${sportTimes}, 已测试次数:${currentSportTimes}")
-            currentSportTimes++
-            sitReachPersonArray.forEach { index, _ ->
-                changeSportCardState(
-                    DisplayType.MAIN,
-                    index,
-                    ForwardFlexionCardState.SPORTING
-                )
-            }
-            _testOnceFinishLD.tryEmit(true)
             if (currentSportTimes > sportTimes) {
-                //测试次数达标，运动结束
-                SpeechWrapper.speech(
-                    getString(R.string.end_test, currentSportTimes - 1)
-                )
-                toStatusSportEnd()
-            } else {
-                SpeechWrapper.speech(
-                    getString(R.string.forward_flexion_sport_times_end, currentSportTimes - 1)
-                )
-                SystemClock.sleep(2000)
-                sportState = MultiSportState.PREPARING
-                toStatusPrepare()
+                LogUtil.d("$TAG::handleResult: skip redundant, times=$currentSportTimes/$sportTimes")
+                return@launch
             }
+            LogUtil.d("$TAG::handleResult: all scores ready, finishCurrentRound")
+            finishCurrentRound()
         }
     }
 
-    private fun calcViolation(srj: SitAndReachObject): Int {
+    /** 出分道号必须在 1..sportManCount，与 resultStatusList 长度对齐 */
+    private fun isValidScoreLane(lane: Int): Boolean {
+        return lane in 1..sportManCount && lane - 1 < resultStatusList.size
+    }
+
+    private fun clearLastUseDistances() {
+        for (i in lastUseDistanceByLane.indices) {
+            lastUseDistanceByLane[i] = null
+        }
+    }
+
+    /** 高 loose 且与 max 差大时用 max，否则用 loose */
+    private fun preferUseDistance(obj: SitAndReachObject): Float {
+        val distanceMax = obj.distanceMax
+        val distanceLoose = obj.distanceMaxLoose
+        return if (distanceLoose >= LOOSE_HIGH_CM && abs(distanceLoose - distanceMax) >= MAX_LOOSE_DIFF_CM) {
+            distanceMax
+        } else {
+            distanceLoose
+        }
+    }
+
+    /**
+     * END 出分：按对象写成绩并占坑（含违规判定）；已出分返回 false。
+     */
+    private fun applyScoreFromObject(
+        lane: Int,
+        person: MultiSportResult,
+        obj: SitAndReachObject
+    ): Boolean {
+        if (!isValidScoreLane(lane)) return false
+        synchronized(resultStatusList) {
+            if (lane - 1 !in resultStatusList.indices) return false
+            if (resultStatusList[lane - 1]) return false
+            val useDistance = preferUseDistance(obj)
+            person.count = max((useDistance * 10 - 200).toInt(), -200)
+            if (person.count == -200) {
+                person.status = 2
+                person.violationDesc = null
+            } else {
+                val (status, desc) = calcViolation(obj)
+                person.status = status
+                person.violationDesc = desc
+            }
+            resultStatusList[lane - 1] = true
+            return true
+        }
+    }
+
+    /**
+     * 超时补分：仅用缓存的有效伸距；无违规上下文，非地板值按正常分。
+     */
+    private fun applyScoreFromUseDistance(
+        lane: Int,
+        person: MultiSportResult,
+        useDistance: Float
+    ): Boolean {
+        if (!isValidScoreLane(lane)) return false
+        synchronized(resultStatusList) {
+            if (lane - 1 !in resultStatusList.indices) return false
+            if (resultStatusList[lane - 1]) return false
+            person.count = max((useDistance * 10 - 200).toInt(), -200)
+            if (person.count == -200) {
+                person.status = 2
+                person.violationDesc = null
+            } else {
+                person.status = 0
+                person.violationDesc = null
+            }
+            resultStatusList[lane - 1] = true
+            return true
+        }
+    }
+
+    /**
+     * @return first=status(0正常/1违规/2未完成), second=违规文案（多项时只取第一个）
+     */
+    private fun calcViolation(srj: SitAndReachObject): Pair<Int, String?> {
         if (srj.direction == SitAndReachObject.Direction.UNKNOWN) {
-            return 2
+            return 2 to null
+        }
+        val failMsgList = srj.failMsgList
+        if (failMsgList == null) {
+            LogUtil.d("$TAG::calcViolation: failMsgList null, treat as normal")
+            return 0 to null
         }
         LogUtil.d(
-            "====================${srj.failMsgList.getOrNull(0)}--${
-                srj.failMsgList.getOrNull(1)
-            }--${srj.failMsgList.getOrNull(2)}"
+            "====================${failMsgList.getOrNull(0)}--${
+                failMsgList.getOrNull(1)
+            }--${failMsgList.getOrNull(2)}--${failMsgList.getOrNull(3)}"
         )
-        return if ((param.checkFoot && srj.failMsgList.getOrNull(2) == false)
-            || (param.checkHand && srj.failMsgList.getOrNull(0) == false)
-            || (param.checkLeg && srj.failMsgList.getOrNull(1) == false)
-        ) 1 else 0
+        when {
+            param.checkHand && failMsgList.getOrNull(0) == false ->
+                return 1 to getString(R.string.sit_reach_violation_hand)
+            param.checkLeg && failMsgList.getOrNull(1) == false ->
+                return 1 to getString(R.string.sit_reach_violation_leg)
+            param.checkFoot && failMsgList.getOrNull(2) == false ->
+                return 1 to getString(R.string.sit_reach_violation_foot)
+            param.checkInertia && failMsgList.getOrNull(3) == true ->
+                return 1 to getString(R.string.sit_reach_violation_inertia)
+        }
+        return 0 to null
     }
 
     private fun startSportCountDown() {
-        LogUtil.d("开始倒计时  开始倒计时  开始倒计时")
+        LogUtil.d("$TAG::startSportCountDown: timeoutSec=$sportTimeOut")
         Handler(Looper.getMainLooper()).post {
             sportCountDownTimer?.cancel()
             sportCountDown = sportTimeOut
@@ -835,7 +934,7 @@ class SitReachEighteenViewModel(application: Application) :
                 }
 
                 override fun onFinish() {
-                    //结束运动
+                    LogUtil.d("$TAG::startSportCountDown: onFinish -> finishWithTimeout")
                     finishWithTimeout()
                 }
             }.start()
@@ -843,17 +942,101 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     private fun finishWithTimeout() {
-        for (i in resultStatusList.indices) {
-            val index = i + 1
-            val person = sitReachPersonArray.get(index)
-            if (person != null) {
-                if (resultStatusList[i].not()) {
-                    //未完成
-                    LogUtil.d("${person.number}道未完成=============")
-                    person.status = 2
+        if (sportState != MultiSportState.SPORTING) {
+            LogUtil.d("$TAG::finishWithTimeout: skip, state=$sportState")
+            return
+        }
+        LogUtil.d("$TAG::finishWithTimeout: fill missing scores from last useDistance")
+        val pendingLanes: List<Int>
+        synchronized(resultStatusList) {
+            pendingLanes = resultStatusList.indices
+                .filter { !resultStatusList[it] }
+                .map { it + 1 }
+        }
+        for (index in pendingLanes) {
+            if (!isValidScoreLane(index)) continue
+            val person = sitReachPersonArray.get(index) ?: continue
+            val useDistance = lastUseDistanceByLane[index]
+            if (useDistance != null) {
+                val accepted = applyScoreFromUseDistance(index, person, useDistance)
+                if (accepted) {
+                    LogUtil.d(
+                        "$TAG::finishWithTimeout: lane=$index from cache " +
+                            "use=$useDistance count=${person.count} status=${person.status}"
+                    )
                     _sportResultLD.tryEmit(DisplayType.MAIN to Pair(index, person))
                 }
-                resultStatusList[i] = true
+            } else {
+                synchronized(resultStatusList) {
+                    val i = index - 1
+                    if (i !in resultStatusList.indices || resultStatusList[i]) return@synchronized
+                    person.status = 2
+                    person.violationDesc = null
+                    resultStatusList[i] = true
+                }
+                LogUtil.d("$TAG::finishWithTimeout: lane=${person.number} unfinished, no cache")
+                _sportResultLD.tryEmit(DisplayType.MAIN to Pair(index, person))
+            }
+        }
+        // 超时后无新结果帧时也必须收尾，否则倒计时不消、协同收尾卡住
+        finishCurrentRound()
+    }
+
+    /**
+     * 本轮全部出分（含超时补分）后的统一收尾，与 handleResult / finishWithTimeout 共用。
+     */
+    @Synchronized
+    private fun finishCurrentRound() {
+        if (sportState != MultiSportState.SPORTING) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, state=$sportState")
+            return
+        }
+        if (currentRoundFinishing) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, already finishing")
+            return
+        }
+        if (currentSportTimes > sportTimes) {
+            LogUtil.d("$TAG::finishCurrentRound: skip, times=$currentSportTimes/$sportTimes")
+            return
+        }
+        currentRoundFinishing = true
+        clearLastUseDistances()
+        laneScoreArmed.fill(false)
+
+        stopSportCountDown()
+        _sportTipsInfoLD.tryEmit("")
+        LogUtil.d(
+            "$TAG::finishCurrentRound: round done, beforeInc times=$currentSportTimes/$sportTimes"
+        )
+        currentSportTimes++
+        sitReachPersonArray.forEach { index, _ ->
+            changeSportCardState(
+                DisplayType.MAIN,
+                index,
+                ForwardFlexionCardState.SPORTING
+            )
+        }
+        _testOnceFinishLD.tryEmit(true)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            if (currentSportTimes > sportTimes) {
+                LogUtil.d("$TAG::finishCurrentRound: all rounds done -> sportEnd")
+                SpeechWrapper.speech(
+                    getString(R.string.end_test, currentSportTimes - 1)
+                )
+                withContext(Dispatchers.Main) {
+                    toStatusSportEnd()
+                }
+            } else {
+                LogUtil.d("$TAG::finishCurrentRound: next round=$currentSportTimes -> prepare")
+                SpeechWrapper.speech(
+                    getString(R.string.forward_flexion_sport_times_end, currentSportTimes - 1)
+                )
+                SystemClock.sleep(2000)
+                sportState = MultiSportState.PREPARING
+                withContext(Dispatchers.Main) {
+                    toStatusPrepare()
+                }
             }
         }
     }
@@ -1025,10 +1208,14 @@ class SitReachEighteenViewModel(application: Application) :
         isRetest = true
         sitReachPersonArray.forEach { _, result ->
             result.count = -1000
+            result.violationDesc = null
         }
         for (ind in resultStatusList.indices) {
             resultStatusList[ind] = false
         }
+        laneScoreArmed.fill(false)
+        clearLastUseDistances()
+        currentRoundFinishing = false
         sportTimes = 1
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
@@ -1046,6 +1233,9 @@ class SitReachEighteenViewModel(application: Application) :
             prepareStatusList.add(false)
             resultStatusList.add(false)
         }
+        laneScoreArmed.fill(false)
+        clearLastUseDistances()
+        currentRoundFinishing = false
         multiIdentityEngine.reset()
         sitReachPersonArray.clear()
         currentSportTimes = 1
