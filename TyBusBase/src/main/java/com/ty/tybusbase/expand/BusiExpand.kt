@@ -295,4 +295,5 @@ fun GroupSportBaseMan.checkHandUp(): Boolean {
     if (skeleton == null || skeleton.lShoulder == null || skeleton.rWrist == null)
         return false
     return skeleton.lWrist.y < skeleton.lShoulder.y
+//    return true
 }
