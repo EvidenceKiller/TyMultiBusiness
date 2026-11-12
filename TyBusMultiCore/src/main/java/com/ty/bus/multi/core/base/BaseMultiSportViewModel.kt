@@ -53,7 +53,7 @@ open class BaseMultiSportViewModel(application: Application) : BaseSportViewMode
     /**
      * 获取今日最佳
      */
-    fun getBestRankTop() {
+    open fun getBestRankTop() {
         viewModelScope.launch(Dispatchers.IO) {
             val authFac = AdlAuthFactory.create(getApplication())
             val org = UserCaller.instance().currentOrg

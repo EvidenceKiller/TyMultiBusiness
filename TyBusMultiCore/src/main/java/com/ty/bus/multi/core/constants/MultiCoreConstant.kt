@@ -18,6 +18,14 @@ object MultiCoreConstant {
     const val SIT_REACH_SIX_TEST_TIMES_DEFAULT = 1
     const val SIT_REACH_SIX_UI_KEY = "sit_reach_six_ui_key"  //六人坐位体前屈框框设置KEY
 
+    // 18人坐位体前屈：左/右副屏测垫数量与测试次数（主屏复用 SIT_REACH_SIX_*）
+    const val SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_LEFT =
+        "sit_reach_eighteen_test_people_number_left"
+    const val SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_RIGHT =
+        "sit_reach_eighteen_test_people_number_right"
+    const val SIT_REACH_EIGHTEEN_TEST_TIMES_LEFT = "sit_reach_eighteen_test_times_left"
+    const val SIT_REACH_EIGHTEEN_TEST_TIMES_RIGHT = "sit_reach_eighteen_test_times_right"
+
     const val FORWARD_FLEXION_MODEL_NAME = "forward_flexion_model"  //体前屈模型组名
 
     const val FORWARD_FLEXION_SET_PARAM = "forward_flexion_set_param"  //体前屈设置项

@@ -97,7 +97,7 @@ class SitReachEighteenSettingActivity :
             SitAndReachControllerConfig.InputSource.VIDEO
 
         val diskNum = MMKVUtil.decodeInt(
-            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
+            peopleKey(currentMode),
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
 
@@ -157,13 +157,42 @@ class SitReachEighteenSettingActivity :
             else -> AreaMode.MAIN
         }
         testPeopleCount = MMKVUtil.decodeInt(
-            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
+            peopleKey(currentMode),
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         testTimes = MMKVUtil.decodeInt(
-            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES,
+            timesKey(currentMode),
             MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
         )
+    }
+
+    /** 主屏复用六人 key；左/右副屏用十八人分区 key */
+    private fun peopleKey(mode: AreaMode): String = when (mode) {
+        AreaMode.MAIN -> MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER
+        AreaMode.LEFT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_LEFT
+        AreaMode.RIGHT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_RIGHT
+    }
+
+    private fun timesKey(mode: AreaMode): String = when (mode) {
+        AreaMode.MAIN -> MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES
+        AreaMode.LEFT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_TIMES_LEFT
+        AreaMode.RIGHT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_TIMES_RIGHT
+    }
+
+    /** overlay Preferences 的 basename（去掉左右后缀） */
+    private fun overlaySportNameBase(): String =
+        SitAndReachType.SIT_AND_REACH_CUSTOM.sportName
+            .replace("_left", "")
+            .replace("_right", "")
+
+    /** 主屏用 basename；左/右用 basename_left / basename_right，不依赖可变的 sportName 当前值 */
+    private fun overlayPrefsKey(mode: AreaMode): String {
+        val base = overlaySportNameBase()
+        return when (mode) {
+            AreaMode.MAIN -> base
+            AreaMode.LEFT -> "${base}_left"
+            AreaMode.RIGHT -> "${base}_right"
+        }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -192,7 +221,17 @@ class SitReachEighteenSettingActivity :
             }
             testPeopleCount--
             mBinding.tvNumber.text = testPeopleCount.toString()
-            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
+            MMKVUtil.encode(peopleKey(currentMode), testPeopleCount)
+            val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM.also {
+                when (currentMode) {
+                    AreaMode.LEFT -> it.sportName = "${it.sportName}_left"
+                    AreaMode.RIGHT -> it.sportName = "${it.sportName}_right"
+                    AreaMode.MAIN -> {}
+                }
+            }
+            sitAndReachType.num = testPeopleCount
+            sitAndReachType.boardNum = boardNum
+            sportConfig.sitAndReachType = sitAndReachType
             updateOverlay()
         }
 
@@ -202,7 +241,17 @@ class SitReachEighteenSettingActivity :
             }
             testPeopleCount++
             mBinding.tvNumber.text = testPeopleCount.toString()
-            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
+            MMKVUtil.encode(peopleKey(currentMode), testPeopleCount)
+            val sitAndReachType = SitAndReachType.SIT_AND_REACH_CUSTOM.also {
+                when (currentMode) {
+                    AreaMode.LEFT -> it.sportName = "${it.sportName}_left"
+                    AreaMode.RIGHT -> it.sportName = "${it.sportName}_right"
+                    AreaMode.MAIN -> {}
+                }
+            }
+            sitAndReachType.num = testPeopleCount
+            sitAndReachType.boardNum = boardNum
+            sportConfig.sitAndReachType = sitAndReachType
             updateOverlay()
         }
 
@@ -212,7 +261,7 @@ class SitReachEighteenSettingActivity :
             }
             testTimes--
             mBinding.tvTime.text = testTimes.toString()
-            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES, testTimes)
+            MMKVUtil.encode(timesKey(currentMode), testTimes)
         }
 
         mBinding.ivTimeAdd.setOnClickListener {
@@ -221,7 +270,7 @@ class SitReachEighteenSettingActivity :
             }
             testTimes++
             mBinding.tvTime.text = testTimes.toString()
-            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES, testTimes)
+            MMKVUtil.encode(timesKey(currentMode), testTimes)
         }
 
         mBinding.tvReset.setOnClickListener {
@@ -230,7 +279,7 @@ class SitReachEighteenSettingActivity :
 
         mBinding.tvConfirm.setOnClickListener {
             saveConfig()
-            finish()
+//            finish()
         }
 
         initAreaSpinner()
@@ -269,6 +318,7 @@ class SitReachEighteenSettingActivity :
     private fun updateOverlay() {
         mBinding.sitAndReachLayout.markerRecognizerOverlay.saveConfig()
         controller.reset()
+        controller.combineLayout()
     }
 
     /**
@@ -279,8 +329,8 @@ class SitReachEighteenSettingActivity :
         testTimes = MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
         mBinding.tvNumber.text = testPeopleCount.toString()
         mBinding.tvTime.text = testTimes.toString()
-        MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
-        MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES, testTimes)
+        MMKVUtil.encode(peopleKey(currentMode), testPeopleCount)
+        MMKVUtil.encode(timesKey(currentMode), testTimes)
         mBinding.sitAndReachLayout.markerRecognizerOverlay.restoreSportSetting()
         updateOverlay()
         ToastUtil.getInstance(this, getString(R.string.reset_successful)).show()
@@ -307,14 +357,16 @@ class SitReachEighteenSettingActivity :
             return
         }
 
+        // 必须按当前区读 Preferences：左/右 key，不能落到主屏 basename
+        val prefsKey = overlayPrefsKey(currentMode)
         val markerRecognizerConfig =
-            AdlPreferences.initPreferences(this).getString(sportConfig.sitAndReachType.sportName)
+            AdlPreferences.initPreferences(this).getString(prefsKey)
         val markerRecognizerRectanglesConfig = AdlPreferences.initPreferences(this)
-            .getString(sportConfig.sitAndReachType.sportName + "_recheckRectangles") ?: ""
+            .getString(prefsKey + "_recheckRectangles") ?: ""
 
-        //  修改 markerRecognizerName
+        // 下发给副屏时 name 改回无后缀 basename（副屏本地仍用主 key）
         val markerRecognizerConfigObj = markerRecognizerConfig.toObject<MarkerRecognizerConfig>()
-        markerRecognizerConfigObj?.markerRecognizerName = getSitAndReachTypeSportNameDefault()
+        markerRecognizerConfigObj?.markerRecognizerName = overlaySportNameBase()
         val markerRecognizerConfigModify = markerRecognizerConfigObj?.toJson() ?: ""
 
         Log.e(
@@ -327,7 +379,9 @@ class SitReachEighteenSettingActivity :
             "markerRecognizerRectanglesConfig:${markerRecognizerRectanglesConfig}"
         )
 
-        val payload = "${markerRecognizerConfigModify}&&${markerRecognizerRectanglesConfig}"
+        // 框体 + 当前区测垫数量/测试次数，副屏写入本地 SIT_REACH_SIX_*
+        val payload =
+            "${markerRecognizerConfigModify}&&${markerRecognizerRectanglesConfig}&&${testPeopleCount}&&${testTimes}"
         GrpcManager.sendToClient(
             clientId,
             GrpcCmdCode.CMD_SIX_SIT_REACH_REGION_SETTING,
@@ -657,12 +711,7 @@ class SitReachEighteenSettingActivity :
     }
 
     private fun restSitAndReachTypeSportName() {
-        SitAndReachType.SIT_AND_REACH_CUSTOM.sportName = getSitAndReachTypeSportNameDefault()
-    }
-
-    private fun getSitAndReachTypeSportNameDefault(): String {
-        return SitAndReachType.SIT_AND_REACH_CUSTOM.sportName.replace("_left", "")
-            .replace("_right", "")
+        SitAndReachType.SIT_AND_REACH_CUSTOM.sportName = overlaySportNameBase()
     }
 
     private fun stopPreview() {
