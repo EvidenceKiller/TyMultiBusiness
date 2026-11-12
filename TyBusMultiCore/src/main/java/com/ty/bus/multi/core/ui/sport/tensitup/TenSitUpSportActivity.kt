@@ -78,7 +78,7 @@ class TenSitUpSportActivity :
 
     //保持摄像头输入模式（VM默认streamType=1）
     override fun initDefaultStreamType() {
-        viewModel.streamType = 2
+//        viewModel.streamType = 2
     }
 
     override fun readSportConfig(intent: Intent) {
