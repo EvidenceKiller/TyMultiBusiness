@@ -54,9 +54,13 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
     protected abstract fun titleView(): TextView
     protected abstract fun cameraTipsView(): TextView
     protected abstract fun sportViewByArea(area: DisplayType): BaseMultiSportViewNoAnimation
-    protected abstract fun timeBar(): View
-    protected abstract fun timeText(): TextView
     protected abstract fun resultContainer(): ViewGroup
+
+    /** 独立时间栏（时间显示内嵌在运动面板中的页面返回 null 并覆写 showSportTime/showTimeBar） */
+    protected open fun timeBar(): View? = null
+
+    /** 独立时间文案（同上，覆写 showSportTime） */
+    protected open fun timeText(): TextView? = null
 
     /***************************可选控件 getter：单屏页面可返回 null***************************/
 
@@ -125,7 +129,7 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
      * （默认：显示时间栏 → 已加入协同的副屏进入运动态 → 通知ViewModel开始计时）
      */
     protected open fun onCountDownGoFinished() {
-        timeBar().visibility = View.VISIBLE
+        showTimeBar(true)
         //副屏：只有已加入协同的才进入运动状态
         if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
             getAreaSportViewByDisplay(DisplayType.LEFT).onStarted()
@@ -154,6 +158,19 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
         }
     }
 
+    /**
+     * 识别倒计时提示（默认按配置文案拼接后交给[showCountDownNotice]；
+     * 需要自行渲染倒计时秒数的页面覆写，如十人仰卧起坐）
+     * @param second 剩余秒数（纯数字字符串）
+     */
+    protected open fun onCountDownNotice(second: String) {
+        val configText = countdownText()
+        val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${second}" else "${
+            getString(R.string.race_start_countdown)
+        }：${second}"
+        showCountDownNotice(str)
+    }
+
     /** 隐藏倒计时提示文案（默认隐藏文案控件；文案内嵌在运动面板中的页面覆写） */
     protected open fun hideCountDownNotice() {
         countDownNoticeView()?.visibility = View.GONE
@@ -164,8 +181,36 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
         sportViewByArea(DisplayType.MAIN).readyGo { onFinished() }
     }
 
-    /** 点击"立即开始"：弹出二次确认对话框后开赛 */
-    private fun onStartNowClicked() {
+    /** 显示/隐藏独立时间栏（默认操作时间栏控件；时间栏内嵌在面板中的页面覆写） */
+    protected open fun showTimeBar(visible: Boolean) {
+        timeBar()?.visibility = if (visible) View.VISIBLE else View.GONE
+    }
+
+    /** 更新运动倒计时时间（默认写入时间文案控件；时间内嵌在面板中的页面覆写） */
+    protected open fun showSportTime(text: String) {
+        timeText()?.text = text
+    }
+
+    /** 运动时间将尽的警示样式（默认设置时间栏背景；时间栏内嵌在面板中的页面覆写） */
+    protected open fun onSportTimeWarning(res: Int) {
+        timeBar()?.setBackgroundResource(res)
+    }
+
+    /** 默认输入源（30人页固定视频调试流2；摄像头模式的页面覆写为空实现保持VM默认） */
+    protected open fun initDefaultStreamType() {
+//        viewModel.streamType = 2
+    }
+
+    /** 进入页面后是否立即开始识别（需先展示"识别确认提示"的页面覆写为false，自行调用 viewModel.openTsProcess()） */
+    protected open fun autoStartIdentify(): Boolean = true
+
+    /** 运动结束展示（默认展示30人结果页；使用面板内置结算的页面覆写） */
+    protected open fun onSportFinished(items: List<ThirtySportResultItem>) {
+        addResultView(items)
+    }
+
+    /** 点击"立即开始"：弹出二次确认对话框后开赛（按钮内嵌在面板中的页面也可复用） */
+    protected fun onStartNowClicked() {
         startDialog = CommonTipDialog().setCallback {
             //如果是运动会模式，则切到准备状态
             if (isMeetingMode()) {
@@ -237,7 +282,7 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
 
     override fun initData() {
         super.initData()
-        viewModel.streamType = 2
+        initDefaultStreamType()
         timeOutHelper.cancel()
         val studentList =
             intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
@@ -262,33 +307,8 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
         //运动开始前隐藏"当前最高"，有实时成绩后再显示
         currentBestViews()?.group?.visibility = View.GONE
 
-        val isDebug =
-            com.ty.tybusbase.utils.MMKVUtil.decodeBoolean(
-                com.ty.tybusbase.constants.MMKVBusiKey.MODEL_DEBUG,
-                com.ty.tybusbase.constants.BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
-            )
-        overlayView().enableDraw(isDebug)
-        overlayView().enableDebug(isDebug)
-        overlayView().enableDrawBox(false)
-        overlayView().enableFace(true)
-        val debug =
-            com.ty.tybusbase.utils.MMKVUtil.decodeBoolean(
-                com.ty.tybusbase.constants.MMKVBusiKey.SKELETON_ABLE,
-                com.ty.tybusbase.constants.BusiBaseConstantsValue.DEFAULT_SKELETON
-            )
-        overlayView().skeletonDrawer.enableMarker(debug)
-        overlayView().skeletonDrawer.enableLine(debug)
-        overlayView().enableDrawSkeleton(debug)
-        val uiConfig = com.adl.base.config.AdlUIConfig.instance().readConfig(
-            overlayConfigKey(),
-            com.adl.base.config.RoleConfigMulti::class.java
-        )
-        uiConfig.number = sportNumber()
-        overlayView().setConfig(uiConfig, com.adl.base.overlay.OnRenderScene.StatusSportSet)
-        viewModel.combineOverlay(overlayView())
-        overlayView().post {
-            viewModel.openTsProcess()
-        }
+        initOverlay()
+
         titleView().typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
         titleView().text = viewModel.sportInfo?.sportSkuName
 
@@ -403,11 +423,7 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
 
         viewModel.countDownNoticeLD.collectOnLifecycle {
             //倒计时提示文案与开始按钮属于整个运动，统一在Activity层展示
-            val configText = countdownText()
-            val str = if (!TextUtils.isEmpty(configText)) "${configText}: ${it.second}" else "${
-                getString(R.string.race_start_countdown)
-            }：${it.second}"
-            showCountDownNotice(str)
+            onCountDownNotice(it.second)
             showStartNowButton(true)
         }
 
@@ -423,7 +439,7 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
 
         viewModel.sportCountDownLD.collectOnLifecycle {
             //运动倒计时属于整个运动，统一在Activity层更新时间栏
-            timeText().text = it.second
+            showSportTime(it.second)
         }
 
         viewModel.waitOtherAreaLD.collectOnLifecycle {
@@ -434,12 +450,12 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
         viewModel.toDoneLD.collectOnLifecycle {
             //结束清除骨骼数据等
             overlayView().clearScreen()
-            addResultView(it)
+            onSportFinished(it)
         }
 
         viewModel.changeTimeTextBgLD.collectOnLifecycle {
             //时间栏背景属于整个运动，统一在Activity层设置
-            timeBar().setBackgroundResource(R.mipmap.pic_time_warm_more)
+            onSportTimeWarning(it.second)
         }
 
         viewModel.timeOutLD.observe(this) {
@@ -451,6 +467,38 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
             intent.putExtra("url", it)
             intent.putExtra("show_white_board", true)
             startActivity(intent)
+        }
+    }
+
+    open fun initOverlay() {
+        val isDebug =
+            com.ty.tybusbase.utils.MMKVUtil.decodeBoolean(
+                com.ty.tybusbase.constants.MMKVBusiKey.MODEL_DEBUG,
+                com.ty.tybusbase.constants.BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
+            )
+        overlayView().enableDraw(isDebug)
+        overlayView().enableDebug(isDebug)
+        overlayView().enableDrawBox(false)
+        overlayView().enableFace(true)
+        val debug =
+            com.ty.tybusbase.utils.MMKVUtil.decodeBoolean(
+                com.ty.tybusbase.constants.MMKVBusiKey.SKELETON_ABLE,
+                com.ty.tybusbase.constants.BusiBaseConstantsValue.DEFAULT_SKELETON
+            )
+        overlayView().skeletonDrawer.enableMarker(debug)
+        overlayView().skeletonDrawer.enableLine(debug)
+        overlayView().enableDrawSkeleton(debug)
+        val uiConfig = com.adl.base.config.AdlUIConfig.instance().readConfig(
+            overlayConfigKey(),
+            com.adl.base.config.RoleConfigMulti::class.java
+        )
+        uiConfig.number = sportNumber()
+        overlayView().setConfig(uiConfig, com.adl.base.overlay.OnRenderScene.StatusSportSet)
+        viewModel.combineOverlay(overlayView())
+        overlayView().post {
+            if (autoStartIdentify()) {
+                viewModel.openTsProcess()
+            }
         }
     }
 
@@ -740,7 +788,7 @@ abstract class BaseCollabSportActivity<VB : ViewBinding, VM : BaseCollabSportVie
 
     open fun reset() {
         sportViews().forEach { it.reset() }
-        timeBar().visibility = View.GONE
+        showTimeBar(false)
         viewModel.reset()
     }
 

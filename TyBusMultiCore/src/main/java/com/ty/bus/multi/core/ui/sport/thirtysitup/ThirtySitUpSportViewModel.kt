@@ -117,6 +117,9 @@ class ThirtySitUpSportViewModel(application: Application) :
     override fun identifiedCardState(): MultiSportCardViewState =
         MultiSportCardViewState.IDENTIFIED
 
+    //仰卧起坐以完成次数作为成绩分数上传
+    override fun uploadPerfectScore(count: Int): Int = count
+
     override fun onFirstIdentified() {
         //重新复位倒计时时间
         countDownTime = getDefaultCountDownTime()

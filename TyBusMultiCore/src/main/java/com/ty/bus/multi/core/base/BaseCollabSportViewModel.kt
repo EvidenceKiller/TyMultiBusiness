@@ -148,12 +148,21 @@ open class BaseCollabSportViewModel(application: Application) :
     private val rightSubScreenIp by lazy { BusiBaseConfig.readRightSubScreenIp() }
 
     /**
+     * 是否支持副屏协同（默认支持；单屏运动页覆写为false）：
+     * false时不向客户端发送任何Grpc消息，协同判定自动退化（开始只看主屏、结束不等副屏、成绩只取主屏）
+     */
+    protected open fun isSupportCollaboration(): Boolean = true
+
+    /**
      * 参与协同的副屏区域集合（默认左右副屏）。
-     * 纯单屏运动覆写为空集合，协同层自动退化：
-     * 不初始化协同、开始条件只看主屏、结束不等副屏、成绩只取主屏。
+     * 不支持协同的运动（isSupportCollaboration=false）返回空集合，协同层自动退化。
      */
     open fun getSubScreenAreas(): List<DisplayType> =
-        listOf(DisplayType.LEFT, DisplayType.RIGHT)
+        if (isSupportCollaboration()) {
+            listOf(DisplayType.LEFT, DisplayType.RIGHT)
+        } else {
+            emptyList()
+        }
 
     /** 是否有副屏参与协同 */
     protected fun hasSubScreens(): Boolean = getSubScreenAreas().isNotEmpty()
@@ -539,7 +548,7 @@ open class BaseCollabSportViewModel(application: Application) :
             }
         }
 
-    private fun initCamera() {
+    protected fun initCamera() {
         cameraDispatcher.setMirror(true)
         cameraDispatcher.addFrameProcessor(frameProcessor)
         val cameraConfig =
@@ -579,7 +588,7 @@ open class BaseCollabSportViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
-        changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
+//        changeMultiIdentityCardState(currentIdentifyNumber, MultiSportCardViewState.IDENTIFY_FAIL)
         //处理下一道是否有人
         val index = currentIdentifyNumber + 1
         var tempNumber = index % manCount
@@ -1162,8 +1171,16 @@ open class BaseCollabSportViewModel(application: Application) :
         }
         sportingCountDownTimer?.start()
         multiSportParser.checkSkipScore = true
+        //运动开始记录上传（默认无；需要上传开始记录的运动覆写）
+        onSportStartRecordUpload()
         //比赛开始设置卡片状态为运动状态（运动特有表现由子类决定）
         onSportStartedCards()
+    }
+
+    /**
+     * 运动开始记录上传（默认无；需要上传开始记录的运动覆写）
+     */
+    protected open fun onSportStartRecordUpload() {
     }
 
     /**
@@ -1273,7 +1290,20 @@ open class BaseCollabSportViewModel(application: Application) :
         val mergedItems = mergeAllAreaResults(resultList)
         _toDoneLD.tryEmit(mergedItems)
         handleUploadResult(resultList)
+        //运动特有收尾处理（如卡片切换到结束状态）
+        onSportResultReady(resultList)
     }
+
+    /**
+     * 运动结果产出后的运动特有处理（默认无）
+     */
+    protected open fun onSportResultReady(resultList: MutableList<MultiSportResult>) {
+    }
+
+    /**
+     * 成绩上传的满分语义（默认0；仰卧起坐等以完成次数作为成绩分数的运动覆写为 count）
+     */
+    protected open fun uploadPerfectScore(count: Int): Int = 0
 
     /**
      * 合并主屏与已连接副屏成绩，生成结果页统一数据项，按成绩高优排序并重新计算总排名
@@ -1347,7 +1377,7 @@ open class BaseCollabSportViewModel(application: Application) :
                 sportResult.perfectCount = 0
                 sportResult.goodCount = 0
                 sportResult.comeOnCount = 0
-                sportResult.perfectScore = 0
+                sportResult.perfectScore = uploadPerfectScore(multiResult.count)
                 sportResult.goodScore = 0
                 sportResult.comeOnScore = 0
                 sportResult.userId = multiResult.accountInfo.studentEntity?.accountId
@@ -1516,6 +1546,13 @@ open class BaseCollabSportViewModel(application: Application) :
     override fun reset() {
         super.reset()
         //重置，重新开始运动流程
+        //复位开始流程标记（下一组/重测需要重新走3-2-1倒计时与开始条件检查）
+        mainSportStarted = false
+        mainSportFinished = false
+        mainCountDownEnded = false
+        startCountDownTimer?.cancel()
+        startCountDownTimer = null
+        subScreenCountDownEnded.clear()
         //清除所有数据
         indicatorsMap.clear()
         currentPersonState.clear()
@@ -1599,9 +1636,10 @@ open class BaseCollabSportViewModel(application: Application) :
     }
 
     /**
-     * 发送协同指令
+     * 发送协同指令（不支持协同的运动不向客户端发送任何Grpc消息）
      */
     private fun sendCollaborationCommand(clientId: String, cmd: CollaborationCmdEnum) {
+        if (!isSupportCollaboration()) return
         val payload = GrpcCollaborationSportInfo(
             cmd = cmd.ordinal,
             sportSkuId = sportInfo?.sportSkuId ?: "",
@@ -1744,6 +1782,8 @@ open class BaseCollabSportViewModel(application: Application) :
      * 并同步清空主屏本地对应区域数据、重置卡片状态。
      */
     open fun confirmClearIdentifyInfo() {
+        //不支持协同的运动不向客户端发送Grpc消息（单屏时本方法也不会有记录，直接返回）
+        if (!isSupportCollaboration()) return
         identifiedCountMap.keys.forEach { displayType ->
             val ip = when (displayType) {
                 DisplayType.LEFT -> leftSubScreenIp

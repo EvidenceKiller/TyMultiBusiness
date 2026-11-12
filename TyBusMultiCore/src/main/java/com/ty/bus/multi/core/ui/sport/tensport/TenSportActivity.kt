@@ -1,95 +1,138 @@
 package com.ty.bus.multi.core.ui.sport.tensport
 
-import adl.ssp.common.report.model.IndicatorsResultDto
-import android.animation.ObjectAnimator
 import android.content.Intent
-import android.os.Bundle
 import android.text.TextUtils
 import android.view.View
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.util.forEach
-import androidx.recyclerview.widget.RecyclerView
+import android.view.ViewGroup
+import android.widget.TextView
+import adl.ssp.common.report.model.IndicatorsResultDto
 import com.adl.base.common.AdlAvReader
-import com.adl.base.common.AdlHandlerThread
 import com.adl.base.common.AdlVideoReader
 import com.adl.base.common.VideoReaderCallback
-import com.adl.base.config.AdlUIConfig
-import com.adl.base.config.RoleConfigMulti
-import com.adl.base.log.AdlLogger
-import com.adl.base.overlay.OnRenderScene
+import com.adl.base.overlay.SportOverlayMultiRegion
 import com.adl.lib.AdlCameraPreviewInfo
 import com.adl.lib.AdlCameraPreviewView
 import com.adl.service.entity.BestRankTopEntity
-import com.adl.service.entity.MeetGroupDetailsEntity
 import com.adl.service.entity.SceneSportInfoEntity
-import com.adl.service.entity.StudentEntity
 import com.adl.service.outer.AdlService
-import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.bumptech.glide.Glide
-import com.ty.bus.multi.R
-import com.ty.bus.multi.core.base.MultiSportCardViewState
-import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.bus.multi.core.base.BaseCollabSportActivity
+import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
 import com.ty.bus.multi.core.config.SportModel
 import com.ty.bus.multi.core.config.TenSportConfig
-import com.ty.bus.multi.core.entity.MultiSportResult
-import com.ty.bus.multi.core.view.tensport.TenSportResultView
+import com.ty.bus.multi.core.view.tensport.TenSportSportView
 import com.ty.bus.multi.databinding.AcTenSportBinding
-import com.ty.tybusbase.constants.BusiBaseConstantsValue
-import com.ty.tybusbase.constants.MMKVBusiKey
 import com.ty.tybusbase.constants.SceneConstants
 import com.ty.tybusbase.constants.SportConstant
-import com.ty.tybusbase.constants.SportStatusEnum
-import com.ty.tybusbase.dialog.CommonTipDialog
-import com.ty.tybusbase.entity.AccountInfo
+import com.ty.tybusbase.entity.DisplayType
 import com.ty.tybusbase.expand.visible
-import com.ty.tybusbase.helper.TypeFaceHelper
 import com.ty.tybusbase.ui.report.SportReportActivity
-import com.ty.tybusbase.utils.LogUtil
-import com.ty.tybusbase.utils.MMKVUtil
 import com.ty.tybusbase.utils.ToastUtil
 
-class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewModel>() {
+/**
+ * 10人跳绳页面：公共流程由 [BaseCollabSportActivity] 承载（单屏、无区域导航），
+ * 这里只保留十人页特有部分：摄像头模式、面板内嵌的开始按钮/倒计时/时间栏、今日最佳、视频调试。
+ */
+class TenSportActivity :
+    BaseCollabSportActivity<AcTenSportBinding, TenSportViewModel>() {
 
-    /***************************视频播放调试*************************/
+    //视频播放调试
     var videoReader: AdlVideoReader? = null
     var playMode: AdlAvReader.PlayMode = AdlAvReader.PlayMode.Auto
     var enableRender: Boolean = true
     var frameTime: Long = 0
     val videoFilePath = "/sdcard/zy.sport.cache/resCollect/0201010016_177691236skip_ten.mp4"
+    /***************************控件 getter***************************/
 
-    /***************************视频播放调试*************************/
+    override fun cameraView(): AdlCameraPreviewView = mBinding.cameraView
+    override fun overlayView(): SportOverlayMultiRegion = mBinding.overlay
+    override fun titleView(): TextView = mBinding.tvTitle
+    override fun cameraTipsView(): TextView = mBinding.tvCameraTips
+    override fun resultContainer(): ViewGroup = mBinding.clSkipSportViewContainer
 
-    private var top1Count = 0
-    private lateinit var srrvResult: TenSportResultView
-    private val number = 10
-    private var startDialog: CommonTipDialog? = null
-    override fun initData() {
-        super.initData()
-//        viewModel.streamType = 2
-//        timeOutHelper.cancel()
-        val studentList =
-            intent.getSerializableExtra("student_list") as? ArrayList<MeetGroupDetailsEntity>
-        viewModel.personIndex = intent.getIntExtra("person_index", 0)
-        viewModel.ptPlanId = intent.getStringExtra("pt_plan_id")
-        viewModel.ptStandardId = intent.getStringExtra("pt_standard_id")
-        viewModel.tenSportConfig = intent.getSerializableExtra("sport_config") as? TenSportConfig
-        if (viewModel.sportInfo == null) {
-            viewModel.sportInfo = SceneSportInfoEntity().apply {
-                sportSkuId = "0201010001"
-                sportItemCode = SportConstant.SPORT_SKIP_ROPE
-                endValue = "60000"
-                testCount = "10"
-            }
-        }
-        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面打开")
-        viewModel.initEngine(number)
-        viewModel.getBestRankTop()
-        viewModel.loadPerson(studentList)
+    //十人页单面板：主/左/右区域共用同一个运动面板
+    override fun sportViewByArea(area: DisplayType): BaseMultiSportViewNoAnimation =
+        mBinding.sportView
+
+    override fun sportViews(): List<BaseMultiSportViewNoAnimation> = listOf(mBinding.sportView)
+
+    /***************************十人页特有钩子***************************/
+
+    //保持摄像头输入模式（VM默认streamType=1）
+    override fun initDefaultStreamType() {
     }
 
+    override fun readSportConfig(intent: Intent) {
+        viewModel.tenSportConfig = intent.getSerializableExtra("sport_config") as? TenSportConfig
+    }
 
-    override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
+    override fun provideDefaultSportInfo(): SceneSportInfoEntity = SceneSportInfoEntity().apply {
+        sportSkuId = "0201010001"
+        sportItemCode = SportConstant.SPORT_SKIP_ROPE
+        endValue = "60000"
+        testCount = "10"
+    }
+
+    override fun sportStartText(): String? = viewModel.tenSportConfig?.sportStartText
+
+    override fun countdownText(): String? = viewModel.tenSportConfig?.countdownText
+
+    override fun isMeetingMode(): Boolean =
+        viewModel.tenSportConfig?.sportModel == SportModel.MEETING
+
+    override fun resultTitleText(): String? = viewModel.tenSportConfig?.resultPageText
+
+    override fun isSupportNextGroup(): Boolean =
+        viewModel.tenSportConfig?.isSupportNextGroup == true
+
+    override fun voiceBroadcastSupported(): Boolean =
+        viewModel.tenSportConfig?.isVoiceBroadcastSupported == true
+
+    override fun autoFinishTime(): Long? = viewModel.tenSportConfig?.autoFinishTime
+
+    //结果页报告：十人跳绳走本地指标报告
+    override fun onResultReportClick(item: com.ty.bus.multi.core.entity.ThirtySportResultItem) {
+        viewReport(viewModel.getIndicatorsResultDto(item.trackNumber))
+    }
+
+    /***************************面板内嵌控件适配***************************/
+
+    //开始按钮内嵌在运动面板中
+    override fun bindStartNow() {
+        (getAreaSportViewByDisplay(DisplayType.MAIN) as TenSportSportView).startNowCallback = {
+            onStartNowClicked()
+        }
+    }
+
+    override fun showStartNowButton(visible: Boolean) {
+        (getAreaSportViewByDisplay(DisplayType.MAIN) as TenSportSportView)
+            .visibilityStartBtn(if (visible) View.VISIBLE else View.GONE)
+    }
+
+    //倒计时提示文案内嵌在运动面板中
+    override fun showCountDownNotice(text: String) {
+        getAreaSportViewByDisplay(DisplayType.MAIN).setCountDownNotice(text)
+    }
+
+    //运动倒计时时间内嵌在运动面板中
+    override fun showSportTime(text: String) {
+        getAreaSportViewByDisplay(DisplayType.MAIN).updateTime(text)
+    }
+
+    //时间警示样式内嵌在运动面板中
+    override fun onSportTimeWarning(res: Int) {
+        getAreaSportViewByDisplay(DisplayType.MAIN).changeTimeTextBg(res)
+    }
+
+    /***************************十人页特有初始化***************************/
+
+    override fun initData() {
+        super.initData()
+        //如果是赛事，请求今日最佳数据
+        viewModel.getBestRankTop()
+    }
+
+    override fun initViewExtra() {
         //如果是赛事，则隐藏今日最佳
         viewModel.matchId?.let {
             mBinding.groupTodayTop.visibility = View.GONE
@@ -99,62 +142,54 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
             mBinding.groupTodayTop.visibility = View.GONE
         }
 
-        val isDebug =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.MODEL_DEBUG,
-                BusiBaseConstantsValue.DEFAULT_DEBUG_MODULE
-            )
-        mBinding.overlay.enableDraw(isDebug)
-        mBinding.overlay.enableDebug(isDebug)
-        mBinding.overlay.enableDrawBox(false)
-        mBinding.overlay.enableFace(true)
-        val debug =
-            MMKVUtil.decodeBoolean(
-                MMKVBusiKey.SKELETON_ABLE,
-                BusiBaseConstantsValue.DEFAULT_SKELETON
-            )
-        mBinding.overlay.skeletonDrawer.enableMarker(debug)
-        mBinding.overlay.skeletonDrawer.enableLine(debug)
-        mBinding.overlay.enableDrawSkeleton(debug)
-        val uiConfig = AdlUIConfig.instance().readConfig(
-            "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}$number",
-            RoleConfigMulti::class.java
-        )
-        uiConfig.number = number
-        mBinding.overlay.setConfig(uiConfig, OnRenderScene.StatusSportSet)
-        viewModel.combineOverlay(mBinding.overlay)
-        mBinding.overlay.post {
-            viewModel.openTsProcess()
-        }
-        mBinding.tvTitle.typeface = TypeFaceHelper.instance?.getYouSheBiaoTiHei(this)
-        mBinding.tvTitle.text = viewModel.sportInfo?.sportSkuName
-
-        mBinding.sportView.startNowCallback = {
-            startDialog = CommonTipDialog().setCallback {
-                //如果是运动会模式，则切到准备状态
-                if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING) {
-                    viewModel.skipPersonArray.forEach { key, value ->
-                        mBinding.sportView.changeState(
-                            value.number,
-                            MultiSportCardViewState.PREPARED
-                        )
-                    }
-                }
-                startDialog = null
-                viewModel.readyGo()
-            }
-            startDialog?.show(supportFragmentManager, "tips")
-        }
-
-        mBinding.sportView.setSportStartedText(viewModel.tenSportConfig?.sportStartText)
-
-        if (viewModel.tenSportConfig?.sportModel == SportModel.MEETING) {
-            mBinding.sportView.visibilityStartBtn(View.VISIBLE)
-        }
         if (viewModel.streamType == 2) {
             mBinding.groupVideo.visible()
             initVideo()
             initVideoView()
+        }
+    }
+
+    override fun initObserver() {
+        super.initObserver()
+        viewModel.bestRankLD.observe(this) {
+            initTopView(it)
+        }
+    }
+
+    override fun reset() {
+        super.reset()
+        //十人页保持原行为：重置时重建相机并重新登录预览
+        if (viewModel.streamType == 1) {
+            viewModel.reinitCameraAndResume()
+        }
+    }
+
+    /**
+     * 初始化今日最佳
+     */
+    private fun initTopView(topEntity: BestRankTopEntity) {
+        if (!TextUtils.isEmpty(topEntity.originalSportResult)) {
+            mBinding.tvCount.visibility = View.VISIBLE
+            mBinding.tvUnit.visibility = View.VISIBLE
+            mBinding.tvUnit.text = viewModel.measureUnit
+            mBinding.tvName.text = topEntity.accountName
+            mBinding.tvCount.text = topEntity.originalSportResult
+            setTop1Count(topEntity.originalSportResult.toInt())
+            Glide.with(this).load(AdlService.getService().facePrefix + topEntity.faceImgUrl)
+                .placeholder(com.ty.bus.multi.R.mipmap.ic_head_default)
+                .error(com.ty.bus.multi.R.mipmap.ic_head_default).into(mBinding.civHeader)
+        }
+    }
+
+    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
+        indicatorDo?.apply {
+            val intent = Intent(this@TenSportActivity, SportReportActivity::class.java)
+            intent.putExtra("report_indicator", this@apply)
+            intent.putExtra("type", 1)
+            startActivity(intent)
+        } ?: run {
+            ToastUtil.getInstance(this, getString(com.ty.bus.multi.R.string.no_report))
+                .show()
         }
     }
 
@@ -183,7 +218,7 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
         }
     }
 
-    fun initVideo() {
+    private fun initVideo() {
         videoReader = AdlVideoReader()
         videoReader?.setPlayMode(playMode)
         videoReader?.setSurface(mBinding.surfaceView.holder.surface)
@@ -205,280 +240,5 @@ class TenSportActivity : BaseMultiSportActivity<AcTenSportBinding, TenSportViewM
 
             }
         })
-    }
-
-    //模拟
-    fun mockResult() {
-        srrvResult = TenSportResultView(this).apply { measureUnit = viewModel.measureUnit }
-
-        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-            srrvResult.setReportOnclickListener {
-                viewReport(viewModel.getIndicatorsResultDto(it))
-            }
-        }
-
-        val params =
-            ConstraintLayout.LayoutParams(
-                RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
-            )
-        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
-            srrvResult,
-            params
-        )
-        srrvResult.setConfirmOnclickListener {
-            finish()
-        }
-        srrvResult.setNextOnclickListener {
-            mBinding.clSkipSportViewContainer.removeView(srrvResult)
-        }
-        doResultViewTranslateAnimation(srrvResult)
-        srrvResult.setResult(
-            mutableListOf(
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "张三"
-                        userFaceImgUrl = ""
-                    }
-                }, 1, 100, 1),
-                MultiSportResult(AccountInfo().apply {
-                    studentEntity = StudentEntity().apply {
-                        accountName = "王五"
-                        userFaceImgUrl = ""
-                    }
-                }, 3, 10, 2)
-            ),
-            if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.tenSportConfig?.isVoiceBroadcastSupported == true,
-            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
-        )
-    }
-
-    override fun initObserver() {
-        super.initObserver()
-        viewModel.startPreviewLD.observe(this) {
-            //开启摄像头
-            mBinding.cameraView.startPreview(it.first, object :
-                AdlCameraPreviewView.OnViewStatusListener {
-                override fun onAvailable() {
-
-                }
-
-                override fun onCameraOpen() {
-                    viewModel.onCameraOpen()
-                    hideTips()
-                }
-
-                override fun onCameraReOpen() {
-
-                }
-
-                override fun onDestroyed() {
-
-                }
-
-                override fun onStreamLoss() {
-                    setTips(getString(R.string.camera_loss_tips))
-                }
-
-                override fun onOpenFail() {
-                    setTips(getString(R.string.ipc_camera_fail_tip))
-                }
-            })
-            mBinding.cameraView.addFrameProcessor(it.second)
-            mBinding.cameraView.textureView.scaleX = -1f
-        }
-
-        viewModel.cameraLoginStateLD.observe(this) {
-            if (it) hideTips() else setTips(getString(R.string.ipc_camera_fail_tip))
-        }
-
-        viewModel.stopPreviewLD.observe(this) {
-            mBinding.cameraView.stopPreview()
-        }
-
-        viewModel.resultLD.observe(this) {
-            mBinding.sportView.updateScore(it)
-        }
-
-        viewModel.identifiedLD.observe(this) {
-            AdlLogger.d("identifiedLD: 道次：${it.first}--人员：${it.second.studentEntity!!.accountName}")
-            mBinding.sportView.setUserInfo(it)
-            timeOutHelper.cancel()
-        }
-
-        viewModel.changeSportViewStateLD.observe(this) {
-            mBinding.sportView.changeState(it.first, it.second)
-        }
-
-        viewModel.countDownNoticeLD.observe(this) {
-            val configText = viewModel.tenSportConfig?.countdownText
-            val str = if (!TextUtils.isEmpty(configText)) "${configText}: $it" else "${
-                com.ty.tybusbase.expand.getString(
-                    R.string.race_start_countdown
-                )
-            }：$it"
-            mBinding.sportView.setCountDownNotice(str)
-        }
-
-        viewModel.countDownFinishLD.observe(this) {
-            startDialog?.dismiss()
-            mBinding.sportView.readyGo {
-                //比赛开始
-                viewModel.toStatusSportStart()
-            }
-        }
-
-        viewModel.sportCountDownLD.observe(this) {
-            mBinding.sportView.updateTime(it)
-        }
-
-        viewModel.toDoneLD.observe(this) {
-            //结束清除骨骼数据等
-            mBinding.overlay.clearScreen()
-            addResultView(it)
-        }
-
-        viewModel.changeTimeTextBgLD.observe(this) {
-            mBinding.sportView.changeTimeTextBg(it)
-        }
-
-        viewModel.timeOutLD.observe(this) {
-            finish()
-        }
-
-        viewModel.bestRankLD.observe(this) {
-            initTopView(it)
-        }
-
-    }
-
-    private fun addResultView(resultList: MutableList<MultiSportResult>) {
-        //创建结果页，并添加到页面中
-        srrvResult = TenSportResultView(this).apply {
-            measureUnit = viewModel.measureUnit
-            setEnergyPoint(viewModel.energyPoint)
-        }
-        srrvResult.setSupportReport(viewModel.isSupportReport())
-        if (viewModel.sportInfo?.sportItemCode == SportConstant.SPORT_SKIP_ROPE) {
-            srrvResult.setReportOnclickListener {
-                viewReport(viewModel.getIndicatorsResultDto(it))
-            }
-        }
-
-        val params =
-            ConstraintLayout.LayoutParams(
-                RecyclerView.LayoutParams.MATCH_PARENT,
-                mBinding.clSkipSportViewContainer.height
-            )
-        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-        mBinding.clSkipSportViewContainer.addView(
-            srrvResult,
-            params
-        )
-        srrvResult.setConfirmOnclickListener {
-            finish()
-        }
-        srrvResult.setResultTitleText(viewModel.tenSportConfig?.resultPageText)
-        if (viewModel.tenSportConfig?.isSupportNextGroup == true) {
-            srrvResult.setNextOnclickListener {
-                mBinding.clSkipSportViewContainer.removeView(srrvResult)
-                reset()
-            }
-        }
-
-        doResultViewTranslateAnimation(srrvResult)
-        srrvResult.setResult(
-            resultList,
-            if (viewModel.matchId != null) 100000 else top1Count,
-            viewModel.tenSportConfig?.isVoiceBroadcastSupported == true,
-            MultiCoreConfig.isMultiSportThemeLargeScreenStyle()
-        )
-    }
-
-    private fun setTips(text: String) {
-        AdlLogger.d(text)
-        mBinding.tvCameraTips.visibility = View.VISIBLE
-        mBinding.tvCameraTips.text = text
-    }
-
-    private fun hideTips() {
-        mBinding.tvCameraTips.visibility = View.GONE
-    }
-
-    override fun onStatusIdentify() {
-    }
-
-    override fun onStatusIdentifySuccess() {
-    }
-
-    override fun onStatusEnd() {
-        super.onStatusEnd()
-        mBinding.cameraView.stopPreview()
-        viewModel.tenSportConfig?.autoFinishTime?.let {
-            if (it > 0) {
-                AdlHandlerThread.getUIHandler().postDelayed({ finish() }, it)
-            }
-        }
-    }
-
-    fun reset() {
-        mBinding.sportView.reset()
-        viewModel.reset()
-    }
-
-    /**
-     * 初始化今日最佳
-     */
-    private fun initTopView(topEntity: BestRankTopEntity) {
-        if (!TextUtils.isEmpty(topEntity.originalSportResult)) {
-            mBinding.tvCount.visibility = View.VISIBLE
-            mBinding.tvUnit.visibility = View.VISIBLE
-            mBinding.tvUnit.text = viewModel.measureUnit
-            mBinding.tvName.text = topEntity.accountName
-            mBinding.tvCount.text = topEntity.originalSportResult
-            top1Count = topEntity.originalSportResult.toInt()
-            Glide.with(this).load(AdlService.getService().facePrefix + topEntity.faceImgUrl)
-                .placeholder(R.mipmap.ic_head_default)
-                .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
-        }
-    }
-
-    private fun viewReport(indicatorDo: IndicatorsResultDto?) {
-        indicatorDo?.apply {
-            val intent = Intent(this@TenSportActivity, SportReportActivity::class.java)
-            intent.putExtra("report_indicator", this@apply)
-            intent.putExtra("type", 1)
-            startActivity(intent)
-        } ?: run {
-            ToastUtil.getInstance(this, getString(R.string.no_report))
-                .show()
-        }
-    }
-
-    private fun doResultViewTranslateAnimation(view: View) {
-        view.post {
-            ObjectAnimator.ofFloat(
-                view,
-                "translationY",
-                view.height.toFloat(),
-                -view.height.toFloat()
-            ).setDuration(500).start()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        mBinding.cameraView.stopPreview()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        LogUtil.d("${viewModel.sportInfo?.sportSkuName}运动页面关闭")
-        mBinding.cameraView.release()
-        mBinding.sportView.release()
-        mBinding.overlay.release()
-        AdlHandlerThread.getUIHandler().removeCallbacksAndMessages(null)
     }
 }

@@ -13,27 +13,26 @@ import android.os.Looper
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.isGone
-import com.adl.sport.general.groupsportbase.GroupSportBaseMan
+import android.widget.TextView
 import com.ty.bus.multi.R
-import com.ty.bus.multi.core.base.MultiSportCardViewState
+import com.ty.bus.multi.core.base.BaseMultiSportViewNoAnimation
 import com.ty.bus.multi.core.callback.ResultViewBtnClickListener
 import com.ty.bus.multi.core.view.common.MoreLandscapeSportCardSportView
 import com.ty.bus.multi.databinding.TenSitUpSportViewBinding
-import com.ty.tybusbase.entity.AccountInfo
 import com.ty.tybusbase.expand.Action
 import com.ty.tybusbase.expand.getString
 import com.ty.tybusbase.expand.gone
 import com.ty.tybusbase.expand.visible
 
+/**
+ * 十人仰卧起坐运动面板：公共卡片/成绩/识别逻辑由 [BaseMultiSportViewNoAnimation] 承载，
+ * 这里只保留结算（重测/下一组）、顶部提示等仰卧起坐特有部分。
+ */
 class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: Int) :
-    ConstraintLayout(context, attrs, defStyleAttr) {
+    BaseMultiSportViewNoAnimation(context, attrs, defStyleAttr) {
     constructor(context: Context, attrs: AttributeSet?) : this(context, attrs, 0)
     constructor(context: Context) : this(context, null)
 
-    private var currentSportTimes = 0
-    private var cardMap = HashMap<Int, MoreLandscapeSportCardSportView>()
     private var mBinding = TenSitUpSportViewBinding.inflate(
         LayoutInflater.from(context),
         this,
@@ -99,6 +98,11 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
 
     }
 
+    //3-2-1倒计时动画与倒计时提示由页面层（readyView/groupTimeCountDown）承载，面板内仅以顶部提示显示
+    override fun getCountDownNoticeTv(): TextView = mBinding.tvTopHint
+
+    override fun getCountDownGoTv(): TextView = mBinding.tvTopHint
+
     fun setStartListener(listener: Action) {
         startListener = listener
     }
@@ -115,15 +119,8 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         mBinding.tvNext.text = getString(R.string.next_count_down, count)
     }
 
-    fun changeState(index: Int, state: MultiSportCardViewState) {
-        if (isStarted && state == MultiSportCardViewState.PREPARED) {
-            return
-        }
-        cardMap[index]?.changeState(state)
-    }
-
     //运动已开始
-    fun sportStarted() {
+    override fun onStarted() {
         isStarted = true
     }
 
@@ -131,6 +128,7 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         mBinding.tvTopHint.visible()
         mBinding.tvTopHint.text = text
     }
+
     fun sportFinish() {
         nextCountDownTime = NEXT_COUNT_DOWN_TIME
         mBinding.tvRetest.visibility = VISIBLE
@@ -143,25 +141,8 @@ class TenSitUpSportView(context: Context, attrs: AttributeSet?, defStyleAttr: In
         isStarted = false
     }
 
-    fun updateResult(result: MutableList<GroupSportBaseMan>) {
-        for (index in result.indices) {
-            val skipMan = result[index]
-            if (skipMan.score != 0) {
-                cardMap[skipMan.positionNum]?.updateScore(skipMan.score)
-            }
-        }
-    }
-
-    fun addErrorMsg(index: Int, code: Int, msg: String?) {
-//        cardMap[index]?.addErrorMsg(code, msg)
-    }
-
-    fun updateTime(time: String) {
+    override fun updateTime(time: String) {
         setSportingTips(getString(R.string.sport_countdown_time, time))
-    }
-
-    fun setAccountInfo(index: Int, accountInfo: AccountInfo) {
-        cardMap[index]?.setAccountInfo(accountInfo)
     }
 
     override fun onDetachedFromWindow() {
