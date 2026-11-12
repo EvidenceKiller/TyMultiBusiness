@@ -549,7 +549,7 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             UIMultiNavigation.goTenSitUpSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
                     sportItemCode = SportConstant.SPORT_SIT_UP
-                    sportSkuId = sportItemCode + "0024"
+                    sportSkuId = sportItemCode + "0006"
                     endValue = "20000"
                     sportSkuName = "10人仰卧起坐"
                     testCount = "10"
@@ -595,8 +595,8 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         mBinding.btnThirtySitUp.setOnClickListener {
             UIMultiNavigation.goThirtySitUpSport(this, UINavConfig().apply {
                 sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_SIT_UP + "0024"
                     sportItemCode = SportConstant.SPORT_SIT_UP
+                    sportSkuId = sportItemCode + "0007"
                     endValue = "60000"
                     sportSkuName = "30人仰卧起坐"
                     testCount = "30"
