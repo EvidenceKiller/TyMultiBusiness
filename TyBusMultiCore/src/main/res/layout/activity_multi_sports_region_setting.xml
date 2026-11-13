@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.adl.lib.AdlCameraPreviewView
+        android:id="@+id/preview_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent" />
+
+    <com.adl.base.overlay.SportOverlayMultiRegion
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <Button
+        android:id="@+id/iv_back"
+        android:layout_width="@dimen/dp_80"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_40"
+        android:layout_marginTop="@dimen/dp_40"
+        android:background="@mipmap/icon_back_in_unitest"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="@dimen/dp_180"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_34"
+        android:background="@drawable/setting_bg_common_btn_r25"
+        android:text="@string/save_setting"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_28"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_back"
+        app:layout_constraintLeft_toRightOf="@+id/iv_back"
+        app:layout_constraintTop_toTopOf="@+id/iv_back" />
+
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="@dimen/dp_120"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_34"
+        android:background="@drawable/setting_bg_common_btn_r25"
+        android:text="@string/reset"
+        android:textColor="@color/white"
+        android:textSize="@dimen/dp_28"
+        app:layout_constraintBottom_toBottomOf="@+id/iv_back"
+        app:layout_constraintLeft_toRightOf="@+id/btn_save"
+        app:layout_constraintTop_toTopOf="@+id/iv_back" />
+
+    <!-- 运动切换下拉框：内容由外界传入（运动名称/类型/人数/存储Key），切换时自动保存当前框体配置 -->
+    <LinearLayout
+        android:id="@+id/ll_sport_selector"
+        android:layout_width="@dimen/dp_350"
+        android:layout_height="@dimen/dp_50"
+        android:layout_marginTop="@dimen/dp_40"
+        android:layout_marginRight="@dimen/dp_40"
+        android:background="@drawable/setting_bg_common_btn_r25"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/dp_32"
+        android:paddingRight="@dimen/dp_20"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_sport_selected"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="@dimen/dp_28" />
+
+        <ImageView
+            android:id="@+id/iv_sport_arrow"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"
+            android:layout_marginLeft="@dimen/dp_8"
+            android:contentDescription="@null"
+            android:src="@drawable/ic_area_arrow_down" />
+    </LinearLayout>
+
+    <View
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:background="@drawable/setting_bg_dash_gap_bg_vertical"
+        android:layout_width="@dimen/dp_3"
+        android:layout_height="match_parent"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

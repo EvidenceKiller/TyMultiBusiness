@@ -13,6 +13,9 @@
             android:name="com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity"
             android:exported="true" />
         <activity
+            android:name="com.ty.bus.multi.core.ui.set.multisportsregionset.MultiSportsRegionSettingActivity"
+            android:exported="true" />
+        <activity
             android:name="com.ty.bus.multi.core.ui.set.forwardflexionset.ForwardFlexionSettingActivity"
             android:exported="true" />
         <activity

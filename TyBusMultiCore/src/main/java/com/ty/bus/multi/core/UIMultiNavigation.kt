@@ -21,6 +21,8 @@ import com.ty.bus.multi.core.ui.set.forwardflexionsixset.ForwardFlexionSixSettin
 import com.ty.bus.multi.core.ui.set.fourgbsportset.FourSportGbSettingActivity
 import com.ty.bus.multi.core.ui.set.lung.LungSettingActivity
 import com.ty.bus.multi.core.ui.set.multiregionset.MultiRegionSettingActivity
+import com.ty.bus.multi.core.ui.set.multisportsregionset.MultiSportRegionOption
+import com.ty.bus.multi.core.ui.set.multisportsregionset.MultiSportsRegionSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreacheighteenset.SitReachEighteenSettingActivity
 import com.ty.bus.multi.core.ui.set.sitreachsixset.SitReachSixSettingActivity
 import com.ty.bus.multi.core.ui.set.subscreenregionset.SubScreenRegionSettingActivity
@@ -176,6 +178,27 @@ object UIMultiNavigation : BaseNavigation() {
                 putExtra("save_key", it)
             }
         })
+    }
+
+    /**
+     * 多人多运动框体设置：下拉内容（运动名称/类型/人数/存储Key）由调用方传入
+     */
+    @JvmStatic
+    fun goMultiSportsRegionSetting(
+        context: Context,
+        options: ArrayList<MultiSportRegionOption>,
+        resolutionType: Int = 1,
+        ipcKey: String? = null
+    ) {
+        context.startActivity(
+            Intent(context, MultiSportsRegionSettingActivity::class.java).apply {
+                putExtra(MultiSportsRegionSettingActivity.EXTRA_OPTIONS, options)
+                putExtra(MultiSportsRegionSettingActivity.EXTRA_RESOLUTION_TYPE, resolutionType)
+                ipcKey?.let {
+                    putExtra(MultiSportsRegionSettingActivity.EXTRA_IPC_KEY, it)
+                }
+            }
+        )
     }
 
     /**

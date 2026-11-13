@@ -37,6 +37,7 @@ import com.ty.bus.multi.core.config.ThirtySportConfig
 import com.ty.bus.multi.core.config.ThreeSportConfig
 import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.ui.set.fourgbsportset.FourSportGbSettingActivity
+import com.ty.bus.multi.core.ui.set.multisportsregionset.MultiSportRegionOption
 import com.ty.bus.multi.core.ui.sport.fourgbsport.FourSportGbActivity
 import com.ty.bus.multi.demo.databinding.AcMainBinding
 import com.ty.grpclib.GrpcManager
@@ -333,17 +334,18 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
         }
 
         mBinding.btnSitReach18.setOnClickListener {
-            UIMultiNavigation.goSitReachEighteen(this, UINavConfig().apply {
-                sportInfo = SceneSportInfoEntity().apply {
-                    sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
-                    sportItemCode = SportConstant.SPORT_FORWARD_FLEXION
-                    sportSkuName = "18人坐位体前屈"
-                    testCount = "18"
-                }
-            }, ForwardFlexionConfig.builder()
-                .setVoiceBroadcastSupported(true)
-                .setSupportNextGroup(false)
-                .build()
+            UIMultiNavigation.goSitReachEighteen(
+                this, UINavConfig().apply {
+                    sportInfo = SceneSportInfoEntity().apply {
+                        sportSkuId = SportConstant.SPORT_FORWARD_FLEXION + "0001"
+                        sportItemCode = SportConstant.SPORT_FORWARD_FLEXION
+                        sportSkuName = "18人坐位体前屈"
+                        testCount = "18"
+                    }
+                }, ForwardFlexionConfig.builder()
+                    .setVoiceBroadcastSupported(true)
+                    .setSupportNextGroup(false)
+                    .build()
             )
         }
 
@@ -561,11 +563,29 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
             })
         }
         mBinding.btnTenSitUpRegionSetup.setOnClickListener {
-            UIMultiNavigation.goMultiRegionSetting(
+//            UIMultiNavigation.goMultiRegionSetting(
+//                this,
+//                10,
+//                1,
+//                MultiCoreConstant.TEN_SIT_UP_REGION_KEY
+//            )
+            UIMultiNavigation.goMultiSportsRegionSetting(
                 this,
-                10,
-                1,
-                MultiCoreConstant.TEN_SIT_UP_REGION_KEY
+                arrayListOf(
+                    MultiSportRegionOption(
+                        "6人跳绳",
+                        1,
+                        6,
+                        "${BusiBaseConstantsValue.MULTI_SPORT_CONFIG_KEY}6"
+                    ),
+                    MultiSportRegionOption(
+                        "10人跳绳",
+                        2,
+                        10,
+                        MultiCoreConstant.TEN_SIT_UP_REGION_KEY
+                    ),
+                ),
+                resolutionType = 1
             )
         }
     }
@@ -670,22 +690,37 @@ class MainActivity : BaseActivity<AcMainBinding, BaseViewModel>() {
                 setSupportReport(true)
             }) { intent ->
                 val cameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
-                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY, cameraConfig)
+                BusiBaseConfig.saveIpcCameraConfig(
+                    MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY,
+                    cameraConfig
+                )
                 MMKVUtil.encode(MMKVBusiKey.MODEL_DEBUG, true)
                 MMKVUtil.encode(MMKVBusiKey.SKELETON_ABLE, true)
-                intent.putExtra(FourSportGbActivity.INTENT_KEY_VIDEO_PATH, "/sdcard/zy.sport.cache/resCollect/shuangyao_1792724774282_clip.mp4")
+                intent.putExtra(
+                    FourSportGbActivity.INTENT_KEY_VIDEO_PATH,
+                    "/sdcard/zy.sport.cache/resCollect/shuangyao_1792724774282_clip.mp4"
+                )
             }
         }
         mBinding.btnFourSportSetting.setOnClickListener {
             UIMultiNavigation.goFourSportGbSetting(this, preCallback = { intent ->
                 val cameraConfig = IpcCameraConfig("172.16.30.211", "admin", "zy132456")
-                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY, cameraConfig)
+                BusiBaseConfig.saveIpcCameraConfig(
+                    MMKVBusiKey.MAIN_SCREEN_IPC_CAMERA_KEY,
+                    cameraConfig
+                )
 
                 val leftCameraConfig = IpcCameraConfig("172.16.30.222", "admin", "zy132456")
-                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.LEFT_SUB_SCREEN_IPC_CAMERA_KEY, leftCameraConfig)
+                BusiBaseConfig.saveIpcCameraConfig(
+                    MMKVBusiKey.LEFT_SUB_SCREEN_IPC_CAMERA_KEY,
+                    leftCameraConfig
+                )
 
                 val rightCameraConfig = IpcCameraConfig("172.16.30.206", "admin", "zy132456")
-                BusiBaseConfig.saveIpcCameraConfig(MMKVBusiKey.RIGHT_SUB_SCREEN_IPC_CAMERA_KEY, rightCameraConfig)
+                BusiBaseConfig.saveIpcCameraConfig(
+                    MMKVBusiKey.RIGHT_SUB_SCREEN_IPC_CAMERA_KEY,
+                    rightCameraConfig
+                )
 
 //                intent.putExtra(FourSportGbSettingActivity.INTENT_KEY_VIDEO_PATH, "/sdcard/zy.sport.cache/resCollect/shuangyao-20261021-142817.mp4")
             })
