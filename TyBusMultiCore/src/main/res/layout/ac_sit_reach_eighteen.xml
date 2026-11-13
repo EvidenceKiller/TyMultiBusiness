@@ -178,11 +178,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- 三个区域运动面板，默认只显示中区（主屏） -->
+    <!-- 三个区域运动面板；默认隐藏，模型/场地就绪后 onStatusIdentify 再显示 -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_sit_reach_sport_view_container"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:visibility="gone">
 
         <com.ty.bus.multi.core.view.sitreacheighteen.EighteenSitReachSportView
             android:id="@+id/sport_view_main"
@@ -211,7 +212,7 @@
             android:gravity="center"
             android:textColor="@color/white"
             android:textSize="@dimen/sp_72"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -255,6 +256,23 @@
             android:textSize="@dimen/sp_28"
             app:layout_constraintBottom_toBottomOf="@+id/space"
             app:layout_constraintStart_toStartOf="@+id/space"
+            app:layout_constraintTop_toTopOf="@+id/space" />
+
+        <!-- 对齐六人：全部轮次结束后显示「再测一次」 -->
+        <TextView
+            android:id="@+id/tv_retest"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_border_r50_white_shape"
+            android:gravity="center"
+            android:paddingHorizontal="@dimen/dp_88"
+            android:paddingVertical="@dimen/dp_19"
+            android:text="@string/retest_once"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_28"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/space"
+            app:layout_constraintEnd_toEndOf="@+id/space"
             app:layout_constraintTop_toTopOf="@+id/space" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

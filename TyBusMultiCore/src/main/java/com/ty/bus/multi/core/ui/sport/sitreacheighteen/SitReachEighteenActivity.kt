@@ -172,6 +172,9 @@ class SitReachEighteenActivity :
         mBinding.tvFinish.setOnClickListener {
             showExitDialog()
         }
+        mBinding.tvRetest.setOnClickListener {
+            retest()
+        }
 
         mainHandler.postDelayed(tipRunnable, 1000)
 
@@ -443,6 +446,8 @@ class SitReachEighteenActivity :
 
         viewModel.sportStartLD.collectOnLifecycle {
             mBinding.tvBegin.visibility = View.GONE
+            mBinding.tvRetest.visibility = View.GONE
+            mBinding.tvSportingTips.visibility = View.GONE
             startRecording()
             //三个区域同时进入运动状态（仅已加入协同的副屏）
             getAreaSportViewByDisplay(DisplayType.MAIN).sportStarted()
@@ -455,6 +460,12 @@ class SitReachEighteenActivity :
             controller.start()
             frameTime = System.currentTimeMillis()
             LogUtil.d("开始运动")
+        }
+
+        viewModel.waitOtherAreaLD.collectOnLifecycle {
+            if (viewModel.sportStartedLD.value) return@collectOnLifecycle
+            mBinding.tvBegin.visibility = View.VISIBLE
+            mBinding.tvBegin.text = getString(R.string.wait_other_area_join)
         }
 
         //一次测试完毕
@@ -681,6 +692,8 @@ class SitReachEighteenActivity :
 
     override fun onStatusIdentify() {
         LogUtil.d("SitReachEighteen::Activity.onStatusIdentifyFace")
+        mBinding.clSitReachSportViewContainer.visibility = View.VISIBLE
+        switchArea(currentArea)
         hideBackBtn()
         SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
     }
@@ -700,9 +713,36 @@ class SitReachEighteenActivity :
 
     override fun onStatusEnd() {
         super.onStatusEnd()
-        LogUtil.d("onStatusEnd  onStatusEnd  onStatusEnd")
+        LogUtil.d("SitReachEighteen::Activity.onStatusEnd -> showRetest")
         mBinding.tvBegin.visibility = View.GONE
         mBinding.tvSportingTips.visibility = View.GONE
+        // 对齐六人 sportFinish：全部轮次结束后展示「再测一次」
+        mBinding.tvRetest.visibility = View.VISIBLE
+    }
+
+    /**
+     * 重测：当前已识别人员再测一轮（对齐六人）
+     */
+    private fun retest() {
+        LogUtil.d("SitReachEighteen::Activity.retest")
+        mBinding.tvRetest.visibility = View.GONE
+        mBinding.tvSportingTips.visibility = View.GONE
+        getAreaSportViewByDisplay(DisplayType.MAIN).retest()
+        if (viewModel.isSubScreenJoined(DisplayType.LEFT)) {
+            getAreaSportViewByDisplay(DisplayType.LEFT).retest()
+        }
+        if (viewModel.isSubScreenJoined(DisplayType.RIGHT)) {
+            getAreaSportViewByDisplay(DisplayType.RIGHT).retest()
+        }
+        controller.resetObject()
+        mBinding.root.postDelayed({
+            if (isFinishing) return@postDelayed
+            controller.combineLayout()
+            controller.combineLayoutAndPrepare()
+            controller.start()
+            mBinding.clSitReachSportViewContainer.visibility = View.VISIBLE
+            viewModel.retest()
+        }, 1000)
     }
 
     /**

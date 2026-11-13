@@ -13,5 +13,7 @@ data class GrpcSportResult(
     var accountId: String = "",
     var sportSkuId: String = "",
     var sportSkuName: String = "",
-    val recordId: String? = null  //运动记录ID，可查询在线报告
+    val recordId: String? = null,  //运动记录ID，可查询在线报告
+    /** 违规文案（如手未水平）；status=1 时主屏用于完整展示，缺省兼容旧副屏 */
+    var violationDesc: String? = null
 )

@@ -73,4 +73,11 @@ class EighteenSitReachSportView(context: Context, attrs: AttributeSet?, defStyle
             value.reset()
         }
     }
+
+    /** 重测：清本区卡片成绩 UI，保留人员信息 */
+    fun retest() {
+        cardMap.forEach { (_, value) ->
+            value.retest()
+        }
+    }
 }

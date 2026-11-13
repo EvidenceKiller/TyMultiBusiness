@@ -72,11 +72,11 @@ import kotlin.math.max
  * 18人坐位体前屈 ViewModel：主屏 + 左副屏 + 右副屏，每屏6人，共18人。
  *
  * 业务逻辑在六人坐位体前屈（SitReachSixViewModel/Activity）的基础上，
- * 按照三十人跳绳（ThirtySportViewModel/Activity）扩展十人跳绳的方式，
- * 增加三屏协同（gRPC）能力：
+ * 协同开赛时机对齐 12 人跳绳（TwelveSportGbViewModel）：
  * - 副屏识别/卡片状态/成绩通过 gRPC 上报，主屏统一渲染三个区域
- * - 协同开始条件：主屏或任一副屏有人员识别成功即开始10秒识别倒计时，
- *   倒计时结束时主屏与副屏合计只要有1人识别成功，主屏与已连接副屏同时开始运动
+ * - 主屏本区首人识别后启动 10s 识别倒计时；副屏识别只触发协同开赛检查
+ * - 开赛条件：各屏满员，或主屏倒计时结束且已加入副屏均倒计时结束（已加入副屏不得为 0 人）
+ * - 手动「立即开始」对齐 readyGo，跳过条件直接发令
  * - 运动结束条件：主屏与所有已加入副屏均结束，才展示合并后的18人成绩结果页
  */
 class SitReachEighteenViewModel(application: Application) :
@@ -124,9 +124,13 @@ class SitReachEighteenViewModel(application: Application) :
     val leftPersonArray by lazy { SparseArray<MultiSportResult>() } //左副屏
     val rightPersonArray by lazy { SparseArray<MultiSportResult>() } //右副屏
 
-    var sportManCount = 0 //每屏测试人数（6人）
+    var sportManCount = 0 //主屏测试人数
 
-    var sportTimes = 0 //测试次数
+    /** 左/右副屏测垫数量（设置页分区 key）；主屏齐人判断用 */
+    var leftSportManCount = 0
+    var rightSportManCount = 0
+
+    var sportTimes = 0 //主屏测试次数
 
     var currentSportTimes = 1 //当前测试次数
 
@@ -138,7 +142,7 @@ class SitReachEighteenViewModel(application: Application) :
 
     var sportCountDown = 0
 
-    /** 识别倒计时时长（秒）：与副屏一致，主屏或副屏有人员识别成功后开始倒计时 */
+    /** 识别倒计时时长（秒）：与 12 人一致，仅主屏本区首人识别后启动 */
     val identifyCountDownSeconds = 10
 
     /** 识别倒计时（"立即开始"按钮倒计时） */
@@ -229,9 +233,13 @@ class SitReachEighteenViewModel(application: Application) :
     private val _sportStartedLD = MutableStateFlow(false)
     val sportStartedLD: StateFlow<Boolean> = _sportStartedLD.asStateFlow()
 
-    //识别倒计时剩余秒数：有人识别成功即开始；结束后按协同开赛条件决定是否发令
+    //识别倒计时剩余秒数：主屏首人识别后开始；结束后按协同开赛条件决定是否发令
     private val _identifyCountDownLD = eventFlow<Int>()
     val identifyCountDownLD: SharedFlow<Int> = _identifyCountDownLD.asSharedFlow()
+
+    //主屏倒计时已结束，等待其他已加入副屏倒计时结束
+    private val _waitOtherAreaLD = eventFlow<Unit>()
+    val waitOtherAreaLD: SharedFlow<Unit> = _waitOtherAreaLD.asSharedFlow()
 
     //已识别人数变化通知（"是否清空已识别结果"提示）
     private val _identifiedCountLD = eventFlow<Unit>()
@@ -255,6 +263,14 @@ class SitReachEighteenViewModel(application: Application) :
         sportTimes = MMKVUtil.decodeInt(
             MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES,
             MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
+        )
+        leftSportManCount = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_LEFT,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
+        )
+        rightSportManCount = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_RIGHT,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
         )
         for (i in 1..diskNum) {
             checkMap[i] = false
@@ -336,10 +352,13 @@ class SitReachEighteenViewModel(application: Application) :
             changeSportCardState(DisplayType.MAIN, index, ForwardFlexionCardState.IDENTIFIED)
 
             LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $index")
-            //主屏已识别到人员：触发识别倒计时（倒计时结束即主副屏同时开始运动）
-            checkCollaborationSportStart()
-            //识别完成
+            //对齐 12 人：仅主屏本区首人启动识别倒计时
+            if (sitReachPersonArray.size() == 1) {
+                startIdentifyCountDown()
+            }
+            //满员则检查协同开赛；否则继续识别，倒计时结束后再统一检查
             if (sitReachPersonArray.size() == sportManCount) {
+                checkCollaborationSportStart()
                 toStatusPrepare()
             } else if (sitReachPersonArray.size() == 1) {
                 mHandler.postDelayed({
@@ -417,7 +436,7 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 处理姿态状态：统一检查是否可以开始识别倒计时
+     * 处理姿态状态：统一检查是否可以开赛
      */
     @Synchronized
     private fun handlePrepareStatus(map: MutableList<SitAndReachObject>) {
@@ -426,23 +445,21 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 协同识别状态变化时统一调用：
-     * 1）满足条件则拉起主屏识别倒计时
-     * 2）满足协同开赛条件则开始主屏运动并通知已加入副屏（对齐 12 人跳绳）
+     * 协同识别状态变化时统一调用（对齐 12 人）：满足开赛条件则开始主屏运动并通知副屏。
+     * 识别倒计时仅由主屏首人识别触发，不在此处拉起。
      */
     private fun checkCollaborationSportStart() {
-        if (canStartCollaborationSport()) {
-            LogUtil.d(
-                "协同开赛条件满足：main=${sitReachPersonArray.size()}, " +
-                    "left=${leftPersonArray.size()}, right=${rightPersonArray.size()}, " +
-                    "mainCountDownEnded=$mainCountDownEnded, subEnded=$subScreenCountDownEnded, " +
-                    "collab=$collaborationStateMap"
-            )
-            startSport()
+        val canStart = canStartCollaborationSport()
+        LogUtil.d(
+            "$TAG::checkCollaborationSportStart: canStart=$canStart, " +
+                "main=${sitReachPersonArray.size()}, left=${leftPersonArray.size()}, " +
+                "right=${rightPersonArray.size()}, mainCountDownEnded=$mainCountDownEnded, " +
+                "subEnded=$subScreenCountDownEnded, collab=$collaborationStateMap"
+        )
+        if (!canStart) {
             return
         }
-        if (!canStartIdentifyCountDown()) return
-        startIdentifyCountDown()
+        startSport()
     }
 
     private fun startSport() {
@@ -471,8 +488,10 @@ class SitReachEighteenViewModel(application: Application) :
             rightPersonArray.size() <= 0
         ) return false
         val allScreenFull = sitReachPersonArray.size() >= sportManCount &&
-            (DisplayType.LEFT !in connectedSubScreens || leftPersonArray.size() >= sportManCount) &&
-            (DisplayType.RIGHT !in connectedSubScreens || rightPersonArray.size() >= sportManCount)
+            (DisplayType.LEFT !in connectedSubScreens ||
+                leftPersonArray.size() >= leftSportManCount) &&
+            (DisplayType.RIGHT !in connectedSubScreens ||
+                rightPersonArray.size() >= rightSportManCount)
         if (allScreenFull) return true
         if (!mainCountDownEnded) return false
         return connectedSubScreens.all {
@@ -482,22 +501,19 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 识别倒计时触发条件（任一满足即可）：
-     * 条件1：主屏已就绪或已有人员识别成功
-     * 条件2：任一副屏已有人员识别成功，或副屏倒计时结束（就绪）
+     * 主屏识别倒计时已结束，但仍有已加入协同的副屏未倒计时结束
      */
-    private fun canStartIdentifyCountDown(): Boolean {
-        if (mainCountDownEnded || mainSportStarted || identifyCountDownRunning) return false
-        //主屏已就绪或已识别到人员
-        if (mainReady || sitReachPersonArray.size() > 0) return true
-        //副屏已识别到人员，或副屏倒计时结束（就绪）
-        return leftPersonArray.size() > 0 || rightPersonArray.size() > 0 ||
-                connectedSubScreenTypes().any { it in subScreenCountDownEnded }
+    private fun needWaitOtherAreaJoin(): Boolean {
+        if (!mainCountDownEnded) return false
+        return connectedSubScreenTypes().any {
+            collaborationStateMap[it] == CollaborationAreaState.NORMAL &&
+                it !in subScreenCountDownEnded
+        }
     }
 
     /**
-     * 开始识别倒计时：倒计时期间继续识别，"立即开始"按钮展示剩余秒数；
-     * 倒计时结束后按 [canStartCollaborationSport] 决定是否开赛（已加入副屏 0 人则等待）
+     * 开始识别倒计时：仅主屏本区首人识别后调用；
+     * 倒计时结束后按 [canStartCollaborationSport] 决定是否开赛。
      */
     private fun startIdentifyCountDown() {
         if (identifyCountDownRunning) return
@@ -522,9 +538,12 @@ class SitReachEighteenViewModel(application: Application) :
                     override fun onFinish() {
                         if (!identifyCountDownRunning) return
                         identifyCountDownRunning = false
-                        //主屏识别倒计时结束，统一检查协同开始条件（已加入副屏 0 人则不发令）
+                        //主屏识别倒计时结束，统一检查协同开始条件
                         mainCountDownEnded = true
                         checkCollaborationSportStart()
+                        if (needWaitOtherAreaJoin()) {
+                            _waitOtherAreaLD.tryEmit(Unit)
+                        }
                     }
                 }.start()
         }
@@ -748,10 +767,20 @@ class SitReachEighteenViewModel(application: Application) :
         if (sportState != MultiSportState.SPORTING) return
         // 快照，避免 SDK 同列表并发改写导致 CME / 半帧数据
         val snapshot = result.toList()
+        LogUtil.d(
+            "$TAG::handleResult: enter sportState=$sportState size=${snapshot.size} " +
+                "states=${snapshot.joinToString { "${it.indexNum}:${it.state}" }}"
+        )
         viewModelScope.launch(Dispatchers.IO) {
             var emittedUi = false
             snapshot.forEach { obj ->
                 val lane = obj.indexNum
+                val armed = lane in laneScoreArmed.indices && laneScoreArmed[lane]
+                LogUtil.d(
+                    "$TAG::handleResult: lane=$lane state=${obj.state} sportState=$sportState " +
+                        "armed=$armed hasPerson=${sitReachPersonArray.get(lane) != null} " +
+                        "max=${obj.distanceMax} loose=${obj.distanceMaxLoose}"
+                )
                 if (!isValidScoreLane(lane)) {
                     LogUtil.d(
                         "$TAG::handleResult: drop invalid lane=$lane, sportManCount=$sportManCount"
@@ -766,7 +795,10 @@ class SitReachEighteenViewModel(application: Application) :
                     laneScoreArmed[lane] = true
                     return@forEach
                 }
-                if (person == null) return@forEach
+                if (person == null) {
+                    LogUtil.d("$TAG::handleResult: drop END no person lane=$lane")
+                    return@forEach
+                }
                 if (!laneScoreArmed[lane]) {
                     LogUtil.d("$TAG::handleResult: drop residual END lane=$lane")
                     return@forEach
@@ -782,8 +814,8 @@ class SitReachEighteenViewModel(application: Application) :
                     return@forEach
                 }
                 LogUtil.d(
-                    "$TAG::handleResult: lane=$lane END count=${person.count} status=${person.status} " +
-                        "violationDesc=${person.violationDesc} " +
+                    "$TAG::handleResult: accept END lane=$lane count=${person.count} " +
+                        "status=${person.status} violationDesc=${person.violationDesc} " +
                         "max=${obj.distanceMax} loose=${obj.distanceMaxLoose} use=$useDistance"
                 )
                 withContext(Dispatchers.Main) {
@@ -1202,13 +1234,24 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     /**
-     * 重测，只测一次
+     * 重测，只测一次；本机开测并明确向副屏发 SPORT，副屏 IDLE 有人时走协同重测
      */
     fun retest() {
         isRetest = true
         sitReachPersonArray.forEach { _, result ->
             result.count = -1000
             result.violationDesc = null
+            result.status = 0
+        }
+        leftPersonArray.forEach { _, result ->
+            result.count = -1000
+            result.violationDesc = null
+            result.status = 0
+        }
+        rightPersonArray.forEach { _, result ->
+            result.count = -1000
+            result.violationDesc = null
+            result.status = 0
         }
         for (ind in resultStatusList.indices) {
             resultStatusList[ind] = false
@@ -1216,11 +1259,17 @@ class SitReachEighteenViewModel(application: Application) :
         laneScoreArmed.fill(false)
         clearLastUseDistances()
         currentRoundFinishing = false
+        startCommandSent = false
+        mainSportFinished = false
+        mainSportStarted = false
+        mainCountDownEnded = true
+        subScreenSportFinished.clear()
         sportTimes = 1
         currentSportTimes = 1
-        sportState = MultiSportState.PREPARING
-        toStatusPrepare()
         videoFile = null
+        // 不经 toStatusPrepare，避免状态被打回；直接开测并通知副屏
+        tryStartSport()
+        sendSportCommand()
     }
 
     override fun reset() {
@@ -1511,6 +1560,7 @@ class SitReachEighteenViewModel(application: Application) :
                             leftPersonArray[result.index]?.count = score
                             leftPersonArray[result.index]?.status = result.status
                             leftPersonArray[result.index]?.recordId = result.recordId
+                            leftPersonArray[result.index]?.violationDesc = result.violationDesc
                             leftPersonArray[result.index]?.let { person ->
                                 _sportResultLD.tryEmit(
                                     DisplayType.LEFT to Pair(result.index, person)
@@ -1522,6 +1572,7 @@ class SitReachEighteenViewModel(application: Application) :
                             rightPersonArray[result.index]?.count = score
                             rightPersonArray[result.index]?.status = result.status
                             rightPersonArray[result.index]?.recordId = result.recordId
+                            rightPersonArray[result.index]?.violationDesc = result.violationDesc
                             rightPersonArray[result.index]?.let { person ->
                                 _sportResultLD.tryEmit(
                                     DisplayType.RIGHT to Pair(result.index, person)
