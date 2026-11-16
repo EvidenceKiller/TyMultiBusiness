@@ -110,5 +110,4 @@
     <string name="sit_down_raise_right_hand">请坐下并举右手</string>
     <string name="sub_screen_sport_ongoing_tip">检测到副屏运动进行中，发起当前运动将结束副屏运动，是否继续？</string>
     <string name="multi_sport_region_empty_tip">No sport region configuration, please re-enter</string>
-    <string name="multi_sport_region_option_format">%1$s (%2$d persons)</string>
 </resources>

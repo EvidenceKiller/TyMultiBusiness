@@ -138,11 +138,7 @@ class MultiSportsRegionSettingActivity :
         options.forEachIndexed { index, option ->
             val item = LayoutInflater.from(this)
                 .inflate(R.layout.item_area_option, content, false) as TextView
-            item.text = getString(
-                R.string.multi_sport_region_option_format,
-                option.sportName,
-                option.personCount
-            )
+            item.text = option.sportName
             item.setTextColor(if (index == currentIndex) checkedColor else Color.WHITE)
             item.setOnClickListener {
                 sportPopup?.dismiss()
@@ -223,11 +219,7 @@ class MultiSportsRegionSettingActivity :
     }
 
     private fun updateSelectedText(option: MultiSportRegionOption) {
-        mBinding.tvSportSelected.text = getString(
-            R.string.multi_sport_region_option_format,
-            option.sportName,
-            option.personCount
-        )
+        mBinding.tvSportSelected.text = option.sportName
     }
 
     private fun updateSelectorArrow(open: Boolean) {
