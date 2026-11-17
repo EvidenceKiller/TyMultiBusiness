@@ -644,12 +644,25 @@ class SitReachEighteenViewModel(application: Application) :
         statusMap.clear()
         objects.forEach {
             when {
+                // 无人且场地不可用才标「暂不可用」；有人仍坐在道上时按空闲提示，避免下一组铺板误判
                 it.isCompliant.not() -> {
-                    changeSportCardState(
-                        DisplayType.MAIN,
-                        it.indexNum,
-                        ForwardFlexionCardState.UNAVAILABLE
-                    )
+                    if (it.skeleton != null) {
+                        if (checkHandUp(it.skeleton)) {
+                            statusMap[it.indexNum] = true
+                        } else {
+                            changeSportCardState(
+                                DisplayType.MAIN,
+                                it.indexNum,
+                                ForwardFlexionCardState.IDLE
+                            )
+                        }
+                    } else {
+                        changeSportCardState(
+                            DisplayType.MAIN,
+                            it.indexNum,
+                            ForwardFlexionCardState.UNAVAILABLE
+                        )
+                    }
                 }
 
                 it.skeleton != null && checkHandUp(it.skeleton) -> {

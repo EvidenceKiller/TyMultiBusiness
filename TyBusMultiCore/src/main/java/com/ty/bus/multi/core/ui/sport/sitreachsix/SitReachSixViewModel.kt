@@ -398,9 +398,24 @@ class SitReachSixViewModel(application: Application) :
             // 已识别道次不再被不可用/空闲覆盖，避免下一组铺板重建时冲掉识别回显
             if (sportPersonArray.get(it.indexNum) != null) return@forEach
             when {
+                // 无人且场地不可用才标「暂不可用」；有人仍坐在道上时按空闲提示，避免下一组铺板误判
                 it.isCompliant.not() -> {
-                    LogUtil.d("$TAG::updateStatusMap: lane=${it.indexNum} UNAVAILABLE")
-                    changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE)
+                    if (it.skeleton != null) {
+                        if (checkHandUp(it.skeleton)) {
+                            statusMap.put(it.indexNum, true)
+                        } else {
+                            changeSportCardState(
+                                it.indexNum,
+                                ForwardFlexionCardState.IDLE
+                            )
+                        }
+                    } else {
+                        LogUtil.d("$TAG::updateStatusMap: lane=${it.indexNum} UNAVAILABLE")
+                        changeSportCardState(
+                            it.indexNum,
+                            ForwardFlexionCardState.UNAVAILABLE
+                        )
+                    }
                 }
 
                 it.skeleton != null && checkHandUp(it.skeleton) -> {
