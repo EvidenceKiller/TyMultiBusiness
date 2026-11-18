@@ -119,6 +119,12 @@ class SitReachSixViewModel(application: Application) :
     @Volatile
     private var currentRoundFinishing = false
 
+    /** 已结束轮次及其固定结束时间；由 finishCurrentRound 在通知上传前写入。 */
+    private var completedUploadRound: Pair<Int, Long>? = null
+
+    /** 当前组已提交的轮次，与结束、上传、重测和下一组共用 this 锁。 */
+    private val submittedUploadRounds = mutableSetOf<Int>()
+
     /**
      * 成绩写回世代：下一组/重测时递增。
      * 用于丢弃上一轮已排队到 Main 的迟到 addScore，避免新一轮识别后刷出旧「最佳」。
@@ -802,6 +808,7 @@ class SitReachSixViewModel(application: Application) :
         LogUtil.d(
             "$TAG::finishCurrentRound: round done, beforeInc times=$currentSportTimes/$sportTimes"
         )
+        completedUploadRound = currentSportTimes to System.currentTimeMillis()
         currentSportTimes++
         sportPersonArray.forEach { index, _ ->
             changeSportCardState(index, ForwardFlexionCardState.SPORTING)
@@ -856,15 +863,37 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
+    @Synchronized
     fun uploadResult() {
-        endSportTime = System.currentTimeMillis()
+        val completedRound = completedUploadRound
+        if (completedRound == null) {
+            LogUtil.d("$TAG::uploadResult: skip, no completed round")
+            return
+        }
+        val (round, roundEndTime) = completedRound
+        // 先占位再创建记录，重复/并发调用都不能生成新的 UUID；网络失败交给原记录补传。
+        if (!submittedUploadRounds.add(round)) {
+            LogUtil.d("$TAG::uploadResult: skip duplicate round=$round")
+            return
+        }
+        val roundStartTime = startSportTime
+        val submittedAccountIds = mutableSetOf<String>()
         //延迟200ms，等待录制视屏结束
         SystemClock.sleep(100)
         sportPersonArray.forEach { key, value ->
             //如果是-200,表示未完成，不上传成绩
             if (value.status == 2) return@forEach
+            // 实名账号同轮只提交一次；游客共用账号 ID，仍按道次分别提交。
+            val accountId = value.accountInfo.studentEntity?.accountId
+            if (!accountId.isNullOrBlank() &&
+                accountId != BusiBaseConstantsValue.VISITOR_USER_ID &&
+                !submittedAccountIds.add(accountId)
+            ) {
+                LogUtil.d("$TAG::uploadResult: skip duplicate account, round=$round lane=${value.number}")
+                return@forEach
+            }
             var sportResult = SportResult()
-            sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+            sportResult.sportDuration = (roundEndTime - roundStartTime).toInt()
             sportResult.maxComboCount = 0
             sportResult.sportAchievement = value.count
             sportResult.perfectCount = 0
@@ -875,8 +904,8 @@ class SitReachSixViewModel(application: Application) :
             sportResult.comeOnScore = 0
             sportResult.sportNo = value.number.toString()
             sportResult.userId = value.accountInfo.studentEntity?.accountId
-            sportResult.startTime = startSportTime
-            sportResult.endTime = endSportTime
+            sportResult.startTime = roundStartTime
+            sportResult.endTime = roundEndTime
             sportResult.sportResult = value.count.toString()
             if (value.status == 1) {
                 sportResult.sportViolationStatus = 1
@@ -901,6 +930,11 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
+    private fun resetResultUploadState() {
+        completedUploadRound = null
+        submittedUploadRounds.clear()
+    }
+
     //结束处理成绩
     override fun toStatusSportEnd() {
         LogUtil.d("$TAG::toStatusSportEnd")
@@ -920,7 +954,9 @@ class SitReachSixViewModel(application: Application) :
     /**
      * 重测，只测一次
      */
+    @Synchronized
     fun retest() {
+        resetResultUploadState()
         LogUtil.d("$TAG::retest: people=${sportPersonArray.size}")
         isRetest = true
         scoreEpoch++
@@ -941,7 +977,9 @@ class SitReachSixViewModel(application: Application) :
         videoFile = null
     }
 
+    @Synchronized
     override fun reset() {
+        resetResultUploadState()
         LogUtil.d("$TAG::reset: clear people=${sportPersonArray.size}, state=$sportState")
         super.reset()
         stopSportCountDown()

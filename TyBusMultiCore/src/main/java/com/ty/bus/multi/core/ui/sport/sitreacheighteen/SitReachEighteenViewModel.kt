@@ -159,6 +159,12 @@ class SitReachEighteenViewModel(application: Application) :
     @Volatile
     private var currentRoundFinishing = false
 
+    /** 已结束轮次及其固定结束时间；由 finishCurrentRound 在通知上传前写入。 */
+    private var completedUploadRound: Pair<Int, Long>? = null
+
+    /** 当前组已提交的轮次，与结束、上传、重测和下一组共用 this 锁。 */
+    private val submittedUploadRounds = mutableSetOf<Int>()
+
     /** 本轮开测后该道是否出现过非 END，用于屏蔽算法残留 END */
     private val laneScoreArmed = BooleanArray(7) { false }
 
@@ -1055,6 +1061,7 @@ class SitReachEighteenViewModel(application: Application) :
         LogUtil.d(
             "$TAG::finishCurrentRound: round done, beforeInc times=$currentSportTimes/$sportTimes"
         )
+        completedUploadRound = currentSportTimes to System.currentTimeMillis()
         currentSportTimes++
         sitReachPersonArray.forEach { index, _ ->
             changeSportCardState(
@@ -1110,15 +1117,37 @@ class SitReachEighteenViewModel(application: Application) :
         checkCollaborationSportStart()
     }
 
+    @Synchronized
     fun uploadResult() {
-        endSportTime = System.currentTimeMillis()
+        val completedRound = completedUploadRound
+        if (completedRound == null) {
+            LogUtil.d("$TAG::uploadResult: skip, no completed round")
+            return
+        }
+        val (round, roundEndTime) = completedRound
+        // 先占位再创建记录，重复/并发调用都不能生成新的 UUID；网络失败交给原记录补传。
+        if (!submittedUploadRounds.add(round)) {
+            LogUtil.d("$TAG::uploadResult: skip duplicate round=$round")
+            return
+        }
+        val roundStartTime = startSportTime
+        val submittedAccountIds = mutableSetOf<String>()
         //延迟100ms，等待录制视频结束
         SystemClock.sleep(100)
         sitReachPersonArray.forEach { _, value ->
             //如果是status==2,表示未完成，不上传成绩
             if (value.status == 2) return@forEach
+            // 实名账号同轮只提交一次；游客共用账号 ID，仍按道次分别提交。
+            val accountId = value.accountInfo.studentEntity?.accountId
+            if (!accountId.isNullOrBlank() &&
+                accountId != BusiBaseConstantsValue.VISITOR_USER_ID &&
+                !submittedAccountIds.add(accountId)
+            ) {
+                LogUtil.d("$TAG::uploadResult: skip duplicate account, round=$round lane=${value.number}")
+                return@forEach
+            }
             val sportResult = SportResult()
-            sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+            sportResult.sportDuration = (roundEndTime - roundStartTime).toInt()
             sportResult.maxComboCount = 0
             sportResult.sportAchievement = value.count
             sportResult.perfectCount = 0
@@ -1129,8 +1158,8 @@ class SitReachEighteenViewModel(application: Application) :
             sportResult.comeOnScore = 0
             sportResult.sportNo = value.number.toString()
             sportResult.userId = value.accountInfo.studentEntity?.accountId
-            sportResult.startTime = startSportTime
-            sportResult.endTime = endSportTime
+            sportResult.startTime = roundStartTime
+            sportResult.endTime = roundEndTime
             sportResult.sportResult = value.count.toString()
             if (value.status == 1) {
                 sportResult.sportViolationStatus = 1
@@ -1152,6 +1181,11 @@ class SitReachEighteenViewModel(application: Application) :
                 recordPlan = recordPlan
             )
         }
+    }
+
+    private fun resetResultUploadState() {
+        completedUploadRound = null
+        submittedUploadRounds.clear()
     }
 
     /**
@@ -1251,7 +1285,9 @@ class SitReachEighteenViewModel(application: Application) :
     /**
      * 重测，只测一次；本机开测并明确向副屏发 SPORT，副屏 IDLE 有人时走协同重测
      */
+    @Synchronized
     fun retest() {
+        resetResultUploadState()
         isRetest = true
         sitReachPersonArray.forEach { _, result ->
             result.count = -1000
@@ -1287,7 +1323,9 @@ class SitReachEighteenViewModel(application: Application) :
         sendSportCommand()
     }
 
+    @Synchronized
     override fun reset() {
+        resetResultUploadState()
         super.reset()
         isRetest = false
         prepareStatusList.clear()
