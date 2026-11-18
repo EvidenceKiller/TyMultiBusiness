@@ -172,9 +172,9 @@ class SitReachSixViewModel(application: Application) :
 
     override fun identifyOk(index: Int, accountInfo: AccountInfo) {
         LogUtil.d("$TAG::identifyOk: lane=$index, account=${accountInfo.studentEntity?.accountName}")
-        //正在运动，不处理识别
-        if (sportState != MultiSportState.IDENTIFYING) {
-            LogUtil.d("识别到人脸：但已不是识别状态 $index")
+        // 识别/准备阶段都接纳；首人成功后会进 PREPARING，后续人仍需能识别
+        if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
+            LogUtil.d("识别到人脸：但已不是识别状态 $index, state=$sportState")
             // 业务未接纳：清引擎该道 isOk，并放开独占道次
             multiIdentityEngine.clearIdentified(index)
             currentIdentifyNumber = -1
@@ -215,7 +215,6 @@ class SitReachSixViewModel(application: Application) :
             val checkResult = withContext(Dispatchers.IO) {
                 checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
             }
-            calcNextNumber(index + 1)
             if (!checkResult) {
                 // 计划拒游客等：清引擎 isOk，放开该道后续 fail/再识别
                 LogUtil.d("$TAG::identifyOk: checkStudent reject lane=$index, " + "name=${accountInfo.studentEntity!!.accountName}, clearIdentified")
@@ -233,6 +232,8 @@ class SitReachSixViewModel(application: Application) :
             identifiedLD.postValue(Pair(index, accountInfo))
             checkMap[index] = true
             changeSportCardState(index, ForwardFlexionCardState.IDENTIFIED)
+            // 放开独占道次，由 handleIdentify 按举手再选下一道
+            currentIdentifyNumber = -1
 
             LogUtil.d(
                 "$TAG::identifyOk: name=${accountInfo.studentEntity!!.accountName}, " +
@@ -249,10 +250,8 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
-        LogUtil.d("$TAG::identifyFail: lane=$index")
-        changeSportCardState(index, ForwardFlexionCardState.IDENTIFY_FAIL)
-        //处理下一道是否有人
-        calcNextNumber(index + 1)
+        // Pipeline 每帧未成功都会回调，勿切道/勿打断当前识别
+        LogUtil.d("$TAG::identifyFail: lane=$index (ignore frame progress)")
     }
 
     private fun calcNextNumber(index: Int) {

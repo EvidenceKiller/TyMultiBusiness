@@ -293,9 +293,9 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     override fun identifyOk(index: Int, accountInfo: AccountInfo) {
-        //正在运动，不处理识别
-        if (sportState != MultiSportState.IDENTIFYING) {
-            LogUtil.d("识别到人脸：但已不是识别状态 $index")
+        // 识别/准备阶段都接纳；首人成功后会进 PREPARING，后续人仍需能识别
+        if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
+            LogUtil.d("识别到人脸：但已不是识别状态 $index, state=$sportState")
             return
         }
         if (accountInfo.studentEntity == null) {
@@ -334,8 +334,9 @@ class SitReachEighteenViewModel(application: Application) :
             val checkResult = withContext(Dispatchers.IO) {
                 checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
             }
-            calcNextNumber(index + 1)
             if (!checkResult) {
+                multiIdentityEngine.clearIdentified(index)
+                currentIdentifyNumber = -1
                 ToastUtil.getInstance(
                     getApplication(),
                     getString(
@@ -350,6 +351,8 @@ class SitReachEighteenViewModel(application: Application) :
             _identifiedLD.tryEmit(DisplayType.MAIN to Pair(index, accountInfo))
             checkMap[index] = true
             changeSportCardState(DisplayType.MAIN, index, ForwardFlexionCardState.IDENTIFIED)
+            // 放开独占道次，由 handleIdentify 按举手再选下一道
+            currentIdentifyNumber = -1
 
             LogUtil.d("人脸识别结果：姓名：${accountInfo.studentEntity!!.accountName}; 道数 $index")
             //对齐 12 人：仅主屏本区首人启动识别倒计时
@@ -372,9 +375,8 @@ class SitReachEighteenViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
-        changeSportCardState(DisplayType.MAIN, index, ForwardFlexionCardState.IDENTIFY_FAIL)
-        //处理下一道是否有人
-        calcNextNumber(index + 1)
+        // Pipeline 每帧未成功都会回调，勿切道/勿打断当前识别
+        LogUtil.d("$TAG::identifyFail: lane=$index (ignore frame progress)")
     }
 
     private fun calcNextNumber(index: Int) {
