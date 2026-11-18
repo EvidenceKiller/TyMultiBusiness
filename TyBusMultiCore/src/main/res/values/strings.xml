@@ -21,6 +21,7 @@
     <string name="forward_flexion_start_speech">开始测试，请双手缓慢向前滑行推动</string>
     <string name="forward_flexion_times_start_speech">第%d次测试，请双手缓慢向前滑行推动</string>
     <string name="forward_flexion_identified_tip">请坐在垫子上并看向屏幕</string>
+    <string name="sit_reach_identified_tip">请坐到垫子上看向屏幕并举右手</string>
     <string name="forward_flexion_in_tip">请确认测垫刻度板放在标注区域内</string>
     <string name="next_count_down">下一组(%d)</string>
     <string name="next_group">下一组</string>
