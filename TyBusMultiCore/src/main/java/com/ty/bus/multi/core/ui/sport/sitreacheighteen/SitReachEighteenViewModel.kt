@@ -1340,6 +1340,11 @@ class SitReachEighteenViewModel(application: Application) :
         currentRoundFinishing = false
         multiIdentityEngine.reset()
         sitReachPersonArray.clear()
+        // 重测只影响当次；下一组恢复设置页保存的测试次数（副屏使用本机同步后的配置）。
+        sportTimes = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
+        )
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
         videoFile = null
