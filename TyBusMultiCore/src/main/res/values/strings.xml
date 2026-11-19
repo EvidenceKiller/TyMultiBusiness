@@ -119,4 +119,7 @@
     <string name="sit_down_raise_right_hand">请坐下并举右手</string>
     <string name="sub_screen_sport_ongoing_tip">检测到副屏运动进行中，发起当前运动将结束副屏运动，是否继续？</string>
     <string name="multi_sport_region_empty_tip">未获取到运动框体配置，请重新进入</string>
+    <string name="sit_reach_board_label">刻度板</string>
+    <string name="sit_reach_board_eight">8点型</string>
+    <string name="sit_reach_board_four">4点型</string>
 </resources>

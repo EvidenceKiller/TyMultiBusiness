@@ -80,7 +80,7 @@
             android:id="@+id/tv_sport_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_50"
             android:text="@string/forward_flexion"
             android:textColor="@color/white"
@@ -92,9 +92,9 @@
             android:id="@+id/tv_auto_mat"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
-            android:layout_marginTop="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_40"
-            android:layout_marginBottom="@dimen/dp_24"
+            android:layout_marginBottom="@dimen/dp_16"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
             android:text="@string/forward_flexion_auto_mat"
@@ -107,9 +107,9 @@
             android:id="@+id/tv_show_mat"
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
-            android:layout_marginTop="@dimen/dp_30"
+            android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_40"
-            android:layout_marginBottom="@dimen/dp_24"
+            android:layout_marginBottom="@dimen/dp_16"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
             android:text="@string/forward_flexion_show_mat"
@@ -118,17 +118,70 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_auto_mat" />
 
+        <RadioGroup
+            android:id="@+id/rg_board_num"
+            android:layout_width="@dimen/dp_232"
+            android:layout_height="@dimen/dp_56"
+            android:layout_marginTop="@dimen/dp_16"
+            android:layout_marginEnd="@dimen/dp_40"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tv_show_mat">
+
+            <RadioButton
+                android:id="@+id/rb_board_eight"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_sit_reach_board_option"
+                android:button="@null"
+                android:gravity="center"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text="@string/sit_reach_board_eight"
+                android:textColor="@color/sit_reach_board_text"
+                android:textSize="@dimen/sp_24" />
+
+            <RadioButton
+                android:id="@+id/rb_board_four"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/dp_4"
+                android:layout_weight="1"
+                android:background="@drawable/bg_sit_reach_board_option"
+                android:button="@null"
+                android:gravity="center"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:padding="0dp"
+                android:text="@string/sit_reach_board_four"
+                android:textColor="@color/sit_reach_board_text"
+                android:textSize="@dimen/sp_24" />
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_32"
+            android:text="@string/sit_reach_board_label"
+            android:textColor="@color/white"
+            android:textSize="@dimen/sp_24"
+            app:layout_constraintBottom_toBottomOf="@id/rg_board_num"
+            app:layout_constraintEnd_toStartOf="@id/rg_board_num"
+            app:layout_constraintTop_toTopOf="@id/rg_board_num" />
+
         <LinearLayout
             android:id="@+id/ll_number"
             android:layout_width="@dimen/dp_232"
-            android:layout_height="@dimen/dp_80"
-            android:layout_marginTop="@dimen/dp_30"
+            android:layout_height="@dimen/dp_64"
+            android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_40"
             android:background="@drawable/bg_zwtqq_number_set"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_show_mat">
+            app:layout_constraintTop_toBottomOf="@id/rg_board_num">
 
             <ImageView
                 android:id="@+id/iv_number_minus"
@@ -147,7 +200,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="@dimen/dp_48"
+                android:textSize="@dimen/sp_36"
                 tools:text="3" />
 
             <View
@@ -179,8 +232,8 @@
         <LinearLayout
             android:id="@+id/ll_time"
             android:layout_width="@dimen/dp_232"
-            android:layout_height="@dimen/dp_80"
-            android:layout_marginTop="@dimen/dp_30"
+            android:layout_height="@dimen/dp_64"
+            android:layout_marginTop="@dimen/dp_16"
             android:layout_marginEnd="@dimen/dp_40"
             android:background="@drawable/bg_zwtqq_number_set"
             android:gravity="center_vertical"
@@ -205,7 +258,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
-                android:textSize="@dimen/dp_48"
+                android:textSize="@dimen/sp_36"
                 tools:text="3" />
 
             <View
@@ -242,7 +295,7 @@
             android:layout_marginHorizontal="@dimen/dp_30"
             app:dp_button_size="@dimen/dp_100"
             app:dp_title="@string/sit_reach_six_direction_title"
-            app:layout_constraintTop_toBottomOf="@+id/tv_test_count"
+            app:layout_constraintTop_toBottomOf="@id/ll_time"
             app:layout_constraintBottom_toTopOf="@+id/tv_reset"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
@@ -253,7 +306,7 @@
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
             android:layout_marginEnd="@dimen/dp_40"
-            android:layout_marginBottom="@dimen/dp_24"
+            android:layout_marginBottom="@dimen/dp_16"
             android:background="@drawable/bg_btn_white_r50"
             android:gravity="center"
             android:text="@string/reset"
@@ -267,7 +320,7 @@
             android:layout_width="@dimen/dp_360"
             android:layout_height="@dimen/dp_60"
             android:layout_marginEnd="@dimen/dp_40"
-            android:layout_marginBottom="@dimen/dp_30"
+            android:layout_marginBottom="@dimen/dp_20"
             android:background="@drawable/bg_round_r50_gradient_red"
             android:gravity="center"
             android:text="@string/confirm"

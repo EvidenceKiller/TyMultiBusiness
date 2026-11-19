@@ -16,6 +16,10 @@ object MultiCoreConstant {
     const val SIT_REACH_SIX_TEST_TIMES = "sit_reach_six_test_times"
     const val SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT = 6
     const val SIT_REACH_SIX_TEST_TIMES_DEFAULT = 1
+    const val SIT_REACH_SIX_BOARD_NUM = "sit_reach_six_board_num"
+    const val SIT_REACH_SIX_BOARD_NUM_DEFAULT = 8
+    const val SIT_REACH_EIGHTEEN_BOARD_NUM_LEFT = "sit_reach_eighteen_board_num_left"
+    const val SIT_REACH_EIGHTEEN_BOARD_NUM_RIGHT = "sit_reach_eighteen_board_num_right"
     const val SIT_REACH_SIX_UI_KEY = "sit_reach_six_ui_key"  //六人坐位体前屈框框设置KEY
 
     // 18人坐位体前屈：左/右副屏测垫数量与测试次数（主屏复用 SIT_REACH_SIX_*）

@@ -197,6 +197,10 @@ class SitReachSixActivity :
     }
 
     private fun initConfigAndController() {
+        boardNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM,
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+        )
         val diskNum = MMKVUtil.decodeInt(
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT

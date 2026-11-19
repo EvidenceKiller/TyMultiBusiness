@@ -156,6 +156,10 @@ class SitReachEighteenSettingActivity :
             "right" -> AreaMode.RIGHT
             else -> AreaMode.MAIN
         }
+        boardNum = MMKVUtil.decodeInt(
+            boardKey(currentMode),
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+        )
         testPeopleCount = MMKVUtil.decodeInt(
             peopleKey(currentMode),
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
@@ -171,6 +175,12 @@ class SitReachEighteenSettingActivity :
         AreaMode.MAIN -> MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER
         AreaMode.LEFT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_LEFT
         AreaMode.RIGHT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_TEST_PEOPLE_NUMBER_RIGHT
+    }
+
+    private fun boardKey(mode: AreaMode): String = when (mode) {
+        AreaMode.MAIN -> MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM
+        AreaMode.LEFT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_BOARD_NUM_LEFT
+        AreaMode.RIGHT -> MultiCoreConstant.SIT_REACH_EIGHTEEN_BOARD_NUM_RIGHT
     }
 
     private fun timesKey(mode: AreaMode): String = when (mode) {
@@ -199,6 +209,20 @@ class SitReachEighteenSettingActivity :
 
         mBinding.tvNumber.text = testPeopleCount.toString()
         mBinding.tvTime.text = testTimes.toString()
+
+        mBinding.rgBoardNum.check(if (boardNum == 4) R.id.rb_board_four else R.id.rb_board_eight)
+        mBinding.rgBoardNum.setOnCheckedChangeListener { _, checkedId ->
+            val selected = when (checkedId) {
+                R.id.rb_board_four -> 4
+                R.id.rb_board_eight -> 8
+                else -> return@setOnCheckedChangeListener
+            }
+            if (selected == boardNum) return@setOnCheckedChangeListener
+            boardNum = selected
+            MMKVUtil.encode(boardKey(currentMode), boardNum)
+            sportConfig.sitAndReachType.boardNum = boardNum
+            updateOverlay()
+        }
 
         mBinding.llBack.setOnClickListener { finish() }
 
@@ -331,6 +355,10 @@ class SitReachEighteenSettingActivity :
         mBinding.tvTime.text = testTimes.toString()
         MMKVUtil.encode(peopleKey(currentMode), testPeopleCount)
         MMKVUtil.encode(timesKey(currentMode), testTimes)
+        boardNum = MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+        MMKVUtil.encode(boardKey(currentMode), boardNum)
+        sportConfig.sitAndReachType.boardNum = boardNum
+        mBinding.rgBoardNum.check(R.id.rb_board_eight)
         mBinding.sitAndReachLayout.markerRecognizerOverlay.restoreSportSetting()
         updateOverlay()
         ToastUtil.getInstance(this, getString(R.string.reset_successful)).show()
@@ -379,9 +407,9 @@ class SitReachEighteenSettingActivity :
             "markerRecognizerRectanglesConfig:${markerRecognizerRectanglesConfig}"
         )
 
-        // 框体 + 当前区测垫数量/测试次数，副屏写入本地 SIT_REACH_SIX_*
+        // 框体 + 当前区测垫数量/测试次数/刻度板点数，副屏写入本地 SIT_REACH_SIX_*
         val payload =
-            "${markerRecognizerConfigModify}&&${markerRecognizerRectanglesConfig}&&${testPeopleCount}&&${testTimes}"
+            "${markerRecognizerConfigModify}&&${markerRecognizerRectanglesConfig}&&${testPeopleCount}&&${testTimes}&&${boardNum}"
         GrpcManager.sendToClient(
             clientId,
             GrpcCmdCode.CMD_SIX_SIT_REACH_REGION_SETTING,

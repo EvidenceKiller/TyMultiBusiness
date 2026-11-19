@@ -39,6 +39,7 @@ import com.ty.bus.multi.R
 import com.ty.bus.multi.core.base.BaseMultiSportActivity
 import com.ty.bus.multi.core.config.ForwardFlexionConfig
 import com.ty.bus.multi.core.config.MultiCoreConfig
+import com.ty.bus.multi.core.constants.MultiCoreConstant
 import com.ty.bus.multi.core.entity.ThirtySportResultItem
 import com.ty.bus.multi.core.ui.sport.thirtysport.CollaborationAreaState
 import com.ty.bus.multi.databinding.AcSitReachEighteenBinding
@@ -193,6 +194,10 @@ class SitReachEighteenActivity :
     }
 
     private fun initConfigAndController() {
+        boardNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM,
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+        )
         val param = MultiCoreConfig.getForwardFlexionParam()
         val debug = BusiBaseConfig.getDebugEnable()
         showLoadingDialog(getString(R.string.model_loding))

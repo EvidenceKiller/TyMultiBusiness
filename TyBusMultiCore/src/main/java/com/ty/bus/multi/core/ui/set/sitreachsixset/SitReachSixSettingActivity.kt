@@ -81,6 +81,10 @@ class SitReachSixSettingActivity :
     }
 
     override fun initData() {
+        boardNum = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM,
+            MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+        )
         testPeopleCount = MMKVUtil.decodeInt(
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER,
             MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER_DEFAULT
@@ -95,6 +99,20 @@ class SitReachSixSettingActivity :
 
         mBinding.tvNumber.text = testPeopleCount.toString()
         mBinding.tvTime.text = testTimes.toString()
+
+        mBinding.rgBoardNum.check(if (boardNum == 4) R.id.rb_board_four else R.id.rb_board_eight)
+        mBinding.rgBoardNum.setOnCheckedChangeListener { _, checkedId ->
+            val selected = when (checkedId) {
+                R.id.rb_board_four -> 4
+                R.id.rb_board_eight -> 8
+                else -> return@setOnCheckedChangeListener
+            }
+            if (selected == boardNum) return@setOnCheckedChangeListener
+            boardNum = selected
+            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM, boardNum)
+            SitAndReachType.SIT_AND_REACH_CUSTOM.boardNum = boardNum
+            updateOverlay()
+        }
 
         mBinding.llBack.setOnClickListener { finish() }
 
@@ -156,6 +174,10 @@ class SitReachSixSettingActivity :
             mBinding.tvTime.text = testTimes.toString()
             MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_PEOPLE_NUMBER, testPeopleCount)
             MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES, testTimes)
+            boardNum = MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM_DEFAULT
+            MMKVUtil.encode(MultiCoreConstant.SIT_REACH_SIX_BOARD_NUM, boardNum)
+            SitAndReachType.SIT_AND_REACH_CUSTOM.boardNum = boardNum
+            mBinding.rgBoardNum.check(R.id.rb_board_eight)
             mBinding.sitAndReachLayout.markerRecognizerOverlay.restoreSportSetting()
             updateOverlay()
         }
