@@ -49,6 +49,8 @@ class MultiIdentityEngine {
     private val identifyConfigMap by lazy { HashMap<Int, FaceIdentifyConfig>() } //每个位置单独设置的识别配置
 
     private var isOK = false
+
+    private val faceToken = FaceDetectorHelper.getInstance().registerPageToken()
     fun identified(user: StudentEntity) {
         identityFinish(AccountInfo().apply {
             studentEntity =
@@ -85,7 +87,7 @@ class MultiIdentityEngine {
 
             }
 
-        })
+        },faceToken)
     }
 
 
@@ -307,7 +309,7 @@ class MultiIdentityEngine {
         identifyMap.clear()
         identifyConfigMap.clear()
         identityListener = null
-        FaceDetectorHelper.getInstance().reset()
+        FaceDetectorHelper.getInstance().reset(faceToken)
     }
 
     /**

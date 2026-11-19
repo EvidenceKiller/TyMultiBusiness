@@ -47,6 +47,7 @@ class MultiPipelineIdentityEngine {
 
     private val verifyStrategy = FaceDetectorHelper.getInstance().getVerifyStrategy()
 
+    private val faceToken = FaceDetectorHelper.getInstance().registerPageToken()
 
     private fun identityFinish(index: Int, user: StudentEntity) {
         identityListener?.onIdentityOk(index, AccountInfo().apply {
@@ -84,7 +85,7 @@ class MultiPipelineIdentityEngine {
                 verifyUserId(currentIndex, userId, score)
             }
 
-        })
+        },faceToken)
     }
 
     /**
@@ -219,7 +220,7 @@ class MultiPipelineIdentityEngine {
         identifyConfigMap.clear()
         identityListener = null
         FaceDetectorHelper.getInstance().setVerifyStrategy(verifyStrategy)
-        FaceDetectorHelper.getInstance().reset()
+        FaceDetectorHelper.getInstance().reset(faceToken)
     }
 
     /**

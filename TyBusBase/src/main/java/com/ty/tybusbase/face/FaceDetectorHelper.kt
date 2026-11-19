@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicLong
 import kotlin.math.max
 import kotlin.math.min
 
@@ -76,6 +77,10 @@ class FaceDetectorHelper private constructor() {
     private var defaultFaceFeatureThreshold = 0.4f //默认人脸阈值
 
     private var savePic = true
+
+    private val sequence = AtomicLong(0)
+
+    private var lastAcceptedToken = 0L
 
     /**
      * 初始化
@@ -164,7 +169,7 @@ class FaceDetectorHelper private constructor() {
                 return@post
             }
             //如果在识别，则返回
-            if (isIsDetecting){
+            if (isIsDetecting) {
                 LogUtil.d("人脸识别中...返回")
                 return@post
             }
@@ -308,7 +313,8 @@ class FaceDetectorHelper private constructor() {
     /**
      * 设置人脸回调
      */
-    fun setFaceCallback(callback: OnFaceCallback?) {
+    fun setFaceCallback(callback: OnFaceCallback?, token: Long = sequence.get()) {
+        lastAcceptedToken = token
         mFaceCallback = callback
     }
 
@@ -346,13 +352,23 @@ class FaceDetectorHelper private constructor() {
         frameInterval = interval
     }
 
+    /**
+     * 注册页面token，用于更新页面运动状态；
+     * 用此token目的，解决AC生命周期执行顺序问题，如A页面关闭，B页面打开，A页面的onDestroy会后于B页面的OnCreate执行，则A的onDestroy的状态会覆盖B的状态
+     */
+    fun registerPageToken(): Long = sequence.incrementAndGet()
+
     fun isInitOk(): Boolean {
         return isInitOk
     }
 
     fun isDetecting() = isIsDetecting
 
-    fun reset() {
+    fun reset(token: Long = sequence.get()) {
+        if (token < lastAcceptedToken) {
+            LogUtil.d("重置token更低，不响应重置")
+            return
+        }
         isIsDetecting = false
         mFaceCallback = null
         frameInterval = defaultFrameInterval

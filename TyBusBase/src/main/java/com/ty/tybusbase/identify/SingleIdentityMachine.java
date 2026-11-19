@@ -141,6 +141,8 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
         return Unit.INSTANCE;
     }, BusiBaseConstantsValue.IDENTITY_TIME_OUT);
 
+    private final long faceToken = FaceDetectorHelper.Companion.getInstance().registerPageToken();
+
     public SingleIdentityMachine(Context context) {
         this(context, null);
     }
@@ -569,7 +571,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             public void onFindUserId(@Nullable String userId, float score) {
 
             }
-        });
+        },faceToken);
     }
 
 
@@ -893,7 +895,7 @@ public class SingleIdentityMachine extends RelativeLayout implements IdentifyMac
             nfcReaderManager.stopRead();
             nfcReaderManager.release();
         }
-        FaceDetectorHelper.Companion.getInstance().reset();
+        FaceDetectorHelper.Companion.getInstance().reset(faceToken);
         cancelTimeOutTask();
         if (mHandler != null) {
             mHandler.removeCallbacksAndMessages(null);

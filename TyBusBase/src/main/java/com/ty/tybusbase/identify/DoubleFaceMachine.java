@@ -120,6 +120,8 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
 
     private NfcReaderManager nfcReaderManager;
 
+    private final long faceToken = FaceDetectorHelper.Companion.getInstance().registerPageToken();
+
     public DoubleFaceMachine(Context context) {
         this(context, null);
     }
@@ -467,7 +469,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
             @Override
             public void onFindFail(@Nullable TyFaceInfo<?> tyFaceInfo, FailType failType) {
             }
-        });
+        }, faceToken);
     }
 
     /**
@@ -860,7 +862,7 @@ public class DoubleFaceMachine extends RelativeLayout implements ReadCallback {
         leftAccountInfo = null;
         rightAccountInfo = null;
         identityListener = null;
-        FaceDetectorHelper.Companion.getInstance().reset();
+        FaceDetectorHelper.Companion.getInstance().reset(faceToken);
         mQrDisposable.dispose();
         if (nfcReaderManager != null) {
             nfcReaderManager.stopRead();

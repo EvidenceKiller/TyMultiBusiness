@@ -45,6 +45,8 @@ class MultiIFrameCountIdentityEngine {
     private val identifyCountMap by lazy { HashMap<Int, Int>() } //每个位置可设置识别次数
 
     private var isOK = false
+
+    private val faceToken = FaceDetectorHelper.getInstance().registerPageToken()
     fun identified(user: StudentEntity) {
         identityFinish(AccountInfo().apply {
             studentEntity =
@@ -82,7 +84,7 @@ class MultiIFrameCountIdentityEngine {
 
             }
 
-        })
+        },faceToken)
     }
 
     /**
@@ -214,7 +216,7 @@ class MultiIFrameCountIdentityEngine {
     fun closeMachine() {
         identifyCountMap.clear()
         identityListener = null
-        FaceDetectorHelper.getInstance().reset()
+        FaceDetectorHelper.getInstance().reset(faceToken)
     }
 
     /**

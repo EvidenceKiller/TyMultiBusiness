@@ -132,7 +132,7 @@ class SportFaceProcessor : SportCameraYuv("人脸识别"), SportLifecycle {
 
     @Synchronized
     override fun close() {
-        FaceDetectorHelper.getInstance().setFaceCallback(null)
+        FaceDetectorHelper.getInstance().reset()
         mFaceRect = null
         mInit = false
     }
