@@ -119,6 +119,12 @@ class SitReachSixViewModel(application: Application) :
     @Volatile
     private var currentRoundFinishing = false
 
+    /** 已结束轮次及其固定结束时间；由 finishCurrentRound 在通知上传前写入。 */
+    private var completedUploadRound: Pair<Int, Long>? = null
+
+    /** 当前组已提交的轮次，与结束、上传、重测和下一组共用 this 锁。 */
+    private val submittedUploadRounds = mutableSetOf<Int>()
+
     /**
      * 成绩写回世代：下一组/重测时递增。
      * 用于丢弃上一轮已排队到 Main 的迟到 addScore，避免新一轮识别后刷出旧「最佳」。
@@ -172,9 +178,9 @@ class SitReachSixViewModel(application: Application) :
 
     override fun identifyOk(index: Int, accountInfo: AccountInfo) {
         LogUtil.d("$TAG::identifyOk: lane=$index, account=${accountInfo.studentEntity?.accountName}")
-        //正在运动，不处理识别
-        if (sportState != MultiSportState.IDENTIFYING) {
-            LogUtil.d("识别到人脸：但已不是识别状态 $index")
+        // 识别/准备阶段都接纳；首人成功后会进 PREPARING，后续人仍需能识别
+        if (sportState != MultiSportState.IDENTIFYING && sportState != MultiSportState.PREPARING) {
+            LogUtil.d("识别到人脸：但已不是识别状态 $index, state=$sportState")
             // 业务未接纳：清引擎该道 isOk，并放开独占道次
             multiIdentityEngine.clearIdentified(index)
             currentIdentifyNumber = -1
@@ -215,7 +221,6 @@ class SitReachSixViewModel(application: Application) :
             val checkResult = withContext(Dispatchers.IO) {
                 checkStudent(accountInfo.studentEntity!!.accountId, ptPlanId)
             }
-            calcNextNumber(index + 1)
             if (!checkResult) {
                 // 计划拒游客等：清引擎 isOk，放开该道后续 fail/再识别
                 LogUtil.d("$TAG::identifyOk: checkStudent reject lane=$index, " + "name=${accountInfo.studentEntity!!.accountName}, clearIdentified")
@@ -233,6 +238,8 @@ class SitReachSixViewModel(application: Application) :
             identifiedLD.postValue(Pair(index, accountInfo))
             checkMap[index] = true
             changeSportCardState(index, ForwardFlexionCardState.IDENTIFIED)
+            // 放开独占道次，由 handleIdentify 按举手再选下一道
+            currentIdentifyNumber = -1
 
             LogUtil.d(
                 "$TAG::identifyOk: name=${accountInfo.studentEntity!!.accountName}, " +
@@ -249,10 +256,8 @@ class SitReachSixViewModel(application: Application) :
     }
 
     override fun identifyFail(index: Int) {
-        LogUtil.d("$TAG::identifyFail: lane=$index")
-        changeSportCardState(index, ForwardFlexionCardState.IDENTIFY_FAIL)
-        //处理下一道是否有人
-        calcNextNumber(index + 1)
+        // Pipeline 每帧未成功都会回调，勿切道/勿打断当前识别
+        LogUtil.d("$TAG::identifyFail: lane=$index (ignore frame progress)")
     }
 
     private fun calcNextNumber(index: Int) {
@@ -398,9 +403,24 @@ class SitReachSixViewModel(application: Application) :
             // 已识别道次不再被不可用/空闲覆盖，避免下一组铺板重建时冲掉识别回显
             if (sportPersonArray.get(it.indexNum) != null) return@forEach
             when {
+                // 无人且场地不可用才标「暂不可用」；有人仍坐在道上时按空闲提示，避免下一组铺板误判
                 it.isCompliant.not() -> {
-                    LogUtil.d("$TAG::updateStatusMap: lane=${it.indexNum} UNAVAILABLE")
-                    changeSportCardState(it.indexNum, ForwardFlexionCardState.UNAVAILABLE)
+                    if (it.skeleton != null) {
+                        if (checkHandUp(it.skeleton)) {
+                            statusMap.put(it.indexNum, true)
+                        } else {
+                            changeSportCardState(
+                                it.indexNum,
+                                ForwardFlexionCardState.IDLE
+                            )
+                        }
+                    } else {
+                        LogUtil.d("$TAG::updateStatusMap: lane=${it.indexNum} UNAVAILABLE")
+                        changeSportCardState(
+                            it.indexNum,
+                            ForwardFlexionCardState.UNAVAILABLE
+                        )
+                    }
                 }
 
                 it.skeleton != null && checkHandUp(it.skeleton) -> {
@@ -788,6 +808,7 @@ class SitReachSixViewModel(application: Application) :
         LogUtil.d(
             "$TAG::finishCurrentRound: round done, beforeInc times=$currentSportTimes/$sportTimes"
         )
+        completedUploadRound = currentSportTimes to System.currentTimeMillis()
         currentSportTimes++
         sportPersonArray.forEach { index, _ ->
             changeSportCardState(index, ForwardFlexionCardState.SPORTING)
@@ -842,15 +863,37 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
+    @Synchronized
     fun uploadResult() {
-        endSportTime = System.currentTimeMillis()
+        val completedRound = completedUploadRound
+        if (completedRound == null) {
+            LogUtil.d("$TAG::uploadResult: skip, no completed round")
+            return
+        }
+        val (round, roundEndTime) = completedRound
+        // 先占位再创建记录，重复/并发调用都不能生成新的 UUID；网络失败交给原记录补传。
+        if (!submittedUploadRounds.add(round)) {
+            LogUtil.d("$TAG::uploadResult: skip duplicate round=$round")
+            return
+        }
+        val roundStartTime = startSportTime
+        val submittedAccountIds = mutableSetOf<String>()
         //延迟200ms，等待录制视屏结束
         SystemClock.sleep(100)
         sportPersonArray.forEach { key, value ->
             //如果是-200,表示未完成，不上传成绩
             if (value.status == 2) return@forEach
+            // 实名账号同轮只提交一次；游客共用账号 ID，仍按道次分别提交。
+            val accountId = value.accountInfo.studentEntity?.accountId
+            if (!accountId.isNullOrBlank() &&
+                accountId != BusiBaseConstantsValue.VISITOR_USER_ID &&
+                !submittedAccountIds.add(accountId)
+            ) {
+                LogUtil.d("$TAG::uploadResult: skip duplicate account, round=$round lane=${value.number}")
+                return@forEach
+            }
             var sportResult = SportResult()
-            sportResult.sportDuration = (endSportTime - startSportTime).toInt()
+            sportResult.sportDuration = (roundEndTime - roundStartTime).toInt()
             sportResult.maxComboCount = 0
             sportResult.sportAchievement = value.count
             sportResult.perfectCount = 0
@@ -861,8 +904,8 @@ class SitReachSixViewModel(application: Application) :
             sportResult.comeOnScore = 0
             sportResult.sportNo = value.number.toString()
             sportResult.userId = value.accountInfo.studentEntity?.accountId
-            sportResult.startTime = startSportTime
-            sportResult.endTime = endSportTime
+            sportResult.startTime = roundStartTime
+            sportResult.endTime = roundEndTime
             sportResult.sportResult = value.count.toString()
             if (value.status == 1) {
                 sportResult.sportViolationStatus = 1
@@ -887,6 +930,11 @@ class SitReachSixViewModel(application: Application) :
         }
     }
 
+    private fun resetResultUploadState() {
+        completedUploadRound = null
+        submittedUploadRounds.clear()
+    }
+
     //结束处理成绩
     override fun toStatusSportEnd() {
         LogUtil.d("$TAG::toStatusSportEnd")
@@ -906,7 +954,9 @@ class SitReachSixViewModel(application: Application) :
     /**
      * 重测，只测一次
      */
+    @Synchronized
     fun retest() {
+        resetResultUploadState()
         LogUtil.d("$TAG::retest: people=${sportPersonArray.size}")
         isRetest = true
         scoreEpoch++
@@ -927,7 +977,9 @@ class SitReachSixViewModel(application: Application) :
         videoFile = null
     }
 
+    @Synchronized
     override fun reset() {
+        resetResultUploadState()
         LogUtil.d("$TAG::reset: clear people=${sportPersonArray.size}, state=$sportState")
         super.reset()
         stopSportCountDown()
@@ -948,6 +1000,11 @@ class SitReachSixViewModel(application: Application) :
         }
         multiIdentityEngine.reset()
         sportPersonArray.clear()
+        // 重测只影响当次；下一组恢复设置页保存的测试次数（副屏使用本机同步后的配置）。
+        sportTimes = MMKVUtil.decodeInt(
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES,
+            MultiCoreConstant.SIT_REACH_SIX_TEST_TIMES_DEFAULT
+        )
         currentSportTimes = 1
         sportState = MultiSportState.PREPARING
         videoFile = null

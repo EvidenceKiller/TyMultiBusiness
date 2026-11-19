@@ -565,7 +565,7 @@ class SitReachSixActivity :
         LogUtil.d("SitReachSix::Activity.onStatusIdentifyFace")
         mBinding.sportView.visibility = View.VISIBLE
         hideBackBtn()
-        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
+        SpeechWrapper.speech(getString(R.string.sit_reach_identified_tip))
     }
 
     override fun onStatusPrepare() {

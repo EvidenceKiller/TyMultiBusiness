@@ -695,7 +695,7 @@ class SitReachEighteenActivity :
         mBinding.clSitReachSportViewContainer.visibility = View.VISIBLE
         switchArea(currentArea)
         hideBackBtn()
-        SpeechWrapper.speech(getString(R.string.forward_flexion_identified_tip))
+        SpeechWrapper.speech(getString(R.string.sit_reach_identified_tip))
     }
 
     override fun onStatusPrepare() {

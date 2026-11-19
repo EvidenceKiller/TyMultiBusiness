@@ -351,7 +351,8 @@ class SitReachSportCardView(context: Context, attrs: AttributeSet?, defStyleAttr
             .load(accountInfo.studentEntity?.userFaceImgUrl)
             .placeholder(R.mipmap.ic_head_default)
             .error(R.mipmap.ic_head_default).into(mBinding.civHeader)
-        mBinding.tvName.text = accountInfo.studentEntity?.accountName
+        val name = accountInfo.studentEntity?.accountName.orEmpty()
+        mBinding.tvName.text = if (name.length > 6) name.take(6) + "..." else name
     }
 
     @SuppressLint("NotifyDataSetChanged")
